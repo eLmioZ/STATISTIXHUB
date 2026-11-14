@@ -796,6 +796,8 @@
             /**
              * Kunci berasingan bagi setiap URL Google Apps Script mengikut acara
              */
+            moduleConfigRevision: { saringan: 0, akhir: 0, relay: 0, padang: 0 },
+
             getModuleUrlKey(moduleId) {
                 const map = {
                     saringan: this.KEYS.GSHEET_URL_SARINGAN,
@@ -845,6 +847,7 @@
                     savedAt: new Date().toISOString()
                 };
                 window.localStorage.setItem(key, JSON.stringify(record));
+                this.moduleConfigRevision[moduleId] += 1;
                 return record;
             },
 
@@ -852,6 +855,7 @@
                 const key = this.getModuleUrlKey(moduleId);
                 if (!key) return;
                 window.localStorage.removeItem(key);
+                this.moduleConfigRevision[moduleId] += 1;
                 // Pastikan kunci legasi modul tersebut sahaja dibersihkan tanpa menyentuh acara lain atau rekod data
                 const legacyFieldMap = {
                     saringan: 'saringanGasUrl',
@@ -1382,6 +1386,7 @@
 
             async syncFromGoogleAppsScript(explicitUrl = null, silentToast = false) {
                 const savedCfg = StorageManager.getModuleSheetConfig('saringan');
+                const configRevision = StorageManager.moduleConfigRevision['saringan'];
                 const gasUrl = (explicitUrl || (savedCfg && savedCfg.url) || '').trim();
 
                 if (!gasUrl) {
@@ -1412,6 +1417,11 @@
                     if (eventKeys.length === 0) {
                         throw new Error('Tiada data acara saringan sah (101, 102, 103, 104, 105, 106, 204, 205, 300) ditemui dalam respons Google Apps Script.');
                     }
+
+                    // Abaikan respons lama jika URL dipadam atau disimpan semula ketika fetch berjalan.
+                    const currentCfg = StorageManager.getModuleSheetConfig('saringan');
+                    if (!currentCfg || currentCfg.url !== gasUrl ||
+                        StorageManager.moduleConfigRevision['saringan'] !== configRevision) return false;
 
                     const existingStore = StorageManager.getSaringanStore();
                     const nowIso = new Date().toISOString();
@@ -1623,7 +1633,7 @@
                 const availableNos = this.ALLOWED_EVENT_NOS.filter(no => Boolean(store.events[no]));
 
                 // Jika URL belum disimpan dan tiada rekod tempatan, paparkan mesej status yang jelas (tanpa mendedahkan URL atau butang admin)
-                if (!sheetCfg && availableNos.length === 0) {
+                if (!sheetCfg) {
                     return `
                         <div class="py-16 px-6 text-center flex flex-col items-center justify-center">
                             <div class="w-16 h-16 rounded-2xl bg-amber-50 border border-amber-200 flex items-center justify-center text-amber-600 mb-4">
@@ -2233,6 +2243,7 @@
 
             async syncFromGoogleAppsScript(explicitUrl = null, silentToast = false) {
                 const savedCfg = StorageManager.getModuleSheetConfig('padang');
+                const configRevision = StorageManager.moduleConfigRevision['padang'];
                 const gasUrl = (explicitUrl || (savedCfg && savedCfg.url) || '').trim();
 
                 if (!gasUrl) {
@@ -2263,6 +2274,11 @@
                     if (eventKeys.length === 0) {
                         throw new Error('Tiada data acara padang sah (LONGJUMP, HIGHJUMP, SHOTPUT) ditemui dalam respons Google Apps Script.');
                     }
+
+                    // Abaikan respons lama jika URL dipadam atau disimpan semula ketika fetch berjalan.
+                    const currentCfg = StorageManager.getModuleSheetConfig('padang');
+                    if (!currentCfg || currentCfg.url !== gasUrl ||
+                        StorageManager.moduleConfigRevision['padang'] !== configRevision) return false;
 
                     const existingStore = StorageManager.getPadangStore();
                     const nowIso = new Date().toISOString();
@@ -2451,7 +2467,7 @@
                 const store = StorageManager.getPadangStore();
                 const availableNos = this.ALLOWED_EVENT_NOS.filter(no => Boolean(store.events[no]));
 
-                if (!sheetCfg && availableNos.length === 0) {
+                if (!sheetCfg) {
                     return `
                         <div class="py-16 px-6 text-center flex flex-col items-center justify-center">
                             <div class="w-16 h-16 rounded-2xl bg-amber-50 border border-amber-200 flex items-center justify-center text-amber-600 mb-4">
@@ -2976,6 +2992,7 @@
 
             async syncFromGoogleAppsScript(explicitUrl = null, silentToast = false) {
                 const savedCfg = StorageManager.getModuleSheetConfig('akhir');
+                const configRevision = StorageManager.moduleConfigRevision['akhir'];
                 const gasUrl = (explicitUrl || (savedCfg && savedCfg.url) || '').trim();
 
                 if (!gasUrl) {
@@ -3006,6 +3023,11 @@
                     if (eventKeys.length === 0) {
                         throw new Error('Tiada data acara akhir balapan sah (101, 102, 103, 104, 105, 106, 204, 205, 300) ditemui dalam respons Google Apps Script.');
                     }
+
+                    // Abaikan respons lama jika URL dipadam atau disimpan semula ketika fetch berjalan.
+                    const currentCfg = StorageManager.getModuleSheetConfig('akhir');
+                    if (!currentCfg || currentCfg.url !== gasUrl ||
+                        StorageManager.moduleConfigRevision['akhir'] !== configRevision) return false;
 
                     const existingStore = StorageManager.getAkhirBalapanStore();
                     const nowIso = new Date().toISOString();
@@ -3191,7 +3213,7 @@
                 const store = StorageManager.getAkhirBalapanStore();
                 const availableNos = this.ALLOWED_EVENT_NOS.filter(no => Boolean(store.events[no]));
 
-                if (!sheetCfg && availableNos.length === 0) {
+                if (!sheetCfg) {
                     return `
                         <div class="py-16 px-6 text-center flex flex-col items-center justify-center">
                             <div class="w-16 h-16 rounded-2xl bg-amber-50 border border-amber-200 flex items-center justify-center text-amber-600 mb-4">
@@ -3697,6 +3719,7 @@
 
             async syncFromGoogleAppsScript(explicitUrl = null, silentToast = false) {
                 const savedCfg = StorageManager.getModuleSheetConfig('relay');
+                const configRevision = StorageManager.moduleConfigRevision['relay'];
                 const gasUrl = (explicitUrl || (savedCfg && savedCfg.url) || '').trim();
 
                 if (!gasUrl) {
@@ -3727,6 +3750,11 @@
                     if (eventKeys.length === 0) {
                         throw new Error('Tiada data acara relay sah (411, 412, 413, 414, 415, 424, 425) ditemui dalam respons Google Apps Script.');
                     }
+
+                    // Abaikan respons lama jika URL dipadam atau disimpan semula ketika fetch berjalan.
+                    const currentCfg = StorageManager.getModuleSheetConfig('relay');
+                    if (!currentCfg || currentCfg.url !== gasUrl ||
+                        StorageManager.moduleConfigRevision['relay'] !== configRevision) return false;
 
                     const existingStore = StorageManager.getRelayStore();
                     const nowIso = new Date().toISOString();
@@ -3915,7 +3943,7 @@
                 const store = StorageManager.getRelayStore();
                 const availableNos = this.ALLOWED_EVENT_NOS.filter(no => Boolean(store.events[no]));
 
-                if (!sheetCfg && availableNos.length === 0) {
+                if (!sheetCfg) {
                     return `
                         <div class="py-16 px-6 text-center flex flex-col items-center justify-center">
                             <div class="w-16 h-16 rounded-2xl bg-amber-50 border border-amber-200 flex items-center justify-center text-amber-600 mb-4">
@@ -4886,7 +4914,7 @@
                     heat: d.module === 'saringan' ? Number(d.heat) : null,
                     recordId: d.record, field: d.field
                 };
-                if (!this.find(data)) return;
+                if (!StorageManager.getModuleSheetConfig(data.moduleId)?.url || !this.find(data)) return;
                 if (!AdminAuthController.isAuthenticated) {
                     this.pending = data;
                     AdminAuthController.openModal();
@@ -4908,7 +4936,8 @@
             },
             open(cell, data) {
                 const found = this.find(data);
-                if (!found || !AdminAuthController.isAuthenticated) return;
+                if (!found || !AdminAuthController.isAuthenticated ||
+                    !StorageManager.getModuleSheetConfig(data.moduleId)?.url) return;
                 if (!Number.isInteger(found.record.sourceRow) || found.record.sourceRow < 1) {
                     UIComponents.showToast('Baris sumber belum tersedia. Terbitkan templat Apps Script baharu dan segar semula data.', 'warning');
                     return;
@@ -4951,6 +4980,13 @@
                 if (newValue === oldValue) { this.cancel(); return; }
                 const invalid = this.validate(data.field, newValue);
                 if (invalid) { UIComponents.showToast(invalid, 'warning'); return; }
+                const sheetCfg = StorageManager.getModuleSheetConfig(data.moduleId);
+                const configRevision = StorageManager.moduleConfigRevision[data.moduleId];
+                if (!sheetCfg?.url) {
+                    UIComponents.showToast('URL Google Sheets modul ini telah dipadam.', 'error');
+                    this.cancel();
+                    return;
+                }
                 const config = window.STATISTIX_SECURE_WRITE_CONFIG;
                 const endpoint = config?.endpoints?.[data.moduleId];
                 if (!endpoint || !/^https:\/\//.test(endpoint) || typeof config.getIdToken !== 'function') {
@@ -4970,6 +5006,9 @@
                 try {
                     const idToken = await config.getIdToken();
                     if (typeof idToken !== 'string' || !idToken) throw new Error('Identiti Google tidak disahkan.');
+                    if (StorageManager.moduleConfigRevision[data.moduleId] !== configRevision ||
+                        StorageManager.getModuleSheetConfig(data.moduleId)?.url !== sheetCfg.url)
+                        throw new Error('Sambungan Google Sheets telah berubah.');
                     const response = await fetch(endpoint, {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
@@ -4988,6 +5027,9 @@
                     });
                     if (!response.ok) throw new Error('HTTP ' + response.status);
                     const result = await response.json();
+                    if (StorageManager.moduleConfigRevision[data.moduleId] !== configRevision ||
+                        StorageManager.getModuleSheetConfig(data.moduleId)?.url !== sheetCfg.url)
+                        throw new Error('Sambungan Google Sheets telah berubah.');
                     if (result.ok !== true || String(result.sourceRow) !== String(found.record.sourceRow) ||
                         String(result.value) !== newValue || result.eventNo !== data.eventNo)
                         throw new Error(result.error || 'Respons pelayan tidak dapat disahkan.');
@@ -5894,8 +5936,8 @@ function secureRecordId_(eventNo, gender, heat, rowNo, lane, name, bib, team) {
             },
 
             /**
-             * HAPUS URL: Memadam konfigurasi URL acara dipilih sahaja dengan dialog pengesahan,
-             * tanpa memadam data keputusan sedia ada atau menjejaskan tiga acara yang lain.
+             * HAPUS URL: Memadam URL dan cache paparan modul yang dipilih sahaja,
+             * tanpa menjejaskan data Google Sheets sebenar atau tiga modul yang lain.
              */
             deleteUrl(moduleId) {
                 const modMeta = this.MODULES.find(m => m.id === moduleId);
@@ -5909,10 +5951,24 @@ function secureRecordId_(eventNo, gender, heat, rowNo, lane, name, bib, team) {
 
                 UIComponents.showConfirm({
                     title: `Hapus Konfigurasi URL — ${modMeta.title}`,
-                    message: `Adakah anda pasti mahu memadam URL Google Apps Script bagi ${modMeta.title}? Rekod keputusan sedia ada dalam LocalStorage dan konfigurasi tiga acara lain tidak akan terjejas.`,
+                    message: `Adakah anda pasti mahu memadam URL Google Apps Script bagi ${modMeta.title}? Cache keputusan paparan modul ini akan dikosongkan. Data Google Sheets sebenar dan tiga modul lain tidak akan terjejas.`,
                     confirmText: 'Hapus URL',
                     onConfirm: () => {
                         StorageManager.deleteModuleSheetConfig(moduleId);
+                        const cacheActions = {
+                            saringan: ['saveSaringanStore', SaringanModule, 'saringan'],
+                            akhir: ['saveAkhirBalapanStore', AkhirBalapanModule, 'akhir-balapan'],
+                            relay: ['saveRelayStore', RelayModule, 'relay'],
+                            padang: ['savePadangStore', PadangModule, 'padang']
+                        };
+                        const [saveStore, eventModule, viewId] = cacheActions[moduleId];
+                        StorageManager[saveStore]({ events: {}, lastSyncedAt: null });
+                        eventModule.selectedEventNo = null;
+                        if (InlineEditController.pending?.moduleId === moduleId) {
+                            InlineEditController.pending = null;
+                        }
+                        if (InlineEditController.active?.data.moduleId === moduleId &&
+                            !InlineEditController.busy) InlineEditController.cancel();
                         this.editingState[moduleId] = false;
                         this.testStatusState[moduleId] = null;
 
@@ -5925,7 +5981,13 @@ function secureRecordId_(eventNo, gender, heat, rowNo, lane, name, bib, team) {
                         });
 
                         this.renderPanel();
-                        UIComponents.showToast(`Konfigurasi URL ${modMeta.title} telah dipadam.`, 'warning');
+                        if (AppController.state.activeViewId === viewId ||
+                            AppController.state.activeViewId === 'podium') {
+                            AppController.loadView(AppController.state.activeViewId);
+                        } else {
+                            AppController.updateSummaryCards();
+                        }
+                        UIComponents.showToast(`URL dan data paparan ${modMeta.title} telah dikosongkan.`, 'warning');
                     }
                 });
             },
