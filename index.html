@@ -1252,10 +1252,11 @@
                         // Jana ID unik deterministik berdasarkan No Acara, Kategori, Saringan & Identiti Rekod supaya tidak berganda
                         const rowSlot = r - startRowIdx + 1;
                         const identityKey = noBib || lorong || `R${rowSlot}`;
-                        const uniqueId = `SAR-eventNo-{genderCode}-SheatNum-{identityKey}`.replace(/\s+/g, '_');
+                        const uniqueId = `SAR-${eventNo}-${genderCode}-S${heatNum}-${identityKey}`.replace(/\s+/g, '_');
 
                         rows.push({
                             id: uniqueId,
+                            sourceRow: r + 1,
                             lorong,
                             namaAtlet,
                             pasukan,
@@ -1340,11 +1341,11 @@
                                 const masa = (r.masa || '').toString().trim();
                                 if (!namaAtlet && !noBib && !pasukan && !masa && !kedudukan) return;
 
-                                const id = r.id || `SAR-eventNo-{genderCode}-SheatNum-{noBib || lorong || idx + 1}`.replace(/\s+/g, '_');
+                                const id = r.id || `SAR-${eventNo}-${genderCode}-S${heatNum}-${noBib || lorong || idx + 1}`.replace(/\s+/g, '_');
                                 if (seen.has(id)) return;
                                 seen.add(id);
 
-                                clean.push({ id, lorong, namaAtlet, pasukan, noBib, kedudukan, masa });
+                                clean.push({ id, sourceRow: Number(r.sourceRow) || null, lorong, namaAtlet, pasukan, noBib, kedudukan, masa });
                             });
                             return clean;
                         };
@@ -1651,7 +1652,7 @@
 
                 const currentEvent = store.events[this.selectedEventNo];
 
-                const renderHeatTable = (title, rows) => {
+                const renderHeatTable = (title, rows, gender, heat) => {
                     const bodyRows = rows.length === 0
                         ? `<tr>
                             <td colspan="6" class="py-6 px-4 text-center text-xs text-ink-muted bg-slate-50/50">
@@ -1664,8 +1665,8 @@
                                 <td class="py-2.5 px-3 text-xs font-semibold text-ink">${this.escapeHtml(r.namaAtlet || '—')}</td>
                                 <td class="py-2.5 px-3 text-xs text-ink-muted">${this.escapeHtml(r.pasukan || '—')}</td>
                                 <td class="py-2.5 px-3 text-xs font-mono text-navy-secondary text-center">${this.escapeHtml(r.noBib || '—')}</td>
-                                <td class="py-2.5 px-3 text-xs font-bold text-center String(r.kedudukan??'').trim()==='1'?'text-amber-600':'text-navy-primary'">{this.escapeHtml(r.kedudukan || '—')}</td>
-                                <td class="py-2.5 px-3 text-xs font-mono font-semibold text-navy-primary text-right">${this.escapeHtml(r.masa || '—')}</td>
+                                <td class="py-2.5 px-3 text-xs font-bold text-center ${String(r.kedudukan ?? '').trim() === '1' ? 'text-amber-600' : 'text-navy-primary'}" onclick="InlineEditController.begin(this)" data-module="saringan" data-event="${this.escapeHtml(currentEvent.eventNo)}" data-gender="${gender}" data-heat="${heat}" data-record="${this.escapeHtml(r.id)}" data-field="kedudukan">${this.escapeHtml(r.kedudukan || '—')}</td>
+                                <td class="py-2.5 px-3 text-xs font-mono font-semibold text-navy-primary text-right" onclick="InlineEditController.begin(this)" data-module="saringan" data-event="${this.escapeHtml(currentEvent.eventNo)}" data-gender="${gender}" data-heat="${heat}" data-record="${this.escapeHtml(r.id)}" data-field="masa">${this.escapeHtml(r.masa || '—')}</td>
                             </tr>
                         `).join('');
 
@@ -1751,8 +1752,8 @@
                                     <i data-lucide="user" class="w-4 h-4 text-gold"></i>
                                     <h4 class="font-display font-bold text-sm tracking-wide uppercase">Kategori Lelaki</h4>
                                 </div>
-                                ${renderHeatTable('Saringan 1 (Lelaki)', currentEvent.lelaki?.saringan1 || [])}
-                                ${renderHeatTable('Saringan 2 (Lelaki)', currentEvent.lelaki?.saringan2 || [])}
+                                ${renderHeatTable('Saringan 1 (Lelaki)', currentEvent.lelaki?.saringan1 || [], 'lelaki', 1)}
+                                ${renderHeatTable('Saringan 2 (Lelaki)', currentEvent.lelaki?.saringan2 || [], 'lelaki', 2)}
                             </div>
 
                             <!-- LAJUR 2: KATEGORI PEREMPUAN -->
@@ -1761,8 +1762,8 @@
                                     <i data-lucide="user" class="w-4 h-4 text-gold"></i>
                                     <h4 class="font-display font-bold text-sm tracking-wide uppercase">Kategori Perempuan</h4>
                                 </div>
-                                ${renderHeatTable('Saringan 1 (Perempuan)', currentEvent.perempuan?.saringan1 || [])}
-                                ${renderHeatTable('Saringan 2 (Perempuan)', currentEvent.perempuan?.saringan2 || [])}
+                                ${renderHeatTable('Saringan 1 (Perempuan)', currentEvent.perempuan?.saringan1 || [], 'perempuan', 1)}
+                                ${renderHeatTable('Saringan 2 (Perempuan)', currentEvent.perempuan?.saringan2 || [], 'perempuan', 2)}
                             </div>
                         </div>
                     </div>
@@ -2096,10 +2097,11 @@
 
                         const rowSlot = r - startRowIdx + 1;
                         const identityKey = noBib || namaAtlet || lorong || `R${rowSlot}`;
-                        const uniqueId = `PDG-eventCode-{genderCode}-${identityKey}`.replace(/\s+/g, '_');
+                        const uniqueId = `PDG-${eventCode}-${genderCode}-${identityKey}`.replace(/\s+/g, '_');
 
                         rows.push({
                             id: uniqueId,
+                            sourceRow: r + 1,
                             lorong,
                             namaAtlet,
                             pasukan,
@@ -2193,12 +2195,13 @@
 
                                 if (!namaAtlet && !noBib && !pasukan && !catatanTerbaik && !kedudukan && !p1 && !p2 && !p3) return;
 
-                                const id = r.id || `PDG-eventCode-{genderCode}-${noBib || namaAtlet || lorong || idx + 1}`.replace(/\s+/g, '_');
+                                const id = r.id || `PDG-${eventCode}-${genderCode}-${noBib || namaAtlet || lorong || idx + 1}`.replace(/\s+/g, '_');
                                 if (seen.has(id)) return;
                                 seen.add(id);
 
                                 clean.push({
                                     id,
+                                    sourceRow: Number(r.sourceRow) || null,
                                     lorong,
                                     namaAtlet,
                                     pasukan,
@@ -2477,7 +2480,7 @@
 
                 const currentEvent = store.events[this.selectedEventNo];
 
-                const renderFieldTable = (title, rows) => {
+                const renderFieldTable = (title, rows, gender) => {
                     const bodyRows = rows.length === 0
                         ? `<tr>
                             <td colspan="12" class="py-8 px-4 text-center text-xs text-ink-muted bg-slate-50/50">
@@ -2502,8 +2505,8 @@
                                     <td class="py-2.5 px-2 text-xs font-mono text-center text-ink">${this.escapeHtml(r.p4 || '—')}</td>
                                     <td class="py-2.5 px-2 text-xs font-mono text-center text-ink">${this.escapeHtml(r.p5 || '—')}</td>
                                     <td class="py-2.5 px-2 text-xs font-mono text-center text-ink">${this.escapeHtml(r.p6 || '—')}</td>
-                                    <td class="py-2.5 px-3 text-xs font-mono font-bold text-navy-primary text-right bg-amber-50/40">${this.escapeHtml(r.catatanTerbaik || '—')}</td>
-                                    <td class="py-2.5 px-2.5 text-xs font-bold text-center rankStyle">{this.escapeHtml(r.kedudukan || '—')}</td>
+                                    <td class="py-2.5 px-3 text-xs font-mono font-bold text-navy-primary text-right bg-amber-50/40" onclick="InlineEditController.begin(this)" data-module="padang" data-event="${this.escapeHtml(currentEvent.eventNo)}" data-gender="${gender}" data-record="${this.escapeHtml(r.id)}" data-field="catatanTerbaik">${this.escapeHtml(r.catatanTerbaik || '—')}</td>
+                                    <td class="py-2.5 px-2.5 text-xs font-bold text-center ${rankStyle}" onclick="InlineEditController.begin(this)" data-module="padang" data-event="${this.escapeHtml(currentEvent.eventNo)}" data-gender="${gender}" data-record="${this.escapeHtml(r.id)}" data-field="kedudukan">${this.escapeHtml(r.kedudukan || '—')}</td>
                                 </tr>
                             `;
                         }).join('');
@@ -2596,7 +2599,7 @@
                                     <i data-lucide="user" class="w-4 h-4 text-gold"></i>
                                     <h4 class="font-display font-bold text-sm tracking-wide uppercase">Kategori Lelaki — ${this.escapeHtml(currentEvent.eventNo)}</h4>
                                 </div>
-                                ${renderFieldTable('Keputusan Acara Padang — Lelaki', currentEvent.lelaki || [])}
+                                ${renderFieldTable('Keputusan Acara Padang — Lelaki', currentEvent.lelaki || [], 'lelaki')}
                             </div>
 
                             <!-- BAHAGIAN 2: KATEGORI PEREMPUAN -->
@@ -2605,7 +2608,7 @@
                                     <i data-lucide="user" class="w-4 h-4 text-gold"></i>
                                     <h4 class="font-display font-bold text-sm tracking-wide uppercase">Kategori Perempuan — ${this.escapeHtml(currentEvent.eventNo)}</h4>
                                 </div>
-                                ${renderFieldTable('Keputusan Acara Padang — Perempuan', currentEvent.perempuan || [])}
+                                ${renderFieldTable('Keputusan Acara Padang — Perempuan', currentEvent.perempuan || [], 'perempuan')}
                             </div>
                         </div>
                     </div>
@@ -2872,10 +2875,11 @@
 
                         const rowSlot = r - startRowIdx + 1;
                         const identityKey = noBib || lorong || `R${rowSlot}`;
-                        const uniqueId = `AKH-eventNo-{genderCode}-${identityKey}`.replace(/\s+/g, '_');
+                        const uniqueId = `AKH-${eventNo}-${genderCode}-${identityKey}`.replace(/\s+/g, '_');
 
                         rows.push({
                             id: uniqueId,
+                            sourceRow: r + 1,
                             lorong,
                             namaAtlet,
                             pasukan,
@@ -2949,11 +2953,11 @@
                                 const masa = (r.masa || '').toString().trim();
                                 if (!namaAtlet && !noBib && !pasukan && !masa && !kedudukan) return;
 
-                                const id = r.id || `AKH-eventNo-{genderCode}-${noBib || lorong || idx + 1}`.replace(/\s+/g, '_');
+                                const id = r.id || `AKH-${eventNo}-${genderCode}-${noBib || lorong || idx + 1}`.replace(/\s+/g, '_');
                                 if (seen.has(id)) return;
                                 seen.add(id);
 
-                                clean.push({ id, lorong, namaAtlet, pasukan, noBib, kedudukan, masa });
+                                clean.push({ id, sourceRow: Number(r.sourceRow) || null, lorong, namaAtlet, pasukan, noBib, kedudukan, masa });
                             });
                             return clean;
                         };
@@ -3216,7 +3220,7 @@
 
                 const currentEvent = store.events[this.selectedEventNo];
 
-                const renderFinalTable = (title, rows) => {
+                const renderFinalTable = (title, rows, gender) => {
                     const bodyRows = rows.length === 0
                         ? `<tr>
                             <td colspan="6" class="py-8 px-4 text-center text-xs text-ink-muted bg-slate-50/50">
@@ -3235,8 +3239,8 @@
                                     <td class="py-2.5 px-3 text-xs font-semibold text-ink">${this.escapeHtml(r.namaAtlet || '—')}</td>
                                     <td class="py-2.5 px-3 text-xs text-ink-muted">${this.escapeHtml(r.pasukan || '—')}</td>
                                     <td class="py-2.5 px-3 text-xs font-mono text-navy-secondary text-center">${this.escapeHtml(r.noBib || '—')}</td>
-                                    <td class="py-2.5 px-3 text-xs font-bold text-center rankStyle">{this.escapeHtml(r.kedudukan || '—')}</td>
-                                    <td class="py-2.5 px-3 text-xs font-mono font-semibold text-navy-primary text-right">${this.escapeHtml(r.masa || '—')}</td>
+                                    <td class="py-2.5 px-3 text-xs font-bold text-center ${rankStyle}" onclick="InlineEditController.begin(this)" data-module="akhir" data-event="${this.escapeHtml(currentEvent.eventNo)}" data-gender="${gender}" data-record="${this.escapeHtml(r.id)}" data-field="kedudukan">${this.escapeHtml(r.kedudukan || '—')}</td>
+                                    <td class="py-2.5 px-3 text-xs font-mono font-semibold text-navy-primary text-right" onclick="InlineEditController.begin(this)" data-module="akhir" data-event="${this.escapeHtml(currentEvent.eventNo)}" data-gender="${gender}" data-record="${this.escapeHtml(r.id)}" data-field="masa">${this.escapeHtml(r.masa || '—')}</td>
                                 </tr>
                             `;
                         }).join('');
@@ -3320,7 +3324,7 @@
                                     <i data-lucide="user" class="w-4 h-4 text-gold"></i>
                                     <h4 class="font-display font-bold text-sm tracking-wide uppercase">Kategori Lelaki (Akhir)</h4>
                                 </div>
-                                ${renderFinalTable('Keputusan Akhir — Lelaki', currentEvent.lelaki || [])}
+                                ${renderFinalTable('Keputusan Akhir — Lelaki', currentEvent.lelaki || [], 'lelaki')}
                             </div>
 
                             <div class="space-y-4">
@@ -3328,7 +3332,7 @@
                                     <i data-lucide="user" class="w-4 h-4 text-gold"></i>
                                     <h4 class="font-display font-bold text-sm tracking-wide uppercase">Kategori Perempuan (Akhir)</h4>
                                 </div>
-                                ${renderFinalTable('Keputusan Akhir — Perempuan', currentEvent.perempuan || [])}
+                                ${renderFinalTable('Keputusan Akhir — Perempuan', currentEvent.perempuan || [], 'perempuan')}
                             </div>
                         </div>
                     </div>
@@ -3592,10 +3596,11 @@
 
                         const rowSlot = r - startRowIdx + 1;
                         const identityKey = pasukan || lorong || `R${rowSlot}`;
-                        const uniqueId = `REL-eventNo-{genderCode}-lorong||rowSlot-{identityKey}`.replace(/\s+/g, '_');
+                        const uniqueId = `REL-${eventNo}-${genderCode}-${lorong || rowSlot}-${identityKey}`.replace(/\s+/g, '_');
 
                         rows.push({
                             id: uniqueId,
+                            sourceRow: r + 1,
                             lorong,
                             pasukan,
                             masa,
@@ -3669,11 +3674,11 @@
                                 const kedudukan = (r.kedudukan || '').toString().trim();
                                 if (!pasukan && !masa && !kedudukan) return;
 
-                                const id = r.id || `REL-eventNo-{genderCode}-lorong||idx+1-{pasukan || idx + 1}`.replace(/\s+/g, '_');
+                                const id = r.id || `REL-${eventNo}-${genderCode}-${lorong || idx + 1}-${pasukan || idx + 1}`.replace(/\s+/g, '_');
                                 if (seen.has(id)) return;
                                 seen.add(id);
 
-                                clean.push({ id, lorong, pasukan, masa, kedudukan });
+                                clean.push({ id, sourceRow: Number(r.sourceRow) || null, lorong, pasukan, masa, kedudukan });
                             });
                             return clean;
                         };
@@ -3939,7 +3944,7 @@
 
                 const currentEvent = store.events[this.selectedEventNo];
 
-                const renderRelayTable = (title, rows) => {
+                const renderRelayTable = (title, rows, gender) => {
                     const bodyRows = rows.length === 0
                         ? `<tr>
                             <td colspan="4" class="py-8 px-4 text-center text-xs text-ink-muted bg-slate-50/50">
@@ -3956,8 +3961,8 @@
                                 <tr class="border-b border-slate-100 hover:bg-surface-bg/70 transition-colors">
                                     <td class="py-2.5 px-3 text-xs font-bold text-navy-primary text-center w-16">${this.escapeHtml(r.lorong || '—')}</td>
                                     <td class="py-2.5 px-3 text-xs font-semibold text-ink">${this.escapeHtml(r.pasukan || '—')}</td>
-                                    <td class="py-2.5 px-3 text-xs font-mono font-semibold text-navy-primary text-right">${this.escapeHtml(r.masa || '—')}</td>
-                                    <td class="py-2.5 px-3 text-xs font-bold text-center w-24 rankStyle">{this.escapeHtml(r.kedudukan || '—')}</td>
+                                    <td class="py-2.5 px-3 text-xs font-mono font-semibold text-navy-primary text-right" onclick="InlineEditController.begin(this)" data-module="relay" data-event="${this.escapeHtml(currentEvent.eventNo)}" data-gender="${gender}" data-record="${this.escapeHtml(r.id)}" data-field="masa">${this.escapeHtml(r.masa || '—')}</td>
+                                    <td class="py-2.5 px-3 text-xs font-bold text-center w-24 ${rankStyle}" onclick="InlineEditController.begin(this)" data-module="relay" data-event="${this.escapeHtml(currentEvent.eventNo)}" data-gender="${gender}" data-record="${this.escapeHtml(r.id)}" data-field="kedudukan">${this.escapeHtml(r.kedudukan || '—')}</td>
                                 </tr>
                             `;
                         }).join('');
@@ -4042,7 +4047,7 @@
                                     <i data-lucide="users" class="w-4 h-4 text-gold"></i>
                                     <h4 class="font-display font-bold text-sm tracking-wide uppercase">Kategori Lelaki (Relay)</h4>
                                 </div>
-                                ${renderRelayTable('Keputusan Relay — Lelaki', currentEvent.lelaki || [])}
+                                ${renderRelayTable('Keputusan Relay — Lelaki', currentEvent.lelaki || [], 'lelaki')}
                             </div>
 
                             <!-- LAJUR 2: KATEGORI PEREMPUAN -->
@@ -4051,7 +4056,7 @@
                                     <i data-lucide="users" class="w-4 h-4 text-gold"></i>
                                     <h4 class="font-display font-bold text-sm tracking-wide uppercase">Kategori Perempuan (Relay)</h4>
                                 </div>
-                                ${renderRelayTable('Keputusan Relay — Perempuan', currentEvent.perempuan || [])}
+                                ${renderRelayTable('Keputusan Relay — Perempuan', currentEvent.perempuan || [], 'perempuan')}
                             </div>
                         </div>
                     </div>
@@ -4325,7 +4330,7 @@
                             rows.forEach((row, idx) => {
                                 const rankNum = this.parseRank(row.kedudukan);
                                 if (!rankNum) return;
-                                const dedupKey = `sourcePrefix|{ev.eventNo}|cat|{row.id || idx}|R${rankNum}`;
+                                const dedupKey = `${sourcePrefix}|${ev.eventNo}|${cat}|${row.id || idx}|R${rankNum}`;
                                 registerMedal(dedupKey, row.pasukan, rankNum, ev.verifiedAt);
                             });
                         });
@@ -4558,7 +4563,7 @@
                 const tableRows = standings.map(s => `
                     <tr class="border-b border-slate-100 hover:bg-surface-bg/70 transition-colors">
                         <td class="py-3 px-4 text-xs font-extrabold text-navy-primary text-center">
-                            s.kedudukan{s.isTied ? ' (Seri)' : ''}
+                            ${s.kedudukan}${s.isTied ? ' (Seri)' : ''}
                         </td>
                         <td class="py-3 px-4 text-xs sm:text-sm font-bold text-ink">${this.escapeHtml(s.rumahSukan)}</td>
                         <td class="py-3 px-3 text-xs font-extrabold text-amber-600 text-center bg-amber-50/40">${s.emas}</td>
@@ -4670,7 +4675,7 @@
                     ? `<tr><td colspan="6" style="text-align:center;">Tiada pungutan pingat rasmi direkodkan</td></tr>`
                     : standings.map(s => `
                         <tr>
-                            <td style="text-align:center; font-weight:bold;">s.kedudukan{s.isTied ? ' (Seri)' : ''}</td>
+                            <td style="text-align:center; font-weight:bold;">${s.kedudukan}${s.isTied ? ' (Seri)' : ''}</td>
                             <td style="font-weight:700;">${this.escapeHtml(s.rumahSukan)}</td>
                             <td style="text-align:center; font-weight:bold;">${s.emas}</td>
                             <td style="text-align:center; font-weight:bold;">${s.perak}</td>
@@ -4737,9 +4742,9 @@
                     ? `<p style="font-size:11px;">Tiada pemenang podium rasmi direkodkan.</p>`
                     : topFour.map((item, idx) => `
                         <div style="border: 1.5px solid #0B1F3A; border-radius: 8px; padding: 10px 14px; margin-bottom: 10px;">
-                            <div style="font-size: 10px; font-weight: 800; color: #0B1F3A;">${labels[idx]} (KEDUDUKAN item.kedudukan{item.isTied ? ' - SERI' : ''})</div>
+                            <div style="font-size: 10px; font-weight: 800; color: #0B1F3A;">${labels[idx]} (KEDUDUKAN ${item.kedudukan}${item.isTied ? ' - SERI' : ''})</div>
                             <div style="font-size: 15px; font-weight: 800; margin: 4px 0;">${this.escapeHtml(item.rumahSukan)}</div>
-                            <div style="font-size: 11px;">Emas: <strong>item.emas</strong>|Perak:<strong>{item.perak}</strong> | Gangsa: <strong>item.gangsa</strong>|JumlahPingat:<strong>{item.jumlah}</strong></div>
+                            <div style="font-size: 11px;">Emas: <strong>${item.emas}</strong> | Perak: <strong>${item.perak}</strong> | Gangsa: <strong>${item.gangsa}</strong> | Jumlah Pingat: <strong>${item.jumlah}</strong></div>
                         </div>
                     `).join('');
 
@@ -4834,6 +4839,204 @@
         };
 
 
+
+        /**
+         * Inline result editing. The browser admin flag is only a UI gate.
+         * The write service MUST independently verify a Google identity token,
+         * enforce edit allowlists, source identity and compare-and-swap.
+         * Disabled by default until a readable, CORS-enabled secure gateway
+         * and ID-token provider are configured by the site administrator.
+         */
+        const InlineEditController = {
+            busy: false,
+            active: null,
+            pending: null,
+            modules: {
+                saringan: { get: 'getSaringanStore', save: 'saveSaringanStore', audit: 'appendSaringanAuditLog',
+                    view: 'saringan', module: () => SaringanModule, fields: ['kedudukan', 'masa'] },
+                akhir: { get: 'getAkhirBalapanStore', save: 'saveAkhirBalapanStore', audit: 'appendAkhirBalapanAuditLog',
+                    view: 'akhir-balapan', module: () => AkhirBalapanModule, fields: ['kedudukan', 'masa'] },
+                relay: { get: 'getRelayStore', save: 'saveRelayStore', audit: 'appendRelayAuditLog',
+                    view: 'relay', module: () => RelayModule, fields: ['kedudukan', 'masa'] },
+                padang: { get: 'getPadangStore', save: 'savePadangStore', audit: 'appendPadangAuditLog',
+                    view: 'padang', module: () => PadangModule, fields: ['kedudukan', 'catatanTerbaik'] }
+            },
+            find(data) {
+                const entry = this.modules[data.moduleId];
+                if (!entry || !entry.fields.includes(data.field) ||
+                    !entry.module().ALLOWED_EVENT_NOS.includes(data.eventNo) ||
+                    !['lelaki', 'perempuan'].includes(data.gender)) return null;
+                if (data.moduleId === 'saringan' && ![1, 2].includes(data.heat)) return null;
+                const store = StorageManager[entry.get]();
+                const event = store.events[data.eventNo];
+                if (!event || String(event.eventNo) !== data.eventNo) return null;
+                const rows = data.moduleId === 'saringan'
+                    ? event[data.gender]?.['saringan' + data.heat]
+                    : event[data.gender];
+                if (!Array.isArray(rows)) return null;
+                const matches = rows.filter(r => String(r.id) === data.recordId);
+                if (matches.length !== 1) return null;
+                return { entry, store, event, record: matches[0] };
+            },
+            begin(cell) {
+                if (this.busy || this.active || !cell || !cell.isConnected) return;
+                const d = cell.dataset;
+                const data = {
+                    moduleId: d.module, eventNo: d.event, gender: d.gender,
+                    heat: d.module === 'saringan' ? Number(d.heat) : null,
+                    recordId: d.record, field: d.field
+                };
+                if (!this.find(data)) return;
+                if (!AdminAuthController.isAuthenticated) {
+                    this.pending = data;
+                    AdminAuthController.openModal();
+                    return;
+                }
+                this.open(cell, data);
+            },
+            resumeAfterLogin() {
+                const data = this.pending;
+                this.pending = null;
+                if (!data || !AdminAuthController.isAuthenticated) return;
+                const cells = document.querySelectorAll('#view-content-container td[data-field]');
+                const cell = Array.from(cells).find(el =>
+                    el.dataset.module === data.moduleId && el.dataset.event === data.eventNo &&
+                    el.dataset.gender === data.gender && el.dataset.record === data.recordId &&
+                    el.dataset.field === data.field &&
+                    (data.moduleId !== 'saringan' || Number(el.dataset.heat) === data.heat));
+                if (cell) this.open(cell, data);
+            },
+            open(cell, data) {
+                const found = this.find(data);
+                if (!found || !AdminAuthController.isAuthenticated) return;
+                if (!Number.isInteger(found.record.sourceRow) || found.record.sourceRow < 1) {
+                    UIComponents.showToast('Baris sumber belum tersedia. Terbitkan templat Apps Script baharu dan segar semula data.', 'warning');
+                    return;
+                }
+                const oldValue = String(found.record[data.field] ?? '');
+                const input = document.createElement('input');
+                input.type = 'text';
+                input.value = oldValue;
+                input.className = 'w-full min-w-0 text-xs font-inherit text-inherit text-center bg-white border border-slate-200 rounded focus:outline-none focus:border-navy-primary';
+                input.setAttribute('aria-label', 'Edit ' + data.field);
+                cell.textContent = '';
+                cell.appendChild(input);
+                this.active = { cell, input, data, oldValue };
+                input.addEventListener('keydown', e => {
+                    if (e.key === 'Escape') { e.preventDefault(); this.cancel(); }
+                    if (e.key === 'Enter') { e.preventDefault(); this.save(); }
+                });
+                input.focus();
+                input.select();
+            },
+            cancel() {
+                if (!this.active || this.busy) return;
+                const { cell, oldValue } = this.active;
+                cell.textContent = oldValue || '—';
+                this.active = null;
+            },
+            validate(field, value) {
+                if (/^[=+\-@\t\r]/.test(value)) return 'Input yang boleh ditafsir sebagai formula tidak dibenarkan.';
+                if (value.length > 80) return 'Nilai terlalu panjang.';
+                if (field === 'kedudukan' && value && !/^[1-9]\d*$/.test(value))
+                    return 'Kedudukan mesti nombor positif atau kosong.';
+                if (field !== 'kedudukan' && value && !/^\d+(?::\d{1,2})?(?:[.,]\d+)?$/.test(value))
+                    return 'Format masa atau catatan tidak sah.';
+                return null;
+            },
+            async save() {
+                if (this.busy || !this.active) return;
+                const { cell, input, data, oldValue } = this.active;
+                const newValue = input.value.trim();
+                if (newValue === oldValue) { this.cancel(); return; }
+                const invalid = this.validate(data.field, newValue);
+                if (invalid) { UIComponents.showToast(invalid, 'warning'); return; }
+                const config = window.STATISTIX_SECURE_WRITE_CONFIG;
+                const endpoint = config?.endpoints?.[data.moduleId];
+                if (!endpoint || !/^https:\/\//.test(endpoint) || typeof config.getIdToken !== 'function') {
+                    UIComponents.showToast('Edit belum diaktifkan: gateway selamat dan identiti Google belum dikonfigurasi.', 'error');
+                    return;
+                }
+                if (!AdminAuthController.isAuthenticated) { this.cancel(); return; }
+                const found = this.find(data);
+                if (!found || String(found.record[data.field] ?? '') !== oldValue ||
+                    !Number.isInteger(found.record.sourceRow)) {
+                    UIComponents.showToast('Rekod telah berubah. Segar semula dan cuba lagi.', 'error');
+                    this.cancel();
+                    return;
+                }
+                this.busy = true;
+                input.disabled = true;
+                try {
+                    const idToken = await config.getIdToken();
+                    if (typeof idToken !== 'string' || !idToken) throw new Error('Identiti Google tidak disahkan.');
+                    const response = await fetch(endpoint, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            idToken, moduleId: data.moduleId, eventNo: data.eventNo,
+                            gender: data.gender, heat: data.heat, sourceRow: found.record.sourceRow,
+                            recordId: data.recordId, field: data.field,
+                            oldValue, newValue,
+                            identity: {
+                                lorong: String(found.record.lorong ?? ''),
+                                noBib: String(found.record.noBib ?? ''),
+                                namaAtlet: String(found.record.namaAtlet ?? ''),
+                                pasukan: String(found.record.pasukan ?? '')
+                            }
+                        })
+                    });
+                    if (!response.ok) throw new Error('HTTP ' + response.status);
+                    const result = await response.json();
+                    if (result.ok !== true || String(result.sourceRow) !== String(found.record.sourceRow) ||
+                        String(result.value) !== newValue || result.eventNo !== data.eventNo)
+                        throw new Error(result.error || 'Respons pelayan tidak dapat disahkan.');
+                    // The server has confirmed its own cell read-back. A previously
+                    // official result is now invalid even if the next GET fails.
+                    const committedAt = new Date().toISOString();
+                    const committed = this.find(data);
+                    if (committed && committed.event.status === 'DISAHKAN_RASMI') {
+                        committed.event.status = 'SELESAI';
+                        committed.event.verifiedAt = null;
+                        committed.event.updatedAt = committedAt;
+                        StorageManager[committed.entry.save](committed.store);
+                    }
+                    // Read from the original Google Sheets source, not just the write response.
+                    const ok = await found.entry.module().syncFromGoogleAppsScript(null, true);
+                    if (!ok) throw new Error('Penulisan dilapor berjaya tetapi bacaan semula gagal.');
+                    const latest = this.find(data);
+                    if (!latest || latest.record.sourceRow !== found.record.sourceRow ||
+                        String(latest.record[data.field] ?? '') !== newValue)
+                        throw new Error('Nilai bacaan semula tidak sepadan. Semak Google Sheets.');
+                    const now = new Date().toISOString();
+                    if (latest.event.status === 'DISAHKAN_RASMI') {
+                        latest.event.status = 'SELESAI';
+                        latest.event.verifiedAt = null;
+                    }
+                    latest.event.updatedAt = now;
+                    StorageManager[latest.entry.save](latest.store);
+                    StorageManager[latest.entry.audit]({
+                        id: 'LOG-INLINE-' + Date.now() + '-' + Math.random().toString(36).slice(2),
+                        timestamp: now, action: 'EDIT_KEPUTUSAN_GOOGLE_SHEETS',
+                        eventNo: data.eventNo,
+                        detail: data.gender + ' / ' + (data.heat || '-') + ' / baris ' +
+                            latest.record.sourceRow + ' / ' + data.field + ': ' + oldValue + ' → ' + newValue
+                    });
+                    this.active = null;
+                    if (AppController.state.activeViewId === latest.entry.view) AppController.loadView(latest.entry.view);
+                    UIComponents.showToast('Perubahan disimpan dan disahkan melalui bacaan semula Google Sheets.', 'success');
+                } catch (error) {
+                    // No optimistic local update or false success message.
+                    UIComponents.showToast('Gagal mengesahkan simpanan: ' + error.message, 'error');
+                    if (cell.isConnected) cell.textContent = oldValue || '—';
+                    this.active = null;
+                } finally {
+                    this.busy = false;
+                    if (input.isConnected) input.disabled = false;
+                }
+            }
+        };
+
         const AdminAuthController = {
             DEFAULT_PASSCODE: 'ADMIN2026',
             isAuthenticated: false,
@@ -4860,6 +5063,7 @@
                 if (clearPending) {
                     VerificationButtonController.pending = null;
                     PodiumModule.pendingAuthentication = false;
+                    InlineEditController.pending = null;
                 }
                 const modal = document.getElementById('admin-auth-modal');
                 if (modal) modal.classList.add('hidden');
@@ -4880,10 +5084,13 @@
                 }
                 this.isAuthenticated = true;
                 this.closeModal(false);
-                if (VerificationButtonController.pending || PodiumModule.pendingAuthentication) {
+                if (VerificationButtonController.pending || PodiumModule.pendingAuthentication || InlineEditController.pending) {
                     if (VerificationButtonController.pending) {
                         VerificationButtonController.resumeAfterLogin();
                         UIComponents.showToast('Akses admin disahkan.', 'success');
+                    } else if (InlineEditController.pending) {
+                        InlineEditController.resumeAfterLogin();
+                        UIComponents.showToast('Akses admin disahkan. Sel keputusan boleh diedit.', 'success');
                     } else {
                         PodiumModule.resumeAfterLogin();
                         UIComponents.showToast('Akses admin disahkan. Sila sahkan keputusan dalam dialog.', 'success');
@@ -4970,6 +5177,182 @@
             /**
              * EMPAT KOD GOOGLE APPS SCRIPT LENGKAP & BERASINGAN MENGIKUT SPESIFIKASI KOLUM
              */
+
+            getSecureWriteTemplate(moduleId) {
+                const events = {
+                    saringan: '["101","102","103","104","105","106","204","205","300"]',
+                    akhir: '["101","102","103","104","105","106","204","205","300"]',
+                    relay: '["411","412","413","414","415","424","425"]',
+                    padang: '["LONGJUMP","HIGHJUMP","SHOTPUT"]'
+                };
+                return '\nvar SECURE_WRITE_MODULE_ = ' + JSON.stringify(moduleId) +
+                    ';\nvar SECURE_WRITE_EVENTS_ = ' + events[moduleId] + ';\n' +
+                    String.raw`
+/*
+ * SECURE WRITE-BACK EXTENSION. The read-only doGet above is unchanged.
+ * REQUIRED Script Properties:
+ *   EDITOR_GOOGLE_CLIENT_ID = OAuth web-client audience
+ *   EDITOR_EMAIL_ALLOWLIST  = comma-separated trusted Google accounts
+ *
+ * A public "Execute as Me" deployment is safe for writes ONLY because this
+ * handler independently validates the signed Google ID token + email allowlist.
+ * The browser still requires a separately configured CORS-capable gateway
+ * to receive verifiable responses; Apps Script ContentService alone does not
+ * reliably expose POST responses cross-origin to fetch().
+ */
+function doPost(e) {
+  try {
+    if (!e || !e.postData || !e.postData.contents) throw Error("Missing payload");
+    var body = JSON.parse(e.postData.contents);
+    var prop = PropertiesService.getScriptProperties();
+    var clientId = prop.getProperty("EDITOR_GOOGLE_CLIENT_ID");
+    var emails = String(prop.getProperty("EDITOR_EMAIL_ALLOWLIST") || "")
+      .toLowerCase().split(",").map(function(v) { return v.trim(); }).filter(Boolean);
+    if (!clientId || !emails.length) throw Error("Server authorization not configured");
+    if (!body.idToken || typeof body.idToken !== "string" || body.idToken.length > 5000)
+      throw Error("Missing Google identity token");
+    var validation = UrlFetchApp.fetch(
+      "https://oauth2.googleapis.com/tokeninfo?id_token=" + encodeURIComponent(body.idToken),
+      { muteHttpExceptions: true }
+    );
+    if (validation.getResponseCode() !== 200) throw Error("Invalid identity token");
+    var claims = JSON.parse(validation.getContentText());
+    if (claims.aud !== clientId || claims.email_verified !== "true" ||
+      !emails.includes(String(claims.email || "").toLowerCase()) ||
+      !["accounts.google.com", "https://accounts.google.com"].includes(claims.iss) ||
+      Number(claims.exp || 0) * 1000 <= Date.now())
+      throw Error("Account not authorized");
+    if (body.moduleId !== SECURE_WRITE_MODULE_) throw Error("Incorrect module");
+    var allowedEvents = SECURE_WRITE_EVENTS_;
+    var eventNo = String(body.eventNo || "");
+    if (allowedEvents.indexOf(eventNo) < 0) throw Error("Event not allowed");
+    var gender = String(body.gender || "");
+    if (gender !== "lelaki" && gender !== "perempuan") throw Error("Invalid category");
+    var field = String(body.field || "");
+    var heat = Number(body.heat);
+    var rowNo = Number(body.sourceRow);
+    if (!Number.isInteger(rowNo)) throw Error("Invalid row");
+    var coord = secureResolveCell_(gender, heat, field, rowNo);
+    var newValue = String(body.newValue == null ? "" : body.newValue).trim();
+    var oldValue = String(body.oldValue == null ? "" : body.oldValue);
+    if (newValue.length > 80 || /^[=+\-@\t\r]/.test(newValue))
+      throw Error("Unsafe value");
+    if (field === "kedudukan" && newValue && !/^[1-9]\d*$/.test(newValue))
+      throw Error("Invalid ranking");
+    if (field !== "kedudukan" && newValue &&
+        !/^\d+(?::\d{1,2})?(?:[.,]\d+)?$/.test(newValue))
+      throw Error("Invalid result format");
+    var lock = LockService.getScriptLock();
+    if (!lock.tryLock(20000)) throw Error("Another edit is in progress");
+    try {
+      var ss = SpreadsheetApp.getActiveSpreadsheet();
+      var sheet = secureFindSheet_(ss, eventNo);
+      if (!sheet) throw Error("Event sheet unavailable");
+      var row = sheet.getRange(rowNo, 1, 1, 15).getDisplayValues()[0];
+      var identity = body.identity || {};
+      var start = SECURE_WRITE_MODULE_ === "relay" && gender === "perempuan" ? 8 : 0;
+      var srcLane = String(row[start] || "").trim();
+      var srcTeam = String(SECURE_WRITE_MODULE_ === "relay"
+          ? (row[start + 1] || row[start + 2] || "") : (row[3] || "")).trim();
+      var srcName = SECURE_WRITE_MODULE_ === "relay" ? "" :
+          String(row[1] || row[2] || "").trim();
+      var srcBib = SECURE_WRITE_MODULE_ === "relay" ? "" : String(row[4] || "").trim();
+      if (srcLane !== String(identity.lorong || "") ||
+          srcTeam !== String(identity.pasukan || "") ||
+          srcName !== String(identity.namaAtlet || "") ||
+          srcBib !== String(identity.noBib || ""))
+        throw Error("Source row identity changed");
+      var expectedId = secureRecordId_(eventNo, gender, heat, rowNo,
+          srcLane, srcName, srcBib, srcTeam);
+      if (String(body.recordId || "") !== expectedId) throw Error("Record identity mismatch");
+      var cell = sheet.getRange(rowNo, coord.column);
+      var merged = cell.getMergedRanges();
+      if (merged.length) {
+        var merge = merged[0];
+        if (merge.getRow() !== rowNo || merge.getColumn() !== coord.column)
+          throw Error("Target is not merge anchor");
+      } else if (coord.alternate) {
+        var alternate = sheet.getRange(rowNo, coord.alternate);
+        if (cell.getDisplayValue() === "" && alternate.getDisplayValue() !== "") {
+          cell = alternate;
+        }
+      }
+      if (cell.getFormula()) throw Error("Formula cell: write refused");
+      if (cell.getDisplayValue() !== oldValue) throw Error("Source changed: edit conflict");
+      // Set as data (prefix-less text); never evaluate user-entered formulas.
+      cell.setValue(newValue);
+      SpreadsheetApp.flush();
+      var confirmed = String(cell.getDisplayValue());
+      if (confirmed !== newValue) throw Error("Read-back mismatch");
+      return secureJson_({ ok: true, moduleId: SECURE_WRITE_MODULE_,
+        eventNo: eventNo, sourceRow: rowNo, field: field, value: confirmed });
+    } finally { lock.releaseLock(); }
+  } catch (ex) { return secureJson_({ ok: false, error: String(ex.message || ex) }); }
+}
+function secureJson_(obj) {
+  return ContentService.createTextOutput(JSON.stringify(obj))
+    .setMimeType(ContentService.MimeType.JSON);
+}
+function secureFindSheet_(ss, eventNo) {
+  var prefixes = SECURE_WRITE_MODULE_ === "akhir"
+    ? ["", "AKHIR ", "ACARA ", "NO "]
+    : SECURE_WRITE_MODULE_ === "relay" ? ["", "RELAY ", "AKHIR ", "ACARA "]
+    : ["", "ACARA ", "NO "];
+  for (var i = 0; i < prefixes.length; i++) {
+    var found = ss.getSheetByName(prefixes[i] + eventNo);
+    if (found) return found;
+  }
+  return null;
+}
+function secureResolveCell_(gender, heat, field, row) {
+  var female = gender === "perempuan";
+  var col, alt = null;
+  if (SECURE_WRITE_MODULE_ === "saringan") {
+    if (heat !== 1 && heat !== 2) throw Error("Invalid heat");
+    var start = heat === 1 ? 5 : 18;
+    if (row < start || row > start + 7) throw Error("Row outside heat");
+    col = field === "kedudukan" ? (female ? 14 : 6)
+      : field === "masa" ? (female ? 15 : 7) : 0;
+  } else if (SECURE_WRITE_MODULE_ === "akhir") {
+    if (row < (female ? 20 : 6) || row > (female ? 27 : 13))
+      throw Error("Row outside finals");
+    col = field === "kedudukan" ? 6 : field === "masa" ? 7 : 0;
+  } else if (SECURE_WRITE_MODULE_ === "relay") {
+    if (row < 5 || row > 18) throw Error("Row outside relay");
+    col = field === "kedudukan" ? (female ? 14 : 6)
+      : field === "masa" ? (female ? 12 : 4) : 0;
+    alt = col + 1;
+  } else if (SECURE_WRITE_MODULE_ === "padang") {
+    if (row < (female ? 26 : 9) || row > (female ? 33 : 16))
+      throw Error("Row outside field");
+    col = field === "kedudukan" ? 13 : field === "catatanTerbaik" ? 12 : 0;
+    if (field === "kedudukan") alt = 14;
+  }
+  if (!col) throw Error("Field not editable");
+  return { column: col, alternate: alt };
+}
+function secureRecordId_(eventNo, gender, heat, rowNo, lane, name, bib, team) {
+  var g = gender === "lelaki" ? "L" : "P";
+  var id, fallback;
+  if (SECURE_WRITE_MODULE_ === "saringan") {
+    fallback = "R" + (rowNo - (heat === 1 ? 5 : 18) + 1);
+    id = "SAR-" + eventNo + "-" + g + "-S" + heat + "-" + (bib || lane || fallback);
+  } else if (SECURE_WRITE_MODULE_ === "akhir") {
+    fallback = "R" + (rowNo - (gender === "lelaki" ? 6 : 20) + 1);
+    id = "AKH-" + eventNo + "-" + g + "-" + (bib || lane || fallback);
+  } else if (SECURE_WRITE_MODULE_ === "relay") {
+    fallback = "R" + (rowNo - 5 + 1);
+    id = "REL-" + eventNo + "-" + g + "-" + (lane || (rowNo - 4)) +
+      "-" + (team || lane || fallback);
+  } else {
+    fallback = "R" + (rowNo - (gender === "lelaki" ? 9 : 26) + 1);
+    id = "PDG-" + eventNo + "-" + g + "-" + (bib || name || lane || fallback);
+  }
+  return id.replace(/\s+/g, "_");
+}
+`;
+            },
+
             getAppsScriptTemplate(moduleId) {
                 if (moduleId === 'saringan') {
                     return [
@@ -5033,11 +5416,11 @@
                         '    var masa = String(row[6] || "").trim();',
                         '    if (!namaAtlet && !noBib && !pasukan && !masa && !kedudukan) continue;',
                         '    var idKey = (noBib || lorong || ("R" + (i + 1))).replace(/\\s+/g, "_");',
-                        '    records.push({ id: "SAR-" + eventNo + "-" + genderCode + "-S" + heatNum + "-" + idKey, lorong: lorong, namaAtlet: namaAtlet, pasukan: pasukan, noBib: noBib, kedudukan: kedudukan, masa: masa });',
+                        '    records.push({ sourceRow: startRow + i, id: "SAR-" + eventNo + "-" + genderCode + "-S" + heatNum + "-" + idKey, lorong: lorong, namaAtlet: namaAtlet, pasukan: pasukan, noBib: noBib, kedudukan: kedudukan, masa: masa });',
                         '  }',
                         '  return records;',
                         '}'
-                    ].join('\n');
+                    ].join('\n') + this.getSecureWriteTemplate('saringan');
                 }
 
                 if (moduleId === 'akhir') {
@@ -5087,11 +5470,11 @@
                         '    var masa = String(row[6] || "").trim();',
                         '    if (!namaAtlet && !noBib && !pasukan && !masa && !kedudukan) continue;',
                         '    var idKey = (noBib || lorong || ("R" + (i + 1))).replace(/\\s+/g, "_");',
-                        '    records.push({ id: "AKH-" + eventNo + "-" + genderCode + "-" + idKey, lorong: lorong, namaAtlet: namaAtlet, pasukan: pasukan, noBib: noBib, kedudukan: kedudukan, masa: masa });',
+                        '    records.push({ sourceRow: startRow + i, id: "AKH-" + eventNo + "-" + genderCode + "-" + idKey, lorong: lorong, namaAtlet: namaAtlet, pasukan: pasukan, noBib: noBib, kedudukan: kedudukan, masa: masa });',
                         '  }',
                         '  return records;',
                         '}'
-                    ].join('\n');
+                    ].join('\n') + this.getSecureWriteTemplate('akhir');
                 }
 
                 if (moduleId === 'relay') {
@@ -5139,11 +5522,11 @@
                         '    var kedudukan = String(row[5] || "").trim() || String(row[6] || "").trim();',
                         '    if (!pasukan && !masa && !kedudukan) continue;',
                         '    var idKey = (pasukan || lorong || ("R" + (i + 1))).replace(/\\s+/g, "_");',
-                        '    records.push({ id: "REL-" + eventNo + "-" + genderCode + "-" + (lorong || (i + 1)) + "-" + idKey, lorong: lorong, pasukan: pasukan, masa: masa, kedudukan: kedudukan });',
+                        '    records.push({ sourceRow: startRow + i, id: "REL-" + eventNo + "-" + genderCode + "-" + (lorong || (i + 1)) + "-" + idKey, lorong: lorong, pasukan: pasukan, masa: masa, kedudukan: kedudukan });',
                         '  }',
                         '  return records;',
                         '}'
-                    ].join('\n');
+                    ].join('\n') + this.getSecureWriteTemplate('relay');
                 }
 
                 return [
@@ -5199,11 +5582,11 @@
                     '    var kedudukan = String(row[12] || "").trim() || String(row[13] || "").trim();',
                     '    if (!namaAtlet && !noBib && !pasukan && !catatanTerbaik && !kedudukan && !p1 && !p2 && !p3 && !p4 && !p5 && !p6) continue;',
                     '    var idKey = (noBib || namaAtlet || lorong || ("R" + (i + 1))).replace(/\\s+/g, "_");',
-                    '    records.push({ id: "PDG-" + eventCode + "-" + genderCode + "-" + idKey, lorong: lorong, namaAtlet: namaAtlet, pasukan: pasukan, noBib: noBib, p1: p1, p2: p2, p3: p3, p4: p4, p5: p5, p6: p6, catatanTerbaik: catatanTerbaik, kedudukan: kedudukan });',
+                    '    records.push({ sourceRow: startRow + i, id: "PDG-" + eventCode + "-" + genderCode + "-" + idKey, lorong: lorong, namaAtlet: namaAtlet, pasukan: pasukan, noBib: noBib, p1: p1, p2: p2, p3: p3, p4: p4, p5: p5, p6: p6, catatanTerbaik: catatanTerbaik, kedudukan: kedudukan });',
                     '  }',
                     '  return records;',
                     '}'
-                ].join('\n');
+                ].join('\n') + this.getSecureWriteTemplate('padang');
             },
 
             switchAdminTab(tabId) {
@@ -5425,7 +5808,7 @@
                     this.testStatusState[moduleId] = {
                         code: 'SUCCESS',
                         label: 'Sambungan Berjaya.',
-                        detail: `Disahkan: eventCounttabacara({totalRecordsFound} rekod sah) sedia untuk disegerakkan.`,
+                        detail: `Disahkan: ${eventCount} tab acara (${totalRecordsFound} rekod sah) sedia untuk disegerakkan.`,
                         tone: 'success',
                         testedAt: new Date().toISOString()
                     };
@@ -5982,6 +6365,10 @@
             },
 
             async refreshCurrentView() {
+                if (InlineEditController.active || InlineEditController.busy) {
+                    UIComponents.showToast('Selesaikan atau batalkan edit sel sebelum memuat semula data.', 'warning');
+                    return;
+                }
                 const viewId = this.state.activeViewId;
                 UIComponents.showLoading('Menyegerak & Menyemak Data...');
                 this.checkStorageStatus();
@@ -6041,4 +6428,3 @@
     </script>
 </body>
 </html>
-
