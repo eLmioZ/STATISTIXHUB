@@ -123,7 +123,7 @@
                             </span>
                         </div>
                         <p id="tournament-subtitle" class="text-[11px] sm:text-xs text-slate-300 truncate">
-                            Sistem Statistik &amp; Keputusan Rasmi.
+                            SISTEM STATISTIK &amp; KEPUTUSAN RASMI
                         </p>
                     </div>
                 </div>
@@ -241,12 +241,27 @@
                     </div>
                 </div>
 
-                <!-- Paparan Status Panel Admin -->
-                <div class="bg-white rounded-2xl p-8 sm:p-10 shadow-card border border-slate-200/80 text-center">
-                    <p class="text-sm font-medium text-ink-muted">
-                        Tiada modul pentadbir dikonfigurasi buat masa ini.
-                    </p>
+                <!-- Bar Navigasi Panel Admin (2 Menu Sahaja) -->
+                <div class="bg-white rounded-2xl p-2 shadow-card border border-slate-200/80">
+                    <nav class="grid grid-cols-2 sm:flex sm:flex-row gap-2" aria-label="Navigasi Panel Admin">
+                        <button type="button"
+                            id="admin-tab-tetapan-acara"
+                            onclick="AdminNavigation.switchTab('tetapan-acara')"
+                            class="px-4 py-3 rounded-xl text-xs sm:text-sm font-bold transition-all cursor-pointer text-center bg-navy-primary text-gold border-b-2 border-gold shadow-xs">
+                            Tetapan Acara
+                        </button>
+                        <button type="button"
+                            id="admin-tab-pengurusan-pengguna"
+                            onclick="AdminNavigation.switchTab('pengurusan-pengguna')"
+                            class="px-4 py-3 rounded-xl text-xs sm:text-sm font-bold transition-all cursor-pointer text-center bg-surface-bg text-navy-primary hover:bg-slate-200/70">
+                            Pengurusan Pengguna
+                        </button>
+                    </nav>
                 </div>
+
+                <!-- Kontena Kandungan Kosong Panel Admin -->
+                <div id="admin-content-tetapan-acara"></div>
+                <div id="admin-content-pengurusan-pengguna" class="hidden"></div>
             </section>
 
         </main>
@@ -2607,6 +2622,46 @@
         };
 
         /**
+         * 4G. NAVIGASI PANEL ADMIN (AdminNavigation)
+         * Menguruskan penukaran dua menu navigasi kosong dalam Panel Admin.
+         */
+        const AdminNavigation = {
+            activeTab: 'tetapan-acara',
+
+            init() {
+                this.switchTab('tetapan-acara');
+            },
+
+            switchTab(tabId) {
+                if (tabId !== 'tetapan-acara' && tabId !== 'pengurusan-pengguna') return;
+                this.activeTab = tabId;
+
+                const tabs = ['tetapan-acara', 'pengurusan-pengguna'];
+                tabs.forEach(id => {
+                    const btn = document.getElementById(`admin-tab-${id}`);
+                    const content = document.getElementById(`admin-content-${id}`);
+                    const isActive = id === tabId;
+
+                    if (btn) {
+                        if (isActive) {
+                            btn.className = 'px-4 py-3 rounded-xl text-xs sm:text-sm font-bold transition-all cursor-pointer text-center bg-navy-primary text-gold border-b-2 border-gold shadow-xs';
+                        } else {
+                            btn.className = 'px-4 py-3 rounded-xl text-xs sm:text-sm font-bold transition-all cursor-pointer text-center bg-surface-bg text-navy-primary hover:bg-slate-200/70';
+                        }
+                    }
+
+                    if (content) {
+                        if (isActive) {
+                            content.classList.remove('hidden');
+                        } else {
+                            content.classList.add('hidden');
+                        }
+                    }
+                });
+            }
+        };
+
+        /**
          * 5. PENGAWAL UTAMA APLIKASI (AppController)
          */
         const AppController = {
@@ -2619,6 +2674,7 @@
                 this.checkStorageStatus();
                 this.hydrateTournamentHeader();
                 this.renderNavigation();
+                AdminNavigation.init();
                 this.loadView(this.state.activeViewId);
                 lucide.createIcons();
             },
@@ -2720,6 +2776,7 @@
                 if (this.state.isAdminMode) {
                     publicSection.classList.add('hidden');
                     adminSection.classList.remove('hidden');
+                    AdminNavigation.init();
                     adminBtnLabel.textContent = 'Paparan Awam';
                     adminBtn.classList.remove('bg-gold', 'text-navy-dark');
                     adminBtn.classList.add('bg-navy-secondary', 'text-gold-light', 'border', 'border-gold/40');
