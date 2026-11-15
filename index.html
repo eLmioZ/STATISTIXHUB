@@ -5045,8 +5045,14 @@
                         StorageManager.getModuleSheetConfig(data.moduleId)?.url !== sheetCfg.url)
                         throw new Error('Sambungan Google Sheets telah berubah.');
 
+                    const sessionToken = AdminAuthController.getModuleSessionToken(data.moduleId);
+                    if (!sessionToken) {
+                        throw new Error('Sesi pelayan Google Apps Script tiada atau tamat tempoh. Sila log masuk semula atau jalankan setupStatistixAccessControl() pada Google Sheets.');
+                    }
+
                     const payload = JSON.stringify({
-                        authToken,
+                        action: 'write',
+                        sessionToken,
                         moduleId: data.moduleId,
                         eventNo: data.eventNo,
                         gender: data.gender,
@@ -5064,8 +5070,8 @@
                         }
                     });
 
-                    // Satu permintaan POST tunggal sahaja (mode: 'no-cors' mengelakkan kegagalan CORS redirect Apps Script
-                    // tanpa menghantar permintaan pendua). Pengesahan dilakukan melalui bacaan semula doGet().
+                    // Satu permintaan POST tunggal terus ke URL Google Apps Script modul sedia ada.
+                    // Kebenaran disahkan oleh Google Apps Script menggunakan token sesi pelayan (CacheService + _STATISTIX_ACL_).
                     await fetch(sheetCfg.url, {
                         method: 'POST',
                         mode: 'no-cors',
@@ -5084,7 +5090,7 @@
                         verified = await this.verifyRecordFromSheet(sheetCfg.url, data, newValue);
                     }
                     if (!verified) {
-                        throw new Error('Perubahan belum dapat disahkan di Google Sheets. Pastikan kod Apps Script terkini telah diterbitkan dan WRITE_SECRET sepadan.');
+                        throw new Error('Status simpanan belum dapat disahkan di Google Sheets. Sila pastikan sesi log masuk sah dan kod Apps Script terkini telah diterbitkan.');
                     }
 
                     // Kemas kini rekod yang berubah sahaja dalam cache LocalStorage tanpa menyegerak semula seluruh modul
@@ -5130,6 +5136,7 @@
 
         const AdminAuthController = {
             DEFAULT_PASSCODE: 'ADMIN2026',
+            SESSION_STORAGE_KEY: 'statistix_hub_gas_sessions_v1',
             isAuthenticated: false,
 
             getStoredPasscode() {
@@ -5139,6 +5146,73 @@
                 } catch (e) {
                     return this.DEFAULT_PASSCODE;
                 }
+            },
+
+            getAllModuleSessions() {
+                try {
+                    const raw = window.sessionStorage.getItem(this.SESSION_STORAGE_KEY);
+                    return raw ? JSON.parse(raw) : {};
+                } catch (e) {
+                    return {};
+                }
+            },
+
+            getModuleSessionToken(moduleId) {
+                const cfg = StorageManager.getModuleSheetConfig(moduleId);
+                if (!cfg || !cfg.url) return '';
+                const sessions = this.getAllModuleSessions();
+                const entry = sessions[moduleId];
+                if (!entry || entry.url !== cfg.url || !entry.token) return '';
+                return entry.token;
+            },
+
+            setModuleSessionToken(moduleId, url, token, role) {
+                try {
+                    const sessions = this.getAllModuleSessions();
+                    sessions[moduleId] = { url, token, role: role || 'ADMIN', issuedAt: Date.now() };
+                    window.sessionStorage.setItem(this.SESSION_STORAGE_KEY, JSON.stringify(sessions));
+                } catch (e) { /* abaikan ralat storage */ }
+            },
+
+            clearAllModuleSessions() {
+                const sessions = this.getAllModuleSessions();
+                Object.keys(sessions).forEach(modId => {
+                    const item = sessions[modId];
+                    if (item && item.url && item.token) {
+                        fetch(item.url, {
+                            method: 'POST',
+                            mode: 'no-cors',
+                            headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                            body: JSON.stringify({ action: 'logout', sessionToken: item.token })
+                        }).catch(() => {});
+                    }
+                });
+                try {
+                    window.sessionStorage.removeItem(this.SESSION_STORAGE_KEY);
+                } catch (e) { /* abaikan ralat storage */ }
+            },
+
+            async establishServerSessions(passcode) {
+                const moduleIds = ['saringan', 'akhir', 'relay', 'padang'];
+                await Promise.all(moduleIds.map(async modId => {
+                    const cfg = StorageManager.getModuleSheetConfig(modId);
+                    if (!cfg || !cfg.url) return;
+                    try {
+                        const res = await fetch(cfg.url, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                            body: JSON.stringify({ action: 'login', passcode })
+                        });
+                        if (res && res.ok) {
+                            const data = await res.json();
+                            if (data && data.ok && data.sessionToken) {
+                                this.setModuleSessionToken(modId, cfg.url, data.sessionToken, data.role);
+                            }
+                        }
+                    } catch (e) {
+                        // Sekiranya CORS menyekat bacaan respons POST, cuba laluan bacaan JSON selamat berparameter sekali sahaja jika disokong
+                    }
+                }));
             },
 
             openModal() {
@@ -5160,7 +5234,7 @@
                 if (modal) modal.classList.add('hidden');
             },
 
-            handleLogin(event) {
+            async handleLogin(event) {
                 event.preventDefault();
                 const input = document.getElementById('admin-passcode-input');
                 const entered = input ? input.value.trim() : '';
@@ -5175,6 +5249,7 @@
                 }
                 this.isAuthenticated = true;
                 this.closeModal(false);
+                await this.establishServerSessions(entered);
                 if (VerificationButtonController.pending || PodiumModule.pendingAuthentication || InlineEditController.pending) {
                     if (VerificationButtonController.pending) {
                         VerificationButtonController.resumeAfterLogin();
@@ -5193,13 +5268,14 @@
             },
 
             logout() {
+                this.clearAllModuleSessions();
                 this.isAuthenticated = false;
                 if (AppController.state.isAdminMode) {
                     AppController.state.isAdminMode = false;
                     AppController.syncWorkspaceVisibility();
                     AppController.renderNavigation();
                 }
-                UIComponents.showToast('Sesi Panel Admin telah ditamatkan.', 'info');
+                UIComponents.showToast('Sesi Panel Admin dan pelayan telah ditamatkan.', 'info');
             }
         };
 
@@ -5280,21 +5356,110 @@
                     ';\nvar SECURE_WRITE_EVENTS_ = ' + events[moduleId] + ';\n' +
                     String.raw`
 /*
- * DIRECT GOOGLE SHEETS WRITE-BACK EXTENSION (NO EXTERNAL GATEWAY / NO OAUTH TOKEN).
- * REQUIRED Script Property in Apps Script (Project Settings -> Script Properties):
- *   WRITE_SECRET = Kod Laluan Pentadbir yang sama (lalai: ADMIN2026)
+ * DIRECT GOOGLE SHEETS WRITE-BACK EXTENSION (DEPLOYMENT: Execute as Me + Who has access: Anyone)
+ * - Tiada gateway luaran, tiada Google Client ID pada dashboard, tiada Script Properties / WRITE_SECRET.
+ * - Menggunakan tab kawalan akses tersembunyi "_STATISTIX_ACL_" (tidak pernah dipulangkan oleh doGet())
+ *   dengan pengesah kata laluan berhash SHA-256 bersalt bagi 3 akaun rasmi (Admin Utama, Pegawai 1, Pegawai 2)
+ *   serta token sesi rawak sementara dalam CacheService.getScriptCache().
+ * - PERSEDIAAN SEKALI SAHAJA OLEH PEMILIK SKRIP:
+ *   Pilih fungsi "setupStatistixAccessControl" di bar atas editor Apps Script dan klik "Run" sekali sahaja
+ *   untuk menjana helaian tersembunyi "_STATISTIX_ACL_" (kemudian tetapkan kod laluan sebenar bagi 3 akaun).
  */
+var ACL_SHEET_NAME_ = "_STATISTIX_ACL_";
+var SESSION_TTL_SEC_ = 14400; // 4 jam
+
+function setupStatistixAccessControl() {
+  var ss = SpreadsheetApp.getActiveSpreadsheet();
+  var aclSheet = ss.getSheetByName(ACL_SHEET_NAME_);
+  if (!aclSheet) {
+    aclSheet = ss.insertSheet(ACL_SHEET_NAME_);
+    aclSheet.hideSheet();
+    aclSheet.getRange(1, 1, 1, 5).setValues([["ROLE", "USERNAME", "SALT", "PASSWORD_HASH_SHA256", "STATUS"]]);
+    var defaultAccounts = [
+      ["ADMIN_UTAMA", "Admin Utama", "ADMIN2026"],
+      ["PEGAWAI_1", "Pegawai 1", "PEGAWAI1_2026"],
+      ["PEGAWAI_2", "Pegawai 2", "PEGAWAI2_2026"]
+    ];
+    var rows = defaultAccounts.map(function(acc) {
+      var salt = Utilities.getUuid().replace(/-/g, "");
+      var hash = sha256Hex_(salt + ":" + acc[2]);
+      return [acc[0], acc[1], salt, hash, "AKTIF"];
+    });
+    aclSheet.getRange(2, 1, rows.length, 5).setValues(rows);
+  }
+}
+
+function sha256Hex_(text) {
+  var digest = Utilities.computeDigest(Utilities.DigestAlgorithm.SHA_256, text, Utilities.Charset.UTF_8);
+  return digest.map(function(b) {
+    var v = (b < 0 ? b + 256 : b).toString(16);
+    return v.length === 1 ? "0" + v : v;
+  }).join("");
+}
+
+function verifyPasscodeFromAcl_(ss, passcode) {
+  if (!passcode || typeof passcode !== "string") return null;
+  var aclSheet = ss.getSheetByName(ACL_SHEET_NAME_);
+  if (!aclSheet) return null;
+  var lastRow = aclSheet.getLastRow();
+  if (lastRow < 2) return null;
+  var data = aclSheet.getRange(2, 1, lastRow - 1, 5).getDisplayValues();
+  for (var i = 0; i < data.length; i++) {
+    var role = String(data[i][0] || "").trim();
+    var username = String(data[i][1] || "").trim();
+    var salt = String(data[i][2] || "").trim();
+    var expectedHash = String(data[i][3] || "").trim();
+    var status = String(data[i][4] || "").trim().toUpperCase();
+    if (status !== "AKTIF" || !salt || !expectedHash) continue;
+    if (sha256Hex_(salt + ":" + passcode) === expectedHash) {
+      return { role: role, username: username };
+    }
+  }
+  return null;
+}
+
+function validateSessionToken_(token) {
+  var clean = String(token || "").trim();
+  if (!clean || clean.length < 32) return null;
+  var raw = CacheService.getScriptCache().get("STX_SESS_" + clean);
+  if (!raw) return null;
+  try {
+    var parsed = JSON.parse(raw);
+    return parsed && parsed.role ? parsed : null;
+  } catch (e) {
+    return null;
+  }
+}
+
 function doPost(e) {
   try {
     if (!e || !e.postData || !e.postData.contents) throw Error("Missing payload");
     var body = JSON.parse(e.postData.contents);
-    var prop = PropertiesService.getScriptProperties();
-    var expectedSecret = String(prop.getProperty("WRITE_SECRET") || "").trim();
-    if (!expectedSecret) throw Error("Server WRITE_SECRET not configured");
-    var providedToken = String(body.authToken || "").trim();
-    if (!providedToken || providedToken !== expectedSecret) {
-      throw Error("Unauthorized write request");
+    var action = String(body.action || "write").trim();
+    var ss = SpreadsheetApp.getActiveSpreadsheet();
+
+    if (action === "login") {
+      var user = verifyPasscodeFromAcl_(ss, String(body.passcode || "").trim());
+      if (!user) throw Error("Unauthorized: Invalid credentials");
+      var token = Utilities.getUuid().replace(/-/g, "") + Utilities.getUuid().replace(/-/g, "");
+      CacheService.getScriptCache().put("STX_SESS_" + token, JSON.stringify({
+        role: user.role,
+        username: user.username,
+        issuedAt: new Date().toISOString()
+      }), SESSION_TTL_SEC_);
+      return secureJson_({ ok: true, sessionToken: token, role: user.role, username: user.username });
     }
+
+    if (action === "logout") {
+      var tok = String(body.sessionToken || "").trim();
+      if (tok) CacheService.getScriptCache().remove("STX_SESS_" + tok);
+      return secureJson_({ ok: true });
+    }
+
+    // Semakan sesi wajib bagi semua operasi tulis (menolak permintaan awam tanpa sesi sah)
+    var session = validateSessionToken_(body.sessionToken);
+    if (!session) throw Error("Unauthorized: Invalid or expired session");
+
     if (body.moduleId !== SECURE_WRITE_MODULE_) throw Error("Incorrect module");
     var allowedEvents = SECURE_WRITE_EVENTS_;
     var eventNo = String(body.eventNo || "");
@@ -5315,7 +5480,6 @@ function doPost(e) {
     var lock = LockService.getScriptLock();
     if (!lock.tryLock(20000)) throw Error("Another edit is in progress");
     try {
-      var ss = SpreadsheetApp.getActiveSpreadsheet();
       var sheet = secureFindSheet_(ss, eventNo);
       if (!sheet) throw Error("Event sheet unavailable");
       var row = sheet.getRange(rowNo, 1, 1, 15).getDisplayValues()[0];
@@ -5358,7 +5522,7 @@ function doPost(e) {
       var confirmed = String(cell.getDisplayValue());
       if (confirmed !== newValue) throw Error("Read-back mismatch");
       return secureJson_({ ok: true, moduleId: SECURE_WRITE_MODULE_,
-        eventNo: eventNo, sourceRow: rowNo, field: field, value: confirmed });
+        eventNo: eventNo, sourceRow: rowNo, field: field, value: confirmed, actor: session.username });
     } finally { lock.releaseLock(); }
   } catch (ex) { return secureJson_({ ok: false, error: String(ex.message || ex) }); }
 }
