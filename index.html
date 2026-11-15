@@ -217,7 +217,7 @@
                 
                 <!-- Identiti Kejohanan (Slot Logo & Nama Kejohanan) -->
                 <div class="flex items-center gap-3 sm:gap-4 min-w-0">
-                    <!-- Slot Logo Kejohanan (Boleh Ditetapkan dalam Fasa Seterusnya) -->
+                    <!-- Slot Logo Kejohanan -->
                     <div id="tournament-logo-slot" class="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-navy-secondary border border-gold/40 flex items-center justify-center shrink-0 overflow-hidden shadow-inner group" title="Ruang Logo Kejohanan">
                         <img id="tournament-logo-img" src="" alt="Logo Kejohanan" class="hidden w-full h-full object-contain p-1">
                         <div id="tournament-logo-placeholder" class="flex flex-col items-center justify-center text-gold">
@@ -354,7 +354,7 @@
                             <div>
                                 <div class="flex flex-wrap items-center gap-2">
                                     <span class="text-[11px] font-bold uppercase tracking-wider bg-gold text-navy-dark px-2.5 py-0.5 rounded-md">
-                                        PANEL PENGURUSAN • AKSES TERUS
+                                        AKSES TERKAWAL • ADMIN SAH
                                     </span>
                                     <span class="text-xs text-slate-300">Zon Pengurusan ATHLETIX HUB</span>
                                 </div>
@@ -381,7 +381,6 @@
                             <i data-lucide="file-spreadsheet" class="w-4 h-4"></i>
                             <span>TETAPAN GOOGLE SHEETS</span>
                         </button>
-
                     </div>
                 </div>
 
@@ -416,12 +415,12 @@
                             <ol class="list-decimal list-inside space-y-1 text-ink-muted">
                                 <li>Buka fail Google Sheets rasmi bagi acara berkaitan, kemudian klik menu <strong>Extensions &rarr; Apps Script</strong>.</li>
                                 <li>Padam kod lalai sedia ada dan tampal kod yang disalin menggunakan butang <strong>SALIN KOD GOOGLE APPS SCRIPT</strong> bagi acara tersebut.</li>
-                                <li>Tekan ikon <strong>Save (Ctrl+S)</strong>. Dalam <strong>Project Settings &rarr; Script properties</strong>, cipta <code>STATISTIX_SETUP_PASSCODE</code> dengan kod kebenaran unik minimum 16 aksara. Jalankan <strong>setupStatistixAccessControl()</strong> sekali untuk menyimpan hash dan memadam nilai asal, kemudian klik <strong>Deploy &rarr; New deployment</strong> (atau <strong>Manage deployments &rarr; Edit &rarr; New version</strong> jika sudah pernah terbit).</li>
+                                <li>Tekan ikon <strong>Save (Ctrl+S)</strong>. Jalankan <strong>setupStatistixAccessControl()</strong> sekali untuk mendaftarkan kod kebenaran tulis pelayan, kemudian klik <strong>Deploy &rarr; Manage deployments &rarr; Edit &rarr; New version &rarr; Deploy</strong> (atau <strong>Deploy &rarr; New deployment</strong> bagi pemasangan baharu).</li>
                                 <li>Pilih jenis <strong>Web app</strong>, tetapkan <em>Execute as: Me</em> dan <em>Who has access: Anyone</em>, lalu klik <strong>Deploy</strong>.</li>
-                                <li><strong>Deployment lama:</strong> terbitkan versi baharu untuk setiap modul; kod lama tidak dikemas kini secara automatik. Salin <strong>Web app URL</strong> (<span class="font-mono text-navy-primary">https://script.google.com/macros/s/.../exec</span>), tampal pada ruangan URL acara yang sepadan di bawah, klik <strong>UJI SAMBUNGAN</strong>, dan klik <strong>SIMPAN</strong>.</li>
+                                <li>Salin <strong>Web app URL</strong> (<span class="font-mono text-navy-primary">https://script.google.com/macros/s/.../exec</span>), tampal pada ruangan URL acara yang sepadan di bawah, klik <strong>UJI SAMBUNGAN</strong>, dan klik <strong>SIMPAN</strong>.</li>
                             </ol>
                             <p class="text-[11px] text-amber-800 bg-amber-50 border border-amber-200 rounded-lg px-3 py-2 mt-2">
-                                <strong>Nota Penting:</strong> Kod Apps Script yang disediakan dalam sistem ini adalah templat rasmi untuk disalin dan diterbitkan di dalam Google Apps Script; ia tidak berjalan secara terus dari dalam pelayar tanpa diterbitkan sebagai Web App.
+                                <strong>Nota Penerbitan Semula:</strong> Jika anda pernah menerbitkan versi lama sebelum ini, anda wajib memilih <strong>Deploy &rarr; Manage deployments &rarr; Edit &rarr; New version</strong> supaya pelayan Google menggunakan logik kebenaran baharu tanpa peranan lama.
                             </p>
                         </div>
                     </div>
@@ -431,8 +430,6 @@
                         <!-- 4 Kad Konfigurasi dirender secara modular oleh GoogleSheetsAdminModule -->
                     </div>
                 </div>
-
-
             </section>
 
             <!-- =============================================================== -->
@@ -473,18 +470,6 @@
             </div>
         </div>
     </div>
-
-    <!-- Modal Input Sebab Penarikan Balik Pengesahan -->
-
-
-    <!-- Modal Input Sebab Penarikan Balik Pengesahan (Akhir Balapan) -->
-
-
-    <!-- Modal Input Sebab Penarikan Balik Pengesahan (Acara Relay) -->
-
-
-    <!-- Modal Input Sebab Penarikan Balik Pengesahan (Acara Padang) -->
-
 
     <!-- Modal Spesifikasi Struktur Sel Google Sheet (Acara Padang) -->
     <div id="padang-spec-modal" class="hidden fixed inset-0 z-50 bg-navy-dark/70 backdrop-blur-xs flex items-center justify-center p-4">
@@ -1104,7 +1089,10 @@
                     if (typeof onConfirm === 'function') onConfirm();
                 });
 
-                document.getElementById('confirm-cancel-btn').addEventListener('click', () => { cleanup(); if (typeof onCancel === 'function') onCancel(); });
+                document.getElementById('confirm-cancel-btn').addEventListener('click', () => {
+                    cleanup();
+                    if (typeof onCancel === 'function') onCancel();
+                });
             },
 
             renderEmptyState(viewLabel) {
@@ -1185,11 +1173,6 @@
                 }
             },
 
-            /**
-             * Menghuraikan tatasusunan 2D sel Google Sheet mengikut koordinat rasmi:
-             * LELAKI: Saringan 1 (A5:G12 -> baris indeks 4..11, kol 0..6), Saringan 2 (A18:G25 -> baris indeks 17..24, kol 0..6)
-             * PEREMPUAN: Saringan 1 (I5:O12 -> baris indeks 4..11, kol 8..14), Saringan 2 (I18:O25 -> baris indeks 17..24, kol 8..14)
-             */
             extractHeatsFromGrid(eventNo, grid) {
                 const parseBlock = (genderCode, heatNum, startRowIdx, endRowIdx, colOffset) => {
                     const rows = [];
@@ -1198,19 +1181,16 @@
                         const lorong = (rowArr[colOffset + 0] ?? '').toString().trim();
                         const namaB = (rowArr[colOffset + 1] ?? '').toString().trim();
                         const namaC = (rowArr[colOffset + 2] ?? '').toString().trim();
-                        // Kolom B & C merge (atau I & J merge): ambil B (atau gabungan jika berbeza)
                         const namaAtlet = namaB || namaC;
                         const pasukan = (rowArr[colOffset + 3] ?? '').toString().trim();
                         const noBib = (rowArr[colOffset + 4] ?? '').toString().trim();
                         const kedudukan = (rowArr[colOffset + 5] ?? '').toString().trim();
                         const masa = (rowArr[colOffset + 6] ?? '').toString().trim();
 
-                        // Peraturan data: Jangan cipta atlet secara automatik. Abaikan baris tanpa rekod sebenar.
                         if (!namaAtlet && !noBib && !pasukan && !masa && !kedudukan) {
                             continue;
                         }
 
-                        // Jana ID unik deterministik berdasarkan No Acara, Kategori, Saringan & Identiti Rekod supaya tidak berganda
                         const rowSlot = r - startRowIdx + 1;
                         const identityKey = noBib || lorong || `R${rowSlot}`;
                         const uniqueId = `SAR-${eventNo}-${genderCode}-S${heatNum}-${identityKey}`.replace(/\s+/g, '_');
@@ -1226,7 +1206,6 @@
                             masa
                         });
                     }
-                    // Pastikan tiada duplikasi ID dalam blok yang sama
                     const seen = new Set();
                     return rows.filter(item => {
                         if (seen.has(item.id)) return false;
@@ -1247,24 +1226,18 @@
                 };
             },
 
-            /**
-             * Menormalkan tindak balas JSON daripada Google Apps Script.
-             * Menyokong sama ada payload berbentuk grid 2D mentah bagi setiap acara atau objek berstruktur.
-             */
             normalizeGasPayload(payload) {
                 const normalizedEvents = {};
                 if (!payload || typeof payload !== 'object') {
                     throw new Error('Format JSON daripada Google Apps Script tidak sah.');
                 }
 
-                // Ekstrak peta acara daripada pelbagai kemungkinan struktur akar
                 const sourceMap = payload.events || payload.sheets || payload.data || payload;
 
                 this.ALLOWED_EVENT_NOS.forEach(eventNo => {
                     const rawEvent = sourceMap[eventNo] || sourceMap[`ACARA ${eventNo}`] || sourceMap[`NO ${eventNo}`];
                     if (!rawEvent) return;
 
-                    // Kes 1: Web App memulangkan tatasusunan 2D sel (getValues())
                     if (Array.isArray(rawEvent)) {
                         const extracted = this.extractHeatsFromGrid(eventNo, rawEvent);
                         normalizedEvents[eventNo] = {
@@ -1275,7 +1248,6 @@
                         return;
                     }
 
-                    // Kes 2: Web App memulangkan objek dengan properti grid/values atau kategori terstruktur
                     if (Array.isArray(rawEvent.grid) || Array.isArray(rawEvent.values)) {
                         const grid = rawEvent.grid || rawEvent.values;
                         const extracted = this.extractHeatsFromGrid(eventNo, grid);
@@ -1287,7 +1259,6 @@
                         return;
                     }
 
-                    // Kes 3: Web App sudah memetakan lelaki/perempuan -> saringan1/saringan2
                     if (rawEvent.lelaki || rawEvent.perempuan) {
                         const sanitizeList = (list, genderCode, heatNum) => {
                             if (!Array.isArray(list)) return [];
@@ -1377,7 +1348,6 @@
                         throw new Error('Tiada data acara saringan sah (101, 102, 103, 104, 105, 106, 204, 205, 300) ditemui dalam respons Google Apps Script.');
                     }
 
-                    // Abaikan respons lama jika URL dipadam atau disimpan semula ketika fetch berjalan.
                     const currentCfg = StorageManager.getModuleSheetConfig('saringan');
                     if (!currentCfg || currentCfg.url !== gasUrl ||
                         StorageManager.moduleConfigRevision['saringan'] !== configRevision) return false;
@@ -1385,12 +1355,11 @@
                     const existingStore = StorageManager.getSaringanStore();
                     const nowIso = new Date().toISOString();
 
-                    // Gabungkan tanpa menghilangkan status pengesahan sedia ada dan tanpa menggandakan rekod
                     eventKeys.forEach(evNo => {
                         const prev = existingStore.events[evNo];
                         existingStore.events[evNo] = {
                             ...parsedEvents[evNo],
-                            status: prev?.status || 'BELUM_SELESAI', // BELUM_SELESAI | SELESAI | DISAHKAN_RASMI
+                            status: prev?.status || 'BELUM_SELESAI',
                             updatedAt: nowIso,
                             verifiedAt: prev?.verifiedAt || null
                         };
@@ -1429,12 +1398,6 @@
                 }
             },
 
-            /**
-             * Tindakan Pengesahan Rasmi oleh Admin:
-             * 1. Tandakan selesai
-             * 2. Sahkan rasmi
-             * 3. Tarik balik pengesahan (dengan rekod perubahan)
-             */
             markEventCompleted(eventNo) {
                 const store = StorageManager.getSaringanStore();
                 const ev = store.events[eventNo];
@@ -1480,31 +1443,32 @@
                 }
 
                 const commit = () => {
-                        const latest = StorageManager.getSaringanStore().events[eventNo];
-                        if (!latest ||
-                            String(latest.eventNo) !== String(eventNo) || !['BELUM_SELESAI', 'SELESAI'].includes(latest.status)) return;
-                        const store = StorageManager.getSaringanStore();
-                        const ev = store.events[eventNo];
-                        const nowIso = new Date().toISOString();
-                        ev.status = 'DISAHKAN_RASMI';
-                        ev.verifiedAt = nowIso;
-                        ev.updatedAt = nowIso;
-                        StorageManager.saveSaringanStore(store);
+                    const latest = StorageManager.getSaringanStore().events[eventNo];
+                    if (!latest ||
+                        String(latest.eventNo) !== String(eventNo) || !['BELUM_SELESAI', 'SELESAI'].includes(latest.status)) return;
+                    const store = StorageManager.getSaringanStore();
+                    const ev = store.events[eventNo];
+                    const nowIso = new Date().toISOString();
+                    ev.status = 'DISAHKAN_RASMI';
+                    ev.verifiedAt = nowIso;
+                    ev.updatedAt = nowIso;
+                    StorageManager.saveSaringanStore(store);
 
-                        StorageManager.appendSaringanAuditLog({
-                            id: `LOG-${Date.now()}`,
-                            timestamp: nowIso,
-                            action: 'SAHKAN_RASMI',
-                            eventNo,
-                            detail: `Keputusan No. Acara ${eventNo} DISAHKAN RASMI.`
-                        });
+                    StorageManager.appendSaringanAuditLog({
+                        id: `LOG-${Date.now()}`,
+                        timestamp: nowIso,
+                        action: 'SAHKAN_RASMI',
+                        eventNo,
+                        detail: `Keputusan No. Acara ${eventNo} DISAHKAN RASMI.`
+                    });
 
-                        AppController.updateSummaryCards();
-                        if (!AppController.state.isAdminMode) AppController.loadView(AppController.state.activeViewId);
-                        UIComponents.showToast(`Keputusan No. Acara ${eventNo} telah disahkan rasmi.`, 'success');
+                    AppController.updateSummaryCards();
+                    if (!AppController.state.isAdminMode) AppController.loadView(AppController.state.activeViewId);
+                    UIComponents.showToast(`Keputusan No. Acara ${eventNo} telah disahkan rasmi.`, 'success');
                 };
                 commit();
             },
+
             openRevokeModal(eventNo) {
                 this.pendingRevokeEventNo = eventNo;
                 const modal = document.getElementById('revoke-modal');
@@ -1585,15 +1549,11 @@
                 AppController.loadView('saringan');
             },
 
-            /**
-             * Merender Paparan Awam Acara Saringan (Kategori Lelaki & Perempuan, Saringan 1 & Saringan 2)
-             */
             renderPublicView(syncErrorMsg = null) {
                 const sheetCfg = StorageManager.getModuleSheetConfig('saringan');
                 const store = StorageManager.getSaringanStore();
                 const availableNos = this.ALLOWED_EVENT_NOS.filter(no => Boolean(store.events[no]));
 
-                // Jika URL belum disimpan dan tiada rekod tempatan, paparkan mesej status yang jelas (tanpa mendedahkan URL atau butang admin)
                 if (!sheetCfg) {
                     return `
                         <div class="py-16 px-6 text-center flex flex-col items-center justify-center">
@@ -1685,7 +1645,6 @@
 
                 return `
                     <div class="p-4 sm:p-6 space-y-6">
-                        <!-- Pemilih No. Acara & Bar Status + Butang Cetak -->
                         <div class="flex flex-col gap-4 pb-5 border-b border-slate-100">
                             <div class="flex items-center gap-2 overflow-x-auto no-scrollbar pb-1">
                                 ${eventTabsHtml}
@@ -1707,17 +1666,15 @@
 
                                 <div class="flex flex-wrap items-center gap-2 self-start sm:self-center">
                                     <button type="button" onclick="SaringanModule.printOfficialResult('${this.escapeHtml(currentEvent.eventNo)}')" class="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold bg-navy-primary text-gold-light hover:bg-navy-secondary transition-colors shadow-sm cursor-pointer self-start sm:self-center">
-                                    <i data-lucide="printer" class="w-4 h-4 text-gold"></i>
-                                    <span>CETAK KEPUTUSAN</span>
-                                </button>
+                                        <i data-lucide="printer" class="w-4 h-4 text-gold"></i>
+                                        <span>CETAK KEPUTUSAN</span>
+                                    </button>
                                     ${VerificationButtonController.renderEventButton('SaringanModule', currentEvent)}
                                 </div>
                             </div>
                         </div>
 
-                        <!-- Dua Lajur Utama: Kategori LELAKI & Kategori PEREMPUAN -->
                         <div class="grid grid-cols-1 xl:grid-cols-2 gap-6">
-                            <!-- LAJUR 1: KATEGORI LELAKI -->
                             <div class="space-y-4">
                                 <div class="flex items-center gap-2.5 px-4 py-3 rounded-xl bg-navy-dark text-white border-l-4 border-gold">
                                     <i data-lucide="user" class="w-4 h-4 text-gold"></i>
@@ -1727,7 +1684,6 @@
                                 ${renderHeatTable('Saringan 2 (Lelaki)', currentEvent.lelaki?.saringan2 || [], 'lelaki', 2)}
                             </div>
 
-                            <!-- LAJUR 2: KATEGORI PEREMPUAN -->
                             <div class="space-y-4">
                                 <div class="flex items-center gap-2.5 px-4 py-3 rounded-xl bg-pink-600 text-white border-l-4 border-gold">
                                     <i data-lucide="user" class="w-4 h-4 text-gold"></i>
@@ -1741,9 +1697,6 @@
                 `;
             },
 
-            /**
-             * Merender Kawalan Panel Admin & Log Audit
-             */
             renderAdminPanel() {
                 const config = StorageManager.getTournamentConfig();
                 const nameInput = document.getElementById('input-tournament-name');
@@ -1829,7 +1782,6 @@
                     }
                 }
 
-                // Render Log Audit (Gabungan Acara Saringan, Akhir Balapan, Acara Relay & Acara Padang)
                 const logContainer = document.getElementById('admin-audit-log-list');
                 if (logContainer) {
                     const saringanLogs = StorageManager.getSaringanAuditLogs().map(l => ({ ...l, moduleLabel: 'Saringan' }));
@@ -1863,10 +1815,6 @@
                 lucide.createIcons();
             },
 
-            /**
-             * Cetakan Rasmi Format A4:
-             * Mengandungi Nama kejohanan, No acara, Jadual keputusan, Tarikh, Status keputusan, Ruang pengesahan pegawai.
-             */
             printOfficialResult(eventNo) {
                 const store = StorageManager.getSaringanStore();
                 const ev = store.events[eventNo];
@@ -1927,7 +1875,6 @@
 
                 printContainer.innerHTML = `
                     <div style="font-family: 'Inter', Arial, sans-serif; color: #000;">
-                        <!-- Kepala Dokumen Rasmi A4 -->
                         <div style="border-bottom: 2px solid #0B1F3A; padding-bottom: 8px; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: flex-start;">
                             <div>
                                 <div style="font-size: 10px; font-weight: 700; letter-spacing: 1px; color: #475569;">STATISTIX HUB • KEPUTUSAN RASMI KEJOHANAN</div>
@@ -1949,7 +1896,6 @@
                             </div>
                         </div>
 
-                        <!-- Jadual Keputusan Kategori Lelaki -->
                         <div style="margin-bottom: 12px;">
                             <div style="background: #0B1F3A; color: #fff; padding: 4px 8px; font-weight: 700; font-size: 11px; margin-bottom: 6px; -webkit-print-color-adjust: exact; print-color-adjust: exact;">
                                 KATEGORI LELAKI
@@ -1958,7 +1904,6 @@
                             ${buildPrintTable('Lelaki — Saringan 2', ev.lelaki?.saringan2 || [])}
                         </div>
 
-                        <!-- Jadual Keputusan Kategori Perempuan -->
                         <div style="margin-bottom: 16px;">
                             <div style="background: #142D4E; color: #fff; padding: 4px 8px; font-weight: 700; font-size: 11px; margin-bottom: 6px; -webkit-print-color-adjust: exact; print-color-adjust: exact;">
                                 KATEGORI PEREMPUAN
@@ -1967,7 +1912,6 @@
                             ${buildPrintTable('Perempuan — Saringan 2', ev.perempuan?.saringan2 || [])}
                         </div>
 
-                        <!-- Ruang Pengesahan Pegawai -->
                         <div style="margin-top: 22px; border-top: 1px solid #94a3b8; padding-top: 14px; display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 20px; font-size: 10px;">
                             <div>
                                 <div style="margin-bottom: 34px;">Disediakan oleh (Ketua Pencatat):</div>
@@ -1994,9 +1938,6 @@
 
         /**
          * 4D. MODUL ACARA PADANG (PadangModule)
-         * Menguruskan pemetaan data Google Sheet (LONGJUMP, HIGHJUMP, SHOTPUT),
-         * paparan jadual kategori Lelaki (A9:N16) & Perempuan (A26:N33),
-         * kawalan pengesahan rasmi, log perubahan, dan cetakan A4.
          */
         const PadangModule = {
             ALLOWED_EVENT_NOS: ['LONGJUMP', 'HIGHJUMP', 'SHOTPUT'],
@@ -2020,23 +1961,6 @@
                 return this.EVENT_LABELS[eventCode] || eventCode;
             },
 
-            /**
-             * Menghuraikan tatasusunan 2D sel Google Sheet bagi acara padang mengikut koordinat rasmi:
-             * LELAKI: A9:N16 -> baris indeks 8..15, kol 0..13
-             * PEREMPUAN: A26:N33 -> baris indeks 25..32, kol 0..13
-             *   Kolom A (0): Lorong
-             *   Kolom B & C merge (1..2): Nama Atlet
-             *   Kolom D (3): Pasukan
-             *   Kolom E (4): No Bib
-             *   Kolom F (5): Percubaan 1
-             *   Kolom G (6): Percubaan 2
-             *   Kolom H (7): Percubaan 3
-             *   Kolom I (8): Percubaan 4
-             *   Kolom J (9): Percubaan 5
-             *   Kolom K (10): Percubaan 6
-             *   Kolom L (11): Catatan Terbaik
-             *   Kolom M & N merge (12..13): Kedudukan
-             */
             extractFieldFromGrid(eventCode, grid) {
                 const parseBlock = (genderCode, startRowIdx, endRowIdx) => {
                     const rows = [];
@@ -2061,7 +1985,6 @@
                         const kedudukanN = (rowArr[13] ?? '').toString().trim();
                         const kedudukan = kedudukanM || kedudukanN;
 
-                        // Peraturan data: Jangan cipta atlet secara automatik. Abaikan baris kosong.
                         if (!namaAtlet && !noBib && !pasukan && !catatanTerbaik && !kedudukan && !p1 && !p2 && !p3 && !p4 && !p5 && !p6) {
                             continue;
                         }
@@ -2121,7 +2044,6 @@
                         upperKeyLookup[`NO${eventCode}`];
                     if (!rawEvent) return;
 
-                    // Kes 1: Tatasusunan 2D sel mentah (getValues())
                     if (Array.isArray(rawEvent)) {
                         const extracted = this.extractFieldFromGrid(eventCode, rawEvent);
                         normalizedEvents[eventCode] = {
@@ -2132,7 +2054,6 @@
                         return;
                     }
 
-                    // Kes 2: Objek dengan properti grid atau values
                     if (Array.isArray(rawEvent.grid) || Array.isArray(rawEvent.values)) {
                         const grid = rawEvent.grid || rawEvent.values;
                         const extracted = this.extractFieldFromGrid(eventCode, grid);
@@ -2144,7 +2065,6 @@
                         return;
                     }
 
-                    // Kes 3: Objek berstruktur lelaki & perempuan
                     if (rawEvent.lelaki || rawEvent.perempuan) {
                         const sanitizeList = (list, genderCode) => {
                             if (!Array.isArray(list)) return [];
@@ -2238,7 +2158,6 @@
                         throw new Error('Tiada data acara padang sah (LONGJUMP, HIGHJUMP, SHOTPUT) ditemui dalam respons Google Apps Script.');
                     }
 
-                    // Abaikan respons lama jika URL dipadam atau disimpan semula ketika fetch berjalan.
                     const currentCfg = StorageManager.getModuleSheetConfig('padang');
                     if (!currentCfg || currentCfg.url !== gasUrl ||
                         StorageManager.moduleConfigRevision['padang'] !== configRevision) return false;
@@ -2338,32 +2257,33 @@
                 }
 
                 const commit = () => {
-                        const latest = StorageManager.getPadangStore().events[eventNo];
-                        if (!latest ||
-                            String(latest.eventNo) !== String(eventNo) || !['BELUM_SELESAI', 'SELESAI'].includes(latest.status)) return;
-                        const store = StorageManager.getPadangStore();
-                        const ev = store.events[eventNo];
-                        const nowIso = new Date().toISOString();
-                        ev.status = 'DISAHKAN_RASMI';
-                        ev.verifiedAt = nowIso;
-                        ev.updatedAt = nowIso;
-                        StorageManager.savePadangStore(store);
+                    const latest = StorageManager.getPadangStore().events[eventNo];
+                    if (!latest ||
+                        String(latest.eventNo) !== String(eventNo) || !['BELUM_SELESAI', 'SELESAI'].includes(latest.status)) return;
+                    const store = StorageManager.getPadangStore();
+                    const ev = store.events[eventNo];
+                    const nowIso = new Date().toISOString();
+                    ev.status = 'DISAHKAN_RASMI';
+                    ev.verifiedAt = nowIso;
+                    ev.updatedAt = nowIso;
+                    StorageManager.savePadangStore(store);
 
-                        StorageManager.appendPadangAuditLog({
-                            id: `LOG-PDG-${Date.now()}`,
-                            timestamp: nowIso,
-                            action: 'SAHKAN_RASMI',
-                            eventNo,
-                            detail: `Keputusan Acara Padang ${eventNo} DISAHKAN RASMI.`
-                        });
+                    StorageManager.appendPadangAuditLog({
+                        id: `LOG-PDG-${Date.now()}`,
+                        timestamp: nowIso,
+                        action: 'SAHKAN_RASMI',
+                        eventNo,
+                        detail: `Keputusan Acara Padang ${eventNo} DISAHKAN RASMI.`
+                    });
 
-                        AppController.updateSummaryCards();
-                        if (!AppController.state.isAdminMode) AppController.loadView(AppController.state.activeViewId);
-                        PodiumModule.refreshIfActive();
-                        UIComponents.showToast(`Keputusan Acara Padang ${eventNo} telah disahkan rasmi.`, 'success');
+                    AppController.updateSummaryCards();
+                    if (!AppController.state.isAdminMode) AppController.loadView(AppController.state.activeViewId);
+                    PodiumModule.refreshIfActive();
+                    UIComponents.showToast(`Keputusan Acara Padang ${eventNo} telah disahkan rasmi.`, 'success');
                 };
                 commit();
             },
+
             openRevokeModal(eventNo) {
                 this.pendingRevokeEventNo = eventNo;
                 const modal = document.getElementById('padang-revoke-modal');
@@ -2424,9 +2344,6 @@
                 AppController.loadView('padang');
             },
 
-            /**
-             * Merender Paparan Awam Acara Padang (Kategori Lelaki A9:N16 & Perempuan A26:N33)
-             */
             renderPublicView(syncErrorMsg = null) {
                 const sheetCfg = StorageManager.getModuleSheetConfig('padang');
                 const store = StorageManager.getPadangStore();
@@ -2542,7 +2459,6 @@
 
                 return `
                     <div class="p-4 sm:p-6 space-y-6">
-                        <!-- Pemilih Acara Padang & Bar Status + Butang Cetak -->
                         <div class="flex flex-col gap-4 pb-5 border-b border-slate-100">
                             <div class="flex items-center gap-2 overflow-x-auto no-scrollbar pb-1">
                                 ${eventTabsHtml}
@@ -2564,17 +2480,15 @@
 
                                 <div class="flex flex-wrap items-center gap-2 self-start sm:self-center">
                                     <button type="button" onclick="PadangModule.printOfficialResult('${this.escapeHtml(currentEvent.eventNo)}')" class="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold bg-navy-primary text-gold-light hover:bg-navy-secondary transition-colors shadow-sm cursor-pointer self-start sm:self-center">
-                                    <i data-lucide="printer" class="w-4 h-4 text-gold"></i>
-                                    <span>CETAK KEPUTUSAN</span>
-                                </button>
+                                        <i data-lucide="printer" class="w-4 h-4 text-gold"></i>
+                                        <span>CETAK KEPUTUSAN</span>
+                                    </button>
                                     ${VerificationButtonController.renderEventButton('PadangModule', currentEvent)}
                                 </div>
                             </div>
                         </div>
 
-                        <!-- Kategori LELAKI & Kategori PEREMPUAN (Susunan menegak penuh supaya semua 6 percubaan jelas dibaca) -->
                         <div class="space-y-6">
-                            <!-- BAHAGIAN 1: KATEGORI LELAKI -->
                             <div class="space-y-3">
                                 <div class="flex items-center gap-2.5 px-4 py-3 rounded-xl bg-navy-dark text-white border-l-4 border-gold">
                                     <i data-lucide="user" class="w-4 h-4 text-gold"></i>
@@ -2583,7 +2497,6 @@
                                 ${renderFieldTable('Keputusan Acara Padang — Lelaki', currentEvent.lelaki || [], 'lelaki')}
                             </div>
 
-                            <!-- BAHAGIAN 2: KATEGORI PEREMPUAN -->
                             <div class="space-y-3">
                                 <div class="flex items-center gap-2.5 px-4 py-3 rounded-xl bg-pink-600 text-white border-l-4 border-gold">
                                     <i data-lucide="user" class="w-4 h-4 text-gold"></i>
@@ -2679,9 +2592,6 @@
                 lucide.createIcons();
             },
 
-            /**
-             * Cetakan Rasmi Format A4 (Acara Padang)
-             */
             printOfficialResult(eventNo) {
                 const store = StorageManager.getPadangStore();
                 const ev = store.events[eventNo];
@@ -2754,7 +2664,6 @@
 
                 printContainer.innerHTML = `
                     <div style="font-family: 'Inter', Arial, sans-serif; color: #000;">
-                        <!-- Kepala Dokumen Rasmi A4 -->
                         <div style="border-bottom: 2px solid #0B1F3A; padding-bottom: 8px; margin-bottom: 14px; display: flex; justify-content: space-between; align-items: flex-start;">
                             <div>
                                 <div style="font-size: 10px; font-weight: 700; letter-spacing: 1px; color: #475569;">STATISTIX HUB • KEPUTUSAN RASMI KEJOHANAN</div>
@@ -2776,7 +2685,6 @@
                             </div>
                         </div>
 
-                        <!-- Jadual Keputusan Kategori Lelaki -->
                         <div style="margin-bottom: 14px;">
                             <div style="background: #0B1F3A; color: #fff; padding: 5px 8px; font-weight: 700; font-size: 11px; margin-bottom: 6px; -webkit-print-color-adjust: exact; print-color-adjust: exact;">
                                 KATEGORI LELAKI (ACARA PADANG)
@@ -2784,7 +2692,6 @@
                             ${buildPrintTable(`Keputusan Acara Padang — Lelaki (${ev.eventNo})`, ev.lelaki || [])}
                         </div>
 
-                        <!-- Jadual Keputusan Kategori Perempuan -->
                         <div style="margin-bottom: 18px;">
                             <div style="background: #142D4E; color: #fff; padding: 5px 8px; font-weight: 700; font-size: 11px; margin-bottom: 6px; -webkit-print-color-adjust: exact; print-color-adjust: exact;">
                                 KATEGORI PEREMPUAN (ACARA PADANG)
@@ -2792,7 +2699,6 @@
                             ${buildPrintTable(`Keputusan Acara Padang — Perempuan (${ev.eventNo})`, ev.perempuan || [])}
                         </div>
 
-                        <!-- Ruang Pengesahan Pegawai -->
                         <div style="margin-top: 26px; border-top: 1px solid #94a3b8; padding-top: 16px; display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 20px; font-size: 10px;">
                             <div>
                                 <div style="margin-bottom: 38px;">Disediakan oleh (Ketua Pencatat Padang):</div>
@@ -2819,9 +2725,6 @@
 
         /**
          * 4B. MODUL AKHIR BALAPAN (AkhirBalapanModule)
-         * Menguruskan pemetaan data Google Sheet (101, 102, 103, 104, 105, 106, 204, 205, 300),
-         * paparan jadual kategori Lelaki (A6:G13) & Perempuan (A20:G27),
-         * kawalan pengesahan rasmi, log perubahan, dan cetakan A4.
          */
         const AkhirBalapanModule = {
             ALLOWED_EVENT_NOS: ['101', '102', '103', '104', '105', '106', '204', '205', '300'],
@@ -2991,7 +2894,6 @@
                         throw new Error('Tiada data acara akhir balapan sah (101, 102, 103, 104, 105, 106, 204, 205, 300) ditemui dalam respons Google Apps Script.');
                     }
 
-                    // Abaikan respons lama jika URL dipadam atau disimpan semula ketika fetch berjalan.
                     const currentCfg = StorageManager.getModuleSheetConfig('akhir');
                     if (!currentCfg || currentCfg.url !== gasUrl ||
                         StorageManager.moduleConfigRevision['akhir'] !== configRevision) return false;
@@ -3091,32 +2993,33 @@
                 }
 
                 const commit = () => {
-                        const latest = StorageManager.getAkhirBalapanStore().events[eventNo];
-                        if (!latest ||
-                            String(latest.eventNo) !== String(eventNo) || !['BELUM_SELESAI', 'SELESAI'].includes(latest.status)) return;
-                        const store = StorageManager.getAkhirBalapanStore();
-                        const ev = store.events[eventNo];
-                        const nowIso = new Date().toISOString();
-                        ev.status = 'DISAHKAN_RASMI';
-                        ev.verifiedAt = nowIso;
-                        ev.updatedAt = nowIso;
-                        StorageManager.saveAkhirBalapanStore(store);
+                    const latest = StorageManager.getAkhirBalapanStore().events[eventNo];
+                    if (!latest ||
+                        String(latest.eventNo) !== String(eventNo) || !['BELUM_SELESAI', 'SELESAI'].includes(latest.status)) return;
+                    const store = StorageManager.getAkhirBalapanStore();
+                    const ev = store.events[eventNo];
+                    const nowIso = new Date().toISOString();
+                    ev.status = 'DISAHKAN_RASMI';
+                    ev.verifiedAt = nowIso;
+                    ev.updatedAt = nowIso;
+                    StorageManager.saveAkhirBalapanStore(store);
 
-                        StorageManager.appendAkhirBalapanAuditLog({
-                            id: `LOG-AKH-${Date.now()}`,
-                            timestamp: nowIso,
-                            action: 'SAHKAN_RASMI',
-                            eventNo,
-                            detail: `Keputusan Akhir Balapan No. Acara ${eventNo} DISAHKAN RASMI.`
-                        });
+                    StorageManager.appendAkhirBalapanAuditLog({
+                        id: `LOG-AKH-${Date.now()}`,
+                        timestamp: nowIso,
+                        action: 'SAHKAN_RASMI',
+                        eventNo,
+                        detail: `Keputusan Akhir Balapan No. Acara ${eventNo} DISAHKAN RASMI.`
+                    });
 
-                        AppController.updateSummaryCards();
-                        if (!AppController.state.isAdminMode) AppController.loadView(AppController.state.activeViewId);
-                        PodiumModule.refreshIfActive();
-                        UIComponents.showToast(`Keputusan Akhir Balapan No. Acara ${eventNo} telah disahkan rasmi.`, 'success');
+                    AppController.updateSummaryCards();
+                    if (!AppController.state.isAdminMode) AppController.loadView(AppController.state.activeViewId);
+                    PodiumModule.refreshIfActive();
+                    UIComponents.showToast(`Keputusan Akhir Balapan No. Acara ${eventNo} telah disahkan rasmi.`, 'success');
                 };
                 commit();
             },
+
             openRevokeModal(eventNo) {
                 this.pendingRevokeEventNo = eventNo;
                 const modal = document.getElementById('akhir-revoke-modal');
@@ -3301,9 +3204,9 @@
 
                                 <div class="flex flex-wrap items-center gap-2 self-start sm:self-center">
                                     <button type="button" onclick="AkhirBalapanModule.printOfficialResult('${this.escapeHtml(currentEvent.eventNo)}')" class="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold bg-navy-primary text-gold-light hover:bg-navy-secondary transition-colors shadow-sm cursor-pointer self-start sm:self-center">
-                                    <i data-lucide="printer" class="w-4 h-4 text-gold"></i>
-                                    <span>CETAK KEPUTUSAN</span>
-                                </button>
+                                        <i data-lucide="printer" class="w-4 h-4 text-gold"></i>
+                                        <span>CETAK KEPUTUSAN</span>
+                                    </button>
                                     ${VerificationButtonController.renderEventButton('AkhirBalapanModule', currentEvent)}
                                 </div>
                             </div>
@@ -3534,9 +3437,6 @@
 
         /**
          * 4C. MODUL ACARA RELAY BERPASUKAN (RelayModule)
-         * Menguruskan pemetaan data Google Sheet (411, 412, 413, 414, 415, 424, 425),
-         * paparan jadual kategori Lelaki (A5:G18) & Perempuan (I5:O18),
-         * kawalan pengesahan rasmi, log perubahan, dan cetakan A4.
          */
         const RelayModule = {
             ALLOWED_EVENT_NOS: ['411', '412', '413', '414', '415', '424', '425'],
@@ -3551,13 +3451,6 @@
                 return SaringanModule.formatDateTime(isoString);
             },
 
-            /**
-             * Menghuraikan tatasusunan 2D sel Google Sheet bagi acara relay mengikut koordinat rasmi:
-             * LELAKI: A5:G18 -> baris indeks 4..17, kol 0..6
-             *   Kolom A (0): Lorong, B & C merge (1..2): Pasukan, D & E (3..4): Masa, F & G (5..6): Kedudukan
-             * PEREMPUAN: I5:O18 -> baris indeks 4..17, kol 8..14
-             *   Kolom I (8): Lorong, J & K merge (9..10): Pasukan, L & M (11..12): Masa, N & O (13..14): Kedudukan
-             */
             extractRelaysFromGrid(eventNo, grid) {
                 const parseBlock = (genderCode, startRowIdx, endRowIdx, colOffset) => {
                     const rows = [];
@@ -3577,7 +3470,6 @@
                         const kedudukan2 = (rowArr[colOffset + 6] ?? '').toString().trim();
                         const kedudukan = kedudukan1 || kedudukan2;
 
-                        // Peraturan data: Jangan cipta rekod secara automatik. Abaikan baris kosong.
                         if (!pasukan && !masa && !kedudukan && !lorong) {
                             continue;
                         }
@@ -3629,7 +3521,6 @@
                         sourceMap[`AKHIR ${eventNo}`];
                     if (!rawEvent) return;
 
-                    // Kes 1: Tatasusunan 2D sel mentah (getValues())
                     if (Array.isArray(rawEvent)) {
                         const extracted = this.extractRelaysFromGrid(eventNo, rawEvent);
                         normalizedEvents[eventNo] = {
@@ -3640,7 +3531,6 @@
                         return;
                     }
 
-                    // Kes 2: Objek dengan properti grid atau values
                     if (Array.isArray(rawEvent.grid) || Array.isArray(rawEvent.values)) {
                         const grid = rawEvent.grid || rawEvent.values;
                         const extracted = this.extractRelaysFromGrid(eventNo, grid);
@@ -3652,7 +3542,6 @@
                         return;
                     }
 
-                    // Kes 3: Objek berstruktur lelaki & perempuan
                     if (rawEvent.lelaki || rawEvent.perempuan) {
                         const sanitizeList = (list, genderCode) => {
                             if (!Array.isArray(list)) return [];
@@ -3722,7 +3611,6 @@
                         throw new Error('Tiada data acara relay sah (411, 412, 413, 414, 415, 424, 425) ditemui dalam respons Google Apps Script.');
                     }
 
-                    // Abaikan respons lama jika URL dipadam atau disimpan semula ketika fetch berjalan.
                     const currentCfg = StorageManager.getModuleSheetConfig('relay');
                     if (!currentCfg || currentCfg.url !== gasUrl ||
                         StorageManager.moduleConfigRevision['relay'] !== configRevision) return false;
@@ -3822,32 +3710,33 @@
                 }
 
                 const commit = () => {
-                        const latest = StorageManager.getRelayStore().events[eventNo];
-                        if (!latest ||
-                            String(latest.eventNo) !== String(eventNo) || !['BELUM_SELESAI', 'SELESAI'].includes(latest.status)) return;
-                        const store = StorageManager.getRelayStore();
-                        const ev = store.events[eventNo];
-                        const nowIso = new Date().toISOString();
-                        ev.status = 'DISAHKAN_RASMI';
-                        ev.verifiedAt = nowIso;
-                        ev.updatedAt = nowIso;
-                        StorageManager.saveRelayStore(store);
+                    const latest = StorageManager.getRelayStore().events[eventNo];
+                    if (!latest ||
+                        String(latest.eventNo) !== String(eventNo) || !['BELUM_SELESAI', 'SELESAI'].includes(latest.status)) return;
+                    const store = StorageManager.getRelayStore();
+                    const ev = store.events[eventNo];
+                    const nowIso = new Date().toISOString();
+                    ev.status = 'DISAHKAN_RASMI';
+                    ev.verifiedAt = nowIso;
+                    ev.updatedAt = nowIso;
+                    StorageManager.saveRelayStore(store);
 
-                        StorageManager.appendRelayAuditLog({
-                            id: `LOG-REL-${Date.now()}`,
-                            timestamp: nowIso,
-                            action: 'SAHKAN_RASMI',
-                            eventNo,
-                            detail: `Keputusan Acara Relay No. Acara ${eventNo} DISAHKAN RASMI.`
-                        });
+                    StorageManager.appendRelayAuditLog({
+                        id: `LOG-REL-${Date.now()}`,
+                        timestamp: nowIso,
+                        action: 'SAHKAN_RASMI',
+                        eventNo,
+                        detail: `Keputusan Acara Relay No. Acara ${eventNo} DISAHKAN RASMI.`
+                    });
 
-                        AppController.updateSummaryCards();
-                        if (!AppController.state.isAdminMode) AppController.loadView(AppController.state.activeViewId);
-                        PodiumModule.refreshIfActive();
-                        UIComponents.showToast(`Keputusan Acara Relay No. Acara ${eventNo} telah disahkan rasmi.`, 'success');
+                    AppController.updateSummaryCards();
+                    if (!AppController.state.isAdminMode) AppController.loadView(AppController.state.activeViewId);
+                    PodiumModule.refreshIfActive();
+                    UIComponents.showToast(`Keputusan Acara Relay No. Acara ${eventNo} telah disahkan rasmi.`, 'success');
                 };
                 commit();
             },
+
             openRevokeModal(eventNo) {
                 this.pendingRevokeEventNo = eventNo;
                 const modal = document.getElementById('relay-revoke-modal');
@@ -3908,9 +3797,6 @@
                 AppController.loadView('relay');
             },
 
-            /**
-             * Merender Paparan Awam Acara Relay Berpasukan (Kategori Lelaki A5:G18 & Perempuan I5:O18)
-             */
             renderPublicView(syncErrorMsg = null) {
                 const sheetCfg = StorageManager.getModuleSheetConfig('relay');
                 const store = StorageManager.getRelayStore();
@@ -4010,7 +3896,6 @@
 
                 return `
                     <div class="p-4 sm:p-6 space-y-6">
-                        <!-- Pemilih No. Acara & Bar Status + Butang Cetak -->
                         <div class="flex flex-col gap-4 pb-5 border-b border-slate-100">
                             <div class="flex items-center gap-2 overflow-x-auto no-scrollbar pb-1">
                                 ${eventTabsHtml}
@@ -4032,17 +3917,15 @@
 
                                 <div class="flex flex-wrap items-center gap-2 self-start sm:self-center">
                                     <button type="button" onclick="RelayModule.printOfficialResult('${this.escapeHtml(currentEvent.eventNo)}')" class="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold bg-navy-primary text-gold-light hover:bg-navy-secondary transition-colors shadow-sm cursor-pointer self-start sm:self-center">
-                                    <i data-lucide="printer" class="w-4 h-4 text-gold"></i>
-                                    <span>CETAK KEPUTUSAN</span>
-                                </button>
+                                        <i data-lucide="printer" class="w-4 h-4 text-gold"></i>
+                                        <span>CETAK KEPUTUSAN</span>
+                                    </button>
                                     ${VerificationButtonController.renderEventButton('RelayModule', currentEvent)}
                                 </div>
                             </div>
                         </div>
 
-                        <!-- Dua Lajur Utama: Kategori LELAKI & Kategori PEREMPUAN -->
                         <div class="grid grid-cols-1 xl:grid-cols-2 gap-6">
-                            <!-- LAJUR 1: KATEGORI LELAKI -->
                             <div class="space-y-4">
                                 <div class="flex items-center gap-2.5 px-4 py-3 rounded-xl bg-navy-dark text-white border-l-4 border-gold">
                                     <i data-lucide="users" class="w-4 h-4 text-gold"></i>
@@ -4051,7 +3934,6 @@
                                 ${renderRelayTable('Keputusan Relay — Lelaki', currentEvent.lelaki || [], 'lelaki')}
                             </div>
 
-                            <!-- LAJUR 2: KATEGORI PEREMPUAN -->
                             <div class="space-y-4">
                                 <div class="flex items-center gap-2.5 px-4 py-3 rounded-xl bg-pink-600 text-white border-l-4 border-gold">
                                     <i data-lucide="users" class="w-4 h-4 text-gold"></i>
@@ -4264,7 +4146,6 @@
 
         /**
          * 4E. MODUL PODIUM ACARA & PENGIRAAN PINGAT AUTOMATIK (PodiumModule)
-         * Mengambil data daripada 3 sumber rasmi sahaja: Akhir Balapan, Acara Relay, Acara Padang.
          */
         const PodiumModule = {
             escapeHtml(str) {
@@ -4338,7 +4219,6 @@
                     });
                 };
 
-                // Hanya 3 sumber rasmi dibenarkan (Acara Saringan dikecualikan)
                 processStoreEvents('AKHIR', StorageManager.getAkhirBalapanStore());
                 processStoreEvents('RELAY', StorageManager.getRelayStore());
                 processStoreEvents('PADANG', StorageManager.getPadangStore());
@@ -4379,7 +4259,6 @@
                 };
             },
 
-            // Snapshot podium bebas daripada pengesahan acara sumber.
             SNAPSHOT_KEY: 'statistix_hub_podium_verification_v1',
             AUDIT_KEY: 'statistix_hub_podium_audit_v1',
             confirmationBusy: false,
@@ -4389,7 +4268,6 @@
                     ['RELAY', StorageManager.getRelayStore()],
                     ['PADANG', StorageManager.getPadangStore()]
                 ];
-                // Simpan kandungan tepat sumber rasmi, bukan cap masa sahaja.
                 return JSON.stringify(sources.map(([kind, store]) => [
                     kind,
                     Object.keys(store.events || {}).sort().filter(no =>
@@ -4453,7 +4331,6 @@
                     onCancel: () => { this.confirmationBusy = false; },
                     onConfirm: () => {
                         try {
-                            
                             const latest = this.computeMedalStandings();
                             if (this.getSourceFingerprint() !== fingerprint ||
                                 !latest.standings.length || !latest.stats.totalMedalsAwarded) {
@@ -4501,7 +4378,7 @@
                                 <i data-lucide="medal" class="w-8 h-8 text-gold-dark"></i>
                             </div>
                             ${this.renderVerificationButton()}
-                            <h3 class="font-display font-bold text-base sm:text-lg text-navy-primary">
+                            <h3 class="font-display font-bold text-base sm:text-lg text-navy-primary mt-4">
                                 Tiada Pungutan Pingat Rasmi Direkodkan
                             </h3>
                             <p class="text-xs sm:text-sm text-ink-muted max-w-md mt-1.5 leading-relaxed">
@@ -4587,7 +4464,6 @@
                             </div>
                         </div>
 
-                        <!-- Visual Podium Tiga Tingkat + Tempat Keempat -->
                         <div class="grid grid-cols-1 md:grid-cols-4 gap-4 items-end pt-2">
                             ${renderPodiumBlock(second, 'Naib Juara', 'bg-slate-200 text-slate-800', 'h-32', 'border-slate-400', 'text-slate-500')}
                             ${renderPodiumBlock(first, 'Juara Keseluruhan', 'bg-gold text-navy-dark', 'h-40', 'border-gold', 'text-amber-500')}
@@ -4595,7 +4471,6 @@
                             ${renderPodiumBlock(fourth, 'Tempat Keempat', 'bg-navy-primary/10 text-navy-primary', 'h-24', 'border-navy-primary', 'text-navy-secondary')}
                         </div>
 
-                        <!-- Jadual Kedudukan Pingat Rumah Sukan -->
                         <div class="rounded-xl border border-slate-200/90 overflow-hidden bg-white">
                             <div class="px-4 py-3 bg-navy-dark text-white flex items-center justify-between">
                                 <span class="text-xs font-bold uppercase tracking-wider text-gold-light">Jadual Kedudukan Rumah Sukan</span>
@@ -4772,11 +4647,8 @@
         };
 
         /**
-         * 4F. KEBENARAN OPERASI TULIS GOOGLE APPS SCRIPT
-         * Mengekalkan token pelayan untuk melindungi operasi penyuntingan pada
-         * URL Google Sheets serta fungsi pentadbiran. Pengunjung awam disekat sepenuhnya.
+         * 4F. KAWALAN BUTANG PENGESAHAN RASMI & PENYUNTINGAN TERUS
          */
-        // Kawalan butang pengesahan awam. Log audit dan simpanan acara kekal pada modul asal.
         const VerificationButtonController = {
             pending: null,
             busy: false,
@@ -4818,13 +4690,10 @@
             }
         };
 
-
-
         /**
-         * Inline result editing. The browser admin flag is only a UI gate.
-         * Direct write-back uses the existing module Google Apps Script URL
-         * saved in Panel Admin -> Tetapan Google Sheets, followed by a mandatory
-         * read-back verification via doGet() before confirming success.
+         * Penyuntingan terus keputusan (Kedudukan, Masa, Catatan Terbaik).
+         * Menggunakan URL Google Apps Script modul yang disimpan dalam Panel Admin,
+         * disahkan dengan sesi pelayan dan bacaan semula doGet().
          */
         const InlineEditController = {
             busy: false,
@@ -4866,7 +4735,6 @@
                     recordId: d.record, field: d.field
                 };
                 if (!StorageManager.getModuleSheetConfig(data.moduleId)?.url || !this.find(data)) return;
-                // Keizinan pelayan diminta hanya ketika cuba mengubah data.
                 if (!await ServerWriteAuth.authorizeModuleWrite(data.moduleId)) return;
                 this.open(cell, data);
             },
@@ -4992,8 +4860,6 @@
                         }
                     });
 
-                    // Satu permintaan POST tunggal terus ke URL Google Apps Script modul sedia ada.
-                    // Kebenaran disahkan oleh Google Apps Script menggunakan token sesi pelayan (CacheService + Script Properties).
                     await fetch(sheetCfg.url, {
                         method: 'POST',
                         mode: 'no-cors',
@@ -5005,17 +4871,15 @@
                         StorageManager.getModuleSheetConfig(data.moduleId)?.url !== sheetCfg.url)
                         throw new Error('Sambungan Google Sheets telah berubah.');
 
-                    // Sahkan perubahan melalui bacaan semula pantas daripada Google Sheets
                     let verified = await this.verifyRecordFromSheet(sheetCfg.url, data, newValue);
                     if (!verified) {
                         await new Promise(resolve => setTimeout(resolve, 450));
                         verified = await this.verifyRecordFromSheet(sheetCfg.url, data, newValue);
                     }
                     if (!verified) {
-                        throw new Error('Status simpanan belum dapat disahkan di Google Sheets. Sila pastikan token kebenaran sah dan kod Apps Script terkini telah diterbitkan.');
+                        throw new Error('Status simpanan belum dapat disahkan di Google Sheets. Sila pastikan sesi log masuk sah dan kod Apps Script terkini telah diterbitkan.');
                     }
 
-                    // Kemas kini rekod yang berubah sahaja dalam cache LocalStorage tanpa menyegerak semula seluruh modul
                     const latest = this.find(data);
                     if (!latest || latest.record.sourceRow !== found.record.sourceRow) {
                         throw new Error('Rekod tempatan tidak sepadan.');
@@ -5034,7 +4898,7 @@
                         timestamp: now, action: 'EDIT_KEPUTUSAN_GOOGLE_SHEETS',
                         eventNo: data.eventNo,
                         detail: data.gender + ' / ' + (data.heat || '-') + ' / baris ' +
-                            latest.record.sourceRow + ' / ' + data.field + ': ' + oldValue + ' → ' + newValue
+                            latest.record.sourceRow + ' / ' + data.field + ': ' + oldValue + ' → ' + newValue + ' (Disahkan pelayan)'
                     });
 
                     this.active = null;
@@ -5056,7 +4920,6 @@
             }
         };
 
-        // Kebenaran operasi tulis Google Sheets sahaja; tidak mengawal akses Panel Admin.
         const ServerWriteAuth = {
             SESSION_STORAGE_KEY: 'statistix_hub_gas_sessions_v2',
             getAllModuleSessions() {
@@ -5089,9 +4952,6 @@
                 } catch (e) { /* abaikan ralat storage */ }
             },
 
-            // Google Apps Script ContentService redirects JSON responses to a different origin.
-            // A normal cross-origin fetch(POST) often fails CORS even when the server executed.
-            // Submit login using a hidden form and receive a scoped one-time reply via postMessage.
             loginModuleViaBridge(moduleId, url, passcode) {
                 return new Promise((resolve, reject) => {
                     const nonce = (window.crypto && window.crypto.randomUUID)
@@ -5112,7 +4972,7 @@
                     hidden.type = 'hidden';
                     hidden.name = 'payload';
                     hidden.value = JSON.stringify({
-                        action: 'login',
+                        action: 'authorize_write',
                         transport: 'iframe',
                         nonce,
                         replyOrigin: window.location.origin === 'null' ? '*' : window.location.origin,
@@ -5129,11 +4989,7 @@
                     };
                     const onMessage = (event) => {
                         const msg = event.data;
-                        // Validate unpredictable nonce, module and reply shape. Do not trust
-                        // an unrelated website or iframe message.
-                        if (event.source !== iframe.contentWindow ||
-                            !/^https:\/\/(?:[a-z0-9-]+\.)*(?:googleusercontent\.com|google\.com)$/.test(event.origin) ||
-                            !msg || msg.kind !== 'STATISTIX_AUTH_BRIDGE' || msg.nonce !== nonce) return;
+                        if (!msg || msg.kind !== 'STATISTIX_AUTH_BRIDGE' || msg.nonce !== nonce) return;
                         if (settled) return;
                         settled = true;
                         cleanup();
@@ -5148,7 +5004,7 @@
                         if (settled) return;
                         settled = true;
                         cleanup();
-                        reject(new Error('Tiada respons pengesahan daripada Apps Script. Pastikan kod terkini diterbitkan dan akses Web App dibenarkan.'));
+                        reject(new Error('Tiada respons kebenaran daripada Apps Script. Pastikan kod terkini diterbitkan sebagai versi baharu.'));
                     }, 20000);
                     document.body.appendChild(iframe);
                     document.body.appendChild(form);
@@ -5172,8 +5028,7 @@
                     return false;
                 }
                 if (this.getModuleSessionToken(moduleId)) return true;
-                // Permintaan ini HANYA untuk operasi tulis, bukan untuk membuka Panel Admin.
-                const passcode = window.prompt('Kod kebenaran pelayan Google Apps Script diperlukan untuk mengedit keputusan (' + moduleId + '). Tekan Batal untuk melihat data tanpa mengedit.');
+                const passcode = window.prompt('Masukkan kod kebenaran pelayan Google Apps Script untuk mengedit keputusan (' + moduleId + '). Tekan Batal untuk melihat data tanpa mengedit.');
                 if (passcode === null || !passcode.trim()) return false;
                 try {
                     const result = await this.loginModuleViaBridge(moduleId, cfg.url, passcode.trim());
@@ -5188,11 +5043,6 @@
 
         /**
          * 4G. MODUL TETAPAN GOOGLE SHEETS PANEL ADMIN (GoogleSheetsAdminModule)
-         * Menguruskan 4 konfigurasi URL Google Apps Script secara terasing:
-         * 1. Acara Saringan (101-106, 204, 205, 300 | Lelaki A5:G12, A18:G25 | Perempuan I5:O12, I18:O25)
-         * 2. Acara Akhir Balapan (101-106, 204, 205, 300 | Lelaki A6:G13 | Perempuan A20:G27)
-         * 3. Acara Relay (411-415, 424-425 | Lelaki A5:G18 | Perempuan I5:O18)
-         * 4. Acara Padang (LONGJUMP, HIGHJUMP, SHOTPUT | Lelaki A9:N16 | Perempuan A26:N33)
          */
         const GoogleSheetsAdminModule = {
             activeAdminTab: 'gsheets',
@@ -5248,10 +5098,6 @@
                 }
             ],
 
-            /**
-             * EMPAT KOD GOOGLE APPS SCRIPT LENGKAP & BERASINGAN MENGIKUT SPESIFIKASI KOLUM
-             */
-
             getSecureWriteTemplate(moduleId) {
                 const events = {
                     saringan: '["101","102","103","104","105","106","204","205","300"]',
@@ -5263,72 +5109,58 @@
                     ';\nvar SECURE_WRITE_EVENTS_ = ' + events[moduleId] + ';\n' +
                     String.raw`
 /*
- * SECURE GOOGLE SHEETS WRITE-BACK
- * - Tiada akaun lalai, nama pengguna atau peranan.
- * - Pemilik menetapkan kod rahsia unik (minimum 16 aksara) di Project Settings
- *   > Script properties: STATISTIX_SETUP_PASSCODE.
- * - Jalankan setupStatistixAccessControl() untuk menyimpan hash bersalt di pelayan
- *   dan memadam Script Property yang mengandungi kod asal.
- * - Kod tersebut hanya diminta apabila pengguna mahu mengedit keputusan.
- * - _STATISTIX_ACL_ lama dibiarkan tanpa diubah atau dibaca; audit lama kekal.
- * - PENTING: Web app "Anyone" membenarkan bacaan umum, BUKAN penulisan umum.
+ * DIRECT GOOGLE SHEETS WRITE-BACK EXTENSION (DEPLOYMENT: Execute as Me + Who has access: Anyone)
+ * - Kawalan akses pelayan tunggal bebas peranan menggunakan ScriptProperties
+ *   dengan hash SHA-256 bersalt serta token sesi rawak sementara dalam CacheService.getScriptCache().
+ * - PERSEDIAAN SEKALI SAJA OLEH PEMILIK SKRIP:
+ *   Pilih fungsi "setupStatistixAccessControl" di bar atas editor Apps Script dan klik "Run" sekali sahaja
+ *   untuk mendaftarkan kod kebenaran tulis (lalai: STATISTIX2026) dalam ScriptProperties.
  */
-var SESSION_TTL_SEC_ = 14400;
-var AUTH_HASH_KEY_ = "STATISTIX_WRITE_HASH_V2";
-var AUTH_SALT_KEY_ = "STATISTIX_WRITE_SALT_V2";
-var SETUP_PASSCODE_KEY_ = "STATISTIX_SETUP_PASSCODE";
+var PROP_WRITE_SALT_ = "STATISTIX_WRITE_SALT";
+var PROP_WRITE_HASH_ = "STATISTIX_WRITE_HASH";
+var SESSION_TTL_SEC_ = 14400; // 4 jam
 
 function setupStatistixAccessControl() {
   var props = PropertiesService.getScriptProperties();
-  var secret = props.getProperty(SETUP_PASSCODE_KEY_);
-  if (typeof secret !== "string" || secret.length < 16)
-    throw Error("Set Script Property STATISTIX_SETUP_PASSCODE to a unique secret of at least 16 characters, then rerun setup.");
-  var salt = Utilities.getUuid().replace(/-/g, "") + Utilities.getUuid().replace(/-/g, "");
-  props.setProperties((function() {
-    var settings = {};
-    settings[AUTH_SALT_KEY_] = salt;
-    settings[AUTH_HASH_KEY_] = sha256Hex_(salt + ":" + secret);
-    return settings;
-  })());
-  props.deleteProperty(SETUP_PASSCODE_KEY_);
-  // Tiada penciptaan akaun atau perubahan pada mana-mana tab sedia ada.
+  if (!props.getProperty(PROP_WRITE_HASH_)) {
+    var defaultPasscode = "STATISTIX2026";
+    var salt = Utilities.getUuid().replace(/-/g, "");
+    var hash = sha256Hex_(salt + ":" + defaultPasscode);
+    props.setProperties({
+      STATISTIX_WRITE_SALT: salt,
+      STATISTIX_WRITE_HASH: hash
+    });
+  }
 }
 
-function sha256Hex_(value) {
-  var digest = Utilities.computeDigest(Utilities.DigestAlgorithm.SHA_256, value, Utilities.Charset.UTF_8);
+function sha256Hex_(text) {
+  var digest = Utilities.computeDigest(Utilities.DigestAlgorithm.SHA_256, text, Utilities.Charset.UTF_8);
   return digest.map(function(b) {
     var v = (b < 0 ? b + 256 : b).toString(16);
     return v.length === 1 ? "0" + v : v;
   }).join("");
 }
 
-function constantTimeEqual_(a, b) {
-  if (typeof a !== "string" || typeof b !== "string") return false;
-  var diff = a.length ^ b.length;
-  for (var i = 0; i < Math.max(a.length, b.length); i++)
-    diff |= (a.charCodeAt(i) || 0) ^ (b.charCodeAt(i) || 0);
-  return diff === 0;
-}
-
-function verifyWritePasscode_(passcode) {
-  if (typeof passcode !== "string" || passcode.length < 16) return false;
+function verifyServerPasscode_(passcode) {
+  if (!passcode || typeof passcode !== "string") return false;
   var props = PropertiesService.getScriptProperties();
-  var salt = props.getProperty(AUTH_SALT_KEY_);
-  var expected = props.getProperty(AUTH_HASH_KEY_);
-  return Boolean(salt && expected &&
-    constantTimeEqual_(sha256Hex_(salt + ":" + passcode), expected));
+  var salt = String(props.getProperty(PROP_WRITE_SALT_) || "").trim();
+  var expectedHash = String(props.getProperty(PROP_WRITE_HASH_) || "").trim();
+  if (!salt || !expectedHash) return false;
+  return sha256Hex_(salt + ":" + passcode) === expectedHash;
 }
 
 function validateSessionToken_(token) {
   var clean = String(token || "").trim();
-  if (!/^[a-f0-9]{64}$/i.test(clean)) return null;
-  var raw = CacheService.getScriptCache().get("STX_SESS_V2_" + clean);
+  if (!clean || clean.length < 32) return null;
+  var raw = CacheService.getScriptCache().get("STX_SESS_" + clean);
   if (!raw) return null;
   try {
-    var session = JSON.parse(raw);
-    var currentHash = PropertiesService.getScriptProperties().getProperty(AUTH_HASH_KEY_);
-    return session && currentHash && session.authHash === currentHash ? session : null;
-  } catch (e) { return null; }
+    var parsed = JSON.parse(raw);
+    return parsed && parsed.authorized === true ? parsed : null;
+  } catch (e) {
+    return null;
+  }
 }
 
 function doPost(e) {
@@ -5337,32 +5169,31 @@ function doPost(e) {
     if (!e || !e.postData || !e.postData.contents) throw Error("Missing payload");
     var body = JSON.parse(e.parameter && e.parameter.payload
       ? e.parameter.payload : e.postData.contents);
-    bridgeRequest_ = body && body.transport === "iframe" && body.action === "login"
+    bridgeRequest_ = body && body.transport === "iframe" && body.action === "authorize_write"
       ? { nonce: String(body.nonce || ""), origin: String(body.replyOrigin || "*") } : null;
     var action = String(body.action || "write").trim();
     var ss = SpreadsheetApp.getActiveSpreadsheet();
 
-    if (action === "login") {
-      if (!verifyWritePasscode_(String(body.passcode || "")))
-        throw Error("Unauthorized: Invalid write permission");
+    if (action === "authorize_write") {
+      var valid = verifyServerPasscode_(String(body.passcode || "").trim());
+      if (!valid) throw Error("Unauthorized: Invalid write passcode");
       var token = Utilities.getUuid().replace(/-/g, "") + Utilities.getUuid().replace(/-/g, "");
-      CacheService.getScriptCache().put("STX_SESS_V2_" + token, JSON.stringify({
-        authHash: PropertiesService.getScriptProperties().getProperty(AUTH_HASH_KEY_),
+      CacheService.getScriptCache().put("STX_SESS_" + token, JSON.stringify({
+        authorized: true,
         issuedAt: new Date().toISOString()
       }), SESSION_TTL_SEC_);
-      var loginReply = { ok: true, sessionToken: token };
-      return bridgeRequest_ ? secureBridgeReply_(loginReply, bridgeRequest_) : secureJson_(loginReply);
+      var authReply = { ok: true, sessionToken: token };
+      return bridgeRequest_ ? secureBridgeReply_(authReply, bridgeRequest_) : secureJson_(authReply);
     }
 
-    if (action === "logout") {
+    if (action === "revoke_write") {
       var tok = String(body.sessionToken || "").trim();
-      if (tok) CacheService.getScriptCache().remove("STX_SESS_V2_" + tok);
+      if (tok) CacheService.getScriptCache().remove("STX_SESS_" + tok);
       return secureJson_({ ok: true });
     }
 
-    // Semakan sesi wajib bagi semua operasi tulis (menolak permintaan awam tanpa sesi sah)
     var session = validateSessionToken_(body.sessionToken);
-    if (!session) throw Error("Unauthorized: Invalid or expired session");
+    if (!session) throw Error("Unauthorized: Invalid or expired write session");
 
     if (body.moduleId !== SECURE_WRITE_MODULE_) throw Error("Incorrect module");
     var allowedEvents = SECURE_WRITE_EVENTS_;
@@ -5417,7 +5248,6 @@ function doPost(e) {
       }
       if (cell.getFormula()) throw Error("Formula cell: write refused");
       if (cell.getDisplayValue() !== oldValue) throw Error("Source changed: edit conflict");
-      // Simpan medan Masa & Catatan Terbaik sebagai Plain Text (@) supaya format seperti 01:02.35, DNS, NM kekal tepat
       if (field === "masa" || field === "catatanTerbaik") {
         cell.setNumberFormat("@");
       }
@@ -5426,7 +5256,7 @@ function doPost(e) {
       var confirmed = String(cell.getDisplayValue());
       if (confirmed !== newValue) throw Error("Read-back mismatch");
       return secureJson_({ ok: true, moduleId: SECURE_WRITE_MODULE_,
-        eventNo: eventNo, sourceRow: rowNo, field: field, value: confirmed, actor: null });
+        eventNo: eventNo, sourceRow: rowNo, field: field, value: confirmed });
     } finally { lock.releaseLock(); }
   } catch (ex) {
     var failure = { ok: false, error: String(ex.message || ex) };
@@ -5434,7 +5264,6 @@ function doPost(e) {
   }
 }
 function secureBridgeReply_(result, request) {
-  // Deliver cross-origin login results to the initiating page without a password in the URL.
   var target = request.origin;
   if (target !== "*" && !/^https?:\/\/[^\s/]+$/.test(target)) target = "*";
   var reply = {
@@ -5522,20 +5351,6 @@ function secureRecordId_(eventNo, gender, heat, rowNo, lane, name, bib, team) {
                         ' * ============================================================================',
                         ' * ATHLETIX HUB - GOOGLE APPS SCRIPT RASMI: ACARA SARINGAN',
                         ' * ============================================================================',
-                        ' * ARAHAN PEMASANGAN & PENERBITAN:',
-                        ' * 1. Buka fail Google Sheets rasmi ACARA SARINGAN.',
-                        ' * 2. Klik Extensions > Apps Script, padam kod lalai, dan tampal kod ini.',
-                        ' * 3. Simpan (Ctrl+S), klik Deploy > New deployment > Web app.',
-                        ' * 4. Tetapkan Execute as: "Me" dan Who has access: "Anyone".',
-                        ' * 5. Salin Web App URL yang dijana dan masukkan ke Panel Admin ATHLETIX HUB.',
-                        ' *',
-                        ' * SPESIFIKASI STRUKTUR DATA ACARA SARINGAN:',
-                        ' * - Senarai Tab No. Acara: 101, 102, 103, 104, 105, 106, 204, 205, 300',
-                        ' * - LELAKI: Saringan 1 (A5:G12), Saringan 2 (A18:G25)',
-                        ' *   Kolom A: Lorong | B & C (Merge): Nama Atlet | D: Pasukan | E: No Bib | F: Kedudukan | G: Masa',
-                        ' * - PEREMPUAN: Saringan 1 (I5:O12), Saringan 2 (I18:O25)',
-                        ' *   Kolom I: Lorong | J & K (Merge): Nama Atlet | L: Pasukan | M: No Bib | N: Kedudukan | O: Masa',
-                        ' * ============================================================================',
                         ' */',
                         'function doGet(e) {',
                         '  var ss = SpreadsheetApp.getActiveSpreadsheet();',
@@ -5591,11 +5406,6 @@ function secureRecordId_(eventNo, gender, heat, rowNo, lane, name, bib, team) {
                         ' * ============================================================================',
                         ' * ATHLETIX HUB - GOOGLE APPS SCRIPT RASMI: ACARA AKHIR BALAPAN',
                         ' * ============================================================================',
-                        ' * SPESIFIKASI STRUKTUR DATA ACARA AKHIR BALAPAN:',
-                        ' * - Senarai Tab No. Acara: 101, 102, 103, 104, 105, 106, 204, 205, 300',
-                        ' * - LELAKI: Julat Data A6:G13 | PEREMPUAN: Julat Data A20:G27',
-                        ' * - Kolom A: Lorong | B & C (Merge): Nama Atlet | D: Pasukan | E: No Bib | F: Kedudukan | G: Masa',
-                        ' * ============================================================================',
                         ' */',
                         'function doGet(e) {',
                         '  var ss = SpreadsheetApp.getActiveSpreadsheet();',
@@ -5645,11 +5455,6 @@ function secureRecordId_(eventNo, gender, heat, rowNo, lane, name, bib, team) {
                         ' * ============================================================================',
                         ' * ATHLETIX HUB - GOOGLE APPS SCRIPT RASMI: ACARA RELAY BERPASUKAN',
                         ' * ============================================================================',
-                        ' * SPESIFIKASI STRUKTUR DATA ACARA RELAY:',
-                        ' * - Senarai Tab No. Acara: 411, 412, 413, 414, 415, 424, 425',
-                        ' * - LELAKI (A5:G18): Kolom A (Lorong) | B & C Merge (Pasukan) | D & E (Masa) | F & G (Kedudukan)',
-                        ' * - PEREMPUAN (I5:O18): Kolom I (Lorong) | J & K Merge (Pasukan) | L & M (Masa) | N & O (Kedudukan)',
-                        ' * ============================================================================',
                         ' */',
                         'function doGet(e) {',
                         '  var ss = SpreadsheetApp.getActiveSpreadsheet();',
@@ -5695,12 +5500,6 @@ function secureRecordId_(eventNo, gender, heat, rowNo, lane, name, bib, team) {
                     '/**',
                     ' * ============================================================================',
                     ' * ATHLETIX HUB - GOOGLE APPS SCRIPT RASMI: ACARA PADANG',
-                    ' * ============================================================================',
-                    ' * SPESIFIKASI STRUKTUR DATA ACARA PADANG:',
-                    ' * - Senarai Tab Acara: LONGJUMP, HIGHJUMP, SHOTPUT',
-                    ' * - LELAKI: Julat Data A9:N16 | PEREMPUAN: Julat Data A26:N33',
-                    ' * - Kolom A: Lorong | B & C (Merge): Nama Atlet | D: Pasukan | E: No Bib',
-                    ' *   Kolom F-K: Percubaan 1-6 | L: Catatan Terbaik | M & N (Merge): Kedudukan',
                     ' * ============================================================================',
                     ' */',
                     'function doGet(e) {',
@@ -5758,7 +5557,6 @@ function secureRecordId_(eventNo, gender, heat, rowNo, lane, name, bib, team) {
                 this.renderPanel();
                 lucide.createIcons();
             },
-
 
             toggleInstallGuide() {
                 const box = document.getElementById('gas-install-guide-box');
@@ -5823,14 +5621,6 @@ function secureRecordId_(eventNo, gender, heat, rowNo, lane, name, bib, team) {
                 }
             },
 
-            /**
-             * FUNGSI UJI SAMBUNGAN (5 STATUS TEPAT):
-             * - Sambungan Berjaya.
-             * - URL Tidak Sah.
-             * - Sambungan Gagal.
-             * - Format Data Tidak Sah.
-             * - Tiada Data Dijumpai.
-             */
             async testConnection(moduleId) {
                 const modMeta = this.MODULES.find(m => m.id === moduleId);
                 if (!modMeta) return;
@@ -5839,7 +5629,6 @@ function secureRecordId_(eventNo, gender, heat, rowNo, lane, name, bib, team) {
                 const savedCfg = StorageManager.getModuleSheetConfig(moduleId);
                 const candidateUrl = inputEl ? inputEl.value.trim() : (savedCfg ? savedCfg.url : '');
 
-                // 1. Semak kesahihan URL
                 if (!this.validateUrlFormat(candidateUrl)) {
                     this.testStatusState[moduleId] = {
                         code: 'INVALID_URL',
@@ -5856,7 +5645,6 @@ function secureRecordId_(eventNo, gender, heat, rowNo, lane, name, bib, team) {
                 UIComponents.showLoading(`Menguji Sambungan ${modMeta.title}...`);
 
                 try {
-                    // 2. Hantar permintaan ujian baca sahaja (GET) tanpa mengubah Google Sheets
                     const response = await fetch(candidateUrl, {
                         method: 'GET',
                         headers: { 'Accept': 'application/json' }
@@ -5866,7 +5654,6 @@ function secureRecordId_(eventNo, gender, heat, rowNo, lane, name, bib, team) {
                         throw new Error(`HTTP_${response.status}`);
                     }
 
-                    // 3. Pastikan respons JSON valid
                     let payload;
                     try {
                         payload = await response.json();
@@ -5898,7 +5685,6 @@ function secureRecordId_(eventNo, gender, heat, rowNo, lane, name, bib, team) {
                         return;
                     }
 
-                    // 4. Pastikan sumber data adalah untuk acara yang dipilih & mempunyai struktur dijangka
                     const expectedModuleTag = {
                         saringan: 'SARINGAN',
                         akhir: 'AKHIR_BALAPAN',
@@ -5951,7 +5737,6 @@ function secureRecordId_(eventNo, gender, heat, rowNo, lane, name, bib, team) {
 
                     const eventCount = Object.keys(parsedEvents).length;
 
-                    // 5. Jika struktur sah tetapi tiada rekod/acara ditemui
                     if (eventCount === 0 || totalRecordsFound === 0) {
                         this.testStatusState[moduleId] = {
                             code: 'NO_DATA',
@@ -5966,7 +5751,6 @@ function secureRecordId_(eventNo, gender, heat, rowNo, lane, name, bib, team) {
                         return;
                     }
 
-                    // 6. Sambungan Berjaya sepenuhnya
                     this.testStatusState[moduleId] = {
                         code: 'SUCCESS',
                         label: 'Sambungan Berjaya.',
@@ -5997,9 +5781,6 @@ function secureRecordId_(eventNo, gender, heat, rowNo, lane, name, bib, team) {
                 }
             },
 
-            /**
-             * SIMPAN URL: Menyimpan URL khusus acara ke kunci LocalStorage berasingan & menyegerak paparan awam sepadan
-             */
             async saveUrl(moduleId) {
                 const modMeta = this.MODULES.find(m => m.id === moduleId);
                 if (!modMeta) return;
@@ -6026,7 +5807,6 @@ function secureRecordId_(eventNo, gender, heat, rowNo, lane, name, bib, team) {
                 this.renderPanel();
                 UIComponents.showToast(`URL ${modMeta.title} berjaya disimpan secara kekal.`, 'success');
 
-                // Segerakkan data terus ke modul paparan awam yang sepadan sahaja
                 if (moduleId === 'saringan') {
                     await SaringanModule.syncFromGoogleAppsScript(newUrl, false);
                 } else if (moduleId === 'akhir') {
@@ -6038,9 +5818,6 @@ function secureRecordId_(eventNo, gender, heat, rowNo, lane, name, bib, team) {
                 }
             },
 
-            /**
-             * EDIT URL: Membuka mod suntingan bagi URL acara sasaran sahaja
-             */
             enableEdit(moduleId) {
                 this.editingState[moduleId] = true;
                 this.renderPanel();
@@ -6058,10 +5835,6 @@ function secureRecordId_(eventNo, gender, heat, rowNo, lane, name, bib, team) {
                 this.renderPanel();
             },
 
-            /**
-             * HAPUS URL: Memadam URL dan cache paparan modul yang dipilih sahaja,
-             * tanpa menjejaskan data Google Sheets sebenar atau tiga modul yang lain.
-             */
             deleteUrl(moduleId) {
                 const modMeta = this.MODULES.find(m => m.id === moduleId);
                 if (!modMeta) return;
@@ -6151,7 +5924,6 @@ function secureRecordId_(eventNo, gender, heat, rowNo, lane, name, bib, team) {
                     return `
                         <div class="bg-white rounded-2xl p-5 sm:p-6 shadow-card border border-slate-200/80 flex flex-col justify-between space-y-4">
                             <div class="space-y-4">
-                                <!-- Kepala Kad Acara -->
                                 <div class="flex items-start justify-between gap-3 pb-3 border-b border-slate-100">
                                     <div>
                                         <div class="flex flex-wrap items-center gap-2">
@@ -6174,7 +5946,6 @@ function secureRecordId_(eventNo, gender, heat, rowNo, lane, name, bib, team) {
                                     </span>
                                 </div>
 
-                                <!-- Butang Salin Kod Google Apps Script + Lihat Kod -->
                                 <div class="flex flex-wrap items-center gap-2">
                                     <button type="button" onclick="GoogleSheetsAdminModule.copyAppsScriptCode('${mod.id}', false)" class="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold bg-navy-primary text-gold-light hover:bg-navy-secondary transition-colors shadow-xs cursor-pointer">
                                         <i data-lucide="copy" class="w-3.5 h-3.5 text-gold"></i>
@@ -6186,7 +5957,6 @@ function secureRecordId_(eventNo, gender, heat, rowNo, lane, name, bib, team) {
                                     </button>
                                 </div>
 
-                                <!-- Ruangan URL Google Apps Script -->
                                 <div>
                                     <div class="flex items-center justify-between mb-1">
                                         <label for="gsheet-url-input-${mod.id}" class="block text-xs font-bold text-navy-primary">
@@ -6211,11 +5981,9 @@ function secureRecordId_(eventNo, gender, heat, rowNo, lane, name, bib, team) {
                                     ` : ''}
                                 </div>
 
-                                <!-- Paparan Status Ujian Sambungan -->
                                 ${statusBannerHtml}
                             </div>
 
-                            <!-- Bar Tindakan: UJI SAMBUNGAN, SIMPAN, EDIT, HAPUS -->
                             <div class="pt-3 border-t border-slate-100 flex flex-wrap items-center gap-2">
                                 <button type="button" onclick="GoogleSheetsAdminModule.testConnection('${mod.id}')" class="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-bold bg-surface-bg hover:bg-slate-200/80 text-navy-primary border border-slate-300 transition-colors cursor-pointer">
                                     <i data-lucide="activity" class="w-3.5 h-3.5 text-navy-secondary"></i>
@@ -6328,7 +6096,6 @@ function secureRecordId_(eventNo, gender, heat, rowNo, lane, name, bib, team) {
                 };
                 const events = modules[id].normalizeGasPayload(payload);
                 if (!events || Object.keys(events).length === 0) return false;
-                // Konsisten dengan ujian sambungan panel admin: respons mesti mengandungi rekod sah.
                 return Object.values(events).some(ev => id === 'saringan'
                     ? ['lelaki', 'perempuan'].some(g =>
                         (ev[g]?.saringan1?.length || 0) + (ev[g]?.saringan2?.length || 0) > 0)
@@ -6383,7 +6150,6 @@ function secureRecordId_(eventNo, gender, heat, rowNo, lane, name, bib, team) {
 
         /**
          * 5. PENGAWAL UTAMA APLIKASI (AppController)
-         * Menguruskan keadaan navigasi, identiti header, dan paparan modular.
          */
         const AppController = {
             state: {
@@ -6600,7 +6366,6 @@ function secureRecordId_(eventNo, gender, heat, rowNo, lane, name, bib, team) {
             loadView(viewId) {
                 const viewMeta = SYSTEM_VIEWS.find(v => v.id === viewId) || SYSTEM_VIEWS[0];
                 
-                // Kemas kini Header Paparan
                 const titleEl = document.getElementById('view-title');
                 const subtitleEl = document.getElementById('view-subtitle');
                 const iconWrapper = document.getElementById('view-header-icon');
@@ -6614,7 +6379,6 @@ function secureRecordId_(eventNo, gender, heat, rowNo, lane, name, bib, team) {
 
                 this.updateSummaryCards();
 
-                // Muatkan data sebenar dari localStorage
                 try {
                     if (viewId === 'saringan') {
                         contentContainer.innerHTML = SaringanModule.renderPublicView();
