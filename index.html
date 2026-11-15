@@ -415,12 +415,12 @@
                             <ol class="list-decimal list-inside space-y-1 text-ink-muted">
                                 <li>Buka fail Google Sheets rasmi bagi acara berkaitan, kemudian klik menu <strong>Extensions &rarr; Apps Script</strong>.</li>
                                 <li>Padam kod lalai sedia ada dan tampal kod yang disalin menggunakan butang <strong>SALIN KOD GOOGLE APPS SCRIPT</strong> bagi acara tersebut.</li>
-                                <li>Tekan ikon <strong>Save (Ctrl+S)</strong>. Jalankan <strong>setupStatistixAccessControl()</strong> sekali untuk mendaftarkan kod kebenaran tulis pelayan, kemudian klik <strong>Deploy &rarr; Manage deployments &rarr; Edit &rarr; New version &rarr; Deploy</strong> (atau <strong>Deploy &rarr; New deployment</strong> bagi pemasangan baharu).</li>
-                                <li>Pilih jenis <strong>Web app</strong>, tetapkan <em>Execute as: Me</em> dan <em>Who has access: Anyone</em>, lalu klik <strong>Deploy</strong>.</li>
+                                <li>Tekan ikon <strong>Save (Ctrl+S)</strong>, kemudian klik <strong>Deploy &rarr; New deployment</strong> (atau <strong>Deploy &rarr; Manage deployments &rarr; Edit &rarr; New version &rarr; Deploy</strong> jika mengemas kini versi sedia ada).</li>
+                                <li>Pilih jenis <strong>Web app</strong>, tetapkan <em>Execute as: Me</em> dan <em>Who has access: Anyone</em> untuk paparan awam, lalu klik <strong>Deploy</strong>.</li>
                                 <li>Salin <strong>Web app URL</strong> (<span class="font-mono text-navy-primary">https://script.google.com/macros/s/.../exec</span>), tampal pada ruangan URL acara yang sepadan di bawah, klik <strong>UJI SAMBUNGAN</strong>, dan klik <strong>SIMPAN</strong>.</li>
                             </ol>
-                            <p class="text-[11px] text-amber-800 bg-amber-50 border border-amber-200 rounded-lg px-3 py-2 mt-2">
-                                <strong>Nota Penerbitan Semula:</strong> Jika anda pernah menerbitkan versi lama sebelum ini, anda wajib memilih <strong>Deploy &rarr; Manage deployments &rarr; Edit &rarr; New version</strong> supaya pelayan Google menggunakan logik kebenaran baharu tanpa peranan lama.
+                            <p class="text-[11px] text-slate-600 bg-surface-bg border border-slate-200 rounded-lg px-3 py-2 mt-2">
+                                <strong>Kawalan Kebenaran Suntingan:</strong> Bacaan keputusan berfungsi secara langsung melalui Web App di atas. Untuk operasi mengedit keputusan terus pada jadual, Google Apps Script mengesahkan identiti Google penyunting yang mempunyai hak <strong>Editor</strong> pada fail Google Sheets tersebut tanpa memerlukan sebarang kod laluan tambahan atau konfigurasi Script Properties.
                             </p>
                         </div>
                     </div>
@@ -4735,7 +4735,6 @@
                     recordId: d.record, field: d.field
                 };
                 if (!StorageManager.getModuleSheetConfig(data.moduleId)?.url || !this.find(data)) return;
-                if (!await ServerWriteAuth.authorizeModuleWrite(data.moduleId)) return;
                 this.open(cell, data);
             },
             open(cell, data) {
@@ -4835,14 +4834,8 @@
                         StorageManager.getModuleSheetConfig(data.moduleId)?.url !== sheetCfg.url)
                         throw new Error('Sambungan Google Sheets telah berubah.');
 
-                    const sessionToken = ServerWriteAuth.getModuleSessionToken(data.moduleId);
-                    if (!sessionToken) {
-                        throw new Error('Kebenaran menulis daripada pelayan tidak tersedia. Sila mulakan penyuntingan semula untuk mengesahkan akses pelayan.');
-                    }
-
                     const payload = JSON.stringify({
                         action: 'write',
-                        sessionToken,
                         moduleId: data.moduleId,
                         eventNo: data.eventNo,
                         gender: data.gender,
@@ -4873,11 +4866,13 @@
 
                     let verified = await this.verifyRecordFromSheet(sheetCfg.url, data, newValue);
                     if (!verified) {
-                        await new Promise(resolve => setTimeout(resolve, 450));
+                        await new Promise(resolve => setTimeout(resolve, 500));
                         verified = await this.verifyRecordFromSheet(sheetCfg.url, data, newValue);
                     }
                     if (!verified) {
-                        throw new Error('Status simpanan belum dapat disahkan di Google Sheets. Sila pastikan sesi log masuk sah dan kod Apps Script terkini telah diterbitkan.');
+                        GoogleSheetsAdminModule.writeStatusState[data.moduleId] = 'FAILED';
+                        if (AppController.state.isAdminMode) GoogleSheetsAdminModule.renderPanel();
+                        throw new Error('Penulisan ditolak atau belum disahkan di Google Sheets. Pastikan akaun Google anda mempunyai hak Editor pada helaian ini.');
                     }
 
                     const latest = this.find(data);
@@ -4898,8 +4893,11 @@
                         timestamp: now, action: 'EDIT_KEPUTUSAN_GOOGLE_SHEETS',
                         eventNo: data.eventNo,
                         detail: data.gender + ' / ' + (data.heat || '-') + ' / baris ' +
-                            latest.record.sourceRow + ' / ' + data.field + ': ' + oldValue + ' → ' + newValue + ' (Disahkan pelayan)'
+                            latest.record.sourceRow + ' / ' + data.field + ': ' + oldValue + ' → ' + newValue + ' (Disahkan Google Sheets)'
                     });
+
+                    GoogleSheetsAdminModule.writeStatusState[data.moduleId] = 'ALLOWED';
+                    await latest.entry.module().syncFromGoogleAppsScript(sheetCfg.url, true);
 
                     this.active = null;
                     if (AppController.state.activeViewId === latest.entry.view && !AppController.state.isAdminMode) {
@@ -4920,127 +4918,6 @@
             }
         };
 
-        const ServerWriteAuth = {
-            SESSION_STORAGE_KEY: 'statistix_hub_gas_sessions_v2',
-            getAllModuleSessions() {
-                try {
-                    const raw = window.sessionStorage.getItem(this.SESSION_STORAGE_KEY);
-                    return raw ? JSON.parse(raw) : {};
-                } catch (e) {
-                    return {};
-                }
-            },
-
-            getModuleSessionToken(moduleId) {
-                const cfg = StorageManager.getModuleSheetConfig(moduleId);
-                if (!cfg || !cfg.url) return '';
-                const sessions = this.getAllModuleSessions();
-                const entry = sessions[moduleId];
-                if (!entry || entry.url !== cfg.url || !entry.token) return '';
-                if (!Number.isFinite(entry.issuedAt) || Date.now() - entry.issuedAt > 3.9 * 60 * 60 * 1000) {
-                    this.removeModuleSession(moduleId);
-                    return '';
-                }
-                return entry.token;
-            },
-
-            setModuleSessionToken(moduleId, url, token) {
-                try {
-                    const sessions = this.getAllModuleSessions();
-                    sessions[moduleId] = { url, token, issuedAt: Date.now() };
-                    window.sessionStorage.setItem(this.SESSION_STORAGE_KEY, JSON.stringify(sessions));
-                } catch (e) { /* abaikan ralat storage */ }
-            },
-
-            loginModuleViaBridge(moduleId, url, passcode) {
-                return new Promise((resolve, reject) => {
-                    const nonce = (window.crypto && window.crypto.randomUUID)
-                        ? window.crypto.randomUUID()
-                        : Array.from(window.crypto.getRandomValues(new Uint8Array(24)),
-                            b => b.toString(16).padStart(2, '0')).join('');
-                    const frameName = 'stx_auth_' + nonce.replace(/[^a-zA-Z0-9_]/g, '');
-                    const iframe = document.createElement('iframe');
-                    iframe.name = frameName;
-                    iframe.title = 'Pengesahan Google Apps Script';
-                    iframe.style.display = 'none';
-                    const form = document.createElement('form');
-                    form.method = 'POST';
-                    form.action = url;
-                    form.target = frameName;
-                    form.style.display = 'none';
-                    const hidden = document.createElement('input');
-                    hidden.type = 'hidden';
-                    hidden.name = 'payload';
-                    hidden.value = JSON.stringify({
-                        action: 'authorize_write',
-                        transport: 'iframe',
-                        nonce,
-                        replyOrigin: window.location.origin === 'null' ? '*' : window.location.origin,
-                        passcode
-                    });
-                    form.appendChild(hidden);
-                    let settled = false;
-                    let timeoutId;
-                    const cleanup = () => {
-                        window.removeEventListener('message', onMessage);
-                        clearTimeout(timeoutId);
-                        form.remove();
-                        iframe.remove();
-                    };
-                    const onMessage = (event) => {
-                        const msg = event.data;
-                        if (!msg || msg.kind !== 'STATISTIX_AUTH_BRIDGE' || msg.nonce !== nonce) return;
-                        if (settled) return;
-                        settled = true;
-                        cleanup();
-                        if (msg.ok && typeof msg.sessionToken === 'string' && msg.sessionToken.length >= 32) {
-                            resolve({ sessionToken: msg.sessionToken });
-                        } else {
-                            reject(new Error(msg.error || 'Pengesahan Apps Script ditolak.'));
-                        }
-                    };
-                    window.addEventListener('message', onMessage);
-                    timeoutId = setTimeout(() => {
-                        if (settled) return;
-                        settled = true;
-                        cleanup();
-                        reject(new Error('Tiada respons kebenaran daripada Apps Script. Pastikan kod terkini diterbitkan sebagai versi baharu.'));
-                    }, 20000);
-                    document.body.appendChild(iframe);
-                    document.body.appendChild(form);
-                    try { form.submit(); }
-                    catch (err) { settled = true; cleanup(); reject(err); }
-                });
-            },
-
-            removeModuleSession(moduleId) {
-                try {
-                    const sessions = this.getAllModuleSessions();
-                    delete sessions[moduleId];
-                    window.sessionStorage.setItem(this.SESSION_STORAGE_KEY, JSON.stringify(sessions));
-                } catch (e) { /* storage unavailable */ }
-            },
-
-            async authorizeModuleWrite(moduleId) {
-                const cfg = StorageManager.getModuleSheetConfig(moduleId);
-                if (!cfg?.url) {
-                    UIComponents.showToast('URL Google Apps Script belum dikonfigurasi.', 'warning');
-                    return false;
-                }
-                if (this.getModuleSessionToken(moduleId)) return true;
-                const passcode = window.prompt('Masukkan kod kebenaran pelayan Google Apps Script untuk mengedit keputusan (' + moduleId + '). Tekan Batal untuk melihat data tanpa mengedit.');
-                if (passcode === null || !passcode.trim()) return false;
-                try {
-                    const result = await this.loginModuleViaBridge(moduleId, cfg.url, passcode.trim());
-                    this.setModuleSessionToken(moduleId, cfg.url, result.sessionToken);
-                    return true;
-                } catch (error) {
-                    UIComponents.showToast('Kebenaran menulis ditolak oleh pelayan: ' + error.message, 'error');
-                    return false;
-                }
-            }
-        };
-
         /**
          * 4G. MODUL TETAPAN GOOGLE SHEETS PANEL ADMIN (GoogleSheetsAdminModule)
          */
@@ -5053,6 +4930,12 @@
                 padang: false
             },
             testStatusState: {
+                saringan: null,
+                akhir: null,
+                relay: null,
+                padang: null
+            },
+            writeStatusState: {
                 saringan: null,
                 akhir: null,
                 relay: null,
@@ -5109,91 +4992,37 @@
                     ';\nvar SECURE_WRITE_EVENTS_ = ' + events[moduleId] + ';\n' +
                     String.raw`
 /*
- * DIRECT GOOGLE SHEETS WRITE-BACK EXTENSION (DEPLOYMENT: Execute as Me + Who has access: Anyone)
- * - Kawalan akses pelayan tunggal bebas peranan menggunakan ScriptProperties
- *   dengan hash SHA-256 bersalt serta token sesi rawak sementara dalam CacheService.getScriptCache().
- * - PERSEDIAAN SEKALI SAJA OLEH PEMILIK SKRIP:
- *   Pilih fungsi "setupStatistixAccessControl" di bar atas editor Apps Script dan klik "Run" sekali sahaja
- *   untuk mendaftarkan kod kebenaran tulis (lalai: STATISTIX2026) dalam ScriptProperties.
+ * DIRECT GOOGLE SHEETS WRITE-BACK EXTENSION
+ * - Tiada gateway luaran, tiada token sesi tersuai, tiada ScriptProperties.
+ * - Menggunakan kawalan akses Google Sheets terbina dalam (DriveApp / Session)
+ *   untuk memastikan hanya pengguna berdaftar yang mempunyai hak Editor/Owner
+ *   pada fail Google Sheets boleh menulis perubahan keputusan.
  */
-var PROP_WRITE_SALT_ = "STATISTIX_WRITE_SALT";
-var PROP_WRITE_HASH_ = "STATISTIX_WRITE_HASH";
-var SESSION_TTL_SEC_ = 14400; // 4 jam
-
-function setupStatistixAccessControl() {
-  var props = PropertiesService.getScriptProperties();
-  if (!props.getProperty(PROP_WRITE_HASH_)) {
-    var defaultPasscode = "STATISTIX2026";
-    var salt = Utilities.getUuid().replace(/-/g, "");
-    var hash = sha256Hex_(salt + ":" + defaultPasscode);
-    props.setProperties({
-      STATISTIX_WRITE_SALT: salt,
-      STATISTIX_WRITE_HASH: hash
-    });
-  }
-}
-
-function sha256Hex_(text) {
-  var digest = Utilities.computeDigest(Utilities.DigestAlgorithm.SHA_256, text, Utilities.Charset.UTF_8);
-  return digest.map(function(b) {
-    var v = (b < 0 ? b + 256 : b).toString(16);
-    return v.length === 1 ? "0" + v : v;
-  }).join("");
-}
-
-function verifyServerPasscode_(passcode) {
-  if (!passcode || typeof passcode !== "string") return false;
-  var props = PropertiesService.getScriptProperties();
-  var salt = String(props.getProperty(PROP_WRITE_SALT_) || "").trim();
-  var expectedHash = String(props.getProperty(PROP_WRITE_HASH_) || "").trim();
-  if (!salt || !expectedHash) return false;
-  return sha256Hex_(salt + ":" + passcode) === expectedHash;
-}
-
-function validateSessionToken_(token) {
-  var clean = String(token || "").trim();
-  if (!clean || clean.length < 32) return null;
-  var raw = CacheService.getScriptCache().get("STX_SESS_" + clean);
-  if (!raw) return null;
+function verifySheetEditorAccess_(ss) {
+  var email = "";
   try {
-    var parsed = JSON.parse(raw);
-    return parsed && parsed.authorized === true ? parsed : null;
+    email = String(Session.getActiveUser().getEmail() || "").trim();
   } catch (e) {
-    return null;
+    email = "";
   }
+  if (!email) {
+    throw Error("Unauthorized: Identiti penyunting Google tidak disahkan");
+  }
+  var file = DriveApp.getFileById(ss.getId());
+  var access = file.getAccess(email);
+  if (access !== DriveApp.Permission.OWNER && access !== DriveApp.Permission.EDIT) {
+    throw Error("Unauthorized: Akaun " + email + " tiada kebenaran Editor pada Google Sheets");
+  }
+  return email;
 }
 
 function doPost(e) {
-  var bridgeRequest_ = null;
   try {
     if (!e || !e.postData || !e.postData.contents) throw Error("Missing payload");
     var body = JSON.parse(e.parameter && e.parameter.payload
       ? e.parameter.payload : e.postData.contents);
-    bridgeRequest_ = body && body.transport === "iframe" && body.action === "authorize_write"
-      ? { nonce: String(body.nonce || ""), origin: String(body.replyOrigin || "*") } : null;
-    var action = String(body.action || "write").trim();
     var ss = SpreadsheetApp.getActiveSpreadsheet();
-
-    if (action === "authorize_write") {
-      var valid = verifyServerPasscode_(String(body.passcode || "").trim());
-      if (!valid) throw Error("Unauthorized: Invalid write passcode");
-      var token = Utilities.getUuid().replace(/-/g, "") + Utilities.getUuid().replace(/-/g, "");
-      CacheService.getScriptCache().put("STX_SESS_" + token, JSON.stringify({
-        authorized: true,
-        issuedAt: new Date().toISOString()
-      }), SESSION_TTL_SEC_);
-      var authReply = { ok: true, sessionToken: token };
-      return bridgeRequest_ ? secureBridgeReply_(authReply, bridgeRequest_) : secureJson_(authReply);
-    }
-
-    if (action === "revoke_write") {
-      var tok = String(body.sessionToken || "").trim();
-      if (tok) CacheService.getScriptCache().remove("STX_SESS_" + tok);
-      return secureJson_({ ok: true });
-    }
-
-    var session = validateSessionToken_(body.sessionToken);
-    if (!session) throw Error("Unauthorized: Invalid or expired write session");
+    var editorEmail = verifySheetEditorAccess_(ss);
 
     if (body.moduleId !== SECURE_WRITE_MODULE_) throw Error("Incorrect module");
     var allowedEvents = SECURE_WRITE_EVENTS_;
@@ -5256,29 +5085,11 @@ function doPost(e) {
       var confirmed = String(cell.getDisplayValue());
       if (confirmed !== newValue) throw Error("Read-back mismatch");
       return secureJson_({ ok: true, moduleId: SECURE_WRITE_MODULE_,
-        eventNo: eventNo, sourceRow: rowNo, field: field, value: confirmed });
+        eventNo: eventNo, sourceRow: rowNo, field: field, value: confirmed, editor: editorEmail });
     } finally { lock.releaseLock(); }
   } catch (ex) {
-    var failure = { ok: false, error: String(ex.message || ex) };
-    return bridgeRequest_ ? secureBridgeReply_(failure, bridgeRequest_) : secureJson_(failure);
+    return secureJson_({ ok: false, error: String(ex.message || ex) });
   }
-}
-function secureBridgeReply_(result, request) {
-  var target = request.origin;
-  if (target !== "*" && !/^https?:\/\/[^\s/]+$/.test(target)) target = "*";
-  var reply = {
-    kind: "STATISTIX_AUTH_BRIDGE",
-    nonce: request.nonce,
-    ok: result.ok === true,
-    sessionToken: result.sessionToken || "",
-    error: result.error || ""
-  };
-  var json = JSON.stringify(reply).replace(/</g, "\\u003c");
-  return HtmlService.createHtmlOutput(
-    '<!doctype html><html><body><script>' +
-    'window.top.postMessage(' + json + ',' + JSON.stringify(target) + ');' +
-    '</' + 'script></body></html>')
-    .setXFrameOptionsMode(HtmlService.XFrameOptionsMode.ALLOWALL);
 }
 function secureJson_(obj) {
   return ContentService.createTextOutput(JSON.stringify(obj))
@@ -5867,6 +5678,7 @@ function secureRecordId_(eventNo, gender, heat, rowNo, lane, name, bib, team) {
                             !InlineEditController.busy) InlineEditController.cancel();
                         this.editingState[moduleId] = false;
                         this.testStatusState[moduleId] = null;
+                        this.writeStatusState[moduleId] = null;
 
                         StorageManager.appendSaringanAuditLog({
                             id: `LOG-DEL-${Date.now()}`,
@@ -5897,6 +5709,14 @@ function secureRecordId_(eventNo, gender, heat, rowNo, lane, name, bib, team) {
                     const hasSavedUrl = Boolean(savedCfg && savedCfg.url);
                     const isEditing = !hasSavedUrl || Boolean(this.editingState[mod.id]);
                     const testState = this.testStatusState[mod.id];
+                    const writeState = this.writeStatusState[mod.id];
+                    const storeSynced = (() => {
+                        if (mod.id === 'saringan') return Boolean(StorageManager.getSaringanStore().lastSyncedAt);
+                        if (mod.id === 'akhir') return Boolean(StorageManager.getAkhirBalapanStore().lastSyncedAt);
+                        if (mod.id === 'relay') return Boolean(StorageManager.getRelayStore().lastSyncedAt);
+                        if (mod.id === 'padang') return Boolean(StorageManager.getPadangStore().lastSyncedAt);
+                        return false;
+                    })();
 
                     let statusBannerHtml = '';
                     if (testState) {
@@ -5921,6 +5741,27 @@ function secureRecordId_(eventNo, gender, heat, rowNo, lane, name, bib, team) {
                         `;
                     }
 
+                    const statusPillsHtml = `
+                        <div class="flex flex-wrap items-center gap-1.5 pt-1">
+                            <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[10px] font-bold border ${
+                                hasSavedUrl
+                                    ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
+                                    : 'bg-slate-50 text-slate-500 border-slate-200'
+                            }">URL TERSIMPAN: ${hasSavedUrl ? 'YA' : 'TIDAK'}</span>
+                            ${testState && testState.code === 'SUCCESS' ? `
+                                <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[10px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">SAMBUNGAN BERJAYA</span>
+                            ` : ''}
+                            ${storeSynced ? `
+                                <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[10px] font-bold bg-navy-primary/10 text-navy-primary border border-navy-primary/20">PENYEGERAKAN BERJAYA</span>
+                            ` : ''}
+                            ${writeState === 'ALLOWED' ? `
+                                <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[10px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">PENULISAN DIBENARKAN</span>
+                            ` : writeState === 'FAILED' ? `
+                                <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[10px] font-bold bg-rose-50 text-rose-700 border border-rose-200">PENULISAN GAGAL</span>
+                            ` : ''}
+                        </div>
+                    `;
+
                     return `
                         <div class="bg-white rounded-2xl p-5 sm:p-6 shadow-card border border-slate-200/80 flex flex-col justify-between space-y-4">
                             <div class="space-y-4">
@@ -5932,7 +5773,7 @@ function secureRecordId_(eventNo, gender, heat, rowNo, lane, name, bib, team) {
                                             </h4>
                                             ${hasSavedUrl
                                                 ? `<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">
-                                                    <span class="w-1.5 h-1.5 rounded-full bg-emerald-600"></span>URL AKTIF
+                                                    <span class="w-1.5 h-1.5 rounded-full bg-emerald-600"></span>URL TERSIMPAN
                                                    </span>`
                                                 : `<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-slate-100 text-slate-600 border border-slate-200">
                                                     BELUM DISIMPAN
@@ -5940,6 +5781,7 @@ function secureRecordId_(eventNo, gender, heat, rowNo, lane, name, bib, team) {
                                             }
                                         </div>
                                         <p class="text-[11px] text-ink-muted mt-1">${SaringanModule.escapeHtml(mod.sheetSpecSummary)}</p>
+                                        ${statusPillsHtml}
                                     </div>
                                     <span class="text-[10px] font-mono px-2 py-1 rounded-md bg-surface-bg text-navy-secondary border border-slate-200 shrink-0">
                                         &rarr; ${SaringanModule.escapeHtml(mod.publicViewLabel)}
