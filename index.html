@@ -354,7 +354,7 @@
                             <div>
                                 <div class="flex flex-wrap items-center gap-2">
                                     <span class="text-[11px] font-bold uppercase tracking-wider bg-gold text-navy-dark px-2.5 py-0.5 rounded-md">
-                                        AKSES TERKAWAL • ADMIN SAH
+                                        PANEL PENGURUSAN • AKSES TERUS
                                     </span>
                                     <span class="text-xs text-slate-300">Zon Pengurusan ATHLETIX HUB</span>
                                 </div>
@@ -416,9 +416,9 @@
                             <ol class="list-decimal list-inside space-y-1 text-ink-muted">
                                 <li>Buka fail Google Sheets rasmi bagi acara berkaitan, kemudian klik menu <strong>Extensions &rarr; Apps Script</strong>.</li>
                                 <li>Padam kod lalai sedia ada dan tampal kod yang disalin menggunakan butang <strong>SALIN KOD GOOGLE APPS SCRIPT</strong> bagi acara tersebut.</li>
-                                <li>Tekan ikon <strong>Save (Ctrl+S)</strong>. Jalankan <strong>setupStatistixAccessControl()</strong> sekali, kemudian klik <strong>Deploy &rarr; New deployment</strong> (atau <strong>Manage deployments &rarr; Edit &rarr; New version</strong> jika sudah pernah terbit).</li>
+                                <li>Tekan ikon <strong>Save (Ctrl+S)</strong>. Dalam <strong>Project Settings &rarr; Script properties</strong>, cipta <code>STATISTIX_SETUP_PASSCODE</code> dengan kod kebenaran unik minimum 16 aksara. Jalankan <strong>setupStatistixAccessControl()</strong> sekali untuk menyimpan hash dan memadam nilai asal, kemudian klik <strong>Deploy &rarr; New deployment</strong> (atau <strong>Manage deployments &rarr; Edit &rarr; New version</strong> jika sudah pernah terbit).</li>
                                 <li>Pilih jenis <strong>Web app</strong>, tetapkan <em>Execute as: Me</em> dan <em>Who has access: Anyone</em>, lalu klik <strong>Deploy</strong>.</li>
-                                <li>Salin <strong>Web app URL</strong> (<span class="font-mono text-navy-primary">https://script.google.com/macros/s/.../exec</span>), tampal pada ruangan URL acara yang sepadan di bawah, klik <strong>UJI SAMBUNGAN</strong>, dan klik <strong>SIMPAN</strong>.</li>
+                                <li><strong>Deployment lama:</strong> terbitkan versi baharu untuk setiap modul; kod lama tidak dikemas kini secara automatik. Salin <strong>Web app URL</strong> (<span class="font-mono text-navy-primary">https://script.google.com/macros/s/.../exec</span>), tampal pada ruangan URL acara yang sepadan di bawah, klik <strong>UJI SAMBUNGAN</strong>, dan klik <strong>SIMPAN</strong>.</li>
                             </ol>
                             <p class="text-[11px] text-amber-800 bg-amber-50 border border-amber-200 rounded-lg px-3 py-2 mt-2">
                                 <strong>Nota Penting:</strong> Kod Apps Script yang disediakan dalam sistem ini adalah templat rasmi untuk disalin dan diterbitkan di dalam Google Apps Script; ia tidak berjalan secara terus dari dalam pelayar tanpa diterbitkan sebagai Web App.
@@ -4993,7 +4993,7 @@
                     });
 
                     // Satu permintaan POST tunggal terus ke URL Google Apps Script modul sedia ada.
-                    // Kebenaran disahkan oleh Google Apps Script menggunakan token sesi pelayan (CacheService + _STATISTIX_ACL_).
+                    // Kebenaran disahkan oleh Google Apps Script menggunakan token sesi pelayan (CacheService + Script Properties).
                     await fetch(sheetCfg.url, {
                         method: 'POST',
                         mode: 'no-cors',
@@ -5012,7 +5012,7 @@
                         verified = await this.verifyRecordFromSheet(sheetCfg.url, data, newValue);
                     }
                     if (!verified) {
-                        throw new Error('Status simpanan belum dapat disahkan di Google Sheets. Sila pastikan sesi log masuk sah dan kod Apps Script terkini telah diterbitkan.');
+                        throw new Error('Status simpanan belum dapat disahkan di Google Sheets. Sila pastikan token kebenaran sah dan kod Apps Script terkini telah diterbitkan.');
                     }
 
                     // Kemas kini rekod yang berubah sahaja dalam cache LocalStorage tanpa menyegerak semula seluruh modul
@@ -5058,7 +5058,7 @@
 
         // Kebenaran operasi tulis Google Sheets sahaja; tidak mengawal akses Panel Admin.
         const ServerWriteAuth = {
-            SESSION_STORAGE_KEY: 'statistix_hub_gas_sessions_v1',
+            SESSION_STORAGE_KEY: 'statistix_hub_gas_sessions_v2',
             getAllModuleSessions() {
                 try {
                     const raw = window.sessionStorage.getItem(this.SESSION_STORAGE_KEY);
@@ -5081,10 +5081,10 @@
                 return entry.token;
             },
 
-            setModuleSessionToken(moduleId, url, token, role) {
+            setModuleSessionToken(moduleId, url, token) {
                 try {
                     const sessions = this.getAllModuleSessions();
-                    sessions[moduleId] = { url, token, role: role || 'ADMIN', issuedAt: Date.now() };
+                    sessions[moduleId] = { url, token, issuedAt: Date.now() };
                     window.sessionStorage.setItem(this.SESSION_STORAGE_KEY, JSON.stringify(sessions));
                 } catch (e) { /* abaikan ralat storage */ }
             },
@@ -5131,12 +5131,14 @@
                         const msg = event.data;
                         // Validate unpredictable nonce, module and reply shape. Do not trust
                         // an unrelated website or iframe message.
-                        if (!msg || msg.kind !== 'STATISTIX_AUTH_BRIDGE' || msg.nonce !== nonce) return;
+                        if (event.source !== iframe.contentWindow ||
+                            !/^https:\/\/(?:[a-z0-9-]+\.)*(?:googleusercontent\.com|google\.com)$/.test(event.origin) ||
+                            !msg || msg.kind !== 'STATISTIX_AUTH_BRIDGE' || msg.nonce !== nonce) return;
                         if (settled) return;
                         settled = true;
                         cleanup();
                         if (msg.ok && typeof msg.sessionToken === 'string' && msg.sessionToken.length >= 32) {
-                            resolve({ sessionToken: msg.sessionToken, role: msg.role });
+                            resolve({ sessionToken: msg.sessionToken });
                         } else {
                             reject(new Error(msg.error || 'Pengesahan Apps Script ditolak.'));
                         }
@@ -5146,7 +5148,7 @@
                         if (settled) return;
                         settled = true;
                         cleanup();
-                        reject(new Error('Tiada respons login daripada Apps Script. Pastikan kod terkini diterbitkan dan akses Web App dibenarkan.'));
+                        reject(new Error('Tiada respons pengesahan daripada Apps Script. Pastikan kod terkini diterbitkan dan akses Web App dibenarkan.'));
                     }, 20000);
                     document.body.appendChild(iframe);
                     document.body.appendChild(form);
@@ -5175,7 +5177,7 @@
                 if (passcode === null || !passcode.trim()) return false;
                 try {
                     const result = await this.loginModuleViaBridge(moduleId, cfg.url, passcode.trim());
-                    this.setModuleSessionToken(moduleId, cfg.url, result.sessionToken, result.role);
+                    this.setModuleSessionToken(moduleId, cfg.url, result.sessionToken);
                     return true;
                 } catch (error) {
                     UIComponents.showToast('Kebenaran menulis ditolak oleh pelayan: ' + error.message, 'error');
@@ -5261,79 +5263,72 @@
                     ';\nvar SECURE_WRITE_EVENTS_ = ' + events[moduleId] + ';\n' +
                     String.raw`
 /*
- * DIRECT GOOGLE SHEETS WRITE-BACK EXTENSION (DEPLOYMENT: Execute as Me + Who has access: Anyone)
- * - Tiada gateway luaran, tiada Google Client ID pada dashboard, tiada Script Properties / WRITE_SECRET.
- * - Menggunakan tab kawalan akses tersembunyi "_STATISTIX_ACL_" (tidak pernah dipulangkan oleh doGet())
- *   dengan pengesah kata laluan berhash SHA-256 bersalt bagi 3 akaun rasmi (Admin Utama, Pegawai 1, Pegawai 2)
- *   serta token sesi rawak sementara dalam CacheService.getScriptCache().
- * - PERSEDIAAN SEKALI SAHAJA OLEH PEMILIK SKRIP:
- *   Pilih fungsi "setupStatistixAccessControl" di bar atas editor Apps Script dan klik "Run" sekali sahaja
- *   untuk menjana helaian tersembunyi "_STATISTIX_ACL_" (kemudian tetapkan kod laluan sebenar bagi 3 akaun).
+ * SECURE GOOGLE SHEETS WRITE-BACK
+ * - Tiada akaun lalai, nama pengguna atau peranan.
+ * - Pemilik menetapkan kod rahsia unik (minimum 16 aksara) di Project Settings
+ *   > Script properties: STATISTIX_SETUP_PASSCODE.
+ * - Jalankan setupStatistixAccessControl() untuk menyimpan hash bersalt di pelayan
+ *   dan memadam Script Property yang mengandungi kod asal.
+ * - Kod tersebut hanya diminta apabila pengguna mahu mengedit keputusan.
+ * - _STATISTIX_ACL_ lama dibiarkan tanpa diubah atau dibaca; audit lama kekal.
+ * - PENTING: Web app "Anyone" membenarkan bacaan umum, BUKAN penulisan umum.
  */
-var ACL_SHEET_NAME_ = "_STATISTIX_ACL_";
-var SESSION_TTL_SEC_ = 14400; // 4 jam
+var SESSION_TTL_SEC_ = 14400;
+var AUTH_HASH_KEY_ = "STATISTIX_WRITE_HASH_V2";
+var AUTH_SALT_KEY_ = "STATISTIX_WRITE_SALT_V2";
+var SETUP_PASSCODE_KEY_ = "STATISTIX_SETUP_PASSCODE";
 
 function setupStatistixAccessControl() {
-  var ss = SpreadsheetApp.getActiveSpreadsheet();
-  var aclSheet = ss.getSheetByName(ACL_SHEET_NAME_);
-  if (!aclSheet) {
-    aclSheet = ss.insertSheet(ACL_SHEET_NAME_);
-    aclSheet.hideSheet();
-    aclSheet.getRange(1, 1, 1, 5).setValues([["ROLE", "USERNAME", "SALT", "PASSWORD_HASH_SHA256", "STATUS"]]);
-    var defaultAccounts = [
-      ["ADMIN_UTAMA", "Admin Utama", "ADMIN2026"],
-      ["PEGAWAI_1", "Pegawai 1", "PEGAWAI1_2026"],
-      ["PEGAWAI_2", "Pegawai 2", "PEGAWAI2_2026"]
-    ];
-    var rows = defaultAccounts.map(function(acc) {
-      var salt = Utilities.getUuid().replace(/-/g, "");
-      var hash = sha256Hex_(salt + ":" + acc[2]);
-      return [acc[0], acc[1], salt, hash, "AKTIF"];
-    });
-    aclSheet.getRange(2, 1, rows.length, 5).setValues(rows);
-  }
+  var props = PropertiesService.getScriptProperties();
+  var secret = props.getProperty(SETUP_PASSCODE_KEY_);
+  if (typeof secret !== "string" || secret.length < 16)
+    throw Error("Set Script Property STATISTIX_SETUP_PASSCODE to a unique secret of at least 16 characters, then rerun setup.");
+  var salt = Utilities.getUuid().replace(/-/g, "") + Utilities.getUuid().replace(/-/g, "");
+  props.setProperties((function() {
+    var settings = {};
+    settings[AUTH_SALT_KEY_] = salt;
+    settings[AUTH_HASH_KEY_] = sha256Hex_(salt + ":" + secret);
+    return settings;
+  })());
+  props.deleteProperty(SETUP_PASSCODE_KEY_);
+  // Tiada penciptaan akaun atau perubahan pada mana-mana tab sedia ada.
 }
 
-function sha256Hex_(text) {
-  var digest = Utilities.computeDigest(Utilities.DigestAlgorithm.SHA_256, text, Utilities.Charset.UTF_8);
+function sha256Hex_(value) {
+  var digest = Utilities.computeDigest(Utilities.DigestAlgorithm.SHA_256, value, Utilities.Charset.UTF_8);
   return digest.map(function(b) {
     var v = (b < 0 ? b + 256 : b).toString(16);
     return v.length === 1 ? "0" + v : v;
   }).join("");
 }
 
-function verifyPasscodeFromAcl_(ss, passcode) {
-  if (!passcode || typeof passcode !== "string") return null;
-  var aclSheet = ss.getSheetByName(ACL_SHEET_NAME_);
-  if (!aclSheet) return null;
-  var lastRow = aclSheet.getLastRow();
-  if (lastRow < 2) return null;
-  var data = aclSheet.getRange(2, 1, lastRow - 1, 5).getDisplayValues();
-  for (var i = 0; i < data.length; i++) {
-    var role = String(data[i][0] || "").trim();
-    var username = String(data[i][1] || "").trim();
-    var salt = String(data[i][2] || "").trim();
-    var expectedHash = String(data[i][3] || "").trim();
-    var status = String(data[i][4] || "").trim().toUpperCase();
-    if (status !== "AKTIF" || !salt || !expectedHash) continue;
-    if (sha256Hex_(salt + ":" + passcode) === expectedHash) {
-      return { role: role, username: username };
-    }
-  }
-  return null;
+function constantTimeEqual_(a, b) {
+  if (typeof a !== "string" || typeof b !== "string") return false;
+  var diff = a.length ^ b.length;
+  for (var i = 0; i < Math.max(a.length, b.length); i++)
+    diff |= (a.charCodeAt(i) || 0) ^ (b.charCodeAt(i) || 0);
+  return diff === 0;
+}
+
+function verifyWritePasscode_(passcode) {
+  if (typeof passcode !== "string" || passcode.length < 16) return false;
+  var props = PropertiesService.getScriptProperties();
+  var salt = props.getProperty(AUTH_SALT_KEY_);
+  var expected = props.getProperty(AUTH_HASH_KEY_);
+  return Boolean(salt && expected &&
+    constantTimeEqual_(sha256Hex_(salt + ":" + passcode), expected));
 }
 
 function validateSessionToken_(token) {
   var clean = String(token || "").trim();
-  if (!clean || clean.length < 32) return null;
-  var raw = CacheService.getScriptCache().get("STX_SESS_" + clean);
+  if (!/^[a-f0-9]{64}$/i.test(clean)) return null;
+  var raw = CacheService.getScriptCache().get("STX_SESS_V2_" + clean);
   if (!raw) return null;
   try {
-    var parsed = JSON.parse(raw);
-    return parsed && parsed.role ? parsed : null;
-  } catch (e) {
-    return null;
-  }
+    var session = JSON.parse(raw);
+    var currentHash = PropertiesService.getScriptProperties().getProperty(AUTH_HASH_KEY_);
+    return session && currentHash && session.authHash === currentHash ? session : null;
+  } catch (e) { return null; }
 }
 
 function doPost(e) {
@@ -5348,21 +5343,20 @@ function doPost(e) {
     var ss = SpreadsheetApp.getActiveSpreadsheet();
 
     if (action === "login") {
-      var user = verifyPasscodeFromAcl_(ss, String(body.passcode || "").trim());
-      if (!user) throw Error("Unauthorized: Invalid credentials");
+      if (!verifyWritePasscode_(String(body.passcode || "")))
+        throw Error("Unauthorized: Invalid write permission");
       var token = Utilities.getUuid().replace(/-/g, "") + Utilities.getUuid().replace(/-/g, "");
-      CacheService.getScriptCache().put("STX_SESS_" + token, JSON.stringify({
-        role: user.role,
-        username: user.username,
+      CacheService.getScriptCache().put("STX_SESS_V2_" + token, JSON.stringify({
+        authHash: PropertiesService.getScriptProperties().getProperty(AUTH_HASH_KEY_),
         issuedAt: new Date().toISOString()
       }), SESSION_TTL_SEC_);
-      var loginReply = { ok: true, sessionToken: token, role: user.role, username: user.username };
+      var loginReply = { ok: true, sessionToken: token };
       return bridgeRequest_ ? secureBridgeReply_(loginReply, bridgeRequest_) : secureJson_(loginReply);
     }
 
     if (action === "logout") {
       var tok = String(body.sessionToken || "").trim();
-      if (tok) CacheService.getScriptCache().remove("STX_SESS_" + tok);
+      if (tok) CacheService.getScriptCache().remove("STX_SESS_V2_" + tok);
       return secureJson_({ ok: true });
     }
 
@@ -5432,7 +5426,7 @@ function doPost(e) {
       var confirmed = String(cell.getDisplayValue());
       if (confirmed !== newValue) throw Error("Read-back mismatch");
       return secureJson_({ ok: true, moduleId: SECURE_WRITE_MODULE_,
-        eventNo: eventNo, sourceRow: rowNo, field: field, value: confirmed, actor: session.username });
+        eventNo: eventNo, sourceRow: rowNo, field: field, value: confirmed, actor: null });
     } finally { lock.releaseLock(); }
   } catch (ex) {
     var failure = { ok: false, error: String(ex.message || ex) };
@@ -5448,7 +5442,6 @@ function secureBridgeReply_(result, request) {
     nonce: request.nonce,
     ok: result.ok === true,
     sessionToken: result.sessionToken || "",
-    role: result.role || "",
     error: result.error || ""
   };
   var json = JSON.stringify(reply).replace(/</g, "\\u003c");
