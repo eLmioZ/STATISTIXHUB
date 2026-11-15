@@ -93,54 +93,6 @@
         .animate-view-enter {
             animation: fadeSlideUp 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards;
         }
-
-        /* Gaya Cetakan Rasmi A4 */
-        @media print {
-            @page {
-                size: A4 portrait;
-                margin: 12mm 14mm;
-            }
-            body {
-                background: #FFFFFF !important;
-                color: #000000 !important;
-                -webkit-print-color-adjust: exact;
-                print-color-adjust: exact;
-            }
-            #app-header,
-            #desktop-sidebar,
-            #mobile-bottom-nav,
-            #mobile-copyright-footer,
-            #public-workspace,
-            #admin-workspace,
-            #toast-container,
-            #loading-overlay {
-                display: none !important;
-            }
-            #print-sheet-area {
-                display: block !important;
-                width: 100% !important;
-                margin: 0 !important;
-                padding: 0 !important;
-            }
-            .print-table {
-                width: 100%;
-                border-collapse: collapse;
-                font-size: 10.5pt;
-            }
-            .print-table th,
-            .print-table td {
-                border: 1px solid #334155;
-                padding: 5px 8px;
-            }
-            .print-table th {
-                background-color: #1C2541 !important;
-                color: #FFFFFF !important;
-            }
-            .print-break-inside-avoid {
-                break-inside: avoid;
-                page-break-inside: avoid;
-            }
-        }
     </style>
 </head>
 <body class="min-h-screen flex flex-col font-sans antialiased selection:bg-gold/30 selection:text-navy-dark">
@@ -296,11 +248,6 @@
                     </p>
                 </div>
             </section>
-
-            <!-- =============================================================== -->
-            <!-- KONTENA CETAKAN RASMI A4 (HANYA DIPAPARKAN SEMASA MENCETAK)      -->
-            <!-- =============================================================== -->
-            <div id="print-sheet-area" class="hidden"></div>
 
         </main>
     </div>
@@ -1008,10 +955,6 @@
                                 </div>
 
                                 <div class="flex flex-wrap items-center gap-2 self-start sm:self-center">
-                                    <button type="button" onclick="SaringanModule.printOfficialResult('${this.escapeHtml(currentEvent.eventNo)}')" class="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold bg-navy-primary text-gold-light hover:bg-navy-secondary transition-colors shadow-sm cursor-pointer self-start sm:self-center">
-                                        <i data-lucide="printer" class="w-4 h-4 text-gold"></i>
-                                        <span>CETAK KEPUTUSAN</span>
-                                    </button>
                                     ${VerificationButtonController.renderEventButton('SaringanModule', currentEvent)}
                                 </div>
                             </div>
@@ -1129,10 +1072,6 @@
                                     </div>
                                     <div class="flex flex-wrap items-center gap-2">
                                         ${actionButtons}
-                                        <button type="button" onclick="SaringanModule.printOfficialResult('${no}')" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold bg-white text-navy-primary border border-slate-300 hover:bg-slate-100 transition-colors cursor-pointer">
-                                            <i data-lucide="printer" class="w-3.5 h-3.5 text-navy-secondary"></i>
-                                            <span>Cetak</span>
-                                        </button>
                                     </div>
                                 </div>
                             `;
@@ -1159,112 +1098,13 @@
                 }
 
                 lucide.createIcons();
-            },
-
-            printOfficialResult(eventNo) {
-                const store = StorageManager.getSaringanStore();
-                const ev = store.events[eventNo];
-                if (!ev) {
-                    UIComponents.showToast('Data acara tidak ditemui untuk cetakan.', 'error');
-                    return;
-                }
-
-                const config = StorageManager.getTournamentConfig();
-                const tournamentTitle = config.tournamentName || 'KEJOHANAN OLAHRAGA TAHUNAN';
-                const statusLabel = ev.status === 'DISAHKAN_RASMI'
-                    ? 'KEPUTUSAN RASMI (DISAHKAN)'
-                    : (ev.status === 'SELESAI' ? 'KEPUTUSAN SELESAI (BELUM DISAHKAN RASMI)' : 'SENARAI / KEPUTUSAN SEMENTARA');
-
-                const renderPrintHeat = (title, rows) => {
-                    const trs = rows.length === 0
-                        ? `<tr><td colspan="6" style="text-align:center; color:#64748B;">Tiada rekod peserta</td></tr>`
-                        : rows.map(r => `
-                            <tr>
-                                <td style="text-align:center; font-weight:bold;">${this.escapeHtml(r.lorong || '-')}</td>
-                                <td>${this.escapeHtml(r.namaAtlet || '-')}</td>
-                                <td>${this.escapeHtml(r.pasukan || '-')}</td>
-                                <td style="text-align:center;">${this.escapeHtml(r.noBib || '-')}</td>
-                                <td style="text-align:center; font-weight:bold;">${this.escapeHtml(r.kedudukan || '-')}</td>
-                                <td style="text-align:right; font-family:monospace; font-weight:bold;">${this.escapeHtml(r.masa || '-')}</td>
-                            </tr>
-                        `).join('');
-
-                    return `
-                        <div class="print-break-inside-avoid" style="margin-bottom: 14px;">
-                            <div style="font-weight:bold; font-size:10.5pt; margin-bottom:4px; color:#0B132B;">${this.escapeHtml(title)}</div>
-                            <table class="print-table">
-                                <thead>
-                                    <tr>
-                                        <th style="width:52px; text-align:center;">Lorong</th>
-                                        <th>Nama Atlet</th>
-                                        <th>Pasukan</th>
-                                        <th style="width:72px; text-align:center;">No Bib</th>
-                                        <th style="width:78px; text-align:center;">Kedudukan</th>
-                                        <th style="width:88px; text-align:right;">Masa</th>
-                                    </tr>
-                                </thead>
-                                <tbody>${trs}</tbody>
-                            </table>
-                        </div>
-                    `;
-                };
-
-                const printArea = document.getElementById('print-sheet-area');
-                if (!printArea) return;
-
-                printArea.innerHTML = `
-                    <div style="font-family: 'Inter', Arial, sans-serif; color: #0F172A;">
-                        <div style="border-bottom: 2.5px solid #0B132B; padding-bottom: 10px; margin-bottom: 14px; display:flex; justify-content:space-between; align-items:flex-end;">
-                            <div>
-                                <div style="font-size: 9pt; font-weight: 700; letter-spacing: 0.08em; color: #3A506B; text-transform: uppercase;">STATISTIX HUB — KEPUTUSAN KEJOHANAN</div>
-                                <div style="font-size: 15pt; font-weight: 800; color: #0B132B; margin-top: 2px;">${this.escapeHtml(tournamentTitle)}</div>
-                                <div style="font-size: 11pt; font-weight: 700; margin-top: 4px;">ACARA SARINGAN — NO. ACARA ${this.escapeHtml(ev.eventNo)}</div>
-                            </div>
-                            <div style="text-align:right; font-size: 9pt;">
-                                <div style="font-weight: 700; padding: 3px 8px; border: 1px solid #0B132B; display:inline-block; margin-bottom:4px;">${this.escapeHtml(statusLabel)}</div>
-                                <div>Tarikh Cetakan: ${this.escapeHtml(this.formatDateTime(new Date().toISOString()))}</div>
-                            </div>
-                        </div>
-
-                        <div style="margin-bottom: 16px;">
-                            <div style="background:#0B132B; color:#FFFFFF; font-weight:bold; padding:5px 10px; font-size:11pt; margin-bottom:8px;">KATEGORI LELAKI</div>
-                            ${renderPrintHeat('Saringan 1 (Lelaki)', ev.lelaki?.saringan1 || [])}
-                            ${renderPrintHeat('Saringan 2 (Lelaki)', ev.lelaki?.saringan2 || [])}
-                        </div>
-
-                        <div style="margin-bottom: 24px;">
-                            <div style="background:#1C2541; color:#FFFFFF; font-weight:bold; padding:5px 10px; font-size:11pt; margin-bottom:8px;">KATEGORI PEREMPUAN</div>
-                            ${renderPrintHeat('Saringan 1 (Perempuan)', ev.perempuan?.saringan1 || [])}
-                            ${renderPrintHeat('Saringan 2 (Perempuan)', ev.perempuan?.saringan2 || [])}
-                        </div>
-
-                        <div class="print-break-inside-avoid" style="margin-top: 28px; display:flex; justify-content:space-between; gap: 40px; font-size: 9.5pt;">
-                            <div style="flex:1;">
-                                <div style="border-top: 1px solid #334155; padding-top: 6px; margin-top: 36px;">
-                                    <strong>Disediakan Oleh:</strong><br>
-                                    Pegawai Statistik Kejohanan
-                                </div>
-                            </div>
-                            <div style="flex:1;">
-                                <div style="border-top: 1px solid #334155; padding-top: 6px; margin-top: 36px;">
-                                    <strong>Disahkan Oleh:</strong><br>
-                                    Referi Balapan / Ketua Hakim
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                `;
-
-                setTimeout(() => {
-                    window.print();
-                }, 120);
             }
         };
 
         /**
          * 4B. MODUL ACARA PADANG (PadangModule)
          * Menguruskan paparan keputusan percubaan 1-6, catatan terbaik,
-         * pengesahan rasmi, log audit, dan cetakan A4 daripada data setempat.
+         * pengesahan rasmi, dan log audit daripada data setempat.
          */
         const PadangModule = {
             ALLOWED_EVENT_NOS: ['LOMPAT JAUH', 'LOMPAT KIJANG', 'LOMPAT TINGGI', 'LONTAR PELURU', 'LEMPAR CAKERA', 'REJAM LEMBING'],
@@ -1502,10 +1342,6 @@
                                 </div>
 
                                 <div class="flex flex-wrap items-center gap-2 self-start sm:self-center">
-                                    <button type="button" onclick="PadangModule.printOfficialResult('${this.escapeHtml(currentEvent.eventNo)}')" class="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold bg-navy-primary text-gold-light hover:bg-navy-secondary transition-colors shadow-sm cursor-pointer self-start sm:self-center">
-                                        <i data-lucide="printer" class="w-4 h-4 text-gold"></i>
-                                        <span>CETAK KEPUTUSAN</span>
-                                    </button>
                                     ${VerificationButtonController.renderEventButton('PadangModule', currentEvent)}
                                 </div>
                             </div>
@@ -1609,10 +1445,6 @@
                                     </div>
                                     <div class="flex flex-wrap items-center gap-2">
                                         ${actionButtons}
-                                        <button type="button" onclick="PadangModule.printOfficialResult('${no}')" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold bg-white text-navy-primary border border-slate-300 hover:bg-slate-100 transition-colors cursor-pointer">
-                                            <i data-lucide="printer" class="w-3.5 h-3.5 text-navy-secondary"></i>
-                                            <span>Cetak</span>
-                                        </button>
                                     </div>
                                 </div>
                             `;
@@ -1639,122 +1471,13 @@
                 }
 
                 lucide.createIcons();
-            },
-
-            printOfficialResult(eventNo) {
-                const store = StorageManager.getPadangStore();
-                const ev = store.events[eventNo];
-                if (!ev) {
-                    UIComponents.showToast('Data acara padang tidak ditemui untuk cetakan.', 'error');
-                    return;
-                }
-
-                const config = StorageManager.getTournamentConfig();
-                const tournamentTitle = config.tournamentName || 'KEJOHANAN OLAHRAGA TAHUNAN';
-                const statusLabel = ev.status === 'DISAHKAN_RASMI'
-                    ? 'KEPUTUSAN RASMI (DISAHKAN)'
-                    : (ev.status === 'SELESAI' ? 'KEPUTUSAN SELESAI (BELUM DISAHKAN RASMI)' : 'SENARAI / KEPUTUSAN SEMENTARA');
-
-                const renderPrintFieldCategory = (title, rows) => {
-                    const trs = rows.length === 0
-                        ? `<tr><td colspan="12" style="text-align:center; color:#64748B;">Tiada rekod peserta</td></tr>`
-                        : rows.map(r => `
-                            <tr>
-                                <td style="text-align:center; font-weight:bold;">${this.escapeHtml(r.lorong || '-')}</td>
-                                <td>${this.escapeHtml(r.namaAtlet || '-')}</td>
-                                <td>${this.escapeHtml(r.pasukan || '-')}</td>
-                                <td style="text-align:center;">${this.escapeHtml(r.noBib || '-')}</td>
-                                <td style="text-align:center; font-family:monospace;">${this.escapeHtml(r.p1 || '-')}</td>
-                                <td style="text-align:center; font-family:monospace;">${this.escapeHtml(r.p2 || '-')}</td>
-                                <td style="text-align:center; font-family:monospace;">${this.escapeHtml(r.p3 || '-')}</td>
-                                <td style="text-align:center; font-family:monospace;">${this.escapeHtml(r.p4 || '-')}</td>
-                                <td style="text-align:center; font-family:monospace;">${this.escapeHtml(r.p5 || '-')}</td>
-                                <td style="text-align:center; font-family:monospace;">${this.escapeHtml(r.p6 || '-')}</td>
-                                <td style="text-align:right; font-family:monospace; font-weight:bold;">${this.escapeHtml(r.catatanTerbaik || '-')}</td>
-                                <td style="text-align:center; font-weight:bold;">${this.escapeHtml(r.kedudukan || '-')}</td>
-                            </tr>
-                        `).join('');
-
-                    return `
-                        <div class="print-break-inside-avoid" style="margin-bottom: 14px;">
-                            <div style="font-weight:bold; font-size:10.5pt; margin-bottom:4px; color:#0B132B;">${this.escapeHtml(title)}</div>
-                            <table class="print-table" style="font-size: 9pt;">
-                                <thead>
-                                    <tr>
-                                        <th style="width:40px; text-align:center;">Lorong</th>
-                                        <th>Nama Atlet</th>
-                                        <th>Pasukan</th>
-                                        <th style="width:52px; text-align:center;">No Bib</th>
-                                        <th style="width:42px; text-align:center;">P1</th>
-                                        <th style="width:42px; text-align:center;">P2</th>
-                                        <th style="width:42px; text-align:center;">P3</th>
-                                        <th style="width:42px; text-align:center;">P4</th>
-                                        <th style="width:42px; text-align:center;">P5</th>
-                                        <th style="width:42px; text-align:center;">P6</th>
-                                        <th style="width:68px; text-align:right;">Terbaik</th>
-                                        <th style="width:64px; text-align:center;">Kedudukan</th>
-                                    </tr>
-                                </thead>
-                                <tbody>${trs}</tbody>
-                            </table>
-                        </div>
-                    `;
-                };
-
-                const printArea = document.getElementById('print-sheet-area');
-                if (!printArea) return;
-
-                printArea.innerHTML = `
-                    <div style="font-family: 'Inter', Arial, sans-serif; color: #0F172A;">
-                        <div style="border-bottom: 2.5px solid #0B132B; padding-bottom: 10px; margin-bottom: 14px; display:flex; justify-content:space-between; align-items:flex-end;">
-                            <div>
-                                <div style="font-size: 9pt; font-weight: 700; letter-spacing: 0.08em; color: #3A506B; text-transform: uppercase;">STATISTIX HUB — KEPUTUSAN KEJOHANAN</div>
-                                <div style="font-size: 15pt; font-weight: 800; color: #0B132B; margin-top: 2px;">${this.escapeHtml(tournamentTitle)}</div>
-                                <div style="font-size: 11pt; font-weight: 700; margin-top: 4px;">ACARA PADANG — ${this.escapeHtml(ev.eventNo)}</div>
-                            </div>
-                            <div style="text-align:right; font-size: 9pt;">
-                                <div style="font-weight: 700; padding: 3px 8px; border: 1px solid #0B132B; display:inline-block; margin-bottom:4px;">${this.escapeHtml(statusLabel)}</div>
-                                <div>Tarikh Cetakan: ${this.escapeHtml(this.formatDateTime(new Date().toISOString()))}</div>
-                            </div>
-                        </div>
-
-                        <div style="margin-bottom: 16px;">
-                            <div style="background:#0B132B; color:#FFFFFF; font-weight:bold; padding:5px 10px; font-size:11pt; margin-bottom:8px;">KATEGORI LELAKI — ${this.escapeHtml(ev.eventNo)}</div>
-                            ${renderPrintFieldCategory('Keputusan Rasmi Acara Padang (Lelaki)', ev.lelaki || [])}
-                        </div>
-
-                        <div style="margin-bottom: 24px;">
-                            <div style="background:#1C2541; color:#FFFFFF; font-weight:bold; padding:5px 10px; font-size:11pt; margin-bottom:8px;">KATEGORI PEREMPUAN — ${this.escapeHtml(ev.eventNo)}</div>
-                            ${renderPrintFieldCategory('Keputusan Rasmi Acara Padang (Perempuan)', ev.perempuan || [])}
-                        </div>
-
-                        <div class="print-break-inside-avoid" style="margin-top: 28px; display:flex; justify-content:space-between; gap: 40px; font-size: 9.5pt;">
-                            <div style="flex:1;">
-                                <div style="border-top: 1px solid #334155; padding-top: 6px; margin-top: 36px;">
-                                    <strong>Disediakan Oleh:</strong><br>
-                                    Pegawai Statistik Kejohanan
-                                </div>
-                            </div>
-                            <div style="flex:1;">
-                                <div style="border-top: 1px solid #334155; padding-top: 6px; margin-top: 36px;">
-                                    <strong>Disahkan Oleh:</strong><br>
-                                    Referi Padang / Ketua Hakim
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                `;
-
-                setTimeout(() => {
-                    window.print();
-                }, 120);
             }
         };
 
         /**
          * 4C. MODUL ACARA AKHIR BALAPAN (AkhirBalapanModule)
          * Menguruskan paparan keputusan akhir kategori Lelaki & Perempuan,
-         * pengesahan rasmi, log audit, dan cetakan A4 daripada data setempat.
+         * pengesahan rasmi, dan log audit daripada data setempat.
          */
         const AkhirBalapanModule = {
             ALLOWED_EVENT_NOS: ['101', '102', '103', '104', '105', '106', '201', '202', '203', '204', '205', '300'],
@@ -1968,10 +1691,6 @@
                                 </div>
 
                                 <div class="flex flex-wrap items-center gap-2 self-start sm:self-center">
-                                    <button type="button" onclick="AkhirBalapanModule.printOfficialResult('${this.escapeHtml(currentEvent.eventNo)}')" class="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold bg-navy-primary text-gold-light hover:bg-navy-secondary transition-colors shadow-sm cursor-pointer self-start sm:self-center">
-                                        <i data-lucide="printer" class="w-4 h-4 text-gold"></i>
-                                        <span>CETAK KEPUTUSAN</span>
-                                    </button>
                                     ${VerificationButtonController.renderEventButton('AkhirBalapanModule', currentEvent)}
                                 </div>
                             </div>
@@ -2075,10 +1794,6 @@
                                     </div>
                                     <div class="flex flex-wrap items-center gap-2">
                                         ${actionButtons}
-                                        <button type="button" onclick="AkhirBalapanModule.printOfficialResult('${no}')" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold bg-white text-navy-primary border border-slate-300 hover:bg-slate-100 transition-colors cursor-pointer">
-                                            <i data-lucide="printer" class="w-3.5 h-3.5 text-navy-secondary"></i>
-                                            <span>Cetak</span>
-                                        </button>
                                     </div>
                                 </div>
                             `;
@@ -2105,110 +1820,13 @@
                 }
 
                 lucide.createIcons();
-            },
-
-            printOfficialResult(eventNo) {
-                const store = StorageManager.getAkhirBalapanStore();
-                const ev = store.events[eventNo];
-                if (!ev) {
-                    UIComponents.showToast('Data acara akhir balapan tidak ditemui untuk cetakan.', 'error');
-                    return;
-                }
-
-                const config = StorageManager.getTournamentConfig();
-                const tournamentTitle = config.tournamentName || 'KEJOHANAN OLAHRAGA TAHUNAN';
-                const statusLabel = ev.status === 'DISAHKAN_RASMI'
-                    ? 'KEPUTUSAN RASMI (DISAHKAN)'
-                    : (ev.status === 'SELESAI' ? 'KEPUTUSAN SELESAI (BELUM DISAHKAN RASMI)' : 'SENARAI / KEPUTUSAN SEMENTARA');
-
-                const renderPrintCategory = (title, rows) => {
-                    const trs = rows.length === 0
-                        ? `<tr><td colspan="6" style="text-align:center; color:#64748B;">Tiada rekod peserta</td></tr>`
-                        : rows.map(r => `
-                            <tr>
-                                <td style="text-align:center; font-weight:bold;">${this.escapeHtml(r.lorong || '-')}</td>
-                                <td>${this.escapeHtml(r.namaAtlet || '-')}</td>
-                                <td>${this.escapeHtml(r.pasukan || '-')}</td>
-                                <td style="text-align:center;">${this.escapeHtml(r.noBib || '-')}</td>
-                                <td style="text-align:center; font-weight:bold;">${this.escapeHtml(r.kedudukan || '-')}</td>
-                                <td style="text-align:right; font-family:monospace; font-weight:bold;">${this.escapeHtml(r.masa || '-')}</td>
-                            </tr>
-                        `).join('');
-
-                    return `
-                        <div class="print-break-inside-avoid" style="margin-bottom: 14px;">
-                            <div style="font-weight:bold; font-size:10.5pt; margin-bottom:4px; color:#0B132B;">${this.escapeHtml(title)}</div>
-                            <table class="print-table">
-                                <thead>
-                                    <tr>
-                                        <th style="width:52px; text-align:center;">Lorong</th>
-                                        <th>Nama Atlet</th>
-                                        <th>Pasukan</th>
-                                        <th style="width:72px; text-align:center;">No Bib</th>
-                                        <th style="width:78px; text-align:center;">Kedudukan</th>
-                                        <th style="width:88px; text-align:right;">Masa</th>
-                                    </tr>
-                                </thead>
-                                <tbody>${trs}</tbody>
-                            </table>
-                        </div>
-                    `;
-                };
-
-                const printArea = document.getElementById('print-sheet-area');
-                if (!printArea) return;
-
-                printArea.innerHTML = `
-                    <div style="font-family: 'Inter', Arial, sans-serif; color: #0F172A;">
-                        <div style="border-bottom: 2.5px solid #0B132B; padding-bottom: 10px; margin-bottom: 14px; display:flex; justify-content:space-between; align-items:flex-end;">
-                            <div>
-                                <div style="font-size: 9pt; font-weight: 700; letter-spacing: 0.08em; color: #3A506B; text-transform: uppercase;">STATISTIX HUB — KEPUTUSAN KEJOHANAN</div>
-                                <div style="font-size: 15pt; font-weight: 800; color: #0B132B; margin-top: 2px;">${this.escapeHtml(tournamentTitle)}</div>
-                                <div style="font-size: 11pt; font-weight: 700; margin-top: 4px;">AKHIR BALAPAN — NO. ACARA ${this.escapeHtml(ev.eventNo)}</div>
-                            </div>
-                            <div style="text-align:right; font-size: 9pt;">
-                                <div style="font-weight: 700; padding: 3px 8px; border: 1px solid #0B132B; display:inline-block; margin-bottom:4px;">${this.escapeHtml(statusLabel)}</div>
-                                <div>Tarikh Cetakan: ${this.escapeHtml(this.formatDateTime(new Date().toISOString()))}</div>
-                            </div>
-                        </div>
-
-                        <div style="margin-bottom: 16px;">
-                            <div style="background:#0B132B; color:#FFFFFF; font-weight:bold; padding:5px 10px; font-size:11pt; margin-bottom:8px;">KATEGORI LELAKI (AKHIR)</div>
-                            ${renderPrintCategory('Keputusan Rasmi Akhir Balapan (Lelaki)', ev.lelaki || [])}
-                        </div>
-
-                        <div style="margin-bottom: 24px;">
-                            <div style="background:#1C2541; color:#FFFFFF; font-weight:bold; padding:5px 10px; font-size:11pt; margin-bottom:8px;">KATEGORI PEREMPUAN (AKHIR)</div>
-                            ${renderPrintCategory('Keputusan Rasmi Akhir Balapan (Perempuan)', ev.perempuan || [])}
-                        </div>
-
-                        <div class="print-break-inside-avoid" style="margin-top: 28px; display:flex; justify-content:space-between; gap: 40px; font-size: 9.5pt;">
-                            <div style="flex:1;">
-                                <div style="border-top: 1px solid #334155; padding-top: 6px; margin-top: 36px;">
-                                    <strong>Disediakan Oleh:</strong><br>
-                                    Pegawai Statistik Kejohanan
-                                </div>
-                            </div>
-                            <div style="flex:1;">
-                                <div style="border-top: 1px solid #334155; padding-top: 6px; margin-top: 36px;">
-                                    <strong>Disahkan Oleh:</strong><br>
-                                    Referi Balapan / Ketua Hakim
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                `;
-
-                setTimeout(() => {
-                    window.print();
-                }, 120);
             }
         };
 
         /**
          * 4D. MODUL ACARA RELAY (RelayModule)
          * Menguruskan paparan keputusan akhir berpasukan kategori Lelaki & Perempuan,
-         * pengesahan rasmi, log audit, dan cetakan A4 daripada data setempat.
+         * pengesahan rasmi, dan log audit daripada data setempat.
          */
         const RelayModule = {
             ALLOWED_EVENT_NOS: ['401', '402'],
@@ -2418,10 +2036,6 @@
                                 </div>
 
                                 <div class="flex flex-wrap items-center gap-2 self-start sm:self-center">
-                                    <button type="button" onclick="RelayModule.printOfficialResult('${this.escapeHtml(currentEvent.eventNo)}')" class="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold bg-navy-primary text-gold-light hover:bg-navy-secondary transition-colors shadow-sm cursor-pointer self-start sm:self-center">
-                                        <i data-lucide="printer" class="w-4 h-4 text-gold"></i>
-                                        <span>CETAK KEPUTUSAN</span>
-                                    </button>
                                     ${VerificationButtonController.renderEventButton('RelayModule', currentEvent)}
                                 </div>
                             </div>
@@ -2525,10 +2139,6 @@
                                     </div>
                                     <div class="flex flex-wrap items-center gap-2">
                                         ${actionButtons}
-                                        <button type="button" onclick="RelayModule.printOfficialResult('${no}')" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold bg-white text-navy-primary border border-slate-300 hover:bg-slate-100 transition-colors cursor-pointer">
-                                            <i data-lucide="printer" class="w-3.5 h-3.5 text-navy-secondary"></i>
-                                            <span>Cetak</span>
-                                        </button>
                                     </div>
                                 </div>
                             `;
@@ -2555,99 +2165,6 @@
                 }
 
                 lucide.createIcons();
-            },
-
-            printOfficialResult(eventNo) {
-                const store = StorageManager.getRelayStore();
-                const ev = store.events[eventNo];
-                if (!ev) {
-                    UIComponents.showToast('Data acara relay tidak ditemui untuk cetakan.', 'error');
-                    return;
-                }
-
-                const config = StorageManager.getTournamentConfig();
-                const tournamentTitle = config.tournamentName || 'KEJOHANAN OLAHRAGA TAHUNAN';
-                const statusLabel = ev.status === 'DISAHKAN_RASMI'
-                    ? 'KEPUTUSAN RASMI (DISAHKAN)'
-                    : (ev.status === 'SELESAI' ? 'KEPUTUSAN SELESAI (BELUM DISAHKAN RASMI)' : 'SENARAI / KEPUTUSAN SEMENTARA');
-
-                const renderPrintRelayCategory = (title, rows) => {
-                    const trs = rows.length === 0
-                        ? `<tr><td colspan="4" style="text-align:center; color:#64748B;">Tiada rekod pasukan</td></tr>`
-                        : rows.map(r => `
-                            <tr>
-                                <td style="text-align:center; font-weight:bold;">${this.escapeHtml(r.lorong || '-')}</td>
-                                <td>${this.escapeHtml(r.pasukan || '-')}</td>
-                                <td style="text-align:right; font-family:monospace; font-weight:bold;">${this.escapeHtml(r.masa || '-')}</td>
-                                <td style="text-align:center; font-weight:bold;">${this.escapeHtml(r.kedudukan || '-')}</td>
-                            </tr>
-                        `).join('');
-
-                    return `
-                        <div class="print-break-inside-avoid" style="margin-bottom: 14px;">
-                            <div style="font-weight:bold; font-size:10.5pt; margin-bottom:4px; color:#0B132B;">${this.escapeHtml(title)}</div>
-                            <table class="print-table">
-                                <thead>
-                                    <tr>
-                                        <th style="width:64px; text-align:center;">Lorong</th>
-                                        <th>Pasukan</th>
-                                        <th style="width:96px; text-align:right;">Masa</th>
-                                        <th style="width:88px; text-align:center;">Kedudukan</th>
-                                    </tr>
-                                </thead>
-                                <tbody>${trs}</tbody>
-                            </table>
-                        </div>
-                    `;
-                };
-
-                const printArea = document.getElementById('print-sheet-area');
-                if (!printArea) return;
-
-                printArea.innerHTML = `
-                    <div style="font-family: 'Inter', Arial, sans-serif; color: #0F172A;">
-                        <div style="border-bottom: 2.5px solid #0B132B; padding-bottom: 10px; margin-bottom: 14px; display:flex; justify-content:space-between; align-items:flex-end;">
-                            <div>
-                                <div style="font-size: 9pt; font-weight: 700; letter-spacing: 0.08em; color: #3A506B; text-transform: uppercase;">STATISTIX HUB — KEPUTUSAN KEJOHANAN</div>
-                                <div style="font-size: 15pt; font-weight: 800; color: #0B132B; margin-top: 2px;">${this.escapeHtml(tournamentTitle)}</div>
-                                <div style="font-size: 11pt; font-weight: 700; margin-top: 4px;">ACARA RELAY BERPASUKAN — NO. ACARA ${this.escapeHtml(ev.eventNo)}</div>
-                            </div>
-                            <div style="text-align:right; font-size: 9pt;">
-                                <div style="font-weight: 700; padding: 3px 8px; border: 1px solid #0B132B; display:inline-block; margin-bottom:4px;">${this.escapeHtml(statusLabel)}</div>
-                                <div>Tarikh Cetakan: ${this.escapeHtml(this.formatDateTime(new Date().toISOString()))}</div>
-                            </div>
-                        </div>
-
-                        <div style="margin-bottom: 16px;">
-                            <div style="background:#0B132B; color:#FFFFFF; font-weight:bold; padding:5px 10px; font-size:11pt; margin-bottom:8px;">KATEGORI LELAKI (RELAY)</div>
-                            ${renderPrintRelayCategory('Keputusan Rasmi Acara Relay (Lelaki)', ev.lelaki || [])}
-                        </div>
-
-                        <div style="margin-bottom: 24px;">
-                            <div style="background:#1C2541; color:#FFFFFF; font-weight:bold; padding:5px 10px; font-size:11pt; margin-bottom:8px;">KATEGORI PEREMPUAN (RELAY)</div>
-                            ${renderPrintRelayCategory('Keputusan Rasmi Acara Relay (Perempuan)', ev.perempuan || [])}
-                        </div>
-
-                        <div class="print-break-inside-avoid" style="margin-top: 28px; display:flex; justify-content:space-between; gap: 40px; font-size: 9.5pt;">
-                            <div style="flex:1;">
-                                <div style="border-top: 1px solid #334155; padding-top: 6px; margin-top: 36px;">
-                                    <strong>Disediakan Oleh:</strong><br>
-                                    Pegawai Statistik Kejohanan
-                                </div>
-                            </div>
-                            <div style="flex:1;">
-                                <div style="border-top: 1px solid #334155; padding-top: 6px; margin-top: 36px;">
-                                    <strong>Disahkan Oleh:</strong><br>
-                                    Referi Balapan / Ketua Hakim
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                `;
-
-                setTimeout(() => {
-                    window.print();
-                }, 120);
             }
         };
 
@@ -2968,11 +2485,6 @@
                                     Hanya mengira acara Akhir Balapan, Acara Relay dan Acara Padang yang telah disahkan rasmi. Acara Saringan dikecualikan.
                                 </p>
                             </div>
-
-                            <button type="button" onclick="PodiumModule.printOfficialMedalTally()" class="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold bg-navy-primary text-gold-light hover:bg-navy-secondary transition-colors shadow-sm cursor-pointer self-start md:self-center">
-                                <i data-lucide="printer" class="w-4 h-4 text-gold"></i>
-                                <span>CETAK PUNGUTAN PINGAT</span>
-                            </button>
                         </div>
 
                         <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
@@ -3047,110 +2559,6 @@
                         </div>
                     </div>
                 `;
-            },
-
-            printOfficialMedalTally() {
-                const data = this.collectOfficialPodiumData();
-                if (data.totalOfficialCategories === 0) {
-                    UIComponents.showToast('Tiada data podium rasmi untuk dicetak.', 'warning');
-                    return;
-                }
-
-                const config = StorageManager.getTournamentConfig();
-                const tournamentTitle = config.tournamentName || 'KEJOHANAN OLAHRAGA TAHUNAN';
-
-                const tallyRows = data.standings.map(st => `
-                    <tr>
-                        <td style="text-align:center; font-weight:bold;">${st.position}</td>
-                        <td style="font-weight:bold;">${this.escapeHtml(st.school)}</td>
-                        <td style="text-align:center; font-weight:bold;">${st.emas}</td>
-                        <td style="text-align:center; font-weight:bold;">${st.perak}</td>
-                        <td style="text-align:center; font-weight:bold;">${st.gangsa}</td>
-                        <td style="text-align:center; font-weight:bold;">${st.jumlah}</td>
-                    </tr>
-                `).join('');
-
-                const eventRows = data.eventsList.map(ev => {
-                    const fmt = (arr) => arr.length === 0 ? '-' : arr.map(w => `${this.escapeHtml(w.winnerName)} (${this.escapeHtml(w.school)}) [${this.escapeHtml(w.mark)}]`).join('<br>');
-                    return `
-                        <tr>
-                            <td><strong>${this.escapeHtml(ev.eventTitle)}</strong><br><span style="font-size:8.5pt; color:#475569;">${this.escapeHtml(ev.moduleLabel)} • ${this.escapeHtml(ev.gender)}</span></td>
-                            <td>${fmt(ev.medals[1])}</td>
-                            <td>${fmt(ev.medals[2])}</td>
-                            <td>${fmt(ev.medals[3])}</td>
-                        </tr>
-                    `;
-                }).join('');
-
-                const printArea = document.getElementById('print-sheet-area');
-                if (!printArea) return;
-
-                printArea.innerHTML = `
-                    <div style="font-family: 'Inter', Arial, sans-serif; color: #0F172A;">
-                        <div style="border-bottom: 2.5px solid #0B132B; padding-bottom: 10px; margin-bottom: 14px; display:flex; justify-content:space-between; align-items:flex-end;">
-                            <div>
-                                <div style="font-size: 9pt; font-weight: 700; letter-spacing: 0.08em; color: #3A506B; text-transform: uppercase;">STATISTIX HUB — REKOD PINGAT RASMI</div>
-                                <div style="font-size: 15pt; font-weight: 800; color: #0B132B; margin-top: 2px;">${this.escapeHtml(tournamentTitle)}</div>
-                                <div style="font-size: 11pt; font-weight: 700; margin-top: 4px;">PUNGUTAN PINGAT KESELURUHAN &amp; PODIUM ACARA RASMI</div>
-                            </div>
-                            <div style="text-align:right; font-size: 9pt;">
-                                <div style="font-weight: 700; padding: 3px 8px; border: 1px solid #0B132B; display:inline-block; margin-bottom:4px;">${data.totalOfficialCategories} ACARA RASMI</div>
-                                <div>Tarikh Cetakan: ${this.escapeHtml(this.formatDateTime(new Date().toISOString()))}</div>
-                            </div>
-                        </div>
-
-                        <div class="print-break-inside-avoid" style="margin-bottom: 18px;">
-                            <div style="background:#0B132B; color:#FFFFFF; font-weight:bold; padding:5px 10px; font-size:10.5pt; margin-bottom:6px;">JADUAL PUNGUTAN PINGAT MENGIKUT SEKOLAH / PASUKAN</div>
-                            <table class="print-table">
-                                <thead>
-                                    <tr>
-                                        <th style="width:65px; text-align:center;">Kedudukan</th>
-                                        <th>Sekolah / Pasukan</th>
-                                        <th style="width:65px; text-align:center;">Emas</th>
-                                        <th style="width:65px; text-align:center;">Perak</th>
-                                        <th style="width:65px; text-align:center;">Gangsa</th>
-                                        <th style="width:70px; text-align:center;">Jumlah</th>
-                                    </tr>
-                                </thead>
-                                <tbody>${tallyRows}</tbody>
-                            </table>
-                        </div>
-
-                        <div style="margin-bottom: 24px;">
-                            <div style="background:#1C2541; color:#FFFFFF; font-weight:bold; padding:5px 10px; font-size:10.5pt; margin-bottom:6px;">SENARAI PEMENANG PODIUM MENGIKUT ACARA RASMI</div>
-                            <table class="print-table" style="font-size: 9pt;">
-                                <thead>
-                                    <tr>
-                                        <th style="width:24%;">Acara &amp; Kategori</th>
-                                        <th style="width:25%;">Pingat Emas</th>
-                                        <th style="width:25%;">Pingat Perak</th>
-                                        <th style="width:26%;">Pingat Gangsa</th>
-                                    </tr>
-                                </thead>
-                                <tbody>${eventRows}</tbody>
-                            </table>
-                        </div>
-
-                        <div class="print-break-inside-avoid" style="margin-top: 28px; display:flex; justify-content:space-between; gap: 40px; font-size: 9.5pt;">
-                            <div style="flex:1;">
-                                <div style="border-top: 1px solid #334155; padding-top: 6px; margin-top: 36px;">
-                                    <strong>Disediakan Oleh:</strong><br>
-                                    Ketua Pegawai Statistik Kejohanan
-                                </div>
-                            </div>
-                            <div style="flex:1;">
-                                <div style="border-top: 1px solid #334155; padding-top: 6px; margin-top: 36px;">
-                                    <strong>Disahkan Oleh:</strong><br>
-                                    Pengarah Kejohanan / Pengerusi Teknikal
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                `;
-
-                setTimeout(() => {
-                    window.print();
-                }, 120);
             }
         };
 
