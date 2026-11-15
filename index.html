@@ -227,25 +227,18 @@
 
                     <!-- Nama Kejohanan & Sub-jenama -->
                     <div class="min-w-0">
-                        <div class="flex items-center gap-2">
-                            <span class="text-[10px] sm:text-xs font-bold tracking-wider uppercase text-gold-light bg-navy-secondary/90 px-2 py-0.5 rounded-md border border-gold/25">
-                                STATISTIX HUB
-                            </span>
-                            <span class="hidden md:inline-block text-xs text-slate-400">Sistem Statistik & Keputusan Rasmi</span>
-                        </div>
-                        <h1 id="tournament-name-display" class="font-display font-bold text-sm sm:text-lg lg:text-xl text-white truncate mt-0.5">
-                            ATHLETIX CHAMPIONSHIP
-                        </h1>
+                        <h1 class="font-display font-bold text-sm sm:text-lg lg:text-xl text-white truncate mt-0.5">STATISTIX HUB</h1>
+                        <p class="font-sans text-[10px] sm:text-xs text-slate-400 leading-snug">Sistem Statistik &amp; Keputusan Rasmi</p>
                     </div>
                 </div>
 
                 <!-- Kawalan Kanan: Status Sambungan Data & Akses Panel Admin -->
                 <div class="flex items-center gap-2 sm:gap-3 shrink-0">
                     
-                    <!-- Status Sambungan Data (localStorage) -->
+                    <!-- Status Sambungan Google Sheets yang telah disahkan -->
                     <div id="storage-status-badge" class="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-xl bg-navy-primary border border-navy-secondary text-xs font-medium">
-                        <span id="storage-status-dot" class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
-                        <span id="storage-status-text" class="text-slate-200">Storan Sedia</span>
+                        <span id="storage-status-dot" class="w-2 h-2 rounded-full bg-slate-400"></span>
+                        <span id="storage-status-text" class="text-slate-200">BELUM DISAHKAN</span>
                     </div>
 
                     <!-- Butang Akses Panel Admin Berasingan -->
@@ -310,15 +303,10 @@
                 </nav>
             </div>
 
-            <!-- Kad Info Sistem & Status Storan di Bahagian Bawah Sidebar -->
+            <!-- Kad Copyright di Bahagian Bawah Sidebar -->
             <div class="mt-8 p-4 rounded-2xl bg-navy-dark/70 border border-navy-secondary">
-                <div class="flex items-center justify-between mb-2">
-                    <span class="text-xs font-semibold text-gold-light">Fasa 1 • Kerangka UI</span>
-                    <span class="text-[10px] px-2 py-0.5 rounded bg-navy-secondary text-slate-300 font-mono">v1.0</span>
-                </div>
-                <p class="text-xs text-slate-400 leading-relaxed">
-                    Storan tempatan aktif. Semua paparan menunggu sumber data rasmi daripada Panel Admin.
-                </p>
+                <p class="text-xs font-semibold text-gold-light leading-relaxed">HAKCIPTA TERPELIHARA @ eL_mioZ 2026</p>
+                <p class="text-xs text-white leading-relaxed mt-2">STRENGTH - DISCIPLINE - VICTORY.</p>
             </div>
         </aside>
 
@@ -328,8 +316,8 @@
             <!-- Status Sambungan Data Versi Mobile -->
             <div class="sm:hidden mb-4 flex items-center justify-between px-3.5 py-2.5 rounded-xl bg-white border border-slate-200/80 shadow-card">
                 <div class="flex items-center gap-2 text-xs font-medium text-ink">
-                    <span id="mobile-storage-dot" class="w-2 h-2 rounded-full bg-emerald-500"></span>
-                    <span id="mobile-storage-text">Storan Tempatan Aktif</span>
+                    <span id="mobile-storage-dot" class="w-2 h-2 rounded-full bg-slate-400"></span>
+                    <span id="mobile-storage-text">BELUM DISAHKAN</span>
                 </div>
                 <span class="text-[11px] font-semibold text-navy-secondary bg-surface-bg px-2 py-0.5 rounded-md">Fasa 1</span>
             </div>
@@ -752,7 +740,7 @@
             },
             {
                 id: 'podium',
-                label: 'Podium Pingat',
+                label: 'Podium Acara',
                 shortLabel: 'Podium',
                 icon: 'medal',
                 subtitle: 'Ringkasan pemenang pingat Emas, Perak, dan Gangsa mengikut acara.'
@@ -848,6 +836,10 @@
                 };
                 window.localStorage.setItem(key, JSON.stringify(record));
                 this.moduleConfigRevision[moduleId] += 1;
+                if (typeof GoogleSheetsLiveStatus !== 'undefined') {
+                    delete GoogleSheetsLiveStatus.records[moduleId];
+                    GoogleSheetsLiveStatus.render();
+                }
                 return record;
             },
 
@@ -856,6 +848,10 @@
                 if (!key) return;
                 window.localStorage.removeItem(key);
                 this.moduleConfigRevision[moduleId] += 1;
+                if (typeof GoogleSheetsLiveStatus !== 'undefined') {
+                    delete GoogleSheetsLiveStatus.records[moduleId];
+                    GoogleSheetsLiveStatus.render();
+                }
                 // Pastikan kunci legasi modul tersebut sahaja dibersihkan tanpa menyentuh acara lain atau rekod data
                 const legacyFieldMap = {
                     saringan: 'saringanGasUrl',
@@ -1390,12 +1386,14 @@
                 const gasUrl = (explicitUrl || (savedCfg && savedCfg.url) || '').trim();
 
                 if (!gasUrl) {
+                    GoogleSheetsLiveStatus.render();
                     if (!silentToast) {
                         UIComponents.showToast('URL Google Apps Script Acara Saringan belum disimpan di Panel Admin.', 'warning');
                     }
                     return false;
                 }
 
+                GoogleSheetsLiveStatus.markSyncStart('saringan', gasUrl);
                 if (!silentToast) {
                     UIComponents.showLoading('Menyegerak Data Acara Saringan...');
                 }
@@ -1458,12 +1456,14 @@
                         UIComponents.hideLoading();
                         UIComponents.showToast(`Berjaya menyegerakkan ${eventKeys.length} acara saringan ke LocalStorage.`, 'success');
                     }
+                    GoogleSheetsLiveStatus.markSyncResult('saringan', gasUrl, GoogleSheetsLiveStatus.validatePayload('saringan', jsonPayload));
                     return true;
                 } catch (err) {
                     if (!silentToast) {
                         UIComponents.hideLoading();
                         UIComponents.showToast(`Gagal memuat turun data Acara Saringan: ${err.message}`, 'error');
                     }
+                    GoogleSheetsLiveStatus.markSyncResult('saringan', gasUrl, false);
                     return false;
                 }
             },
@@ -2247,12 +2247,14 @@
                 const gasUrl = (explicitUrl || (savedCfg && savedCfg.url) || '').trim();
 
                 if (!gasUrl) {
+                    GoogleSheetsLiveStatus.render();
                     if (!silentToast) {
                         UIComponents.showToast('URL Google Apps Script Acara Padang belum disimpan di Panel Admin.', 'warning');
                     }
                     return false;
                 }
 
+                GoogleSheetsLiveStatus.markSyncStart('padang', gasUrl);
                 if (!silentToast) {
                     UIComponents.showLoading('Menyegerak Data Acara Padang...');
                 }
@@ -2316,12 +2318,14 @@
                         UIComponents.hideLoading();
                         UIComponents.showToast(`Berjaya menyegerakkan ${eventKeys.length} acara Padang ke LocalStorage.`, 'success');
                     }
+                    GoogleSheetsLiveStatus.markSyncResult('padang', gasUrl, GoogleSheetsLiveStatus.validatePayload('padang', jsonPayload));
                     return true;
                 } catch (err) {
                     if (!silentToast) {
                         UIComponents.hideLoading();
                         UIComponents.showToast(`Gagal memuat turun data Acara Padang: ${err.message}`, 'error');
                     }
+                    GoogleSheetsLiveStatus.markSyncResult('padang', gasUrl, false);
                     return false;
                 }
             },
@@ -2996,12 +3000,14 @@
                 const gasUrl = (explicitUrl || (savedCfg && savedCfg.url) || '').trim();
 
                 if (!gasUrl) {
+                    GoogleSheetsLiveStatus.render();
                     if (!silentToast) {
                         UIComponents.showToast('URL Google Apps Script Akhir Balapan belum disimpan di Panel Admin.', 'warning');
                     }
                     return false;
                 }
 
+                GoogleSheetsLiveStatus.markSyncStart('akhir', gasUrl);
                 if (!silentToast) {
                     UIComponents.showLoading('Menyegerak Data Akhir Balapan...');
                 }
@@ -3065,12 +3071,14 @@
                         UIComponents.hideLoading();
                         UIComponents.showToast(`Berjaya menyegerakkan ${eventKeys.length} acara Akhir Balapan ke LocalStorage.`, 'success');
                     }
+                    GoogleSheetsLiveStatus.markSyncResult('akhir', gasUrl, GoogleSheetsLiveStatus.validatePayload('akhir', jsonPayload));
                     return true;
                 } catch (err) {
                     if (!silentToast) {
                         UIComponents.hideLoading();
                         UIComponents.showToast(`Gagal memuat turun data Akhir Balapan: ${err.message}`, 'error');
                     }
+                    GoogleSheetsLiveStatus.markSyncResult('akhir', gasUrl, false);
                     return false;
                 }
             },
@@ -3723,12 +3731,14 @@
                 const gasUrl = (explicitUrl || (savedCfg && savedCfg.url) || '').trim();
 
                 if (!gasUrl) {
+                    GoogleSheetsLiveStatus.render();
                     if (!silentToast) {
                         UIComponents.showToast('URL Google Apps Script Acara Relay belum disimpan di Panel Admin.', 'warning');
                     }
                     return false;
                 }
 
+                GoogleSheetsLiveStatus.markSyncStart('relay', gasUrl);
                 if (!silentToast) {
                     UIComponents.showLoading('Menyegerak Data Acara Relay Berpasukan...');
                 }
@@ -3792,12 +3802,14 @@
                         UIComponents.hideLoading();
                         UIComponents.showToast(`Berjaya menyegerakkan ${eventKeys.length} acara Relay Berpasukan ke LocalStorage.`, 'success');
                     }
+                    GoogleSheetsLiveStatus.markSyncResult('relay', gasUrl, GoogleSheetsLiveStatus.validatePayload('relay', jsonPayload));
                     return true;
                 } catch (err) {
                     if (!silentToast) {
                         UIComponents.hideLoading();
                         UIComponents.showToast(`Gagal memuat turun data Acara Relay: ${err.message}`, 'error');
                     }
+                    GoogleSheetsLiveStatus.markSyncResult('relay', gasUrl, false);
                     return false;
                 }
             },
@@ -4290,7 +4302,7 @@
         };
 
         /**
-         * 4E. MODUL PODIUM PINGAT & PENGIRAAN PINGAT AUTOMATIK (PodiumModule)
+         * 4E. MODUL PODIUM ACARA & PENGIRAAN PINGAT AUTOMATIK (PodiumModule)
          * Mengambil data daripada 3 sumber rasmi sahaja: Akhir Balapan, Acara Relay, Acara Padang.
          */
         const PodiumModule = {
@@ -4870,10 +4882,9 @@
 
         /**
          * Inline result editing. The browser admin flag is only a UI gate.
-         * The write service MUST independently verify a Google identity token,
-         * enforce edit allowlists, source identity and compare-and-swap.
-         * Disabled by default until a readable, CORS-enabled secure gateway
-         * and ID-token provider are configured by the site administrator.
+         * Direct write-back uses the existing module Google Apps Script URL
+         * saved in Panel Admin -> Tetapan Google Sheets, followed by a mandatory
+         * read-back verification via doGet() before confirming success.
          */
         const InlineEditController = {
             busy: false,
@@ -4945,15 +4956,27 @@
                 const oldValue = String(found.record[data.field] ?? '');
                 const input = document.createElement('input');
                 input.type = 'text';
+                input.enterKeyHint = 'done';
                 input.value = oldValue;
                 input.className = 'w-full min-w-0 text-xs font-inherit text-inherit text-center bg-white border border-slate-200 rounded focus:outline-none focus:border-navy-primary';
                 input.setAttribute('aria-label', 'Edit ' + data.field);
                 cell.textContent = '';
                 cell.appendChild(input);
                 this.active = { cell, input, data, oldValue };
+                let isComposing = false;
+                input.addEventListener('compositionstart', () => { isComposing = true; });
+                input.addEventListener('compositionend', () => { isComposing = false; });
                 input.addEventListener('keydown', e => {
-                    if (e.key === 'Escape') { e.preventDefault(); this.cancel(); }
-                    if (e.key === 'Enter') { e.preventDefault(); this.save(); }
+                    if (isComposing || e.isComposing || e.keyCode === 229) return;
+                    if (e.key === 'Escape') {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        this.cancel();
+                    } else if (e.key === 'Enter' || e.keyCode === 13) {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        if (!this.busy) this.save();
+                    }
                 });
                 input.focus();
                 input.select();
@@ -4969,9 +4992,27 @@
                 if (value.length > 80) return 'Nilai terlalu panjang.';
                 if (field === 'kedudukan' && value && !/^[1-9]\d*$/.test(value))
                     return 'Kedudukan mesti nombor positif atau kosong.';
-                if (field !== 'kedudukan' && value && !/^\d+(?::\d{1,2})?(?:[.,]\d+)?$/.test(value))
-                    return 'Format masa atau catatan tidak sah.';
                 return null;
+            },
+            async verifyRecordFromSheet(sheetUrl, data, expectedValue) {
+                const sep = sheetUrl.includes('?') ? '&' : '?';
+                const checkUrl = `${sheetUrl}${sep}_v=${Date.now()}`;
+                const response = await fetch(checkUrl, {
+                    method: 'GET',
+                    headers: { 'Accept': 'application/json' }
+                });
+                if (!response.ok) return false;
+                const payload = await response.json();
+                const entry = this.modules[data.moduleId];
+                const normalized = entry.module().normalizeGasPayload(payload);
+                const ev = normalized[data.eventNo];
+                if (!ev) return false;
+                const rows = data.moduleId === 'saringan'
+                    ? ev[data.gender]?.['saringan' + data.heat]
+                    : ev[data.gender];
+                if (!Array.isArray(rows)) return false;
+                const rec = rows.find(r => String(r.id) === data.recordId);
+                return Boolean(rec && String(rec[data.field] ?? '') === expectedValue);
             },
             async save() {
                 if (this.busy || !this.active) return;
@@ -4983,14 +5024,8 @@
                 const sheetCfg = StorageManager.getModuleSheetConfig(data.moduleId);
                 const configRevision = StorageManager.moduleConfigRevision[data.moduleId];
                 if (!sheetCfg?.url) {
-                    UIComponents.showToast('URL Google Sheets modul ini telah dipadam.', 'error');
+                    UIComponents.showToast('Sambungan Google Sheets bagi modul ini belum dikonfigurasi.', 'error');
                     this.cancel();
-                    return;
-                }
-                const config = window.STATISTIX_SECURE_WRITE_CONFIG;
-                const endpoint = config?.endpoints?.[data.moduleId];
-                if (!endpoint || !/^https:\/\//.test(endpoint) || typeof config.getIdToken !== 'function') {
-                    UIComponents.showToast('Edit belum diaktifkan: gateway selamat dan identiti Google belum dikonfigurasi.', 'error');
                     return;
                 }
                 if (!AdminAuthController.isAuthenticated) { this.cancel(); return; }
@@ -5004,58 +5039,67 @@
                 this.busy = true;
                 input.disabled = true;
                 try {
-                    const idToken = await config.getIdToken();
-                    if (typeof idToken !== 'string' || !idToken) throw new Error('Identiti Google tidak disahkan.');
+                    const authToken = AdminAuthController.getStoredPasscode();
+                    if (!authToken) throw new Error('Pengesahan pentadbir diperlukan.');
                     if (StorageManager.moduleConfigRevision[data.moduleId] !== configRevision ||
                         StorageManager.getModuleSheetConfig(data.moduleId)?.url !== sheetCfg.url)
                         throw new Error('Sambungan Google Sheets telah berubah.');
-                    const response = await fetch(endpoint, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({
-                            idToken, moduleId: data.moduleId, eventNo: data.eventNo,
-                            gender: data.gender, heat: data.heat, sourceRow: found.record.sourceRow,
-                            recordId: data.recordId, field: data.field,
-                            oldValue, newValue,
-                            identity: {
-                                lorong: String(found.record.lorong ?? ''),
-                                noBib: String(found.record.noBib ?? ''),
-                                namaAtlet: String(found.record.namaAtlet ?? ''),
-                                pasukan: String(found.record.pasukan ?? '')
-                            }
-                        })
+
+                    const payload = JSON.stringify({
+                        authToken,
+                        moduleId: data.moduleId,
+                        eventNo: data.eventNo,
+                        gender: data.gender,
+                        heat: data.heat,
+                        sourceRow: found.record.sourceRow,
+                        recordId: data.recordId,
+                        field: data.field,
+                        oldValue,
+                        newValue,
+                        identity: {
+                            lorong: String(found.record.lorong ?? ''),
+                            noBib: String(found.record.noBib ?? ''),
+                            namaAtlet: String(found.record.namaAtlet ?? ''),
+                            pasukan: String(found.record.pasukan ?? '')
+                        }
                     });
-                    if (!response.ok) throw new Error('HTTP ' + response.status);
-                    const result = await response.json();
+
+                    // Satu permintaan POST tunggal sahaja (mode: 'no-cors' mengelakkan kegagalan CORS redirect Apps Script
+                    // tanpa menghantar permintaan pendua). Pengesahan dilakukan melalui bacaan semula doGet().
+                    await fetch(sheetCfg.url, {
+                        method: 'POST',
+                        mode: 'no-cors',
+                        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                        body: payload
+                    });
+
                     if (StorageManager.moduleConfigRevision[data.moduleId] !== configRevision ||
                         StorageManager.getModuleSheetConfig(data.moduleId)?.url !== sheetCfg.url)
                         throw new Error('Sambungan Google Sheets telah berubah.');
-                    if (result.ok !== true || String(result.sourceRow) !== String(found.record.sourceRow) ||
-                        String(result.value) !== newValue || result.eventNo !== data.eventNo)
-                        throw new Error(result.error || 'Respons pelayan tidak dapat disahkan.');
-                    // The server has confirmed its own cell read-back. A previously
-                    // official result is now invalid even if the next GET fails.
-                    const committedAt = new Date().toISOString();
-                    const committed = this.find(data);
-                    if (committed && committed.event.status === 'DISAHKAN_RASMI') {
-                        committed.event.status = 'SELESAI';
-                        committed.event.verifiedAt = null;
-                        committed.event.updatedAt = committedAt;
-                        StorageManager[committed.entry.save](committed.store);
+
+                    // Sahkan perubahan melalui bacaan semula pantas daripada Google Sheets
+                    let verified = await this.verifyRecordFromSheet(sheetCfg.url, data, newValue);
+                    if (!verified) {
+                        await new Promise(resolve => setTimeout(resolve, 450));
+                        verified = await this.verifyRecordFromSheet(sheetCfg.url, data, newValue);
                     }
-                    // Read from the original Google Sheets source, not just the write response.
-                    const ok = await found.entry.module().syncFromGoogleAppsScript(null, true);
-                    if (!ok) throw new Error('Penulisan dilapor berjaya tetapi bacaan semula gagal.');
+                    if (!verified) {
+                        throw new Error('Perubahan belum dapat disahkan di Google Sheets. Pastikan kod Apps Script terkini telah diterbitkan dan WRITE_SECRET sepadan.');
+                    }
+
+                    // Kemas kini rekod yang berubah sahaja dalam cache LocalStorage tanpa menyegerak semula seluruh modul
                     const latest = this.find(data);
-                    if (!latest || latest.record.sourceRow !== found.record.sourceRow ||
-                        String(latest.record[data.field] ?? '') !== newValue)
-                        throw new Error('Nilai bacaan semula tidak sepadan. Semak Google Sheets.');
+                    if (!latest || latest.record.sourceRow !== found.record.sourceRow) {
+                        throw new Error('Rekod tempatan tidak sepadan.');
+                    }
                     const now = new Date().toISOString();
+                    latest.record[data.field] = newValue;
                     if (latest.event.status === 'DISAHKAN_RASMI') {
                         latest.event.status = 'SELESAI';
                         latest.event.verifiedAt = null;
                     }
                     latest.event.updatedAt = now;
+                    latest.store.lastSyncedAt = now;
                     StorageManager[latest.entry.save](latest.store);
                     StorageManager[latest.entry.audit]({
                         id: 'LOG-INLINE-' + Date.now() + '-' + Math.random().toString(36).slice(2),
@@ -5064,11 +5108,16 @@
                         detail: data.gender + ' / ' + (data.heat || '-') + ' / baris ' +
                             latest.record.sourceRow + ' / ' + data.field + ': ' + oldValue + ' → ' + newValue
                     });
+
                     this.active = null;
-                    if (AppController.state.activeViewId === latest.entry.view) AppController.loadView(latest.entry.view);
-                    UIComponents.showToast('Perubahan disimpan dan disahkan melalui bacaan semula Google Sheets.', 'success');
+                    if (AppController.state.activeViewId === latest.entry.view && !AppController.state.isAdminMode) {
+                        AppController.loadView(latest.entry.view);
+                    } else if (cell.isConnected) {
+                        cell.textContent = newValue || '—';
+                    }
+                    PodiumModule.refreshIfActive();
+                    UIComponents.showToast('Perubahan disimpan dan disahkan dalam Google Sheets.', 'success');
                 } catch (error) {
-                    // No optimistic local update or false success message.
                     UIComponents.showToast('Gagal mengesahkan simpanan: ' + error.message, 'error');
                     if (cell.isConnected) cell.textContent = oldValue || '—';
                     this.active = null;
@@ -5231,39 +5280,21 @@
                     ';\nvar SECURE_WRITE_EVENTS_ = ' + events[moduleId] + ';\n' +
                     String.raw`
 /*
- * SECURE WRITE-BACK EXTENSION. The read-only doGet above is unchanged.
- * REQUIRED Script Properties:
- *   EDITOR_GOOGLE_CLIENT_ID = OAuth web-client audience
- *   EDITOR_EMAIL_ALLOWLIST  = comma-separated trusted Google accounts
- *
- * A public "Execute as Me" deployment is safe for writes ONLY because this
- * handler independently validates the signed Google ID token + email allowlist.
- * The browser still requires a separately configured CORS-capable gateway
- * to receive verifiable responses; Apps Script ContentService alone does not
- * reliably expose POST responses cross-origin to fetch().
+ * DIRECT GOOGLE SHEETS WRITE-BACK EXTENSION (NO EXTERNAL GATEWAY / NO OAUTH TOKEN).
+ * REQUIRED Script Property in Apps Script (Project Settings -> Script Properties):
+ *   WRITE_SECRET = Kod Laluan Pentadbir yang sama (lalai: ADMIN2026)
  */
 function doPost(e) {
   try {
     if (!e || !e.postData || !e.postData.contents) throw Error("Missing payload");
     var body = JSON.parse(e.postData.contents);
     var prop = PropertiesService.getScriptProperties();
-    var clientId = prop.getProperty("EDITOR_GOOGLE_CLIENT_ID");
-    var emails = String(prop.getProperty("EDITOR_EMAIL_ALLOWLIST") || "")
-      .toLowerCase().split(",").map(function(v) { return v.trim(); }).filter(Boolean);
-    if (!clientId || !emails.length) throw Error("Server authorization not configured");
-    if (!body.idToken || typeof body.idToken !== "string" || body.idToken.length > 5000)
-      throw Error("Missing Google identity token");
-    var validation = UrlFetchApp.fetch(
-      "https://oauth2.googleapis.com/tokeninfo?id_token=" + encodeURIComponent(body.idToken),
-      { muteHttpExceptions: true }
-    );
-    if (validation.getResponseCode() !== 200) throw Error("Invalid identity token");
-    var claims = JSON.parse(validation.getContentText());
-    if (claims.aud !== clientId || claims.email_verified !== "true" ||
-      !emails.includes(String(claims.email || "").toLowerCase()) ||
-      !["accounts.google.com", "https://accounts.google.com"].includes(claims.iss) ||
-      Number(claims.exp || 0) * 1000 <= Date.now())
-      throw Error("Account not authorized");
+    var expectedSecret = String(prop.getProperty("WRITE_SECRET") || "").trim();
+    if (!expectedSecret) throw Error("Server WRITE_SECRET not configured");
+    var providedToken = String(body.authToken || "").trim();
+    if (!providedToken || providedToken !== expectedSecret) {
+      throw Error("Unauthorized write request");
+    }
     if (body.moduleId !== SECURE_WRITE_MODULE_) throw Error("Incorrect module");
     var allowedEvents = SECURE_WRITE_EVENTS_;
     var eventNo = String(body.eventNo || "");
@@ -5281,9 +5312,6 @@ function doPost(e) {
       throw Error("Unsafe value");
     if (field === "kedudukan" && newValue && !/^[1-9]\d*$/.test(newValue))
       throw Error("Invalid ranking");
-    if (field !== "kedudukan" && newValue &&
-        !/^\d+(?::\d{1,2})?(?:[.,]\d+)?$/.test(newValue))
-      throw Error("Invalid result format");
     var lock = LockService.getScriptLock();
     if (!lock.tryLock(20000)) throw Error("Another edit is in progress");
     try {
@@ -5292,13 +5320,13 @@ function doPost(e) {
       if (!sheet) throw Error("Event sheet unavailable");
       var row = sheet.getRange(rowNo, 1, 1, 15).getDisplayValues()[0];
       var identity = body.identity || {};
-      var start = SECURE_WRITE_MODULE_ === "relay" && gender === "perempuan" ? 8 : 0;
+      var start = ((SECURE_WRITE_MODULE_ === "saringan" || SECURE_WRITE_MODULE_ === "relay") && gender === "perempuan") ? 8 : 0;
       var srcLane = String(row[start] || "").trim();
       var srcTeam = String(SECURE_WRITE_MODULE_ === "relay"
-          ? (row[start + 1] || row[start + 2] || "") : (row[3] || "")).trim();
+          ? (row[start + 1] || row[start + 2] || "") : (row[start + 3] || "")).trim();
       var srcName = SECURE_WRITE_MODULE_ === "relay" ? "" :
-          String(row[1] || row[2] || "").trim();
-      var srcBib = SECURE_WRITE_MODULE_ === "relay" ? "" : String(row[4] || "").trim();
+          String(row[start + 1] || row[start + 2] || "").trim();
+      var srcBib = SECURE_WRITE_MODULE_ === "relay" ? "" : String(row[start + 4] || "").trim();
       if (srcLane !== String(identity.lorong || "") ||
           srcTeam !== String(identity.pasukan || "") ||
           srcName !== String(identity.namaAtlet || "") ||
@@ -5321,8 +5349,11 @@ function doPost(e) {
       }
       if (cell.getFormula()) throw Error("Formula cell: write refused");
       if (cell.getDisplayValue() !== oldValue) throw Error("Source changed: edit conflict");
-      // Set as data (prefix-less text); never evaluate user-entered formulas.
-      cell.setValue(newValue);
+      // Simpan medan Masa & Catatan Terbaik sebagai Plain Text (@) supaya format seperti 01:02.35, DNS, NM kekal tepat
+      if (field === "masa" || field === "catatanTerbaik") {
+        cell.setNumberFormat("@");
+      }
+      cell.setValue(String(newValue));
       SpreadsheetApp.flush();
       var confirmed = String(cell.getDisplayValue());
       if (confirmed !== newValue) throw Error("Read-back mismatch");
@@ -5856,6 +5887,9 @@ function secureRecordId_(eventNo, gender, heat, rowNo, lane, name, bib, team) {
                     };
                     UIComponents.hideLoading();
                     this.renderPanel();
+                    if (GoogleSheetsLiveStatus.getConfig(moduleId) === candidateUrl) {
+                        GoogleSheetsLiveStatus.update(moduleId, 'success', candidateUrl);
+                    }
                     UIComponents.showToast(`[${modMeta.title}] Sambungan Berjaya.`, 'success');
                 } catch (err) {
                     const isFormatErr = err && err.message && err.message.includes('Format JSON');
@@ -6133,6 +6167,131 @@ function secureRecordId_(eventNo, gender, heat, rowNo, lane, name, bib, team) {
             }
         };
 
+        /** Status Google Sheets: pemeriksaan GET baca sahaja, terpisah daripada import data. */
+        const GoogleSheetsLiveStatus = {
+            moduleIds: ['saringan', 'akhir', 'relay', 'padang'],
+            maxAgeMs: 150000,
+            intervalMs: 120000,
+            records: {},
+            pending: {},
+            timer: null,
+            started: false,
+
+            getConfig(id) {
+                const config = StorageManager.getModuleSheetConfig(id);
+                return config && config.url ? config.url.trim() : '';
+            },
+            update(id, state, url) {
+                const currentUrl = this.getConfig(id);
+                if (!currentUrl || currentUrl !== url) {
+                    delete this.records[id];
+                } else {
+                    this.records[id] = { state, url, at: Date.now() };
+                }
+                this.render();
+            },
+            markSyncStart(id, url) {
+                if (this.getConfig(id) === url) this.update(id, 'pending', url);
+            },
+            markSyncResult(id, url, success) {
+                if (this.getConfig(id) === url) this.update(id, success ? 'success' : 'failed', url);
+            },
+            getState() {
+                const configured = this.moduleIds.filter(id => !!this.getConfig(id));
+                if (!configured.length) return 'none';
+                const states = configured.map(id => {
+                    const entry = this.records[id];
+                    if (!entry || entry.url !== this.getConfig(id) ||
+                        (entry.state === 'success' && Date.now() - entry.at > this.maxAgeMs)) return 'unknown';
+                    return entry.state;
+                });
+                if (states.every(x => x === 'success')) return 'success';
+                if (states.includes('pending')) return 'pending';
+                if (states.every(x => x === 'failed')) return 'failed';
+                if (states.includes('failed')) return 'partial';
+                return 'unknown';
+            },
+            render() {
+                const states = {
+                    success: ['LIVE SYNC', 'bg-emerald-400 animate-pulse'],
+                    pending: ['MENYEGERAK...', 'bg-amber-400 animate-pulse'],
+                    none: ['TIADA SAMBUNGAN', 'bg-slate-400'],
+                    failed: ['SAMBUNGAN GAGAL', 'bg-rose-500'],
+                    partial: ['SAMBUNGAN SEPARA', 'bg-amber-400'],
+                    unknown: ['BELUM DISAHKAN', 'bg-slate-400']
+                };
+                const [label, color] = states[this.getState()];
+                [['storage-status-dot', 'storage-status-text'], ['mobile-storage-dot', 'mobile-storage-text']]
+                    .forEach(([dotId, textId]) => {
+                        const dot = document.getElementById(dotId);
+                        const text = document.getElementById(textId);
+                        if (dot) dot.className = `w-2 h-2 rounded-full shrink-0 ${color} motion-reduce:animate-none`;
+                        if (text) text.textContent = label;
+                    });
+            },
+            validatePayload(id, payload) {
+                if (!payload || typeof payload !== 'object' || Array.isArray(payload)) return false;
+                const tags = { saringan: 'SARINGAN', akhir: 'AKHIR_BALAPAN', relay: 'RELAY', padang: 'PADANG' };
+                if (payload.module && payload.module !== tags[id]) return false;
+                const modules = {
+                    saringan: SaringanModule, akhir: AkhirBalapanModule,
+                    relay: RelayModule, padang: PadangModule
+                };
+                const events = modules[id].normalizeGasPayload(payload);
+                if (!events || Object.keys(events).length === 0) return false;
+                // Konsisten dengan ujian sambungan panel admin: respons mesti mengandungi rekod sah.
+                return Object.values(events).some(ev => id === 'saringan'
+                    ? ['lelaki', 'perempuan'].some(g =>
+                        (ev[g]?.saringan1?.length || 0) + (ev[g]?.saringan2?.length || 0) > 0)
+                    : (ev.lelaki?.length || 0) + (ev.perempuan?.length || 0) > 0);
+            },
+            async probe(id) {
+                const url = this.getConfig(id);
+                const revision = StorageManager.moduleConfigRevision[id];
+                if (!url || this.pending[id]) return;
+                const existing = this.records[id];
+                if (existing && existing.url === url && existing.state === 'success' &&
+                    Date.now() - existing.at < this.intervalMs) return;
+                this.update(id, 'pending', url);
+                const aborter = new AbortController();
+                const timeout = setTimeout(() => aborter.abort(), 12000);
+                this.pending[id] = true;
+                try {
+                    const response = await fetch(url, {
+                        method: 'GET', headers: { 'Accept': 'application/json' }, signal: aborter.signal
+                    });
+                    if (!response.ok) throw new Error(`HTTP ${response.status}`);
+                    const payload = await response.json();
+                    if (!this.validatePayload(id, payload)) throw new Error('Respons acara tidak sah');
+                    if (revision === StorageManager.moduleConfigRevision[id]) this.update(id, 'success', url);
+                } catch (err) {
+                    if (revision === StorageManager.moduleConfigRevision[id]) this.update(id, 'failed', url);
+                } finally {
+                    clearTimeout(timeout);
+                    delete this.pending[id];
+                }
+            },
+            checkAll() {
+                this.render();
+                if (document.visibilityState === 'hidden') return;
+                this.moduleIds.forEach(id => {
+                    if (!this.getConfig(id)) delete this.records[id];
+                    else void this.probe(id);
+                });
+                this.render();
+            },
+            start() {
+                if (this.started) return;
+                this.started = true;
+                this.checkAll();
+                this.timer = setInterval(() => this.checkAll(), this.intervalMs);
+                document.addEventListener('visibilitychange', () => {
+                    if (!document.hidden) this.checkAll();
+                });
+                window.addEventListener('online', () => this.checkAll());
+            }
+        };
+
         /**
          * 5. PENGAWAL UTAMA APLIKASI (AppController)
          * Menguruskan keadaan navigasi, identiti header, dan paparan modular.
@@ -6145,6 +6304,7 @@ function secureRecordId_(eventNo, gender, heat, rowNo, lane, name, bib, team) {
 
             init() {
                 this.checkStorageStatus();
+                GoogleSheetsLiveStatus.start();
                 this.hydrateTournamentHeader();
                 this.renderNavigation();
                 this.loadView(this.state.activeViewId);
@@ -6152,36 +6312,13 @@ function secureRecordId_(eventNo, gender, heat, rowNo, lane, name, bib, team) {
             },
 
             checkStorageStatus() {
-                const status = StorageManager.checkAvailability();
-                const desktopDot = document.getElementById('storage-status-dot');
-                const desktopText = document.getElementById('storage-status-text');
-                const mobileDot = document.getElementById('mobile-storage-dot');
-                const mobileText = document.getElementById('mobile-storage-text');
-
-                if (status.ok) {
-                    if (desktopDot) desktopDot.className = 'w-2 h-2 rounded-full bg-emerald-400';
-                    if (desktopText) desktopText.textContent = 'LIVE SYNC';
-                    if (mobileDot) mobileDot.className = 'w-2 h-2 rounded-full bg-emerald-500';
-                    if (mobileText) mobileText.textContent = status.message;
-                } else {
-                    if (desktopDot) desktopDot.className = 'w-2 h-2 rounded-full bg-rose-500';
-                    if (desktopText) desktopText.textContent = 'Ralat Storan';
-                    if (mobileDot) mobileDot.className = 'w-2 h-2 rounded-full bg-rose-500';
-                    if (mobileText) mobileText.textContent = status.message;
-                }
+                GoogleSheetsLiveStatus.render();
             },
 
             hydrateTournamentHeader() {
                 const config = StorageManager.getTournamentConfig();
-                const nameEl = document.getElementById('tournament-name-display');
                 const logoImg = document.getElementById('tournament-logo-img');
                 const logoPlaceholder = document.getElementById('tournament-logo-placeholder');
-
-                if (config && config.tournamentName && config.tournamentName.trim() !== '') {
-                    nameEl.textContent = config.tournamentName;
-                } else {
-                    nameEl.textContent = 'SKBK ATHLETIX CHAMPIONSHIP';
-                }
 
                 if (config && config.logoUrl && config.logoUrl.trim() !== '') {
                     logoImg.src = config.logoUrl;
@@ -6472,6 +6609,7 @@ function secureRecordId_(eventNo, gender, heat, rowNo, lane, name, bib, team) {
                         }
                     }
                 } finally {
+                    GoogleSheetsLiveStatus.render();
                     this.loadView(viewId);
                     UIComponents.hideLoading();
                     if (syncStatusMsg) {
