@@ -228,8 +228,8 @@
             <!-- PAPARAN AWAM UTAMA (5 MODUL STATISTIK KEJOHANAN)                -->
             <!-- =============================================================== -->
             <section id="public-workspace" class="space-y-6">
-                <!-- Bar Tajuk Modul & Ringkasan Tindakan Pantas -->
-                <div class="bg-white rounded-2xl p-5 sm:p-6 shadow-card border border-slate-200/80 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                <!-- Bar Tajuk Modul -->
+                <div class="bg-white rounded-2xl p-5 sm:p-6 shadow-card border border-slate-200/80">
                     <div>
                         <div class="flex items-center gap-2 text-xs font-semibold text-navy-secondary uppercase tracking-wider">
                             <i id="view-breadcrumb-icon" data-lucide="layers" class="w-3.5 h-3.5 text-gold-dark"></i>
@@ -241,13 +241,6 @@
                         <p id="view-main-subtitle" class="text-xs sm:text-sm text-ink-muted mt-0.5">
                             Paparan keputusan saringan mengikut kategori acara dan laluan kelayakan ke peringkat akhir.
                         </p>
-                    </div>
-
-                    <div class="flex items-center gap-2 self-start sm:self-center">
-                        <button type="button" onclick="AppController.refreshCurrentView()" class="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-semibold text-navy-primary bg-surface-bg hover:bg-slate-200/70 border border-slate-200 transition-colors cursor-pointer">
-                            <i data-lucide="refresh-cw" class="w-3.5 h-3.5 text-navy-secondary"></i>
-                            <span>Muat Semula</span>
-                        </button>
                     </div>
                 </div>
 
@@ -347,15 +340,15 @@
                 shortLabel: 'Saringan',
                 icon: 'list-ordered',
                 category: 'Peringkat Kelayakan',
-                subtitle: 'Paparan keputusan saringan mengikut kategori dan senarai atlet yang layak ke pusingan akhir.'
+                subtitle: 'Paparan keputusan saringan mengikut siri dan senarai atlet yang layak ke pusingan akhir.'
             },
             {
                 id: 'akhir-balapan',
                 label: 'Akhir Balapan',
                 shortLabel: 'Akhir',
                 icon: 'flag',
-                category: 'Acara Akhir',
-                subtitle: 'Keputusan rasmi acara akhir balapan beserta catatan masa dan kedudukan.'
+                category: 'Acara Balapan',
+                subtitle: 'Keputusan rasmi perlumbaan akhir balapan beserta catatan masa dan kedudukan pingat.'
             },
             {
                 id: 'relay',
@@ -363,7 +356,7 @@
                 shortLabel: 'Relay',
                 icon: 'users',
                 category: 'Acara Berpasukan',
-                subtitle: 'Keputusan rasmi acara lari berganti-ganti (Relay) mengikut pasukan.'
+                subtitle: 'Keputusan rasmi acara lari berganti-ganti (4x100m & 4x400m) mengikut pasukan.'
             },
             {
                 id: 'padang',
@@ -375,11 +368,11 @@
             },
             {
                 id: 'podium',
-                label: 'Podium Pingat',
+                label: 'Podium Acara',
                 shortLabel: 'Podium',
                 icon: 'trophy',
                 category: 'Ringkasan Pingat',
-                subtitle: 'Kedudukan pungutan pingat Emas, Perak dan Gangsa bagi setiap acara yang telah selesai.'
+                subtitle: 'Senarai pemenang pingat Emas, Perak dan Gangsa bagi setiap acara yang telah selesai.'
             }
         ];
 
@@ -2644,7 +2637,7 @@
         };
 
         /**
-         * 4E. MODUL PODIUM PINGAT & PENGIRAAN PINGAT (PodiumModule)
+         * 4E. MODUL PODIUM ACARA & PENGIRAAN PINGAT (PodiumModule)
          * Membaca HANYA acara berstatus DISAHKAN_RASMI daripada Akhir Balapan, Relay & Padang.
          */
         const PodiumModule = {
@@ -2826,7 +2819,7 @@
                                 Belum Ada Keputusan Rasmi Disahkan
                             </h3>
                             <p class="text-xs sm:text-sm text-ink-muted mt-2 leading-relaxed">
-                                Podium pingat dikira secara Automatik daripada <span class="font-semibold text-navy-primary">Akhir Balapan, Acara Relay dan Acara Padang</span> yang telah berstatus <span class="font-semibold text-emerald-700">DISAHKAN RASMI</span>.
+                                Paparan Podium Acara dan pungutan pingat sekolah hanya akan mengira acara daripada <span class="font-semibold text-navy-primary">Akhir Balapan, Acara Relay dan Acara Padang</span> yang telah berstatus <span class="font-semibold text-emerald-700">DISAHKAN RASMI</span>.
                             </p>
                         </div>
                     `;
@@ -2949,7 +2942,7 @@
                             <div class="space-y-1">
                                 <div class="flex flex-wrap items-center gap-2">
                                     <h3 class="font-display font-bold text-base sm:text-lg text-navy-primary">
-                                        Pungutan Pingat Rasmi &amp; Podium Pingat
+                                        Pungutan Pingat Rasmi &amp; Podium Acara
                                     </h3>
                                     <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-emerald-100 text-emerald-800 border border-emerald-300">
                                         <i data-lucide="shield-check" class="w-3.5 h-3.5 text-emerald-600"></i>
@@ -3083,7 +3076,7 @@
                             <div>
                                 <div style="font-size: 9pt; font-weight: 700; letter-spacing: 0.08em; color: #3A506B; text-transform: uppercase;">STATISTIX HUB — REKOD PINGAT RASMI</div>
                                 <div style="font-size: 15pt; font-weight: 800; color: #0B132B; margin-top: 2px;">${this.escapeHtml(tournamentTitle)}</div>
-                                <div style="font-size: 11pt; font-weight: 700; margin-top: 4px;">PUNGUTAN PINGAT KESELURUHAN &amp; PODIUM PINGAT RASMI</div>
+                                <div style="font-size: 11pt; font-weight: 700; margin-top: 4px;">PUNGUTAN PINGAT KESELURUHAN &amp; PODIUM ACARA RASMI</div>
                             </div>
                             <div style="text-align:right; font-size: 9pt;">
                                 <div style="font-weight: 700; padding: 3px 8px; border: 1px solid #0B132B; display:inline-block; margin-bottom:4px;">${data.totalOfficialCategories} ACARA RASMI</div>
@@ -3505,15 +3498,6 @@
                 }
 
                 lucide.createIcons();
-            },
-
-            refreshCurrentView() {
-                const viewId = this.state.activeViewId;
-                UIComponents.showLoading('Memuat Semula Data Tempatan...');
-                this.checkStorageStatus();
-                this.loadView(viewId);
-                UIComponents.hideLoading();
-                UIComponents.showToast('Paparan telah dikemas kini daripada storan tempatan.', 'info');
             }
         };
 
