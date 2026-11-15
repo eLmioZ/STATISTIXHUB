@@ -272,7 +272,7 @@
                 <div>
                     <label for="admin-passcode-input" class="block text-xs font-semibold text-navy-primary mb-1">Kod Laluan Pentadbir</label>
                     <input id="admin-passcode-input" type="password" autocomplete="current-password" placeholder="Masukkan kod laluan admin..." class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-sm focus:outline-none focus:border-navy-primary">
-                    <p class="text-[11px] text-ink-muted mt-1.5">Kod laluan lalai sistem: <span class="font-mono font-bold text-navy-primary">ADMIN2026</span> (boleh diubah dalam panel setelah log masuk).</p>
+                    <p class="text-[11px] text-ink-muted mt-1.5">Kod laluan permulaan panel: <span class="font-mono font-bold text-navy-primary">ADMIN2026</span>. Kod laluan pelayan Google Apps Script mesti sepadan; tukar kata laluan lalai sebelum penggunaan sebenar.</p>
                 </div>
                 <div class="pt-2 flex items-center justify-end gap-2.5">
                     <button type="button" onclick="AdminAuthController.closeModal()" class="px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold text-ink-muted hover:bg-slate-100 transition-colors cursor-pointer">
@@ -455,7 +455,7 @@
                             <ol class="list-decimal list-inside space-y-1 text-ink-muted">
                                 <li>Buka fail Google Sheets rasmi bagi acara berkaitan, kemudian klik menu <strong>Extensions &rarr; Apps Script</strong>.</li>
                                 <li>Padam kod lalai sedia ada dan tampal kod yang disalin menggunakan butang <strong>SALIN KOD GOOGLE APPS SCRIPT</strong> bagi acara tersebut.</li>
-                                <li>Tekan ikon <strong>Save (Ctrl+S)</strong>, kemudian klik <strong>Deploy &rarr; New deployment</strong>.</li>
+                                <li>Tekan ikon <strong>Save (Ctrl+S)</strong>. Jalankan <strong>setupStatistixAccessControl()</strong> sekali, kemudian klik <strong>Deploy &rarr; New deployment</strong> (atau <strong>Manage deployments &rarr; Edit &rarr; New version</strong> jika sudah pernah terbit).</li>
                                 <li>Pilih jenis <strong>Web app</strong>, tetapkan <em>Execute as: Me</em> dan <em>Who has access: Anyone</em>, lalu klik <strong>Deploy</strong>.</li>
                                 <li>Salin <strong>Web app URL</strong> (<span class="font-mono text-navy-primary">https://script.google.com/macros/s/.../exec</span>), tampal pada ruangan URL acara yang sepadan di bawah, klik <strong>UJI SAMBUNGAN</strong>, dan klik <strong>SIMPAN</strong>.</li>
                             </ol>
@@ -5039,15 +5039,13 @@
                 this.busy = true;
                 input.disabled = true;
                 try {
-                    const authToken = AdminAuthController.getStoredPasscode();
-                    if (!authToken) throw new Error('Pengesahan pentadbir diperlukan.');
                     if (StorageManager.moduleConfigRevision[data.moduleId] !== configRevision ||
                         StorageManager.getModuleSheetConfig(data.moduleId)?.url !== sheetCfg.url)
                         throw new Error('Sambungan Google Sheets telah berubah.');
 
                     const sessionToken = AdminAuthController.getModuleSessionToken(data.moduleId);
                     if (!sessionToken) {
-                        throw new Error('Sesi pelayan Google Apps Script tiada atau tamat tempoh. Sila log masuk semula atau jalankan setupStatistixAccessControl() pada Google Sheets.');
+                        throw new Error('Token sesi bagi modul ini tidak tersedia. Tamatkan sesi admin, log masuk semula dan pastikan kod Apps Script terkini serta setupStatistixAccessControl() telah dijalankan.');
                     }
 
                     const payload = JSON.stringify({
@@ -5163,6 +5161,10 @@
                 const sessions = this.getAllModuleSessions();
                 const entry = sessions[moduleId];
                 if (!entry || entry.url !== cfg.url || !entry.token) return '';
+                if (!Number.isFinite(entry.issuedAt) || Date.now() - entry.issuedAt > 3.9 * 60 * 60 * 1000) {
+                    this.removeModuleSession(moduleId);
+                    return '';
+                }
                 return entry.token;
             },
 
@@ -5192,27 +5194,96 @@
                 } catch (e) { /* abaikan ralat storage */ }
             },
 
+            // Google Apps Script ContentService redirects JSON responses to a different origin.
+            // A normal cross-origin fetch(POST) often fails CORS even when the server executed.
+            // Submit login using a hidden form and receive a scoped one-time reply via postMessage.
+            loginModuleViaBridge(moduleId, url, passcode) {
+                return new Promise((resolve, reject) => {
+                    const nonce = (window.crypto && window.crypto.randomUUID)
+                        ? window.crypto.randomUUID()
+                        : Array.from(window.crypto.getRandomValues(new Uint8Array(24)),
+                            b => b.toString(16).padStart(2, '0')).join('');
+                    const frameName = 'stx_auth_' + nonce.replace(/[^a-zA-Z0-9_]/g, '');
+                    const iframe = document.createElement('iframe');
+                    iframe.name = frameName;
+                    iframe.title = 'Pengesahan Google Apps Script';
+                    iframe.style.display = 'none';
+                    const form = document.createElement('form');
+                    form.method = 'POST';
+                    form.action = url;
+                    form.target = frameName;
+                    form.style.display = 'none';
+                    const hidden = document.createElement('input');
+                    hidden.type = 'hidden';
+                    hidden.name = 'payload';
+                    hidden.value = JSON.stringify({
+                        action: 'login',
+                        transport: 'iframe',
+                        nonce,
+                        replyOrigin: window.location.origin === 'null' ? '*' : window.location.origin,
+                        passcode
+                    });
+                    form.appendChild(hidden);
+                    let settled = false;
+                    let timeoutId;
+                    const cleanup = () => {
+                        window.removeEventListener('message', onMessage);
+                        clearTimeout(timeoutId);
+                        form.remove();
+                        iframe.remove();
+                    };
+                    const onMessage = (event) => {
+                        const msg = event.data;
+                        // Validate unpredictable nonce, module and reply shape. Do not trust
+                        // an unrelated website or iframe message.
+                        if (!msg || msg.kind !== 'STATISTIX_AUTH_BRIDGE' || msg.nonce !== nonce) return;
+                        if (settled) return;
+                        settled = true;
+                        cleanup();
+                        if (msg.ok && typeof msg.sessionToken === 'string' && msg.sessionToken.length >= 32) {
+                            resolve({ sessionToken: msg.sessionToken, role: msg.role });
+                        } else {
+                            reject(new Error(msg.error || 'Pengesahan Apps Script ditolak.'));
+                        }
+                    };
+                    window.addEventListener('message', onMessage);
+                    timeoutId = setTimeout(() => {
+                        if (settled) return;
+                        settled = true;
+                        cleanup();
+                        reject(new Error('Tiada respons login daripada Apps Script. Pastikan kod terkini diterbitkan dan akses Web App dibenarkan.'));
+                    }, 20000);
+                    document.body.appendChild(iframe);
+                    document.body.appendChild(form);
+                    try { form.submit(); }
+                    catch (err) { settled = true; cleanup(); reject(err); }
+                });
+            },
+
             async establishServerSessions(passcode) {
                 const moduleIds = ['saringan', 'akhir', 'relay', 'padang'];
-                await Promise.all(moduleIds.map(async modId => {
+                const results = await Promise.all(moduleIds.map(async modId => {
                     const cfg = StorageManager.getModuleSheetConfig(modId);
-                    if (!cfg || !cfg.url) return;
+                    if (!cfg || !cfg.url) return { moduleId: modId, status: 'not_configured' };
                     try {
-                        const res = await fetch(cfg.url, {
-                            method: 'POST',
-                            headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-                            body: JSON.stringify({ action: 'login', passcode })
-                        });
-                        if (res && res.ok) {
-                            const data = await res.json();
-                            if (data && data.ok && data.sessionToken) {
-                                this.setModuleSessionToken(modId, cfg.url, data.sessionToken, data.role);
-                            }
-                        }
-                    } catch (e) {
-                        // Sekiranya CORS menyekat bacaan respons POST, cuba laluan bacaan JSON selamat berparameter sekali sahaja jika disokong
+                        const data = await this.loginModuleViaBridge(modId, cfg.url, passcode);
+                        this.setModuleSessionToken(modId, cfg.url, data.sessionToken, data.role);
+                        return { moduleId: modId, status: 'ok' };
+                    } catch (error) {
+                        this.removeModuleSession(modId);
+                        console.warn('Sesi Apps Script gagal bagi ' + modId + ':', error.message);
+                        return { moduleId: modId, status: 'failed', reason: error.message };
                     }
                 }));
+                return results;
+            },
+
+            removeModuleSession(moduleId) {
+                try {
+                    const sessions = this.getAllModuleSessions();
+                    delete sessions[moduleId];
+                    window.sessionStorage.setItem(this.SESSION_STORAGE_KEY, JSON.stringify(sessions));
+                } catch (e) { /* storage unavailable */ }
             },
 
             openModal() {
@@ -5247,16 +5318,43 @@
                     if (input) input.value = '';
                     return;
                 }
+                const submitButton = event.currentTarget?.querySelector('button[type="submit"]');
+                if (submitButton) submitButton.disabled = true;
+                let results;
+                try {
+                    results = await this.establishServerSessions(entered);
+                } finally {
+                    if (submitButton) submitButton.disabled = false;
+                    if (input) input.value = '';
+                }
+                const configured = results.filter(r => r.status !== 'not_configured');
+                const failed = results.filter(r => r.status === 'failed');
+                const successful = results.filter(r => r.status === 'ok');
+                if (configured.length && !successful.length) {
+                    UIComponents.showToast('Login pelayan gagal bagi semua modul: ' +
+                        (failed[0]?.reason || 'Semak tetapan Web App dan ACL.'), 'error');
+                    // Kekalkan akses tetapan panel melalui kod lokal, tetapi edit pelayan tidak dibenarkan.
+                } else if (failed.length) {
+                    UIComponents.showToast('Sesi pelayan gagal bagi modul: ' +
+                        failed.map(r => r.moduleId).join(', ') +
+                        '. Edit modul tersebut memerlukan login pelayan yang sah.', 'warning');
+                }
                 this.isAuthenticated = true;
                 this.closeModal(false);
-                await this.establishServerSessions(entered);
                 if (VerificationButtonController.pending || PodiumModule.pendingAuthentication || InlineEditController.pending) {
                     if (VerificationButtonController.pending) {
                         VerificationButtonController.resumeAfterLogin();
                         UIComponents.showToast('Akses admin disahkan.', 'success');
                     } else if (InlineEditController.pending) {
-                        InlineEditController.resumeAfterLogin();
-                        UIComponents.showToast('Akses admin disahkan. Sel keputusan boleh diedit.', 'success');
+                        const wantedModule = InlineEditController.pending.moduleId;
+                        if (!this.getModuleSessionToken(wantedModule)) {
+                            InlineEditController.pending = null;
+                            UIComponents.showToast('Sesi pelayan bagi ' + wantedModule +
+                                ' gagal. Tiada perubahan dibenarkan; semak kod Apps Script dan log masuk semula.', 'error');
+                        } else {
+                            InlineEditController.resumeAfterLogin();
+                            UIComponents.showToast('Akses pelayan disahkan. Sel keputusan boleh diedit.', 'success');
+                        }
                     } else {
                         PodiumModule.resumeAfterLogin();
                         UIComponents.showToast('Akses admin disahkan. Sila sahkan keputusan dalam dialog.', 'success');
@@ -5264,7 +5362,14 @@
                     return;
                 }
                 AppController.enterAdminWorkspace();
-                UIComponents.showToast('Pengesahan berjaya. Selamat datang ke Panel Admin ATHLETIX HUB.', 'success');
+                if (configured.length && !successful.length) {
+                    UIComponents.showToast('Panel tetapan tempatan dibuka, tetapi tiada sesi pelayan. Edit Google Sheets belum dibenarkan.', 'warning');
+                } else if (!configured.length) {
+                    UIComponents.showToast('Panel admin dibuka. Konfigurasikan URL Google Sheets untuk mengaktifkan simpanan pelayan.', 'info');
+                } else {
+                    UIComponents.showToast('Panel Admin dibuka. Sesi pelayan tersedia bagi ' +
+                        successful.length + ' modul.', 'success');
+                }
             },
 
             logout() {
@@ -5432,9 +5537,13 @@ function validateSessionToken_(token) {
 }
 
 function doPost(e) {
+  var bridgeRequest_ = null;
   try {
     if (!e || !e.postData || !e.postData.contents) throw Error("Missing payload");
-    var body = JSON.parse(e.postData.contents);
+    var body = JSON.parse(e.parameter && e.parameter.payload
+      ? e.parameter.payload : e.postData.contents);
+    bridgeRequest_ = body && body.transport === "iframe" && body.action === "login"
+      ? { nonce: String(body.nonce || ""), origin: String(body.replyOrigin || "*") } : null;
     var action = String(body.action || "write").trim();
     var ss = SpreadsheetApp.getActiveSpreadsheet();
 
@@ -5447,7 +5556,8 @@ function doPost(e) {
         username: user.username,
         issuedAt: new Date().toISOString()
       }), SESSION_TTL_SEC_);
-      return secureJson_({ ok: true, sessionToken: token, role: user.role, username: user.username });
+      var loginReply = { ok: true, sessionToken: token, role: user.role, username: user.username };
+      return bridgeRequest_ ? secureBridgeReply_(loginReply, bridgeRequest_) : secureJson_(loginReply);
     }
 
     if (action === "logout") {
@@ -5524,7 +5634,29 @@ function doPost(e) {
       return secureJson_({ ok: true, moduleId: SECURE_WRITE_MODULE_,
         eventNo: eventNo, sourceRow: rowNo, field: field, value: confirmed, actor: session.username });
     } finally { lock.releaseLock(); }
-  } catch (ex) { return secureJson_({ ok: false, error: String(ex.message || ex) }); }
+  } catch (ex) {
+    var failure = { ok: false, error: String(ex.message || ex) };
+    return bridgeRequest_ ? secureBridgeReply_(failure, bridgeRequest_) : secureJson_(failure);
+  }
+}
+function secureBridgeReply_(result, request) {
+  // Deliver cross-origin login results to the initiating page without a password in the URL.
+  var target = request.origin;
+  if (target !== "*" && !/^https?:\/\/[^\s/]+$/.test(target)) target = "*";
+  var reply = {
+    kind: "STATISTIX_AUTH_BRIDGE",
+    nonce: request.nonce,
+    ok: result.ok === true,
+    sessionToken: result.sessionToken || "",
+    role: result.role || "",
+    error: result.error || ""
+  };
+  var json = JSON.stringify(reply).replace(/</g, "\\u003c");
+  return HtmlService.createHtmlOutput(
+    '<!doctype html><html><body><script>' +
+    'window.top.postMessage(' + json + ',' + JSON.stringify(target) + ');' +
+    '</' + 'script></body></html>')
+    .setXFrameOptionsMode(HtmlService.XFrameOptionsMode.ALLOWALL);
 }
 function secureJson_(obj) {
   return ContentService.createTextOutput(JSON.stringify(obj))
