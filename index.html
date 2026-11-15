@@ -252,41 +252,6 @@
     </header>
 
     <!-- ===================================================================== -->
-    <!-- MODAL PENGESAHAN AKSES PENTADBIR (KAWALAN KEBENARAN ADMIN)            -->
-    <!-- ===================================================================== -->
-    <div id="admin-auth-modal" class="hidden fixed inset-0 z-50 bg-navy-dark/80 backdrop-blur-xs flex items-center justify-center p-4">
-        <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl border border-slate-200 fade-in">
-            <div class="flex items-start gap-3.5">
-                <div class="w-11 h-11 rounded-xl bg-navy-primary text-gold flex items-center justify-center shrink-0">
-                    <i data-lucide="lock" class="w-5 h-5"></i>
-                </div>
-                <div class="flex-1">
-                    <span class="text-[10px] font-bold uppercase tracking-wider text-gold-dark">ZON TERKAWAL ATHLETIX HUB</span>
-                    <h3 class="font-display font-bold text-lg text-navy-primary">Pengesahan Akses Panel Admin</h3>
-                    <p class="text-xs text-ink-muted mt-1 leading-relaxed">
-                        Hanya pentadbir berdaftar dibenarkan menguruskan Tetapan Google Sheets dan pengesahan rasmi kejohanan.
-                    </p>
-                </div>
-            </div>
-            <form onsubmit="AdminAuthController.handleLogin(event)" class="mt-4 space-y-3.5">
-                <div>
-                    <label for="admin-passcode-input" class="block text-xs font-semibold text-navy-primary mb-1">Kod Laluan Pentadbir</label>
-                    <input id="admin-passcode-input" type="password" autocomplete="current-password" placeholder="Masukkan kod laluan admin..." class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-sm focus:outline-none focus:border-navy-primary">
-                    <p class="text-[11px] text-ink-muted mt-1.5">Kod laluan permulaan panel: <span class="font-mono font-bold text-navy-primary">ADMIN2026</span>. Kod laluan pelayan Google Apps Script mesti sepadan; tukar kata laluan lalai sebelum penggunaan sebenar.</p>
-                </div>
-                <div class="pt-2 flex items-center justify-end gap-2.5">
-                    <button type="button" onclick="AdminAuthController.closeModal()" class="px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold text-ink-muted hover:bg-slate-100 transition-colors cursor-pointer">
-                        Batal
-                    </button>
-                    <button type="submit" class="px-5 py-2 rounded-xl text-xs sm:text-sm font-semibold bg-navy-primary text-gold-light hover:bg-navy-secondary transition-colors shadow-sm cursor-pointer">
-                        Sahkan & Masuk
-                    </button>
-                </div>
-            </form>
-        </div>
-    </div>
-
-    <!-- ===================================================================== -->
     <!-- STRUKTUR UTAMA: SIDEBAR DESKTOP + KANDUNGAN UTAMA                     -->
     <!-- ===================================================================== -->
     <div class="flex-1 flex flex-col lg:flex-row w-full max-w-[1600px] mx-auto">
@@ -403,10 +368,6 @@
                         </div>
 
                         <div class="flex flex-wrap items-center gap-2 self-start sm:self-center">
-                            <button type="button" onclick="AdminAuthController.logout()" class="inline-flex items-center justify-center gap-1.5 px-3.5 py-2.5 rounded-xl text-xs font-semibold bg-rose-950/80 hover:bg-rose-900 text-rose-200 border border-rose-500/40 transition-colors cursor-pointer">
-                                <i data-lucide="log-out" class="w-3.5 h-3.5"></i>
-                                <span>Tamat Sesi Admin</span>
-                            </button>
                             <button type="button" onclick="AppController.toggleAdminView()" class="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-xs sm:text-sm font-semibold bg-navy-secondary hover:bg-navy-dark text-white border border-slate-600/60 transition-colors cursor-pointer">
                                 <i data-lucide="arrow-left" class="w-4 h-4 text-gold"></i>
                                 <span>Kembali ke Paparan Awam</span>
@@ -755,7 +716,7 @@
             KEYS: {
                 CONFIG: 'statistix_hub_config',
                 EVENTS_DATA: 'statistix_hub_events_data',
-                ADMIN_PASSCODE: 'statistix_hub_admin_passcode',
+
                 GSHEET_URL_SARINGAN: 'athletix_gsheet_url_saringan',
                 GSHEET_URL_AKHIR: 'athletix_gsheet_url_akhir_balapan',
                 GSHEET_URL_RELAY: 'athletix_gsheet_url_relay',
@@ -1512,7 +1473,7 @@
             verifyEventOfficial(eventNo, confirmedFromPublic = false) {
                 const store = StorageManager.getSaringanStore();
                 const ev = store.events[eventNo];
-                if (!AdminAuthController.isAuthenticated || !ev || String(ev.eventNo) !== String(eventNo)) return;
+                if (!ev || String(ev.eventNo) !== String(eventNo)) return;
                 if (!['BELUM_SELESAI', 'SELESAI'].includes(ev.status)) {
                     UIComponents.showToast('Status acara tidak boleh disahkan.', 'warning');
                     return;
@@ -1520,7 +1481,7 @@
 
                 const commit = () => {
                         const latest = StorageManager.getSaringanStore().events[eventNo];
-                        if (!AdminAuthController.isAuthenticated || !latest ||
+                        if (!latest ||
                             String(latest.eventNo) !== String(eventNo) || !['BELUM_SELESAI', 'SELESAI'].includes(latest.status)) return;
                         const store = StorageManager.getSaringanStore();
                         const ev = store.events[eventNo];
@@ -2370,7 +2331,7 @@
             verifyEventOfficial(eventNo, confirmedFromPublic = false) {
                 const store = StorageManager.getPadangStore();
                 const ev = store.events[eventNo];
-                if (!AdminAuthController.isAuthenticated || !ev || String(ev.eventNo) !== String(eventNo)) return;
+                if (!ev || String(ev.eventNo) !== String(eventNo)) return;
                 if (!['BELUM_SELESAI', 'SELESAI'].includes(ev.status)) {
                     UIComponents.showToast('Status acara tidak boleh disahkan.', 'warning');
                     return;
@@ -2378,7 +2339,7 @@
 
                 const commit = () => {
                         const latest = StorageManager.getPadangStore().events[eventNo];
-                        if (!AdminAuthController.isAuthenticated || !latest ||
+                        if (!latest ||
                             String(latest.eventNo) !== String(eventNo) || !['BELUM_SELESAI', 'SELESAI'].includes(latest.status)) return;
                         const store = StorageManager.getPadangStore();
                         const ev = store.events[eventNo];
@@ -3123,7 +3084,7 @@
             verifyEventOfficial(eventNo, confirmedFromPublic = false) {
                 const store = StorageManager.getAkhirBalapanStore();
                 const ev = store.events[eventNo];
-                if (!AdminAuthController.isAuthenticated || !ev || String(ev.eventNo) !== String(eventNo)) return;
+                if (!ev || String(ev.eventNo) !== String(eventNo)) return;
                 if (!['BELUM_SELESAI', 'SELESAI'].includes(ev.status)) {
                     UIComponents.showToast('Status acara tidak boleh disahkan.', 'warning');
                     return;
@@ -3131,7 +3092,7 @@
 
                 const commit = () => {
                         const latest = StorageManager.getAkhirBalapanStore().events[eventNo];
-                        if (!AdminAuthController.isAuthenticated || !latest ||
+                        if (!latest ||
                             String(latest.eventNo) !== String(eventNo) || !['BELUM_SELESAI', 'SELESAI'].includes(latest.status)) return;
                         const store = StorageManager.getAkhirBalapanStore();
                         const ev = store.events[eventNo];
@@ -3854,7 +3815,7 @@
             verifyEventOfficial(eventNo, confirmedFromPublic = false) {
                 const store = StorageManager.getRelayStore();
                 const ev = store.events[eventNo];
-                if (!AdminAuthController.isAuthenticated || !ev || String(ev.eventNo) !== String(eventNo)) return;
+                if (!ev || String(ev.eventNo) !== String(eventNo)) return;
                 if (!['BELUM_SELESAI', 'SELESAI'].includes(ev.status)) {
                     UIComponents.showToast('Status acara tidak boleh disahkan.', 'warning');
                     return;
@@ -3862,7 +3823,7 @@
 
                 const commit = () => {
                         const latest = StorageManager.getRelayStore().events[eventNo];
-                        if (!AdminAuthController.isAuthenticated || !latest ||
+                        if (!latest ||
                             String(latest.eventNo) !== String(eventNo) || !['BELUM_SELESAI', 'SELESAI'].includes(latest.status)) return;
                         const store = StorageManager.getRelayStore();
                         const ev = store.events[eventNo];
@@ -4421,7 +4382,6 @@
             // Snapshot podium bebas daripada pengesahan acara sumber.
             SNAPSHOT_KEY: 'statistix_hub_podium_verification_v1',
             AUDIT_KEY: 'statistix_hub_podium_audit_v1',
-            pendingAuthentication: false,
             confirmationBusy: false,
             getSourceFingerprint() {
                 const sources = [
@@ -4483,11 +4443,6 @@
                     UIComponents.showToast('Tiada data pungutan pingat untuk disahkan.', 'warning');
                     return;
                 }
-                if (!AdminAuthController.isAuthenticated) {
-                    this.pendingAuthentication = true;
-                    AdminAuthController.openModal();
-                    return;
-                }
                 const fingerprint = this.getSourceFingerprint();
                 this.confirmationBusy = true;
                 UIComponents.showConfirm({
@@ -4498,7 +4453,7 @@
                     onCancel: () => { this.confirmationBusy = false; },
                     onConfirm: () => {
                         try {
-                            if (!AdminAuthController.isAuthenticated) return;
+                            
                             const latest = this.computeMedalStandings();
                             if (this.getSourceFingerprint() !== fingerprint ||
                                 !latest.standings.length || !latest.stats.totalMedalsAwarded) {
@@ -4525,11 +4480,6 @@
                         } finally { this.confirmationBusy = false; }
                     }
                 });
-            },
-            resumeAfterLogin() {
-                if (!this.pendingAuthentication) return;
-                this.pendingAuthentication = false;
-                this.requestVerification();
             },
 
             refreshIfActive() {
@@ -4822,8 +4772,8 @@
         };
 
         /**
-         * 4F. KAWALAN KESELAMATAN PANEL ADMIN (AdminAuthController)
-         * Memastikan hanya pentadbir yang mempunyai kebenaran dapat melihat & menguruskan
+         * 4F. KEBENARAN OPERASI TULIS GOOGLE APPS SCRIPT
+         * Mengekalkan token pelayan untuk melindungi operasi penyuntingan pada
          * URL Google Sheets serta fungsi pentadbiran. Pengunjung awam disekat sepenuhnya.
          */
         // Kawalan butang pengesahan awam. Log audit dan simpanan acara kekal pada modul asal.
@@ -4850,25 +4800,15 @@
                 if (!ev || String(ev.eventNo) !== String(eventNo)) return;
                 if (ev.status === 'DISAHKAN_RASMI') return;
                 if (!['BELUM_SELESAI', 'SELESAI'].includes(ev.status)) return;
-                if (!AdminAuthController.isAuthenticated) {
-                    this.pending = { moduleName, eventNo };
-                    AdminAuthController.openModal();
-                    return;
-                }
                 this.showEventConfirm(moduleName, eventNo);
             },
-            resumeAfterLogin() {
-                const pending = this.pending;
-                this.pending = null;
-                if (pending) this.request(pending.moduleName, pending.eventNo);
-            },
             showEventConfirm(moduleName, eventNo) {
-                if (this.busy || !AdminAuthController.isAuthenticated || !this.modules[moduleName]) return;
+                if (this.busy || !this.modules[moduleName]) return;
                 this.busy = true;
                 try {
                     const entry = this.modules[moduleName];
                     const ev = StorageManager[entry.store]().events[eventNo];
-                    if (!AdminAuthController.isAuthenticated || !ev ||
+                    if (!ev ||
                         String(ev.eventNo) !== String(eventNo) ||
                         !['BELUM_SELESAI', 'SELESAI'].includes(ev.status)) return;
                     entry.module().verifyEventOfficial(eventNo, true);
@@ -4917,7 +4857,7 @@
                 if (matches.length !== 1) return null;
                 return { entry, store, event, record: matches[0] };
             },
-            begin(cell) {
+            async begin(cell) {
                 if (this.busy || this.active || !cell || !cell.isConnected) return;
                 const d = cell.dataset;
                 const data = {
@@ -4926,28 +4866,13 @@
                     recordId: d.record, field: d.field
                 };
                 if (!StorageManager.getModuleSheetConfig(data.moduleId)?.url || !this.find(data)) return;
-                if (!AdminAuthController.isAuthenticated) {
-                    this.pending = data;
-                    AdminAuthController.openModal();
-                    return;
-                }
+                // Keizinan pelayan diminta hanya ketika cuba mengubah data.
+                if (!await ServerWriteAuth.authorizeModuleWrite(data.moduleId)) return;
                 this.open(cell, data);
-            },
-            resumeAfterLogin() {
-                const data = this.pending;
-                this.pending = null;
-                if (!data || !AdminAuthController.isAuthenticated) return;
-                const cells = document.querySelectorAll('#view-content-container td[data-field]');
-                const cell = Array.from(cells).find(el =>
-                    el.dataset.module === data.moduleId && el.dataset.event === data.eventNo &&
-                    el.dataset.gender === data.gender && el.dataset.record === data.recordId &&
-                    el.dataset.field === data.field &&
-                    (data.moduleId !== 'saringan' || Number(el.dataset.heat) === data.heat));
-                if (cell) this.open(cell, data);
             },
             open(cell, data) {
                 const found = this.find(data);
-                if (!found || !AdminAuthController.isAuthenticated ||
+                if (!found ||
                     !StorageManager.getModuleSheetConfig(data.moduleId)?.url) return;
                 if (!Number.isInteger(found.record.sourceRow) || found.record.sourceRow < 1) {
                     UIComponents.showToast('Baris sumber belum tersedia. Terbitkan templat Apps Script baharu dan segar semula data.', 'warning');
@@ -5028,7 +4953,6 @@
                     this.cancel();
                     return;
                 }
-                if (!AdminAuthController.isAuthenticated) { this.cancel(); return; }
                 const found = this.find(data);
                 if (!found || String(found.record[data.field] ?? '') !== oldValue ||
                     !Number.isInteger(found.record.sourceRow)) {
@@ -5043,9 +4967,9 @@
                         StorageManager.getModuleSheetConfig(data.moduleId)?.url !== sheetCfg.url)
                         throw new Error('Sambungan Google Sheets telah berubah.');
 
-                    const sessionToken = AdminAuthController.getModuleSessionToken(data.moduleId);
+                    const sessionToken = ServerWriteAuth.getModuleSessionToken(data.moduleId);
                     if (!sessionToken) {
-                        throw new Error('Token sesi bagi modul ini tidak tersedia. Tamatkan sesi admin, log masuk semula dan pastikan kod Apps Script terkini serta setupStatistixAccessControl() telah dijalankan.');
+                        throw new Error('Kebenaran menulis daripada pelayan tidak tersedia. Sila mulakan penyuntingan semula untuk mengesahkan akses pelayan.');
                     }
 
                     const payload = JSON.stringify({
@@ -5132,20 +5056,9 @@
             }
         };
 
-        const AdminAuthController = {
-            DEFAULT_PASSCODE: 'ADMIN2026',
+        // Kebenaran operasi tulis Google Sheets sahaja; tidak mengawal akses Panel Admin.
+        const ServerWriteAuth = {
             SESSION_STORAGE_KEY: 'statistix_hub_gas_sessions_v1',
-            isAuthenticated: false,
-
-            getStoredPasscode() {
-                try {
-                    const saved = window.localStorage.getItem(StorageManager.KEYS.ADMIN_PASSCODE);
-                    return saved && saved.trim().length >= 4 ? saved.trim() : this.DEFAULT_PASSCODE;
-                } catch (e) {
-                    return this.DEFAULT_PASSCODE;
-                }
-            },
-
             getAllModuleSessions() {
                 try {
                     const raw = window.sessionStorage.getItem(this.SESSION_STORAGE_KEY);
@@ -5173,24 +5086,6 @@
                     const sessions = this.getAllModuleSessions();
                     sessions[moduleId] = { url, token, role: role || 'ADMIN', issuedAt: Date.now() };
                     window.sessionStorage.setItem(this.SESSION_STORAGE_KEY, JSON.stringify(sessions));
-                } catch (e) { /* abaikan ralat storage */ }
-            },
-
-            clearAllModuleSessions() {
-                const sessions = this.getAllModuleSessions();
-                Object.keys(sessions).forEach(modId => {
-                    const item = sessions[modId];
-                    if (item && item.url && item.token) {
-                        fetch(item.url, {
-                            method: 'POST',
-                            mode: 'no-cors',
-                            headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-                            body: JSON.stringify({ action: 'logout', sessionToken: item.token })
-                        }).catch(() => {});
-                    }
-                });
-                try {
-                    window.sessionStorage.removeItem(this.SESSION_STORAGE_KEY);
                 } catch (e) { /* abaikan ralat storage */ }
             },
 
@@ -5260,24 +5155,6 @@
                 });
             },
 
-            async establishServerSessions(passcode) {
-                const moduleIds = ['saringan', 'akhir', 'relay', 'padang'];
-                const results = await Promise.all(moduleIds.map(async modId => {
-                    const cfg = StorageManager.getModuleSheetConfig(modId);
-                    if (!cfg || !cfg.url) return { moduleId: modId, status: 'not_configured' };
-                    try {
-                        const data = await this.loginModuleViaBridge(modId, cfg.url, passcode);
-                        this.setModuleSessionToken(modId, cfg.url, data.sessionToken, data.role);
-                        return { moduleId: modId, status: 'ok' };
-                    } catch (error) {
-                        this.removeModuleSession(modId);
-                        console.warn('Sesi Apps Script gagal bagi ' + modId + ':', error.message);
-                        return { moduleId: modId, status: 'failed', reason: error.message };
-                    }
-                }));
-                return results;
-            },
-
             removeModuleSession(moduleId) {
                 try {
                     const sessions = this.getAllModuleSessions();
@@ -5286,101 +5163,24 @@
                 } catch (e) { /* storage unavailable */ }
             },
 
-            openModal() {
-                const modal = document.getElementById('admin-auth-modal');
-                const input = document.getElementById('admin-passcode-input');
-                if (input) input.value = '';
-                if (modal) modal.classList.remove('hidden');
-                setTimeout(() => { if (input) input.focus(); }, 60);
-                lucide.createIcons();
-            },
-
-            closeModal(clearPending = true) {
-                if (clearPending) {
-                    VerificationButtonController.pending = null;
-                    PodiumModule.pendingAuthentication = false;
-                    InlineEditController.pending = null;
+            async authorizeModuleWrite(moduleId) {
+                const cfg = StorageManager.getModuleSheetConfig(moduleId);
+                if (!cfg?.url) {
+                    UIComponents.showToast('URL Google Apps Script belum dikonfigurasi.', 'warning');
+                    return false;
                 }
-                const modal = document.getElementById('admin-auth-modal');
-                if (modal) modal.classList.add('hidden');
-            },
-
-            async handleLogin(event) {
-                event.preventDefault();
-                const input = document.getElementById('admin-passcode-input');
-                const entered = input ? input.value.trim() : '';
-                if (!entered) {
-                    UIComponents.showToast('Sila masukkan kod laluan pentadbir.', 'warning');
-                    return;
-                }
-                if (entered !== this.getStoredPasscode()) {
-                    UIComponents.showToast('Kod laluan pentadbir tidak sah. Akses ditolak.', 'error');
-                    if (input) input.value = '';
-                    return;
-                }
-                const submitButton = event.currentTarget?.querySelector('button[type="submit"]');
-                if (submitButton) submitButton.disabled = true;
-                let results;
+                if (this.getModuleSessionToken(moduleId)) return true;
+                // Permintaan ini HANYA untuk operasi tulis, bukan untuk membuka Panel Admin.
+                const passcode = window.prompt('Kod kebenaran pelayan Google Apps Script diperlukan untuk mengedit keputusan (' + moduleId + '). Tekan Batal untuk melihat data tanpa mengedit.');
+                if (passcode === null || !passcode.trim()) return false;
                 try {
-                    results = await this.establishServerSessions(entered);
-                } finally {
-                    if (submitButton) submitButton.disabled = false;
-                    if (input) input.value = '';
+                    const result = await this.loginModuleViaBridge(moduleId, cfg.url, passcode.trim());
+                    this.setModuleSessionToken(moduleId, cfg.url, result.sessionToken, result.role);
+                    return true;
+                } catch (error) {
+                    UIComponents.showToast('Kebenaran menulis ditolak oleh pelayan: ' + error.message, 'error');
+                    return false;
                 }
-                const configured = results.filter(r => r.status !== 'not_configured');
-                const failed = results.filter(r => r.status === 'failed');
-                const successful = results.filter(r => r.status === 'ok');
-                if (configured.length && !successful.length) {
-                    UIComponents.showToast('Login pelayan gagal bagi semua modul: ' +
-                        (failed[0]?.reason || 'Semak tetapan Web App dan ACL.'), 'error');
-                    // Kekalkan akses tetapan panel melalui kod lokal, tetapi edit pelayan tidak dibenarkan.
-                } else if (failed.length) {
-                    UIComponents.showToast('Sesi pelayan gagal bagi modul: ' +
-                        failed.map(r => r.moduleId).join(', ') +
-                        '. Edit modul tersebut memerlukan login pelayan yang sah.', 'warning');
-                }
-                this.isAuthenticated = true;
-                this.closeModal(false);
-                if (VerificationButtonController.pending || PodiumModule.pendingAuthentication || InlineEditController.pending) {
-                    if (VerificationButtonController.pending) {
-                        VerificationButtonController.resumeAfterLogin();
-                        UIComponents.showToast('Akses admin disahkan.', 'success');
-                    } else if (InlineEditController.pending) {
-                        const wantedModule = InlineEditController.pending.moduleId;
-                        if (!this.getModuleSessionToken(wantedModule)) {
-                            InlineEditController.pending = null;
-                            UIComponents.showToast('Sesi pelayan bagi ' + wantedModule +
-                                ' gagal. Tiada perubahan dibenarkan; semak kod Apps Script dan log masuk semula.', 'error');
-                        } else {
-                            InlineEditController.resumeAfterLogin();
-                            UIComponents.showToast('Akses pelayan disahkan. Sel keputusan boleh diedit.', 'success');
-                        }
-                    } else {
-                        PodiumModule.resumeAfterLogin();
-                        UIComponents.showToast('Akses admin disahkan. Sila sahkan keputusan dalam dialog.', 'success');
-                    }
-                    return;
-                }
-                AppController.enterAdminWorkspace();
-                if (configured.length && !successful.length) {
-                    UIComponents.showToast('Panel tetapan tempatan dibuka, tetapi tiada sesi pelayan. Edit Google Sheets belum dibenarkan.', 'warning');
-                } else if (!configured.length) {
-                    UIComponents.showToast('Panel admin dibuka. Konfigurasikan URL Google Sheets untuk mengaktifkan simpanan pelayan.', 'info');
-                } else {
-                    UIComponents.showToast('Panel Admin dibuka. Sesi pelayan tersedia bagi ' +
-                        successful.length + ' modul.', 'success');
-                }
-            },
-
-            logout() {
-                this.clearAllModuleSessions();
-                this.isAuthenticated = false;
-                if (AppController.state.isAdminMode) {
-                    AppController.state.isAdminMode = false;
-                    AppController.syncWorkspaceVisibility();
-                    AppController.renderNavigation();
-                }
-                UIComponents.showToast('Sesi Panel Admin dan pelayan telah ditamatkan.', 'info');
             }
         };
 
@@ -6684,25 +6484,12 @@ function secureRecordId_(eventNo, gender, heat, rowNo, lane, name, bib, team) {
             },
 
             toggleAdminView() {
-                if (!this.state.isAdminMode) {
-                    // Sekat akses terus tanpa kebenaran Admin
-                    if (!AdminAuthController.isAuthenticated) {
-                        AdminAuthController.openModal();
-                        return;
-                    }
-                    this.enterAdminWorkspace();
-                } else {
-                    this.state.isAdminMode = false;
-                    this.syncWorkspaceVisibility();
-                    this.renderNavigation();
-                }
+                this.state.isAdminMode = !this.state.isAdminMode;
+                this.syncWorkspaceVisibility();
+                this.renderNavigation();
             },
 
             enterAdminWorkspace() {
-                if (!AdminAuthController.isAuthenticated) {
-                    AdminAuthController.openModal();
-                    return;
-                }
                 this.state.isAdminMode = true;
                 this.syncWorkspaceVisibility();
                 this.renderNavigation();
@@ -6714,7 +6501,7 @@ function secureRecordId_(eventNo, gender, heat, rowNo, lane, name, bib, team) {
                 const adminBtn = document.getElementById('btn-toggle-admin');
                 const adminBtnLabel = document.getElementById('admin-btn-label');
 
-                if (this.state.isAdminMode && AdminAuthController.isAuthenticated) {
+                if (this.state.isAdminMode) {
                     publicSection.classList.add('hidden');
                     adminSection.classList.remove('hidden');
                     adminBtnLabel.textContent = 'Paparan Awam';
