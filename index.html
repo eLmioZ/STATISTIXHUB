@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
-    <title>STATISTIX HUB — Sistem Statistik & Keputusan Kejohanan Olahraga</title>
+    <title>STATISTIX HUB — Sistem Statistik & Keputusan Rasmi</title>
 
     <!-- Google Fonts: Plus Jakarta Sans & Inter -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -123,7 +123,7 @@
                             </span>
                         </div>
                         <p id="tournament-subtitle" class="text-[11px] sm:text-xs text-slate-300 truncate">
-                            Sistem Statistik &amp; Keputusan Kejohanan Olahraga
+                            Sistem Statistik &amp; Keputusan Rasmi.
                         </p>
                     </div>
                 </div>
@@ -168,7 +168,7 @@
                         STATISTIX HUB
                     </p>
                     <p class="text-[11px] text-slate-400 mt-1">
-                        Hak Cipta Terpelihara &copy; <span class="text-gold-light font-semibold">eL_mioZ</span>
+                        Hak Cipta Terpelihara &copy; 2026 <span class="text-gold-light font-semibold">eL_mioZ</span>
                     </p>
                 </div>
             </div>
@@ -261,7 +261,7 @@
                 STATISTIX HUB
             </p>
             <p class="text-[11px] sm:text-xs text-slate-300 mt-1">
-                Hak Cipta Terpelihara &copy; <span class="text-[#D4AF37] font-semibold">eL_mioZ</span>
+                Hak Cipta Terpelihara &copy; 2026 <span class="text-[#D4AF37] font-semibold">eL_mioZ</span>
             </p>
         </div>
     </footer>
@@ -302,7 +302,7 @@
                 shortLabel: 'Saringan',
                 icon: 'list-ordered',
                 category: 'Peringkat Kelayakan',
-                subtitle: 'Paparan keputusan saringan mengikut siri dan senarai atlet yang layak ke pusingan akhir.'
+                subtitle: 'Keputusan saringan mengikut Kategori dan Atlet yang layak ke peringkat akhir.'
             },
             {
                 id: 'akhir-balapan',
@@ -310,7 +310,7 @@
                 shortLabel: 'Akhir',
                 icon: 'flag',
                 category: 'Acara Balapan',
-                subtitle: 'Keputusan rasmi perlumbaan akhir balapan beserta catatan masa dan kedudukan pingat.'
+                subtitle: 'Keputusan rasmi acara akhir balapan beserta catatan masa dan kedudukan pingat.'
             },
             {
                 id: 'relay',
@@ -318,7 +318,7 @@
                 shortLabel: 'Relay',
                 icon: 'users',
                 category: 'Acara Berpasukan',
-                subtitle: 'Keputusan rasmi acara lari berganti-ganti (4x100m & 4x400m) mengikut pasukan.'
+                subtitle: 'Keputusan rasmi acara lari berganti-ganti (Relay) mengikut pasukan.'
             },
             {
                 id: 'padang',
@@ -326,15 +326,15 @@
                 shortLabel: 'Padang',
                 icon: 'compass',
                 category: 'Lompatan & Lontaran',
-                subtitle: 'Rekod jarak dan ketinggian terbaik bagi setiap percubaan atlet acara padang.'
+                subtitle: 'Rekod jarak dan ketinggian terbaik bagi setiap Atlet acara padang.'
             },
             {
                 id: 'podium',
-                label: 'Podium Acara',
+                label: 'Podium Pingat',
                 shortLabel: 'Podium',
                 icon: 'trophy',
                 category: 'Ringkasan Pingat',
-                subtitle: 'Senarai pemenang pingat Emas, Perak dan Gangsa bagi setiap acara yang telah selesai.'
+                subtitle: 'Kedudukan pingat Emas, Perak dan Gangsa bagi setiap acara yang telah selesai.'
             }
         ];
 
@@ -692,7 +692,7 @@
                             Belum Ada Rekod ${moduleTitle}
                         </h3>
                         <p class="text-xs sm:text-sm text-ink-muted mt-2 leading-relaxed">
-                            Tiada data keputusan direkodkan dalam storan tempatan bagi modul <span class="font-semibold text-navy-primary">${moduleTitle}</span> buat masa ini.
+                            Tiada data keputusan direkodkan bagi modul <span class="font-semibold text-navy-primary">${moduleTitle}</span> buat masa ini.
                         </p>
                     </div>
                 `;
@@ -2169,7 +2169,7 @@
         };
 
         /**
-         * 4E. MODUL PODIUM ACARA & PENGIRAAN PINGAT (PodiumModule)
+         * 4E. MODUL PODIUM PINGAT & PENGIRAAN PINGAT (PodiumModule)
          * Membaca HANYA acara berstatus DISAHKAN_RASMI daripada Akhir Balapan, Relay & Padang.
          */
         const PodiumModule = {
@@ -2351,7 +2351,7 @@
                                 Belum Ada Keputusan Rasmi Disahkan
                             </h3>
                             <p class="text-xs sm:text-sm text-ink-muted mt-2 leading-relaxed">
-                                Paparan Podium Acara dan pungutan pingat sekolah hanya akan mengira acara daripada <span class="font-semibold text-navy-primary">Akhir Balapan, Acara Relay dan Acara Padang</span> yang telah berstatus <span class="font-semibold text-emerald-700">DISAHKAN RASMI</span>.
+                                Podium Pingat akan mengira secara AUTOMATIK daripada <span class="font-semibold text-navy-primary">Akhir Balapan, Acara Relay dan Acara Padang</span> yang telah berstatus <span class="font-semibold text-emerald-700">DISAHKAN RASMI</span>.
                             </p>
                         </div>
                     `;
