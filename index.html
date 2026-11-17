@@ -1583,21 +1583,26 @@
                 const container = document.getElementById('module-summary-cards');
                 if (!container) return;
 
-                container.innerHTML = statsArray.map(stat => `
-                    <div class="bg-white rounded-2xl p-4 sm:p-5 shadow-soft border border-slate-200/80 flex items-center justify-between gap-3.5 min-h-[88px]">
-                        <div class="min-w-0">
-                            <p class="font-display text-[11px] sm:text-xs font-semibold text-ink-muted uppercase tracking-wider truncate">
-                                ${stat.label}
-                            </p>
-                            <p class="font-display font-extrabold text-xl sm:text-2xl text-navy-primary mt-1.5 leading-none">
-                                ${stat.value}
-                            </p>
+                container.innerHTML = statsArray.map(stat => {
+                    const valueSizeClass = stat.isTextValue
+                        ? 'text-sm sm:text-base xl:text-lg leading-snug break-words'
+                        : 'text-xl sm:text-2xl leading-none';
+                    return `
+                        <div class="bg-white rounded-2xl p-4 sm:p-5 shadow-soft border border-slate-200/80 flex items-center justify-between gap-3.5 min-h-[88px]">
+                            <div class="min-w-0">
+                                <p class="font-display text-[11px] sm:text-xs font-semibold text-ink-muted uppercase tracking-wider truncate">
+                                    ${stat.label}
+                                </p>
+                                <p class="font-display font-extrabold ${valueSizeClass} ${stat.valueClass || 'text-navy-primary'} mt-1.5">
+                                    ${stat.value}
+                                </p>
+                            </div>
+                            <div class="w-10 h-10 rounded-xl ${stat.accentBg || 'bg-surface-bg'} flex items-center justify-center shrink-0">
+                                <i data-lucide="${stat.icon}" class="w-5 h-5 ${stat.accentText || 'text-navy-primary'}"></i>
+                            </div>
                         </div>
-                        <div class="w-10 h-10 rounded-xl ${stat.accentBg || 'bg-surface-bg'} flex items-center justify-center shrink-0">
-                            <i data-lucide="${stat.icon}" class="w-5 h-5 ${stat.accentText || 'text-navy-primary'}"></i>
-                        </div>
-                    </div>
-                `).join('');
+                    `;
+                }).join('');
             },
 
             renderEmptyState(moduleTitle) {
@@ -5820,11 +5825,17 @@ function doPost(e) {
 
                 if (desktopNav) {
                     desktopNav.innerHTML = SYSTEM_VIEWS.map(view => {
-                        const isActive = !this.isAdminOpen && view.id === this.currentView;
+                        const isActive = this.currentView === view.id && !this.isAdminOpen;
                         return `
-                            <button type="button"
-                                onclick="AppController.selectPublicView('${view.id}')"
-                                class="w-full flex items-center gap-3 px-3.5 py-3 rounded-xl text-xs sm:text-sm font-semibold transition-all cursor-pointer text-left ${isActive ? 'nav-item-active' : 'text-slate-300 hover:bg-navy-dark/50 hover:text-white'}">
+                            <button
+                                type="button"
+                                onclick="AppController.switchView('${view.id}')"
+                                class="w-full flex items-center gap-3 px-3.5 py-3 rounded-xl text-xs xl:text-sm font-semibold transition-all cursor-pointer text-left ${
+                                    isActive
+                                        ? 'nav-item-active font-bold shadow-xs'
+                                        : 'text-slate-300 hover:bg-navy-dark/50 hover:text-white'
+                                }"
+                            >
                                 <i data-lucide="${view.icon}" class="w-4 h-4 shrink-0 ${isActive ? 'text-gold' : 'text-slate-400'}"></i>
                                 <span class="truncate">${view.label}</span>
                             </button>
@@ -5834,12 +5845,16 @@ function doPost(e) {
 
                 if (mobileNav) {
                     mobileNav.innerHTML = SYSTEM_VIEWS.map(view => {
-                        const isActive = !this.isAdminOpen && view.id === this.currentView;
+                        const isActive = this.currentView === view.id && !this.isAdminOpen;
                         return `
-                            <button type="button"
-                                onclick="AppController.selectPublicView('${view.id}')"
-                                class="flex flex-col items-center justify-center gap-1 px-1 text-[10px] font-semibold transition-colors cursor-pointer ${isActive ? 'text-gold bg-navy-primary/80' : 'text-slate-300 hover:text-white'}">
-                                <i data-lucide="${view.icon}" class="w-4 h-4 ${isActive ? 'text-gold' : 'text-slate-400'}"></i>
+                            <button
+                                type="button"
+                                onclick="AppController.switchView('${view.id}')"
+                                class="flex flex-col items-center justify-center gap-1 px-1 py-1.5 text-[10px] font-semibold transition-colors cursor-pointer ${
+                                    isActive ? 'text-gold' : 'text-slate-400 hover:text-white'
+                                }"
+                            >
+                                <i data-lucide="${view.icon}" class="w-4 h-4 shrink-0 ${isActive ? 'text-gold' : ''}"></i>
                                 <span class="truncate max-w-full">${view.shortLabel}</span>
                             </button>
                         `;
@@ -5847,41 +5862,147 @@ function doPost(e) {
                 }
             },
 
-            selectPublicView(viewId) {
-                this.isAdminOpen = false;
+            switchView(viewId) {
                 this.currentView = viewId;
-                this.syncWorkspaceVisibility();
+                if (this.isAdminOpen) {
+                    this.isAdminOpen = false;
+                    const publicWs = document.getElementById('public-workspace');
+                    const adminWs = document.getElementById('admin-workspace');
+                    const adminLabel = document.getElementById('admin-btn-label');
+                    if (publicWs) publicWs.classList.remove('hidden');
+                    if (adminWs) adminWs.classList.add('hidden');
+                    if (adminLabel) adminLabel.textContent = 'Panel Admin';
+                }
                 this.renderNavigation();
                 this.loadView(viewId);
             },
 
             toggleAdminView() {
                 this.isAdminOpen = !this.isAdminOpen;
-                this.syncWorkspaceVisibility();
-                this.renderNavigation();
-                if (!this.isAdminOpen) {
+                const publicWs = document.getElementById('public-workspace');
+                const adminWs = document.getElementById('admin-workspace');
+                const adminLabel = document.getElementById('admin-btn-label');
+
+                if (this.isAdminOpen) {
+                    if (publicWs) publicWs.classList.add('hidden');
+                    if (adminWs) adminWs.classList.remove('hidden');
+                    if (adminLabel) adminLabel.textContent = 'Paparan Awam';
+                } else {
+                    if (adminWs) adminWs.classList.add('hidden');
+                    if (publicWs) publicWs.classList.remove('hidden');
+                    if (adminLabel) adminLabel.textContent = 'Panel Admin';
                     this.loadView(this.currentView);
                 }
+
+                this.renderNavigation();
                 lucide.createIcons();
             },
 
-            syncWorkspaceVisibility() {
-                const publicSec = document.getElementById('public-workspace');
-                const adminSec = document.getElementById('admin-workspace');
-                const adminBtnLabel = document.getElementById('admin-btn-label');
-                const adminBtnIcon = document.getElementById('admin-btn-icon');
+            getModuleSummaryCards(moduleId) {
+                const configs = {
+                    'saringan': {
+                        allowedNos: SaringanModule.ALLOWED_EVENT_NOS,
+                        urlKey: 'saringanAppsScriptUrl',
+                        getStore: () => StorageManager.getSaringanStore(),
+                        hasRealRecords: (ev) => {
+                            if (!ev || typeof ev !== 'object') return false;
+                            const l1 = Array.isArray(ev.lelaki && ev.lelaki.saringan1) ? ev.lelaki.saringan1.length : 0;
+                            const l2 = Array.isArray(ev.lelaki && ev.lelaki.saringan2) ? ev.lelaki.saringan2.length : 0;
+                            const p1 = Array.isArray(ev.perempuan && ev.perempuan.saringan1) ? ev.perempuan.saringan1.length : 0;
+                            const p2 = Array.isArray(ev.perempuan && ev.perempuan.saringan2) ? ev.perempuan.saringan2.length : 0;
+                            return (l1 + l2 + p1 + p2) > 0;
+                        }
+                    },
+                    'akhir-balapan': {
+                        allowedNos: AkhirBalapanModule.ALLOWED_EVENT_NOS,
+                        urlKey: 'akhirBalapanAppsScriptUrl',
+                        getStore: () => StorageManager.getAkhirBalapanStore(),
+                        hasRealRecords: (ev) => {
+                            if (!ev || typeof ev !== 'object') return false;
+                            const l = Array.isArray(ev.lelaki) ? ev.lelaki.length : 0;
+                            const p = Array.isArray(ev.perempuan) ? ev.perempuan.length : 0;
+                            return (l + p) > 0;
+                        }
+                    },
+                    'relay': {
+                        allowedNos: RelayModule.ALLOWED_EVENT_NOS,
+                        urlKey: 'relayAppsScriptUrl',
+                        getStore: () => StorageManager.getRelayStore(),
+                        hasRealRecords: (ev) => {
+                            if (!ev || typeof ev !== 'object') return false;
+                            const l = Array.isArray(ev.lelaki) ? ev.lelaki.length : 0;
+                            const p = Array.isArray(ev.perempuan) ? ev.perempuan.length : 0;
+                            return (l + p) > 0;
+                        }
+                    },
+                    'padang': {
+                        allowedNos: PadangModule.ALLOWED_EVENT_NOS,
+                        urlKey: 'padangAppsScriptUrl',
+                        getStore: () => StorageManager.getPadangStore(),
+                        hasRealRecords: (ev) => {
+                            if (!ev || typeof ev !== 'object') return false;
+                            const l = Array.isArray(ev.lelaki) ? ev.lelaki.length : 0;
+                            const p = Array.isArray(ev.perempuan) ? ev.perempuan.length : 0;
+                            return (l + p) > 0;
+                        }
+                    }
+                };
 
-                if (this.isAdminOpen) {
-                    if (publicSec) publicSec.classList.add('hidden');
-                    if (adminSec) adminSec.classList.remove('hidden');
-                    if (adminBtnLabel) adminBtnLabel.textContent = 'Paparan Awam';
-                    if (adminBtnIcon) adminBtnIcon.setAttribute('data-lucide', 'layout-grid');
-                } else {
-                    if (adminSec) adminSec.classList.add('hidden');
-                    if (publicSec) publicSec.classList.remove('hidden');
-                    if (adminBtnLabel) adminBtnLabel.textContent = 'Panel Admin';
-                    if (adminBtnIcon) adminBtnIcon.setAttribute('data-lucide', 'shield-check');
-                }
+                const spec = configs[moduleId];
+                const totalEvents = spec.allowedNos.length;
+                const config = StorageManager.getTournamentConfig();
+                const hasSavedUrl = Boolean(String(config[spec.urlKey] || '').trim());
+                const store = spec.getStore();
+                const eventsMap = (store && store.events) || {};
+
+                let confirmedCount = 0;
+                let hasAnyValidData = false;
+
+                spec.allowedNos.forEach(eventNo => {
+                    const ev = eventsMap[eventNo];
+                    if (ev && ev.status === 'DISAHKAN_RASMI') {
+                        confirmedCount++;
+                    }
+                    if (hasSavedUrl && spec.hasRealRecords(ev)) {
+                        hasAnyValidData = true;
+                    }
+                });
+
+                const safeConfirmed = Math.min(confirmedCount, totalEvents);
+                const incompleteCount = Math.max(0, totalEvents - safeConfirmed);
+
+                return [
+                    {
+                        label: 'Jumlah Acara',
+                        value: totalEvents,
+                        icon: 'layers',
+                        accentBg: 'bg-navy-primary/10',
+                        accentText: 'text-navy-primary'
+                    },
+                    {
+                        label: 'Disahkan Rasmi',
+                        value: safeConfirmed,
+                        icon: 'shield-check',
+                        accentBg: 'bg-emerald-100',
+                        accentText: 'text-emerald-700'
+                    },
+                    {
+                        label: 'Belum Selesai',
+                        value: incompleteCount,
+                        icon: 'clock',
+                        accentBg: 'bg-amber-100',
+                        accentText: 'text-amber-700'
+                    },
+                    {
+                        label: 'Status Data',
+                        value: hasAnyValidData ? 'DATA TERSEDIA' : 'BELUM ADA DATA',
+                        isTextValue: true,
+                        valueClass: hasAnyValidData ? 'text-emerald-700' : 'text-slate-600',
+                        icon: 'database',
+                        accentBg: hasAnyValidData ? 'bg-emerald-100' : 'bg-slate-100',
+                        accentText: hasAnyValidData ? 'text-emerald-700' : 'text-slate-600'
+                    }
+                ];
             },
 
             loadView(viewId) {
@@ -5898,57 +6019,16 @@ function doPost(e) {
                 GlobalLiveStatusController.updateIndicator();
 
                 if (viewId === 'saringan') {
-                    const hasActiveConn = SaringanModule.hasValidActiveConnection();
-                    const store = hasActiveConn ? StorageManager.getSaringanStore() : { events: {} };
-                    const events = Object.values(store.events || {});
-                    const verifiedCount = events.filter(e => e.status === 'DISAHKAN_RASMI').length;
-                    let totalAthletes = 0;
-                    events.forEach(e => {
-                        totalAthletes += ((e.lelaki && e.lelaki.saringan1) || []).length;
-                        totalAthletes += ((e.lelaki && e.lelaki.saringan2) || []).length;
-                        totalAthletes += ((e.perempuan && e.perempuan.saringan1) || []).length;
-                        totalAthletes += ((e.perempuan && e.perempuan.saringan2) || []).length;
-                    });
-
-                    UIComponents.renderSummaryCards([
-                        { label: 'Jumlah Acara', value: `${events.length} / 9`, icon: 'layers', accentBg: 'bg-navy-primary/10', accentText: 'text-navy-primary' },
-                        { label: 'Disahkan Rasmi', value: verifiedCount, icon: 'shield-check', accentBg: 'bg-emerald-100', accentText: 'text-emerald-700' },
-                        { label: 'Jumlah Peserta', value: totalAthletes, icon: 'users', accentBg: 'bg-amber-100', accentText: 'text-amber-700' },
-                        { label: 'Status Data', value: events.length > 0 ? 'Aktif' : 'Kosong', icon: 'database', accentBg: 'bg-slate-100', accentText: 'text-slate-700' }
-                    ]);
+                    UIComponents.renderSummaryCards(this.getModuleSummaryCards('saringan'));
                     if (stageEl) stageEl.innerHTML = SaringanModule.renderPublicView();
                 } else if (viewId === 'akhir-balapan') {
-                    const hasActiveConn = AkhirBalapanModule.hasValidActiveConnection();
-                    const store = hasActiveConn ? StorageManager.getAkhirBalapanStore() : { events: {} };
-                    const events = Object.values(store.events || {});
-                    UIComponents.renderSummaryCards([
-                        { label: 'Acara Akhir', value: `${events.length} / 9`, icon: 'flag' },
-                        { label: 'Disahkan Rasmi', value: events.filter(e => e.status === 'DISAHKAN_RASMI').length, icon: 'shield-check' },
-                        { label: 'Belum Selesai', value: events.filter(e => e.status !== 'DISAHKAN_RASMI').length, icon: 'clock' },
-                        { label: 'Modul', value: 'Balapan', icon: 'activity' }
-                    ]);
+                    UIComponents.renderSummaryCards(this.getModuleSummaryCards('akhir-balapan'));
                     if (stageEl) stageEl.innerHTML = AkhirBalapanModule.renderPublicView();
                 } else if (viewId === 'relay') {
-                    const hasActiveConn = RelayModule.hasValidActiveConnection();
-                    const store = hasActiveConn ? StorageManager.getRelayStore() : { events: {} };
-                    const events = Object.values(store.events || {});
-                    UIComponents.renderSummaryCards([
-                        { label: 'Acara Relay', value: `${events.length} / 7`, icon: 'users' },
-                        { label: 'Disahkan Rasmi', value: events.filter(e => e.status === 'DISAHKAN_RASMI').length, icon: 'shield-check' },
-                        { label: 'Belum Selesai', value: events.filter(e => e.status !== 'DISAHKAN_RASMI').length, icon: 'clock' },
-                        { label: 'Kategori', value: 'Berpasukan', icon: 'award' }
-                    ]);
+                    UIComponents.renderSummaryCards(this.getModuleSummaryCards('relay'));
                     if (stageEl) stageEl.innerHTML = RelayModule.renderPublicView();
                 } else if (viewId === 'padang') {
-                    const hasActiveConn = PadangModule.hasValidActiveConnection();
-                    const store = hasActiveConn ? StorageManager.getPadangStore() : { events: {} };
-                    const events = Object.values(store.events || {});
-                    UIComponents.renderSummaryCards([
-                        { label: 'Acara Padang', value: `${events.length} / 3`, icon: 'compass' },
-                        { label: 'Disahkan Rasmi', value: events.filter(e => e.status === 'DISAHKAN_RASMI').length, icon: 'shield-check' },
-                        { label: 'Belum Selesai', value: events.filter(e => e.status !== 'DISAHKAN_RASMI').length, icon: 'clock' },
-                        { label: 'Disiplin', value: 'Padang', icon: 'target' }
-                    ]);
+                    UIComponents.renderSummaryCards(this.getModuleSummaryCards('padang'));
                     if (stageEl) stageEl.innerHTML = PadangModule.renderPublicView();
                 } else if (viewId === 'podium') {
                     const podium = PodiumModule.collectOfficialPodiumData();
