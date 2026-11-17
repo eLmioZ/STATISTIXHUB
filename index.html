@@ -466,50 +466,124 @@
                         </div>
 
                         <!-- KAD 2 — AKHIR BALAPAN -->
-                        <div class="bg-white rounded-2xl p-5 sm:p-6 shadow-card border border-slate-200/80 space-y-4">
-                            <div class="flex items-start gap-3.5">
-                                <div class="w-10 h-10 rounded-xl bg-navy-primary/5 border border-slate-200/80 flex items-center justify-center shrink-0">
-                                    <i data-lucide="flag" class="w-5 h-5 text-gold-dark"></i>
+                        <div class="bg-white rounded-2xl p-5 sm:p-6 shadow-card border border-slate-200/80 space-y-5">
+                            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-slate-100">
+                                <div class="flex items-start gap-3.5">
+                                    <div class="w-10 h-10 rounded-xl bg-navy-primary/5 border border-slate-200/80 flex items-center justify-center shrink-0">
+                                        <i data-lucide="flag" class="w-5 h-5 text-gold-dark"></i>
+                                    </div>
+                                    <div class="min-w-0">
+                                        <h4 class="font-display font-bold text-base sm:text-lg text-navy-primary">
+                                            Akhir Balapan
+                                        </h4>
+                                        <p class="text-xs sm:text-sm text-ink-muted mt-0.5">
+                                            Tetapan pautan Google Apps Script untuk data keputusan akhir balapan (9 Tab: 101–106, 204, 205, 300).
+                                        </p>
+                                    </div>
                                 </div>
-                                <div class="min-w-0">
-                                    <h4 class="font-display font-bold text-base sm:text-lg text-navy-primary">
-                                        Akhir Balapan
-                                    </h4>
-                                    <p class="text-xs sm:text-sm text-ink-muted mt-0.5">
-                                        Tetapan pautan Google Apps Script untuk data keputusan akhir balapan.
-                                    </p>
-                                </div>
+
+                                <button
+                                    type="button"
+                                    id="btn-open-akhir-balapan-gas-modal"
+                                    onclick="AkhirBalapanGasController.openGasModal()"
+                                    class="inline-flex items-center justify-center gap-2 min-h-[44px] px-3.5 py-2.5 rounded-xl text-xs font-bold bg-navy-dark hover:bg-navy-primary text-gold-light border border-gold/40 shadow-xs transition-all cursor-pointer shrink-0 self-start sm:self-center"
+                                >
+                                    <i data-lucide="code-2" class="w-4 h-4 text-gold"></i>
+                                    <span>KOD GOOGLE APP SCRIPT / GAS</span>
+                                </button>
                             </div>
 
                             <div class="space-y-2">
-                                <label for="gas-url-akhir-balapan" class="block text-xs font-semibold text-navy-primary">
-                                    URL Google Apps Script
-                                </label>
+                                <div class="flex items-center justify-between gap-2">
+                                    <label for="gas-url-akhir-balapan" class="block text-xs font-semibold text-navy-primary">
+                                        URL Google Apps Script
+                                    </label>
+                                    <span id="akhir-balapan-url-mode-badge" class="inline-flex items-center px-2 py-0.5 rounded-md text-[10px] font-bold uppercase tracking-wider bg-slate-100 text-slate-600 border border-slate-200">
+                                        Sedia Diisi
+                                    </span>
+                                </div>
                                 <input
                                     id="gas-url-akhir-balapan"
                                     type="url"
                                     placeholder="https://script.google.com/macros/s/.../exec"
-                                    class="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 bg-surface-bg/60 text-xs sm:text-sm font-mono text-ink placeholder:text-slate-400 focus:outline-none focus:bg-white focus:border-navy-primary focus:ring-2 focus:ring-gold/40 transition-all"
+                                    class="w-full min-h-[44px] px-3.5 py-2.5 rounded-xl border border-slate-300 bg-surface-bg/60 text-base sm:text-sm font-mono text-ink placeholder:text-slate-400 focus:outline-none focus:bg-white focus:border-navy-primary focus:ring-2 focus:ring-gold/40 transition-all disabled:bg-slate-100 disabled:text-slate-500 disabled:cursor-not-allowed"
                                 >
                             </div>
 
-                            <div class="pt-1 grid grid-cols-2 sm:flex sm:flex-wrap items-center gap-2.5">
-                                <button type="button" class="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-xs font-semibold bg-navy-primary hover:bg-navy-dark text-white transition-colors cursor-pointer">
+                            <div class="grid grid-cols-2 sm:flex sm:flex-wrap items-center gap-2.5">
+                                <button
+                                    type="button"
+                                    id="btn-akhir-balapan-gas-test"
+                                    onclick="AkhirBalapanGasController.testConnection()"
+                                    class="inline-flex items-center justify-center gap-2 min-h-[44px] px-4 py-2.5 rounded-xl text-xs font-semibold bg-navy-primary hover:bg-navy-dark text-white transition-colors cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed"
+                                >
                                     <i data-lucide="flask-conical" class="w-4 h-4"></i>
                                     <span>Uji</span>
                                 </button>
-                                <button type="button" class="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-xs font-semibold bg-emerald-600 hover:bg-emerald-700 text-white transition-colors cursor-pointer">
+                                <button
+                                    type="button"
+                                    id="btn-akhir-balapan-gas-save"
+                                    onclick="AkhirBalapanGasController.saveAndImportData()"
+                                    class="inline-flex items-center justify-center gap-2 min-h-[44px] px-4 py-2.5 rounded-xl text-xs font-semibold bg-emerald-600 hover:bg-emerald-700 text-white transition-colors cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed"
+                                >
                                     <i data-lucide="save" class="w-4 h-4"></i>
                                     <span>Simpan</span>
                                 </button>
-                                <button type="button" class="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-xs font-semibold bg-gold hover:bg-gold-light text-navy-dark transition-colors cursor-pointer">
+                                <button
+                                    type="button"
+                                    id="btn-akhir-balapan-gas-edit"
+                                    onclick="AkhirBalapanGasController.enableEditMode()"
+                                    class="inline-flex items-center justify-center gap-2 min-h-[44px] px-4 py-2.5 rounded-xl text-xs font-semibold bg-gold hover:bg-gold-light text-navy-dark transition-colors cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed"
+                                >
                                     <i data-lucide="pencil" class="w-4 h-4"></i>
                                     <span>Edit</span>
                                 </button>
-                                <button type="button" class="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-xs font-semibold bg-rose-100 hover:bg-rose-200/80 text-rose-800 border border-rose-200 transition-colors cursor-pointer">
+                                <button
+                                    type="button"
+                                    id="btn-akhir-balapan-gas-delete"
+                                    onclick="AkhirBalapanGasController.requestDeleteUrl()"
+                                    class="inline-flex items-center justify-center gap-2 min-h-[44px] px-4 py-2.5 rounded-xl text-xs font-semibold bg-rose-100 hover:bg-rose-200/80 text-rose-800 border border-rose-200 transition-colors cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed"
+                                >
                                     <i data-lucide="trash-2" class="w-4 h-4"></i>
                                     <span>Hapus</span>
                                 </button>
+                            </div>
+
+                            <!-- Pengesahan Inline Hapus URL Konfigurasi & Kosongkan Snapshot Akhir Balapan -->
+                            <div id="akhir-balapan-delete-confirm-box" class="hidden p-4 rounded-xl bg-rose-50 border border-rose-200 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                                <div class="text-xs text-rose-900">
+                                    <p class="font-bold">Adakah anda pasti mahu menghapus URL Google Apps Script dan mengosongkan paparan Akhir Balapan?</p>
+                                    <p class="text-[11px] text-rose-700 mt-1">Semua data Akhir Balapan yang disimpan dalam aplikasi ini akan dikosongkan. Data asal Google Sheets dan log audit tidak akan dipadam.</p>
+                                </div>
+                                <div class="flex items-center gap-2 shrink-0">
+                                    <button type="button" onclick="AkhirBalapanGasController.confirmDeleteUrl()" class="min-h-[44px] px-4 py-2 rounded-xl text-xs font-bold bg-rose-600 hover:bg-rose-700 text-white cursor-pointer">
+                                        Ya, Hapus
+                                    </button>
+                                    <button type="button" onclick="AkhirBalapanGasController.cancelDeleteUrl()" class="min-h-[44px] px-4 py-2 rounded-xl text-xs font-semibold bg-white hover:bg-slate-100 text-slate-700 border border-slate-300 cursor-pointer">
+                                        Batal
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- Bahagian Status Sambungan, Masa Kemas Kini & Jumlah Tab -->
+                            <div id="akhir-balapan-gas-status-panel" class="rounded-xl bg-surface-bg border border-slate-200/90 p-4 space-y-2.5">
+                                <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs">
+                                    <div class="bg-white rounded-lg p-3 border border-slate-200/70">
+                                        <p class="text-[10px] font-bold uppercase tracking-wider text-ink-muted">Status Sambungan</p>
+                                        <p id="akhir-balapan-status-connection" class="font-bold text-navy-primary mt-1">Belum Diuji</p>
+                                    </div>
+                                    <div class="bg-white rounded-lg p-3 border border-slate-200/70">
+                                        <p class="text-[10px] font-bold uppercase tracking-wider text-ink-muted">Masa Kemas Kini</p>
+                                        <p id="akhir-balapan-status-updated" class="font-mono font-semibold text-navy-primary mt-1">—</p>
+                                    </div>
+                                    <div class="bg-white rounded-lg p-3 border border-slate-200/70">
+                                        <p class="text-[10px] font-bold uppercase tracking-wider text-ink-muted">Tab Berjaya Dibaca</p>
+                                        <p id="akhir-balapan-status-tabs" class="font-bold text-navy-primary mt-1">0 / 9 Tab</p>
+                                    </div>
+                                </div>
+                                <p id="akhir-balapan-status-detail" class="text-[11px] text-ink-muted leading-relaxed">
+                                    Tampal URL Web App deployment (<span class="font-mono">/exec</span>) daripada Google Sheets dan tekan <span class="font-semibold text-navy-primary">Uji</span> sebelum menyimpan.
+                                </p>
                             </div>
                         </div>
 
@@ -688,6 +762,88 @@
                             type="button"
                             id="btn-close-saringan-gas-bottom"
                             onclick="SaringanGasController.closeGasModal()"
+                            class="inline-flex items-center justify-center gap-2 min-h-[44px] px-4 py-2.5 rounded-xl text-xs font-semibold bg-navy-primary hover:bg-navy-dark text-white transition-colors cursor-pointer"
+                        >
+                            <i data-lucide="x-circle" class="w-4 h-4"></i>
+                            <span>Tutup</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===================================================================== -->
+    <!-- MODAL KOD GOOGLE APPS SCRIPT — AKHIR BALAPAN (STATISTIX_AKHIR_BALAPAN)-->
+    <!-- ===================================================================== -->
+    <div
+        id="modal-akhir-balapan-gas-code"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="modal-akhir-balapan-gas-title"
+        class="fixed inset-0 z-50 hidden bg-navy-dark/70 backdrop-blur-xs p-3 sm:p-6 overflow-y-auto"
+    >
+        <div class="min-h-full flex items-center justify-center">
+            <div class="bg-white w-full max-w-4xl rounded-2xl shadow-2xl border border-slate-200 overflow-hidden flex flex-col max-h-[90vh]">
+                <!-- Header Modal -->
+                <div class="bg-navy-dark text-white px-4 sm:px-6 py-4 flex items-center justify-between gap-3 border-b border-navy-secondary/60">
+                    <div class="flex items-center gap-3 min-w-0">
+                        <div class="w-9 h-9 rounded-xl bg-gold/15 border border-gold/40 flex items-center justify-center shrink-0">
+                            <i data-lucide="file-code-2" class="w-5 h-5 text-gold"></i>
+                        </div>
+                        <div class="min-w-0">
+                            <h3 id="modal-akhir-balapan-gas-title" class="font-display font-bold text-sm sm:text-base text-white truncate">
+                                Kod Google Apps Script — Akhir Balapan
+                            </h3>
+                            <p class="text-[11px] text-slate-300 truncate">
+                                Statistix_Akhir_Balapan_Code.gs • Pasang sebagai Bound Script pada Google Sheets
+                            </p>
+                        </div>
+                    </div>
+
+                    <button
+                        type="button"
+                        id="btn-close-akhir-balapan-gas-top"
+                        onclick="AkhirBalapanGasController.closeGasModal()"
+                        aria-label="Tutup Modal Kod GAS Akhir Balapan"
+                        class="w-11 h-11 rounded-xl bg-navy-primary hover:bg-navy-secondary text-slate-200 hover:text-white flex items-center justify-center transition-colors cursor-pointer shrink-0"
+                    >
+                        <i data-lucide="x" class="w-5 h-5"></i>
+                    </button>
+                </div>
+
+                <!-- Arahan Ringkas Pemasangan Bound Script -->
+                <div class="px-4 sm:px-6 py-3 bg-surface-bg border-b border-slate-200 text-xs text-ink flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                    <p class="leading-relaxed">
+                        <span class="font-bold text-navy-primary">Panduan:</span> Buka Google Sheets &rarr; <span class="font-semibold">Extensions &rarr; Apps Script</span> &rarr; Tampal kod di bawah &rarr; <span class="font-semibold">Deploy &rarr; New deployment &rarr; Web app</span> (Execute as: <em>Me</em>, Who has access: <em>Anyone</em>).
+                    </p>
+                    <span class="text-[11px] font-mono font-semibold text-navy-secondary shrink-0">9 Tab Aktif</span>
+                </div>
+
+                <!-- Kawasan Paparan Kod Monospace dengan Skrol (Diisi melalui textContent sahaja) -->
+                <div class="p-4 sm:p-6 bg-slate-950 overflow-auto flex-1">
+                    <pre class="text-xs font-mono text-emerald-300 leading-relaxed whitespace-pre select-all"><code id="akhir-balapan-gas-code-display"></code></pre>
+                </div>
+
+                <!-- Footer Modal: Salin Kod & Tutup -->
+                <div class="px-4 sm:px-6 py-3.5 bg-white border-t border-slate-200 flex flex-wrap items-center justify-between gap-3">
+                    <span id="akhir-balapan-copy-feedback" class="text-xs font-semibold text-emerald-700 hidden">
+                        Kod berjaya disalin ke papan keratan!
+                    </span>
+                    <div class="flex items-center gap-2.5 ml-auto">
+                        <button
+                            type="button"
+                            id="btn-copy-akhir-balapan-gas-code"
+                            onclick="AkhirBalapanGasController.copyGasCode()"
+                            class="inline-flex items-center justify-center gap-2 min-h-[44px] px-4 py-2.5 rounded-xl text-xs font-bold bg-gold hover:bg-gold-light text-navy-dark shadow-xs transition-colors cursor-pointer"
+                        >
+                            <i data-lucide="copy" class="w-4 h-4"></i>
+                            <span>Salin Kod</span>
+                        </button>
+                        <button
+                            type="button"
+                            id="btn-close-akhir-balapan-gas-bottom"
+                            onclick="AkhirBalapanGasController.closeGasModal()"
                             class="inline-flex items-center justify-center gap-2 min-h-[44px] px-4 py-2.5 rounded-xl text-xs font-semibold bg-navy-primary hover:bg-navy-dark text-white transition-colors cursor-pointer"
                         >
                             <i data-lucide="x-circle" class="w-4 h-4"></i>
@@ -1629,26 +1785,244 @@
          * 4C. MODUL AKHIR BALAPAN (AkhirBalapanModule)
          */
         const AkhirBalapanModule = {
+            ALLOWED_EVENT_NOS: ['101', '102', '103', '104', '105', '106', '204', '205', '300'],
             selectedEventNo: null,
+            editingCell: null,
+            isSavingCell: false,
+
+            hasValidActiveConnection() {
+                const config = StorageManager.getTournamentConfig();
+                const savedUrl = String(config.akhirBalapanAppsScriptUrl || '').trim();
+                if (!savedUrl) return false;
+                const store = StorageManager.getAkhirBalapanStore();
+                const eventsMap = (store && store.events) || {};
+                return this.ALLOWED_EVENT_NOS.some(no => Boolean(eventsMap[no]));
+            },
+
+            isEditableCell(gender, sheetRow, field) {
+                const rowNum = Number(sheetRow);
+                if (field !== 'kedudukan' && field !== 'masa') return false;
+                if (gender === 'lelaki') return rowNum >= 6 && rowNum <= 13;
+                if (gender === 'perempuan') return rowNum >= 20 && rowNum <= 27;
+                return false;
+            },
 
             selectEvent(eventNo) {
-                this.selectedEventNo = eventNo;
+                if (!this.ALLOWED_EVENT_NOS.includes(String(eventNo))) return;
+                this.selectedEventNo = String(eventNo);
+                this.editingCell = null;
                 AppController.loadView('akhir-balapan');
             },
 
-            renderPublicView() {
+            toggleOfficialVerification(eventNo) {
                 const store = StorageManager.getAkhirBalapanStore();
-                const eventNos = Object.keys(store.events || {});
-                if (eventNos.length === 0) {
+                const ev = store.events && store.events[eventNo];
+                if (!ev) return;
+
+                const isCurrentlyVerified = ev.status === 'DISAHKAN_RASMI';
+                ev.status = isCurrentlyVerified ? 'BELUM_SELESAI' : 'DISAHKAN_RASMI';
+                ev.verifiedAt = isCurrentlyVerified ? null : new Date().toISOString();
+                ev.updatedAt = new Date().toISOString();
+
+                StorageManager.saveAkhirBalapanStore(store);
+                StorageManager.appendAkhirBalapanAuditLog({
+                    action: isCurrentlyVerified ? 'BATAL_PENGESAHAN' : 'SAHKAN_RASMI',
+                    eventNo
+                });
+
+                this.editingCell = null;
+                AppController.loadView('akhir-balapan');
+                UIComponents.showToast(
+                    isCurrentlyVerified
+                        ? `Pengesahan rasmi Akhir Balapan ${eventNo} telah dibatalkan.`
+                        : `Akhir Balapan ${eventNo} telah disahkan secara rasmi.`,
+                    isCurrentlyVerified ? 'warning' : 'success'
+                );
+            },
+
+            startInlineEdit(eventNo, gender, sheetRow, noBib, field, currentValue) {
+                if (this.isSavingCell) return;
+                const store = StorageManager.getAkhirBalapanStore();
+                const ev = store.events && store.events[eventNo];
+                if (!ev) return;
+
+                if (ev.status === 'DISAHKAN_RASMI') {
+                    UIComponents.showToast('Acara berstatus DISAHKAN RASMI. Batalkan pengesahan dahulu sebelum menyunting.', 'warning');
+                    return;
+                }
+
+                if (!this.isEditableCell(gender, sheetRow, field)) {
+                    UIComponents.showToast('Sel ini dikunci (read-only). Hanya julat F6:G13 (Lelaki) dan F20:G27 (Perempuan) dibenarkan.', 'warning');
+                    return;
+                }
+
+                this.editingCell = {
+                    eventNo: String(eventNo),
+                    gender: String(gender),
+                    sheetRow: Number(sheetRow),
+                    noBib: String(noBib || ''),
+                    field: String(field),
+                    expectedValue: String(currentValue || '').trim(),
+                    draftValue: String(currentValue || '').trim()
+                };
+                AppController.loadView('akhir-balapan');
+
+                requestAnimationFrame(() => {
+                    const inputEl = document.getElementById('akhir-balapan-inline-edit-input');
+                    if (inputEl) {
+                        inputEl.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                        inputEl.focus();
+                        inputEl.select();
+                    }
+                });
+            },
+
+            cancelInlineEdit() {
+                if (this.isSavingCell || !this.editingCell) return;
+                this.editingCell = null;
+                AppController.loadView('akhir-balapan');
+            },
+
+            handleInlineInputKeydown(event) {
+                if (event.key === 'Enter') {
+                    event.preventDefault();
+                    event.stopPropagation();
+                    if (!this.isSavingCell) {
+                        this.saveInlineEdit();
+                    }
+                } else if (event.key === 'Escape') {
+                    event.preventDefault();
+                    event.stopPropagation();
+                    if (!this.isSavingCell) {
+                        this.cancelInlineEdit();
+                    }
+                }
+            },
+
+            async saveInlineEdit() {
+                if (!this.editingCell || this.isSavingCell) return;
+
+                const inputEl = document.getElementById('akhir-balapan-inline-edit-input');
+                const newValue = inputEl ? inputEl.value.trim() : this.editingCell.draftValue;
+
+                if (newValue === this.editingCell.expectedValue) {
+                    this.editingCell = null;
+                    AppController.loadView('akhir-balapan');
+                    return;
+                }
+
+                this.editingCell.draftValue = newValue;
+                this.isSavingCell = true;
+                if (inputEl) {
+                    inputEl.disabled = true;
+                    inputEl.classList.add('opacity-60', 'cursor-wait');
+                }
+                const savingBadge = document.getElementById('akhir-balapan-inline-saving-indicator');
+                if (savingBadge) savingBadge.classList.remove('hidden');
+
+                const result = await AkhirBalapanGasController.updateCell({
+                    eventNo: this.editingCell.eventNo,
+                    gender: this.editingCell.gender,
+                    sheetRow: this.editingCell.sheetRow,
+                    noBib: this.editingCell.noBib,
+                    field: this.editingCell.field,
+                    expectedValue: this.editingCell.expectedValue,
+                    value: newValue
+                });
+
+                this.isSavingCell = false;
+                if (result && result.success) {
+                    this.editingCell = null;
+                    AppController.loadView('akhir-balapan');
+                } else {
+                    if (savingBadge) savingBadge.classList.add('hidden');
+                    if (inputEl) {
+                        inputEl.disabled = false;
+                        inputEl.classList.remove('opacity-60', 'cursor-wait');
+                        inputEl.focus();
+                        inputEl.select();
+                    }
+                }
+            },
+
+            renderEditableCell(eventNo, gender, athlete, field, isVerified) {
+                const rawVal = String(athlete[field] || '').trim();
+                const displayVal = rawVal || '—';
+                const canEdit = !isVerified && this.isEditableCell(gender, athlete.sheetRow, field);
+                const isEditingThis = this.editingCell &&
+                    this.editingCell.eventNo === String(eventNo) &&
+                    this.editingCell.gender === gender &&
+                    Number(this.editingCell.sheetRow) === Number(athlete.sheetRow) &&
+                    this.editingCell.field === field;
+
+                const alignClass = field === 'masa' ? 'font-mono font-semibold text-right' : 'font-bold text-center';
+
+                if (isEditingThis) {
+                    return `
+                        <div class="space-y-1.5 min-w-[115px]">
+                            <input
+                                id="akhir-balapan-inline-edit-input"
+                                type="text"
+                                enterkeyhint="done"
+                                value="${SaringanModule.escapeHtml(this.editingCell.draftValue)}"
+                                oninput="if(AkhirBalapanModule.editingCell){AkhirBalapanModule.editingCell.draftValue=this.value;}"
+                                onkeydown="AkhirBalapanModule.handleInlineInputKeydown(event)"
+                                aria-label="Sunting ${field === 'kedudukan' ? 'Kedudukan' : 'Masa'}"
+                                class="w-full min-h-[36px] px-2 py-1 text-base sm:text-xs ${alignClass} border-2 border-gold rounded-lg bg-white text-navy-dark focus:outline-none focus:ring-2 focus:ring-gold/50 transition-all"
+                            >
+                            <div class="flex items-center justify-end gap-1">
+                                <button
+                                    type="button"
+                                    onclick="AkhirBalapanModule.saveInlineEdit()"
+                                    class="px-2 py-1 rounded-md text-[10px] font-bold bg-emerald-600 hover:bg-emerald-700 text-white cursor-pointer"
+                                >Simpan</button>
+                                <button
+                                    type="button"
+                                    onclick="AkhirBalapanModule.cancelInlineEdit()"
+                                    class="px-2 py-1 rounded-md text-[10px] font-semibold bg-slate-200 hover:bg-slate-300 text-slate-700 cursor-pointer"
+                                >Batal</button>
+                            </div>
+                            <span id="akhir-balapan-inline-saving-indicator" class="hidden block text-[10px] font-semibold text-amber-700 text-center">
+                                Menyimpan...
+                            </span>
+                        </div>
+                    `;
+                }
+
+                if (!canEdit) {
+                    return `<span class="block px-2 py-1 ${alignClass} text-navy-primary">${SaringanModule.escapeHtml(displayVal)}</span>`;
+                }
+
+                return `
+                    <button
+                        type="button"
+                        title="Klik untuk sunting ${field === 'kedudukan' ? 'Kedudukan' : 'Masa'} (Baris ${athlete.sheetRow})"
+                        onclick="AkhirBalapanModule.startInlineEdit('${SaringanModule.escapeHtml(eventNo)}', '${gender}', ${Number(athlete.sheetRow)}, '${SaringanModule.escapeHtml(athlete.noBib || '')}', '${field}', '${SaringanModule.escapeHtml(rawVal)}')"
+                        class="w-full min-h-[36px] block px-2 py-1 rounded-lg hover:bg-gold/15 border border-transparent hover:border-gold/40 transition-colors cursor-pointer ${alignClass} text-navy-primary"
+                    >${SaringanModule.escapeHtml(displayVal)}</button>
+                `;
+            },
+
+            renderPublicView() {
+                if (!this.hasValidActiveConnection()) {
                     return UIComponents.renderEmptyState('Akhir Balapan');
                 }
-                if (!this.selectedEventNo || !store.events[this.selectedEventNo]) {
-                    this.selectedEventNo = eventNos[0];
+
+                const store = StorageManager.getAkhirBalapanStore();
+                const eventsMap = store.events || {};
+                const availableNos = this.ALLOWED_EVENT_NOS.filter(no => Boolean(eventsMap[no]));
+                if (availableNos.length === 0) {
+                    return UIComponents.renderEmptyState('Akhir Balapan');
                 }
-                const ev = store.events[this.selectedEventNo];
-                const renderTable = (title, rows) => `
+                if (!this.selectedEventNo || !availableNos.includes(this.selectedEventNo)) {
+                    this.selectedEventNo = availableNos[0];
+                }
+                const ev = eventsMap[this.selectedEventNo];
+                const isVerified = ev.status === 'DISAHKAN_RASMI';
+
+                const renderTable = (gender, title, rows) => `
                     <div class="rounded-xl border border-slate-200/90 overflow-hidden bg-white">
-                        <div class="px-4 py-2.5 bg-surface-bg border-b border-slate-200/80 flex items-center justify-between">
+                        <div class="px-4 py-2.5 bg-surface-bg border-b border-slate-200/80 flex items-center justify-between gap-2">
                             <span class="font-display text-xs font-bold uppercase tracking-wider text-navy-primary">${SaringanModule.escapeHtml(title)}</span>
                             <span class="text-[11px] font-medium text-ink-muted">${rows.length} Atlet</span>
                         </div>
@@ -1656,11 +2030,11 @@
                             <table class="w-full text-left border-collapse">
                                 <thead>
                                     <tr class="bg-navy-primary text-white font-display text-[11px] uppercase tracking-wider">
-                                        <th class="py-2.5 px-3 text-center w-14">Ked.</th>
+                                        <th class="py-2.5 px-3 text-center w-16">Ked.</th>
                                         <th class="py-2.5 px-3 text-center w-14">Lorong</th>
                                         <th class="py-2.5 px-3">Nama Atlet</th>
                                         <th class="py-2.5 px-3">Pasukan</th>
-                                        <th class="py-2.5 px-3 text-right">Masa</th>
+                                        <th class="py-2.5 px-3 text-right w-28">Masa</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -1668,11 +2042,11 @@
                                         ? `<tr><td colspan="5" class="py-6 px-4 text-center text-xs text-ink-muted">Tiada rekod atlet.</td></tr>`
                                         : rows.map(r => `
                                             <tr class="border-b border-slate-100 hover:bg-surface-bg/70">
-                                                <td class="py-2.5 px-3 text-xs font-bold text-center text-navy-primary">${SaringanModule.escapeHtml(r.kedudukan || '—')}</td>
+                                                <td class="py-1.5 px-2 text-xs">${this.renderEditableCell(ev.eventNo, gender, r, 'kedudukan', isVerified)}</td>
                                                 <td class="py-2.5 px-3 text-xs font-semibold text-center text-ink-muted">${SaringanModule.escapeHtml(r.lorong || '—')}</td>
                                                 <td class="py-2.5 px-3 text-xs font-semibold text-ink">${SaringanModule.escapeHtml(r.namaAtlet || '—')}</td>
                                                 <td class="py-2.5 px-3 text-xs text-ink-muted">${SaringanModule.escapeHtml(r.pasukan || '—')}</td>
-                                                <td class="py-2.5 px-3 text-xs font-mono font-semibold text-right text-navy-primary">${SaringanModule.escapeHtml(r.masa || '—')}</td>
+                                                <td class="py-1.5 px-2 text-xs">${this.renderEditableCell(ev.eventNo, gender, r, 'masa', isVerified)}</td>
                                             </tr>
                                         `).join('')}
                                 </tbody>
@@ -1683,9 +2057,45 @@
 
                 return `
                     <div class="p-4 sm:p-6 space-y-6">
+                        <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4 pb-4 border-b border-slate-200/80">
+                            <div class="flex items-center gap-2 overflow-x-auto no-scrollbar pb-1">
+                                ${this.ALLOWED_EVENT_NOS.map(no => {
+                                    const exists = Boolean(eventsMap[no]);
+                                    const isActive = no === this.selectedEventNo;
+                                    return `
+                                        <button
+                                            type="button"
+                                            ${!exists ? 'disabled' : ''}
+                                            onclick="AkhirBalapanModule.selectEvent('${no}')"
+                                            aria-label="Acara ${no}"
+                                            class="min-w-[48px] min-h-[44px] px-4 py-2 rounded-xl text-xs font-display font-bold text-center transition-all shrink-0 ${
+                                                isActive
+                                                    ? 'bg-navy-primary text-gold shadow-xs cursor-pointer'
+                                                    : exists
+                                                        ? 'bg-surface-bg hover:bg-slate-200/80 text-navy-primary cursor-pointer'
+                                                        : 'bg-slate-100 text-slate-400 cursor-not-allowed'
+                                            }"
+                                        >
+                                            ${no}
+                                        </button>
+                                    `;
+                                }).join('')}
+                            </div>
+
+                            <div class="flex flex-wrap items-center justify-end gap-2.5 shrink-0">
+                                ${isVerified ? `
+                                    <span class="inline-flex items-center gap-1.5 min-h-[38px] px-3.5 py-1.5 rounded-xl text-xs font-bold bg-emerald-100 text-emerald-800 border border-emerald-300">
+                                        <i data-lucide="check-circle-2" class="w-3.5 h-3.5"></i>
+                                        <span>DISAHKAN RASMI</span>
+                                    </span>
+                                ` : ''}
+                                ${VerificationButtonController.renderEventButton('AkhirBalapanModule', ev)}
+                            </div>
+                        </div>
+
                         <div class="grid grid-cols-1 xl:grid-cols-2 gap-6">
-                            ${renderTable('Akhir Balapan Lelaki', ev.lelaki || [])}
-                            ${renderTable('Akhir Balapan Perempuan', ev.perempuan || [])}
+                            ${renderTable('lelaki', 'Akhir Balapan Lelaki', ev.lelaki || [])}
+                            ${renderTable('perempuan', 'Akhir Balapan Perempuan', ev.perempuan || [])}
                         </div>
                     </div>
                 `;
@@ -1827,78 +2237,77 @@
          */
         const PodiumModule = {
             collectOfficialPodiumData() {
-                const akhirEvents = Object.values(StorageManager.getAkhirBalapanStore().events || {}).filter(e => e.status === 'DISAHKAN_RASMI');
-                const relayEvents = Object.values(StorageManager.getRelayStore().events || {}).filter(e => e.status === 'DISAHKAN_RASMI');
-                const padangEvents = Object.values(StorageManager.getPadangStore().events || {}).filter(e => e.status === 'DISAHKAN_RASMI');
-                const allOfficial = [...akhirEvents, ...relayEvents, ...padangEvents];
+                const sources = [
+                    StorageManager.getAkhirBalapanStore().events || {},
+                    StorageManager.getRelayStore().events || {},
+                    StorageManager.getPadangStore().events || {}
+                ];
 
+                const entries = [];
                 let totalGold = 0;
                 let totalSilver = 0;
                 let totalBronze = 0;
-                const podiumRows = [];
+                let totalOfficialCategories = 0;
 
-                allOfficial.forEach(ev => {
-                    ['lelaki', 'perempuan'].forEach(gender => {
-                        const list = Array.isArray(ev[gender]) ? ev[gender] : [];
-                        const gold = list.find(r => String(r.kedudukan || '').trim() === '1');
-                        const silver = list.find(r => String(r.kedudukan || '').trim() === '2');
-                        const bronze = list.find(r => String(r.kedudukan || '').trim() === '3');
-
-                        if (gold) totalGold++;
-                        if (silver) totalSilver++;
-                        if (bronze) totalBronze++;
-
-                        if (gold || silver || bronze) {
-                            podiumRows.push({
-                                eventNo: ev.eventNo,
-                                category: gender === 'lelaki' ? 'Lelaki' : 'Perempuan',
-                                gold,
-                                silver,
-                                bronze
-                            });
-                        }
+                sources.forEach(eventsMap => {
+                    Object.values(eventsMap).forEach(ev => {
+                        if (!ev || ev.status !== 'DISAHKAN_RASMI') return;
+                        ['lelaki', 'perempuan'].forEach(gender => {
+                            const rows = Array.isArray(ev[gender]) ? ev[gender] : [];
+                            const medalists = rows.filter(r => ['1', '2', '3'].includes(String(r.kedudukan || '').trim()));
+                            if (medalists.length > 0) {
+                                totalOfficialCategories++;
+                                medalists.forEach(m => {
+                                    const pos = String(m.kedudukan || '').trim();
+                                    if (pos === '1') totalGold++;
+                                    if (pos === '2') totalSilver++;
+                                    if (pos === '3') totalBronze++;
+                                });
+                                entries.push({
+                                    eventNo: ev.eventNo,
+                                    gender: gender === 'lelaki' ? 'Lelaki' : 'Perempuan',
+                                    medalists
+                                });
+                            }
+                        });
                     });
                 });
 
-                return {
-                    totalOfficialCategories: podiumRows.length,
-                    totalGold,
-                    totalSilver,
-                    totalBronze,
-                    podiumRows
-                };
+                return { entries, totalOfficialCategories, totalGold, totalSilver, totalBronze };
             },
 
             renderPublicView() {
-                const data = this.collectOfficialPodiumData();
-                if (data.podiumRows.length === 0) {
+                const { entries } = this.collectOfficialPodiumData();
+                if (entries.length === 0) {
                     return UIComponents.renderEmptyState('Podium Pingat');
                 }
 
                 return `
-                    <div class="overflow-x-auto">
-                        <table class="w-full text-left border-collapse">
-                            <thead>
-                                <tr class="bg-navy-primary text-white font-display text-[11px] uppercase tracking-wider">
-                                    <th class="py-3 px-4">No. Acara</th>
-                                    <th class="py-3 px-4">Kategori</th>
-                                    <th class="py-3 px-4 text-amber-300">Emas (1)</th>
-                                    <th class="py-3 px-4 text-slate-200">Perak (2)</th>
-                                    <th class="py-3 px-4 text-orange-300">Gangsa (3)</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                ${data.podiumRows.map(row => `
-                                    <tr class="border-b border-slate-100 hover:bg-surface-bg/70">
-                                        <td class="py-3 px-4 text-xs font-bold text-navy-primary">${SaringanModule.escapeHtml(row.eventNo)}</td>
-                                        <td class="py-3 px-4 text-xs font-semibold text-ink-muted">${SaringanModule.escapeHtml(row.category)}</td>
-                                        <td class="py-3 px-4 text-xs font-semibold text-ink">${SaringanModule.escapeHtml(row.gold ? (row.gold.namaAtlet || row.gold.pasukan) : '—')}</td>
-                                        <td class="py-3 px-4 text-xs font-semibold text-ink">${SaringanModule.escapeHtml(row.silver ? (row.silver.namaAtlet || row.silver.pasukan) : '—')}</td>
-                                        <td class="py-3 px-4 text-xs font-semibold text-ink">${SaringanModule.escapeHtml(row.bronze ? (row.bronze.namaAtlet || row.bronze.pasukan) : '—')}</td>
-                                    </tr>
-                                `).join('')}
-                            </tbody>
-                        </table>
+                    <div class="p-4 sm:p-6 grid grid-cols-1 md:grid-cols-2 gap-5">
+                        ${entries.map(item => `
+                            <div class="rounded-xl border border-slate-200/90 overflow-hidden bg-white shadow-2xs">
+                                <div class="px-4 py-3 bg-navy-primary text-white flex items-center justify-between">
+                                    <span class="font-display text-xs font-bold uppercase tracking-wider text-gold">Acara ${SaringanModule.escapeHtml(item.eventNo)} • ${SaringanModule.escapeHtml(item.gender)}</span>
+                                    <span class="text-[10px] font-semibold uppercase tracking-wider bg-emerald-500/20 text-emerald-300 px-2 py-0.5 rounded-full">Rasmi</span>
+                                </div>
+                                <div class="divide-y divide-slate-100">
+                                    ${item.medalists.sort((a, b) => Number(a.kedudukan) - Number(b.kedudukan)).map(m => {
+                                        const pos = String(m.kedudukan).trim();
+                                        const medalLabel = pos === '1' ? 'Emas' : pos === '2' ? 'Perak' : 'Gangsa';
+                                        const badgeCls = pos === '1' ? 'bg-amber-100 text-amber-800 border-amber-300' : pos === '2' ? 'bg-slate-200 text-slate-800 border-slate-300' : 'bg-orange-100 text-orange-800 border-orange-300';
+                                        return `
+                                            <div class="px-4 py-3 flex items-center justify-between gap-3">
+                                                <div class="min-w-0">
+                                                    <p class="text-xs sm:text-sm font-bold text-ink truncate">${SaringanModule.escapeHtml(m.namaAtlet || m.pasukan || '—')}</p>
+                                                    <p class="text-[11px] text-ink-muted truncate">${SaringanModule.escapeHtml(m.pasukan || '—')}</p>
+                                                </div>
+                                                <span class="px-2.5 py-1 rounded-lg text-xs font-bold border shrink-0 ${badgeCls}">${medalLabel}</span>
+                                            </div>
+                                        `;
+                                    }).join('')}
+                                </div>
+                            </div>
+                        `).join('')}
                     </div>
                 `;
             }
@@ -1921,19 +2330,27 @@
                 const contentTetapan = document.getElementById('admin-content-tetapan-acara');
                 const contentPengguna = document.getElementById('admin-content-pengurusan-pengguna');
 
-                const activeClasses = 'px-4 py-3 rounded-xl text-xs sm:text-sm font-bold transition-all cursor-pointer text-center bg-navy-primary text-gold border-b-2 border-gold shadow-xs';
-                const inactiveClasses = 'px-4 py-3 rounded-xl text-xs sm:text-sm font-bold transition-all cursor-pointer text-center bg-surface-bg text-navy-primary hover:bg-slate-200/70';
+                const activeCls = 'min-h-[44px] px-4 py-3 rounded-xl text-xs sm:text-sm font-bold transition-all cursor-pointer text-center bg-navy-primary text-gold border-b-2 border-gold shadow-xs';
+                const inactiveCls = 'min-h-[44px] px-4 py-3 rounded-xl text-xs sm:text-sm font-bold transition-all cursor-pointer text-center bg-surface-bg text-navy-primary hover:bg-slate-200/70';
 
-                if (tabId === 'pengurusan-pengguna') {
-                    if (tabTetapan) tabTetapan.className = inactiveClasses;
-                    if (tabPengguna) tabPengguna.className = activeClasses;
-                    if (contentTetapan) contentTetapan.classList.add('hidden');
-                    if (contentPengguna) contentPengguna.classList.remove('hidden');
-                } else {
-                    if (tabTetapan) tabTetapan.className = activeClasses;
-                    if (tabPengguna) tabPengguna.className = inactiveClasses;
+                if (tabId === 'tetapan-acara') {
+                    if (tabTetapan) tabTetapan.className = activeCls;
+                    if (tabPengguna) tabPengguna.className = inactiveCls;
                     if (contentTetapan) contentTetapan.classList.remove('hidden');
                     if (contentPengguna) contentPengguna.classList.add('hidden');
+                } else {
+                    if (tabPengguna) tabPengguna.className = activeCls;
+                    if (tabTetapan) tabTetapan.className = inactiveCls;
+                    if (contentTetapan) contentTetapan.classList.add('hidden');
+                    if (contentPengguna) {
+                        contentPengguna.classList.remove('hidden');
+                        contentPengguna.innerHTML = `
+                            <div class="bg-white rounded-2xl p-6 shadow-card border border-slate-200/80 text-center space-y-2">
+                                <h3 class="font-display font-bold text-base sm:text-lg text-navy-primary">Pengurusan Pengguna</h3>
+                                <p class="text-xs sm:text-sm text-ink-muted">Akses pentadbir aktif pada sesi ini.</p>
+                            </div>
+                        `;
+                    }
                 }
             }
         };
@@ -1983,47 +2400,32 @@ function doGet(e) {
       return jsonResponse_({
         success: missingTabs.length === 0,
         module: 'saringan',
-        spreadsheetName: ss.getName(),
         foundTabs: foundTabs,
         missingTabs: missingTabs,
-        totalExpected: SARINGAN_TABS.length,
         timestamp: new Date().toISOString()
       });
     }
 
     if (action === 'data') {
       var eventsData = {};
-      var missing = [];
-
       for (var j = 0; j < SARINGAN_TABS.length; j++) {
         var evNo = SARINGAN_TABS[j];
         var sheet = ss.getSheetByName(evNo);
         if (!sheet) {
-          missing.push(evNo);
-          continue;
+          return jsonResponse_({ success: false, module: 'saringan', message: 'Tab hilang: ' + evNo });
         }
         eventsData[evNo] = {
           eventNo: evNo,
           lelaki: {
-            saringan1: readGroupRows_(sheet, 2, 12, 'lelaki'),
-            saringan2: readGroupRows_(sheet, 18, 25, 'lelaki')
+            saringan1: readHeatRows_(sheet, 2, 12, 1),
+            saringan2: readHeatRows_(sheet, 18, 25, 1)
           },
           perempuan: {
-            saringan1: readGroupRows_(sheet, 2, 12, 'perempuan'),
-            saringan2: readGroupRows_(sheet, 18, 25, 'perempuan')
+            saringan1: readHeatRows_(sheet, 2, 12, 9),
+            saringan2: readHeatRows_(sheet, 18, 25, 9)
           }
         };
       }
-
-      if (missing.length > 0) {
-        return jsonResponse_({
-          success: false,
-          module: 'saringan',
-          message: 'Tab hilang: ' + missing.join(', '),
-          missingTabs: missing
-        });
-      }
-
       return jsonResponse_({
         success: true,
         module: 'saringan',
@@ -2032,39 +2434,25 @@ function doGet(e) {
       });
     }
 
-    return jsonResponse_({
-      success: false,
-      module: 'saringan',
-      message: 'Parameter action tidak sah.'
-    });
+    return jsonResponse_({ success: false, message: 'Action tidak sah.' });
   } catch (err) {
-    return jsonResponse_({
-      success: false,
-      module: 'saringan',
-      message: String(err && err.message ? err.message : err)
-    });
+    return jsonResponse_({ success: false, message: String(err && err.message ? err.message : err) });
   }
 }
 
-function readGroupRows_(sheet, startRow, endRow, gender) {
+function readHeatRows_(sheet, startRow, endRow, startCol) {
   var numRows = endRow - startRow + 1;
-  var startCol = (gender === 'lelaki') ? 1 : 9; // A=1, I=9
   var values = sheet.getRange(startRow, startCol, numRows, 7).getDisplayValues();
   var list = [];
-
   for (var i = 0; i < values.length; i++) {
     var row = values[i];
     var lorong = String(row[0] || '').trim();
-    var namaAtlet = String(row[1] || '').trim(); // B atau J (merged B:C / J:K)
-    var pasukan = String(row[3] || '').trim();   // D atau L
-    var noBib = String(row[4] || '').trim();     // E atau M
-    var kedudukan = String(row[5] || '').trim(); // F atau N
-    var masa = String(row[6] || '').trim();      // G atau O
-
-    if (!lorong && !namaAtlet && !pasukan && !noBib && !kedudukan && !masa) {
-      continue;
-    }
-
+    var namaAtlet = String(row[1] || '').trim();
+    var pasukan = String(row[3] || '').trim();
+    var noBib = String(row[4] || '').trim();
+    var kedudukan = String(row[5] || '').trim();
+    var masa = String(row[6] || '').trim();
+    if (!lorong && !namaAtlet && !pasukan && !noBib && !kedudukan && !masa) continue;
     list.push({
       sheetRow: startRow + i,
       lorong: lorong,
@@ -2083,87 +2471,35 @@ function doPost(e) {
   lock.waitLock(10000);
   try {
     var params = (e && e.parameter) ? e.parameter : {};
-    var action = String(params.action || '').toLowerCase();
-    if (action !== 'update') {
-      return jsonResponse_({ success: false, message: 'Tindakan POST tidak disokong.' });
-    }
-
     var eventNo = String(params.eventNo || '').trim();
     var gender = String(params.gender || '').trim().toLowerCase();
     var heat = String(params.heat || '').trim().toLowerCase();
     var sheetRow = parseInt(params.sheetRow, 10);
-    var noBib = String(params.noBib || '').trim();
     var field = String(params.field || '').trim().toLowerCase();
     var expectedValue = String(params.expectedValue || '').trim();
     var newValue = String(params.value || '').trim();
 
-    if (SARINGAN_TABS.indexOf(eventNo) === -1) {
-      return jsonResponse_({ success: false, message: 'Nombor acara tidak sah.' });
-    }
-    if (gender !== 'lelaki' && gender !== 'perempuan') {
-      return jsonResponse_({ success: false, message: 'Kategori tidak sah.' });
-    }
-    if (heat !== 'saringan1' && heat !== 'saringan2') {
-      return jsonResponse_({ success: false, message: 'Saringan tidak sah.' });
-    }
-
-    var validRow = (heat === 'saringan1' && sheetRow >= 2 && sheetRow <= 12) ||
-                   (heat === 'saringan2' && sheetRow >= 18 && sheetRow <= 25);
-    if (!validRow) {
-      return jsonResponse_({ success: false, message: 'Nombor baris di luar julat sah.' });
-    }
+    if (SARINGAN_TABS.indexOf(eventNo) === -1) return jsonResponse_({ success: false, message: 'Acara tidak sah.' });
+    var validRow = (heat === 'saringan1' && sheetRow >= 2 && sheetRow <= 12) || (heat === 'saringan2' && sheetRow >= 18 && sheetRow <= 25);
+    if (!validRow) return jsonResponse_({ success: false, message: 'Baris di luar julat.' });
 
     var targetCol = null;
-    var bibCol = (gender === 'lelaki') ? 5 : 13; // E=5, M=13
-    if (gender === 'lelaki') {
-      if (field === 'kedudukan') targetCol = 6; // F
-      if (field === 'masa') targetCol = 7;      // G
-    } else {
-      if (field === 'kedudukan') targetCol = 14; // N
-      if (field === 'masa') targetCol = 15;      // O
-    }
+    if (gender === 'lelaki') targetCol = field === 'kedudukan' ? 6 : (field === 'masa' ? 7 : null);
+    if (gender === 'perempuan') targetCol = field === 'kedudukan' ? 14 : (field === 'masa' ? 15 : null);
+    if (!targetCol) return jsonResponse_({ success: false, message: 'Kolum tidak dibenarkan.' });
 
-    if (!targetCol) {
-      return jsonResponse_({ success: false, message: 'Medan suntingan tidak dibenarkan.' });
-    }
-
-    var ss = SpreadsheetApp.getActiveSpreadsheet();
-    var sheet = ss.getSheetByName(eventNo);
-    if (!sheet) {
-      return jsonResponse_({ success: false, message: 'Tab ' + eventNo + ' tidak ditemui.' });
-    }
-
-    var currentBib = String(sheet.getRange(sheetRow, bibCol).getDisplayValue() || '').trim();
-    if (noBib && currentBib && currentBib !== noBib) {
-      return jsonResponse_({ success: false, message: 'Konflik No Bib pada baris ' + sheetRow });
-    }
+    var sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(eventNo);
+    if (!sheet) return jsonResponse_({ success: false, message: 'Tab tidak ditemui.' });
 
     var cell = sheet.getRange(sheetRow, targetCol);
-    var currentVal = String(cell.getDisplayValue() || '').trim();
-    if (currentVal !== expectedValue) {
-      return jsonResponse_({
-        success: false,
-        message: 'Konflik data dikesan. Nilai semasa dalam Sheet ialah "' + currentVal + '".'
-      });
+    if (String(cell.getDisplayValue() || '').trim() !== expectedValue) {
+      return jsonResponse_({ success: false, message: 'Konflik nilai semasa dalam Sheet.' });
     }
-
     cell.setValue(newValue);
     SpreadsheetApp.flush();
-
-    return jsonResponse_({
-      success: true,
-      module: 'saringan',
-      eventNo: eventNo,
-      sheetRow: sheetRow,
-      field: field,
-      value: newValue,
-      updatedAt: new Date().toISOString()
-    });
+    return jsonResponse_({ success: true, updatedAt: new Date().toISOString() });
   } catch (err) {
-    return jsonResponse_({
-      success: false,
-      message: String(err && err.message ? err.message : err)
-    });
+    return jsonResponse_({ success: false, message: String(err && err.message ? err.message : err) });
   } finally {
     lock.releaseLock();
   }
@@ -2171,9 +2507,7 @@ function doPost(e) {
 
             init() {
                 const codeEl = document.getElementById('saringan-gas-code-display');
-                if (codeEl) {
-                    codeEl.textContent = this.GAS_SOURCE_CODE;
-                }
+                if (codeEl) codeEl.textContent = this.GAS_SOURCE_CODE;
 
                 const config = StorageManager.getTournamentConfig();
                 const inputEl = document.getElementById('gas-url-saringan');
@@ -2182,12 +2516,10 @@ function doPost(e) {
                     inputEl.disabled = true;
                     this.updateModeBadge('Tersimpan (Terkunci)');
                 }
-
                 if (config.saringanGasStatus) {
                     this.updateStatusPanel(config.saringanGasStatus);
                 }
-
-                this.syncLiveIndicators('saringan');
+                this.syncLiveIndicators(AppController.currentView);
 
                 document.addEventListener('keydown', (e) => {
                     if (e.key === 'Escape') {
@@ -2199,23 +2531,18 @@ function doPost(e) {
                 });
             },
 
-            syncLiveIndicators(activePublicView = AppController.currentView) {
-                const config = StorageManager.getTournamentConfig();
-                const hasSavedUrl = Boolean(String(config.saringanAppsScriptUrl || '').trim());
-                const isLive = hasSavedUrl && SaringanModule.hasValidActiveConnection();
-
+            syncLiveIndicators(activeViewId) {
+                const isLive = SaringanModule.hasValidActiveConnection();
                 const adminBadge = document.getElementById('saringan-admin-live-badge');
+                const publicBadge = document.getElementById('saringan-public-live-badge');
+
                 if (adminBadge) {
                     adminBadge.classList.toggle('hidden', !isLive);
                 }
-
-                const publicBadge = document.getElementById('saringan-public-live-badge');
                 if (publicBadge) {
-                    const showPublicLive = isLive && activePublicView === 'saringan';
-                    publicBadge.classList.toggle('hidden', !showPublicLive);
+                    const showPublic = isLive && (activeViewId || AppController.currentView) === 'saringan';
+                    publicBadge.classList.toggle('hidden', !showPublic);
                 }
-
-                return isLive;
             },
 
             updateModeBadge(label) {
@@ -2263,20 +2590,12 @@ function doPost(e) {
                 tempTextarea.style.opacity = '0';
                 document.body.appendChild(tempTextarea);
                 tempTextarea.select();
-
                 let copied = false;
-                try {
-                    copied = document.execCommand('copy');
-                } catch (err) {
-                    copied = false;
-                }
+                try { copied = document.execCommand('copy'); } catch (e) { copied = false; }
                 document.body.removeChild(tempTextarea);
-
                 if (copied) {
                     if (feedback) feedback.classList.remove('hidden');
                     UIComponents.showToast('Kod Google Apps Script berjaya disalin.', 'success');
-                } else {
-                    UIComponents.showToast('Gagal menyalin kod secara automatik. Sila salin secara manual.', 'warning');
                 }
             },
 
@@ -2284,7 +2603,7 @@ function doPost(e) {
                 if (!url) return false;
                 try {
                     const parsed = new URL(url);
-                    return parsed.protocol === 'https:' && parsed.hostname.includes('script.google.com');
+                    return parsed.protocol === 'https:' && parsed.hostname.includes('script.google.com') && parsed.pathname.endsWith('/exec');
                 } catch (e) {
                     return false;
                 }
@@ -2294,71 +2613,38 @@ function doPost(e) {
                 if (this.isBusy) return;
                 const inputEl = document.getElementById('gas-url-saringan');
                 const url = inputEl ? inputEl.value.trim() : '';
-
                 if (!this.validateUrlFormat(url)) {
-                    UIComponents.showToast('Sila masukkan URL Google Apps Script (/exec) yang sah.', 'error');
+                    UIComponents.showToast('Sila masukkan URL HTTPS Google Apps Script yang sah dan berakhir dengan /exec.', 'error');
                     return;
                 }
-
                 this.isBusy = true;
-                this.lastTestPassed = false;
                 const currentOpToken = ++this.operationToken;
-                UIComponents.showLoading('Menguji Sambungan Google Apps Script...');
-
+                UIComponents.showLoading('Menguji Sambungan GAS...');
                 try {
                     const testUrl = new URL(url);
                     testUrl.searchParams.set('action', 'test');
-
-                    const res = await fetch(testUrl.toString(), { method: 'GET' });
+                    const res = await fetch(testUrl.toString());
                     if (currentOpToken !== this.operationToken) return;
                     if (!res.ok) throw new Error(`HTTP ${res.status}`);
-
                     const data = await res.json();
-                    if (currentOpToken !== this.operationToken) return;
-                    if (!data || data.module !== 'saringan') {
-                        throw new Error('Respons modul tidak sepadan dengan Acara Saringan.');
-                    }
-
-                    const foundTabs = Array.isArray(data.foundTabs) ? data.foundTabs : [];
-                    const missingTabs = Array.isArray(data.missingTabs)
-                        ? data.missingTabs
-                        : this.EXPECTED_TABS.filter(t => !foundTabs.includes(t));
-
-                    const nowText = SaringanModule.formatDateTime(new Date().toISOString());
-
-                    if (data.success === true && missingTabs.length === 0 && foundTabs.length === 9) {
+                    if (data && data.success === true) {
                         this.lastTestedUrl = url;
                         this.lastTestPassed = true;
                         this.updateStatusPanel({
                             connectionText: 'Berjaya Disambungkan',
                             connectionClass: 'text-emerald-700',
-                            updatedAt: nowText,
+                            updatedAt: SaringanModule.formatDateTime(new Date().toISOString()),
                             tabCountText: '9 / 9 Tab',
-                            detailText: 'Semua 9 tab (101, 102, 103, 104, 105, 106, 204, 205, 300) disahkan wujud.'
+                            detailText: 'Sambungan berjaya — 9/9 tab Google Sheets dikenal pasti.'
                         });
-                        UIComponents.showToast('Ujian sambungan berjaya! Semua 9 tab ditemui.', 'success');
+                        UIComponents.showToast('Sambungan berjaya — 9/9 tab Google Sheets dikenal pasti.', 'success');
                     } else {
-                        const missingMsg = missingTabs.length > 0
-                            ? `Tab hilang: ${missingTabs.join(', ')}`
-                            : 'Tidak semua 9 tab ditemui.';
-                        this.updateStatusPanel({
-                            connectionText: 'Gagal / Tab Tidak Lengkap',
-                            connectionClass: 'text-rose-700',
-                            updatedAt: nowText,
-                            tabCountText: `${foundTabs.length} / 9 Tab`,
-                            detailText: missingMsg
-                        });
-                        UIComponents.showToast(`Ujian gagal: ${missingMsg}`, 'error');
+                        throw new Error((data && data.message) || 'Tab tidak lengkap.');
                     }
                 } catch (err) {
-                    this.updateStatusPanel({
-                        connectionText: 'Sambungan Gagal',
-                        connectionClass: 'text-rose-700',
-                        updatedAt: SaringanModule.formatDateTime(new Date().toISOString()),
-                        tabCountText: '0 / 9 Tab',
-                        detailText: `Ralat sambungan: ${err.message}`
-                    });
-                    UIComponents.showToast(`Sambungan gagal: ${err.message}`, 'error');
+                    if (currentOpToken === this.operationToken) {
+                        UIComponents.showToast(`Ujian gagal: ${err.message}`, 'error');
+                    }
                 } finally {
                     if (currentOpToken === this.operationToken) {
                         this.isBusy = false;
@@ -2371,76 +2657,53 @@ function doPost(e) {
                 if (this.isBusy) return;
                 const inputEl = document.getElementById('gas-url-saringan');
                 const url = inputEl ? inputEl.value.trim() : '';
-
                 if (!this.validateUrlFormat(url)) {
-                    UIComponents.showToast('Sila masukkan URL Google Apps Script yang sah.', 'error');
+                    UIComponents.showToast('Sila masukkan URL HTTPS Google Apps Script (/exec) yang sah.', 'error');
                     return;
                 }
-
-                if (!this.lastTestPassed || this.lastTestedUrl !== url) {
-                    UIComponents.showToast('Sila tekan butang Uji dan pastikan sambungan URL ini berjaya sebelum Simpan.', 'warning');
-                    return;
-                }
-
                 this.isBusy = true;
                 const currentOpToken = ++this.operationToken;
-                UIComponents.showLoading('Mengimport Data 9 Tab Acara Saringan...');
-
+                UIComponents.showLoading('Mengimport Data 9 Tab...');
                 try {
                     const dataUrl = new URL(url);
                     dataUrl.searchParams.set('action', 'data');
-
-                    const res = await fetch(dataUrl.toString(), { method: 'GET' });
+                    const res = await fetch(dataUrl.toString());
                     if (currentOpToken !== this.operationToken) return;
                     if (!res.ok) throw new Error(`HTTP ${res.status}`);
-
                     const payload = await res.json();
-                    if (currentOpToken !== this.operationToken) return;
-                    if (!payload || payload.success !== true || payload.module !== 'saringan' || !payload.events) {
-                        throw new Error((payload && payload.message) ? payload.message : 'Struktur data GAS tidak sah.');
-                    }
-
-                    const missing = this.EXPECTED_TABS.filter(no => !payload.events[no]);
-                    if (missing.length > 0) {
-                        throw new Error(`Data tidak lengkap. Tab hilang: ${missing.join(', ')}`);
+                    if (!payload || payload.success !== true || !payload.events) {
+                        throw new Error((payload && payload.message) || 'Struktur data GAS tidak sah.');
                     }
 
                     const existingStore = StorageManager.getSaringanStore();
                     const nextEvents = {};
                     const nowIso = new Date().toISOString();
-
                     this.EXPECTED_TABS.forEach(evNo => {
-                        const prevEv = (existingStore.events && existingStore.events[evNo]) ? existingStore.events[evNo] : {};
-                        const incomingEv = payload.events[evNo] || {};
-
+                        const prevEv = (existingStore.events && existingStore.events[evNo]) || {};
+                        const inc = payload.events[evNo] || {};
                         nextEvents[evNo] = {
                             eventNo: evNo,
                             status: prevEv.status === 'DISAHKAN_RASMI' ? 'DISAHKAN_RASMI' : 'BELUM_SELESAI',
                             lelaki: {
-                                saringan1: Array.isArray(incomingEv.lelaki && incomingEv.lelaki.saringan1) ? incomingEv.lelaki.saringan1 : [],
-                                saringan2: Array.isArray(incomingEv.lelaki && incomingEv.lelaki.saringan2) ? incomingEv.lelaki.saringan2 : []
+                                saringan1: (inc.lelaki && inc.lelaki.saringan1) || [],
+                                saringan2: (inc.lelaki && inc.lelaki.saringan2) || []
                             },
                             perempuan: {
-                                saringan1: Array.isArray(incomingEv.perempuan && incomingEv.perempuan.saringan1) ? incomingEv.perempuan.saringan1 : [],
-                                saringan2: Array.isArray(incomingEv.perempuan && incomingEv.perempuan.saringan2) ? incomingEv.perempuan.saringan2 : []
+                                saringan1: (inc.perempuan && inc.perempuan.saringan1) || [],
+                                saringan2: (inc.perempuan && inc.perempuan.saringan2) || []
                             },
-                            updatedAt: nowIso,
-                            verifiedAt: prevEv.status === 'DISAHKAN_RASMI' ? (prevEv.verifiedAt || nowIso) : null
+                            updatedAt: nowIso
                         };
                     });
 
-                    if (currentOpToken !== this.operationToken) return;
-
                     StorageManager.saveSaringanStore({ events: nextEvents });
-
                     const statusObj = {
                         connectionText: 'Aktif & Disimpan',
                         connectionClass: 'text-emerald-700',
                         updatedAt: SaringanModule.formatDateTime(nowIso),
                         tabCountText: '9 / 9 Tab',
-                        detailText: 'Data daripada kesemua 9 tab berjaya dimuatkan ke modul Acara Saringan.'
+                        detailText: 'Data 9 tab Acara Saringan berjaya diimport dan disimpan.'
                     };
-
                     StorageManager.saveTournamentConfig({
                         saringanAppsScriptUrl: url,
                         saringanGasStatus: statusObj
@@ -2449,13 +2712,12 @@ function doPost(e) {
                     if (inputEl) inputEl.disabled = true;
                     this.updateModeBadge('Tersimpan (Terkunci)');
                     this.updateStatusPanel(statusObj);
-                    this.syncLiveIndicators();
-
-                    AppController.loadView('saringan');
-                    UIComponents.showToast('URL dan data 9 tab Acara Saringan berjaya disimpan!', 'success');
+                    this.syncLiveIndicators(AppController.currentView);
+                    if (AppController.currentView === 'saringan') AppController.loadView('saringan');
+                    UIComponents.showToast('Data Acara Saringan berjaya disimpan!', 'success');
                 } catch (err) {
                     if (currentOpToken === this.operationToken) {
-                        UIComponents.showToast(`Gagal mengimport data: ${err.message}. Data sedia ada dikekalkan.`, 'error');
+                        UIComponents.showToast(`Gagal mengimport data: ${err.message}`, 'error');
                     }
                 } finally {
                     if (currentOpToken === this.operationToken) {
@@ -2486,35 +2748,722 @@ function doPost(e) {
             },
 
             confirmDeleteUrl() {
-                // Batalkan sebarang permintaan import atau ujian GAS yang sedang berjalan
+                this.operationToken++;
+                this.isBusy = false;
+                UIComponents.hideLoading();
+
+                const nextConfig = { ...StorageManager.getTournamentConfig() };
+                delete nextConfig.saringanAppsScriptUrl;
+                delete nextConfig.saringanGasStatus;
+                window.localStorage.setItem(StorageManager.KEYS.CONFIG, JSON.stringify(nextConfig));
+                StorageManager.saveSaringanStore({ events: {} });
+                StorageManager.appendSaringanAuditLog({ action: 'HAPUS_KONFIGURASI_GAS' });
+
+                SaringanModule.selectedEventNo = null;
+                SaringanModule.editingCell = null;
+                SaringanModule.isSavingCell = false;
+                this.lastTestedUrl = null;
+                this.lastTestPassed = false;
+
+                const inputEl = document.getElementById('gas-url-saringan');
+                if (inputEl) {
+                    inputEl.value = '';
+                    inputEl.disabled = false;
+                }
+                this.cancelDeleteUrl();
+                this.updateModeBadge('Sedia Diisi');
+                this.updateStatusPanel({
+                    connectionText: 'Belum Dikonfigurasi',
+                    connectionClass: 'text-slate-600',
+                    updatedAt: '—',
+                    tabCountText: '0 / 9 Tab',
+                    detailText: 'URL Google Apps Script dipadam dan paparan Acara Saringan telah dikosongkan.'
+                });
+                this.syncLiveIndicators(AppController.currentView);
+
+                // Muat semula paparan Acara Saringan dan empat kad statistik
+                AppController.loadView('saringan');
+                UIComponents.showToast('URL Google Apps Script dipadam dan paparan Acara Saringan telah dikosongkan.', 'success');
+            }
+        };
+
+        /**
+         * 4I. PENGAWAL INTEGRASI GOOGLE APPS SCRIPT — AKHIR BALAPAN (AkhirBalapanGasController)
+         */
+        const AkhirBalapanGasController = {
+            EXPECTED_TABS: ['101', '102', '103', '104', '105', '106', '204', '205', '300'],
+            isBusy: false,
+            operationToken: 0,
+            lastTestedUrl: null,
+            lastTestPassed: false,
+
+            GAS_SOURCE_CODE: `/**
+ * STATISTIX HUB — GOOGLE APPS SCRIPT RASMI (AKHIR BALAPAN)
+ * Fail: Statistix_Akhir_Balapan_Code.gs
+ * Pemasangan: Bound Script pada Google Sheets Kejohanan
+ * Tab Wajib: 101, 102, 103, 104, 105, 106, 204, 205, 300
+ * Julat Bacaan: Lelaki A2:G13, Perempuan A16:G27
+ * Julat Suntingan Sah: Lelaki F6:G13, Perempuan F20:G27
+ */
+
+var AKHIR_BALAPAN_TABS = ['101', '102', '103', '104', '105', '106', '204', '205', '300'];
+
+function jsonResponseAB_(payload) {
+  return ContentService
+    .createTextOutput(JSON.stringify(payload))
+    .setMimeType(ContentService.MimeType.JSON);
+}
+
+function doGet(e) {
+  try {
+    var params = (e && e.parameter) ? e.parameter : {};
+    var action = String(params.action || 'test').toLowerCase();
+    var ss = SpreadsheetApp.getActiveSpreadsheet();
+
+    if (action === 'test') {
+      var missingTabs = [];
+      var foundTabs = [];
+      for (var i = 0; i < AKHIR_BALAPAN_TABS.length; i++) {
+        var tabName = AKHIR_BALAPAN_TABS[i];
+        if (ss.getSheetByName(tabName)) {
+          foundTabs.push(tabName);
+        } else {
+          missingTabs.push(tabName);
+        }
+      }
+      return jsonResponseAB_({
+        success: missingTabs.length === 0,
+        module: 'akhir-balapan',
+        spreadsheetName: ss.getName(),
+        foundTabs: foundTabs,
+        missingTabs: missingTabs,
+        totalExpected: AKHIR_BALAPAN_TABS.length,
+        timestamp: new Date().toISOString()
+      });
+    }
+
+    if (action === 'data') {
+      var eventsData = {};
+      var missing = [];
+
+      for (var j = 0; j < AKHIR_BALAPAN_TABS.length; j++) {
+        var evNo = AKHIR_BALAPAN_TABS[j];
+        var sheet = ss.getSheetByName(evNo);
+        if (!sheet) {
+          missing.push(evNo);
+          continue;
+        }
+        eventsData[evNo] = {
+          eventNo: evNo,
+          lelaki: readAkhirRows_(sheet, 2, 13),
+          perempuan: readAkhirRows_(sheet, 16, 27)
+        };
+      }
+
+      if (missing.length > 0) {
+        return jsonResponseAB_({
+          success: false,
+          module: 'akhir-balapan',
+          message: 'Tab hilang: ' + missing.join(', '),
+          missingTabs: missing
+        });
+      }
+
+      return jsonResponseAB_({
+        success: true,
+        module: 'akhir-balapan',
+        events: eventsData,
+        timestamp: new Date().toISOString()
+      });
+    }
+
+    return jsonResponseAB_({
+      success: false,
+      module: 'akhir-balapan',
+      message: 'Parameter action tidak sah.'
+    });
+  } catch (err) {
+    return jsonResponseAB_({
+      success: false,
+      module: 'akhir-balapan',
+      message: String(err && err.message ? err.message : err)
+    });
+  }
+}
+
+function readAkhirRows_(sheet, startRow, endRow) {
+  var numRows = endRow - startRow + 1;
+  var values = sheet.getRange(startRow, 1, numRows, 7).getDisplayValues();
+  var list = [];
+
+  for (var i = 0; i < values.length; i++) {
+    var row = values[i];
+    var lorong = String(row[0] || '').trim();    // A
+    var namaAtlet = String(row[1] || '').trim(); // B (merged B:C, baca B sahaja)
+    var pasukan = String(row[3] || '').trim();   // D
+    var noBib = String(row[4] || '').trim();     // E
+    var kedudukan = String(row[5] || '').trim(); // F
+    var masa = String(row[6] || '').trim();      // G
+
+    if (!lorong && !namaAtlet && !pasukan && !noBib && !kedudukan && !masa) {
+      continue;
+    }
+
+    list.push({
+      sheetRow: startRow + i,
+      lorong: lorong,
+      namaAtlet: namaAtlet,
+      pasukan: pasukan,
+      noBib: noBib,
+      kedudukan: kedudukan,
+      masa: masa
+    });
+  }
+  return list;
+}
+
+function doPost(e) {
+  var lock = LockService.getScriptLock();
+  lock.waitLock(10000);
+  try {
+    var params = (e && e.parameter) ? e.parameter : {};
+    var action = String(params.action || '').toLowerCase();
+    if (action !== 'update') {
+      return jsonResponseAB_({ success: false, message: 'Tindakan POST tidak disokong.' });
+    }
+
+    var eventNo = String(params.eventNo || '').trim();
+    var gender = String(params.gender || '').trim().toLowerCase();
+    var sheetRow = parseInt(params.sheetRow, 10);
+    var noBib = String(params.noBib || '').trim();
+    var field = String(params.field || '').trim().toLowerCase();
+    var expectedValue = String(params.expectedValue || '').trim();
+    var newValue = String(params.value || '').trim();
+
+    if (AKHIR_BALAPAN_TABS.indexOf(eventNo) === -1) {
+      return jsonResponseAB_({ success: false, message: 'Nombor acara tidak sah.' });
+    }
+    if (gender !== 'lelaki' && gender !== 'perempuan') {
+      return jsonResponseAB_({ success: false, message: 'Kategori tidak sah.' });
+    }
+
+    var validRow = (gender === 'lelaki' && sheetRow >= 6 && sheetRow <= 13) ||
+                   (gender === 'perempuan' && sheetRow >= 20 && sheetRow <= 27);
+    if (!validRow) {
+      return jsonResponseAB_({
+        success: false,
+        message: 'Baris ' + sheetRow + ' di luar julat suntingan sah (Lelaki F6:G13, Perempuan F20:G27).'
+      });
+    }
+
+    var targetCol = null;
+    if (field === 'kedudukan') targetCol = 6; // Kolum F
+    if (field === 'masa') targetCol = 7;      // Kolum G
+    if (!targetCol) {
+      return jsonResponseAB_({ success: false, message: 'Medan suntingan tidak dibenarkan (hanya Kedudukan & Masa).' });
+    }
+
+    var ss = SpreadsheetApp.getActiveSpreadsheet();
+    var sheet = ss.getSheetByName(eventNo);
+    if (!sheet) {
+      return jsonResponseAB_({ success: false, message: 'Tab ' + eventNo + ' tidak ditemui.' });
+    }
+
+    var currentBib = String(sheet.getRange(sheetRow, 5).getDisplayValue() || '').trim(); // Kolum E
+    if (noBib && currentBib && currentBib !== noBib) {
+      return jsonResponseAB_({ success: false, message: 'Konflik No Bib pada baris ' + sheetRow });
+    }
+
+    var cell = sheet.getRange(sheetRow, targetCol);
+    var currentVal = String(cell.getDisplayValue() || '').trim();
+    if (currentVal !== expectedValue) {
+      return jsonResponseAB_({
+        success: false,
+        message: 'Konflik data dikesan. Nilai semasa dalam Sheet ialah "' + currentVal + '".'
+      });
+    }
+
+    cell.setValue(newValue);
+    SpreadsheetApp.flush();
+
+    return jsonResponseAB_({
+      success: true,
+      module: 'akhir-balapan',
+      eventNo: eventNo,
+      gender: gender,
+      sheetRow: sheetRow,
+      field: field,
+      value: newValue,
+      updatedAt: new Date().toISOString()
+    });
+  } catch (err) {
+    return jsonResponseAB_({
+      success: false,
+      message: String(err && err.message ? err.message : err)
+    });
+  } finally {
+    lock.releaseLock();
+  }
+}`,
+
+            init() {
+                const codeEl = document.getElementById('akhir-balapan-gas-code-display');
+                if (codeEl) {
+                    codeEl.textContent = this.GAS_SOURCE_CODE;
+                }
+
+                const config = StorageManager.getTournamentConfig();
+                const inputEl = document.getElementById('gas-url-akhir-balapan');
+                if (inputEl && config.akhirBalapanAppsScriptUrl) {
+                    inputEl.value = config.akhirBalapanAppsScriptUrl;
+                    inputEl.disabled = true;
+                    this.updateModeBadge('Tersimpan (Terkunci)');
+                }
+
+                if (config.akhirBalapanGasStatus) {
+                    this.updateStatusPanel(config.akhirBalapanGasStatus);
+                }
+
+                document.addEventListener('keydown', (e) => {
+                    if (e.key === 'Escape') {
+                        const modal = document.getElementById('modal-akhir-balapan-gas-code');
+                        if (modal && !modal.classList.contains('hidden')) {
+                            this.closeGasModal();
+                        }
+                    }
+                });
+            },
+
+            updateModeBadge(label) {
+                const badge = document.getElementById('akhir-balapan-url-mode-badge');
+                if (badge) badge.textContent = label;
+            },
+
+            updateStatusPanel({ connectionText, connectionClass, updatedAt, tabCountText, detailText }) {
+                const connEl = document.getElementById('akhir-balapan-status-connection');
+                const updEl = document.getElementById('akhir-balapan-status-updated');
+                const tabEl = document.getElementById('akhir-balapan-status-tabs');
+                const detEl = document.getElementById('akhir-balapan-status-detail');
+
+                if (connEl && connectionText) {
+                    connEl.textContent = connectionText;
+                    connEl.className = `font-bold mt-1 ${connectionClass || 'text-navy-primary'}`;
+                }
+                if (updEl && updatedAt) updEl.textContent = updatedAt;
+                if (tabEl && tabCountText) tabEl.textContent = tabCountText;
+                if (detEl && detailText) detEl.textContent = detailText;
+            },
+
+            openGasModal() {
+                const modal = document.getElementById('modal-akhir-balapan-gas-code');
+                const codeEl = document.getElementById('akhir-balapan-gas-code-display');
+                const feedback = document.getElementById('akhir-balapan-copy-feedback');
+                if (codeEl) codeEl.textContent = this.GAS_SOURCE_CODE;
+                if (feedback) feedback.classList.add('hidden');
+                if (modal) {
+                    modal.classList.remove('hidden');
+                    lucide.createIcons();
+                }
+            },
+
+            closeGasModal() {
+                const modal = document.getElementById('modal-akhir-balapan-gas-code');
+                if (modal) modal.classList.add('hidden');
+            },
+
+            copyGasCode() {
+                const feedback = document.getElementById('akhir-balapan-copy-feedback');
+                const tempTextarea = document.createElement('textarea');
+                tempTextarea.value = this.GAS_SOURCE_CODE;
+                tempTextarea.style.position = 'fixed';
+                tempTextarea.style.opacity = '0';
+                document.body.appendChild(tempTextarea);
+                tempTextarea.select();
+
+                let copied = false;
+                try {
+                    copied = document.execCommand('copy');
+                } catch (err) {
+                    copied = false;
+                }
+                document.body.removeChild(tempTextarea);
+
+                if (copied) {
+                    if (feedback) feedback.classList.remove('hidden');
+                    UIComponents.showToast('Kod Google Apps Script Akhir Balapan berjaya disalin.', 'success');
+                } else {
+                    UIComponents.showToast('Gagal menyalin kod secara automatik. Sila salin secara manual.', 'warning');
+                }
+            },
+
+            validateUrlFormat(url) {
+                if (!url) return false;
+                try {
+                    const parsed = new URL(url);
+                    return parsed.protocol === 'https:' &&
+                           parsed.hostname.includes('script.google.com') &&
+                           parsed.pathname.endsWith('/exec');
+                } catch (e) {
+                    return false;
+                }
+            },
+
+            importAndNormalizeData(rawEvents, existingEvents = {}) {
+                const nextEvents = {};
+                const nowIso = new Date().toISOString();
+
+                this.EXPECTED_TABS.forEach(evNo => {
+                    const prevEv = existingEvents[evNo] || {};
+                    const incomingEv = rawEvents[evNo] || {};
+
+                    const normalizeRows = (rows, minRow, maxRow) => {
+                        if (!Array.isArray(rows)) return [];
+                        return rows
+                            .filter(r => r && Number(r.sheetRow) >= minRow && Number(r.sheetRow) <= maxRow)
+                            .map(r => ({
+                                sheetRow: Number(r.sheetRow),
+                                lorong: String(r.lorong || '').trim(),
+                                namaAtlet: String(r.namaAtlet || '').trim(),
+                                pasukan: String(r.pasukan || '').trim(),
+                                noBib: String(r.noBib || '').trim(),
+                                kedudukan: String(r.kedudukan || '').trim(),
+                                masa: String(r.masa || '').trim()
+                            }));
+                    };
+
+                    nextEvents[evNo] = {
+                        eventNo: evNo,
+                        status: prevEv.status === 'DISAHKAN_RASMI' ? 'DISAHKAN_RASMI' : 'BELUM_SELESAI',
+                        lelaki: normalizeRows(incomingEv.lelaki, 2, 13),
+                        perempuan: normalizeRows(incomingEv.perempuan, 16, 27),
+                        updatedAt: nowIso,
+                        verifiedAt: prevEv.status === 'DISAHKAN_RASMI' ? (prevEv.verifiedAt || nowIso) : null
+                    };
+                });
+
+                return { nextEvents, nowIso };
+            },
+
+            async testConnection() {
+                if (this.isBusy) return;
+                const inputEl = document.getElementById('gas-url-akhir-balapan');
+                const url = inputEl ? inputEl.value.trim() : '';
+
+                if (!this.validateUrlFormat(url)) {
+                    UIComponents.showToast('Sila masukkan URL HTTPS Google Apps Script yang sah dan berakhir dengan /exec.', 'error');
+                    return;
+                }
+
+                this.isBusy = true;
+                this.lastTestPassed = false;
+                const currentOpToken = ++this.operationToken;
+                UIComponents.showLoading('Menguji Sambungan GAS Akhir Balapan...');
+
+                try {
+                    const testUrl = new URL(url);
+                    testUrl.searchParams.set('action', 'test');
+
+                    const res = await fetch(testUrl.toString(), { method: 'GET' });
+                    if (currentOpToken !== this.operationToken) return;
+                    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+
+                    const data = await res.json();
+                    if (currentOpToken !== this.operationToken) return;
+                    if (!data || data.module !== 'akhir-balapan') {
+                        throw new Error('Respons modul tidak sepadan dengan Akhir Balapan.');
+                    }
+
+                    const foundTabs = Array.isArray(data.foundTabs) ? data.foundTabs : [];
+                    const missingTabs = Array.isArray(data.missingTabs)
+                        ? data.missingTabs
+                        : this.EXPECTED_TABS.filter(t => !foundTabs.includes(t));
+
+                    const nowText = SaringanModule.formatDateTime(new Date().toISOString());
+
+                    if (data.success === true && missingTabs.length === 0 && foundTabs.length === 9) {
+                        this.lastTestedUrl = url;
+                        this.lastTestPassed = true;
+                        this.updateStatusPanel({
+                            connectionText: 'Berjaya Disambungkan',
+                            connectionClass: 'text-emerald-700',
+                            updatedAt: nowText,
+                            tabCountText: '9 / 9 Tab',
+                            detailText: 'Sambungan berjaya — 9/9 tab Google Sheets dikenal pasti.'
+                        });
+                        UIComponents.showToast('Sambungan berjaya — 9/9 tab Google Sheets dikenal pasti.', 'success');
+                    } else {
+                        const missingMsg = missingTabs.length > 0
+                            ? `Tab tidak ditemui: ${missingTabs.join(', ')}`
+                            : 'Tidak semua 9 tab ditemui.';
+                        this.updateStatusPanel({
+                            connectionText: 'Gagal / Tab Tidak Lengkap',
+                            connectionClass: 'text-rose-700',
+                            updatedAt: nowText,
+                            tabCountText: `${foundTabs.length} / 9 Tab`,
+                            detailText: missingMsg
+                        });
+                        UIComponents.showToast(`Ujian gagal: ${missingMsg}`, 'error');
+                    }
+                } catch (err) {
+                    if (currentOpToken === this.operationToken) {
+                        this.updateStatusPanel({
+                            connectionText: 'Sambungan Gagal',
+                            connectionClass: 'text-rose-700',
+                            updatedAt: SaringanModule.formatDateTime(new Date().toISOString()),
+                            tabCountText: '0 / 9 Tab',
+                            detailText: `Ralat sambungan: ${err.message}`
+                        });
+                        UIComponents.showToast(`Sambungan gagal: ${err.message}`, 'error');
+                    }
+                } finally {
+                    if (currentOpToken === this.operationToken) {
+                        this.isBusy = false;
+                        UIComponents.hideLoading();
+                    }
+                }
+            },
+
+            async saveAndImportData() {
+                if (this.isBusy) return;
+                const inputEl = document.getElementById('gas-url-akhir-balapan');
+                const url = inputEl ? inputEl.value.trim() : '';
+
+                if (!this.validateUrlFormat(url)) {
+                    UIComponents.showToast('Sila masukkan URL HTTPS Google Apps Script (/exec) yang sah.', 'error');
+                    return;
+                }
+
+                this.isBusy = true;
+                const currentOpToken = ++this.operationToken;
+                UIComponents.showLoading('Menguji & Mengimport Data 9 Tab Akhir Balapan...');
+
+                try {
+                    if (!this.lastTestPassed || this.lastTestedUrl !== url) {
+                        const testUrl = new URL(url);
+                        testUrl.searchParams.set('action', 'test');
+                        const testRes = await fetch(testUrl.toString(), { method: 'GET' });
+                        if (currentOpToken !== this.operationToken) return;
+                        if (!testRes.ok) throw new Error(`HTTP ${testRes.status}`);
+
+                        const testData = await testRes.json();
+                        if (currentOpToken !== this.operationToken) return;
+                        if (!testData || testData.module !== 'akhir-balapan' || testData.success !== true) {
+                            const missing = (testData && Array.isArray(testData.missingTabs) && testData.missingTabs.length > 0)
+                                ? `Tab tidak ditemui: ${testData.missingTabs.join(', ')}`
+                                : ((testData && testData.message) || 'Ujian sambungan modul akhir-balapan gagal.');
+                            throw new Error(missing);
+                        }
+                        this.lastTestedUrl = url;
+                        this.lastTestPassed = true;
+                    }
+
+                    const dataUrl = new URL(url);
+                    dataUrl.searchParams.set('action', 'data');
+
+                    const res = await fetch(dataUrl.toString(), { method: 'GET' });
+                    if (currentOpToken !== this.operationToken) return;
+                    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+
+                    const payload = await res.json();
+                    if (currentOpToken !== this.operationToken) return;
+                    if (!payload || payload.success !== true || payload.module !== 'akhir-balapan' || !payload.events) {
+                        throw new Error((payload && payload.message) ? payload.message : 'Struktur data GAS Akhir Balapan tidak sah.');
+                    }
+
+                    const missing = this.EXPECTED_TABS.filter(no => !payload.events[no]);
+                    if (missing.length > 0) {
+                        throw new Error(`Data tidak lengkap. Tab tidak ditemui: ${missing.join(', ')}`);
+                    }
+
+                    const existingStore = StorageManager.getAkhirBalapanStore();
+                    const { nextEvents, nowIso } = this.importAndNormalizeData(payload.events, existingStore.events || {});
+
+                    if (currentOpToken !== this.operationToken) return;
+
+                    const savedStore = StorageManager.saveAkhirBalapanStore({ events: nextEvents });
+                    if (!savedStore) {
+                        throw new Error('Gagal menyimpan rekod Akhir Balapan dalam storan tempatan.');
+                    }
+
+                    const statusObj = {
+                        connectionText: 'Aktif & Disimpan',
+                        connectionClass: 'text-emerald-700',
+                        updatedAt: SaringanModule.formatDateTime(nowIso),
+                        tabCountText: '9 / 9 Tab',
+                        detailText: 'Sambungan berjaya — 9/9 tab Google Sheets dikenal pasti dan dimuatkan ke Akhir Balapan.'
+                    };
+
+                    const savedCfg = StorageManager.saveTournamentConfig({
+                        akhirBalapanAppsScriptUrl: url,
+                        akhirBalapanGasStatus: statusObj
+                    });
+                    if (!savedCfg) {
+                        throw new Error('Gagal menyimpan URL GAS Akhir Balapan.');
+                    }
+
+                    StorageManager.appendAkhirBalapanAuditLog({
+                        action: 'IMPORT_DATA_GAS',
+                        tabsImported: this.EXPECTED_TABS.length
+                    });
+
+                    if (inputEl) inputEl.disabled = true;
+                    this.updateModeBadge('Tersimpan (Terkunci)');
+                    this.updateStatusPanel(statusObj);
+
+                    if (AppController.currentView === 'akhir-balapan') {
+                        AppController.loadView('akhir-balapan');
+                    }
+                    UIComponents.showToast('Sambungan berjaya — 9/9 tab Akhir Balapan disimpan!', 'success');
+                } catch (err) {
+                    if (currentOpToken === this.operationToken) {
+                        UIComponents.showToast(`Gagal mengimport data: ${err.message}. Data sedia ada dikekalkan.`, 'error');
+                    }
+                } finally {
+                    if (currentOpToken === this.operationToken) {
+                        this.isBusy = false;
+                        UIComponents.hideLoading();
+                    }
+                }
+            },
+
+            async updateCell({ eventNo, gender, sheetRow, noBib, field, expectedValue, value }) {
+                const config = StorageManager.getTournamentConfig();
+                const gasUrl = String(config.akhirBalapanAppsScriptUrl || '').trim();
+                if (!gasUrl) {
+                    UIComponents.showToast('URL Google Apps Script Akhir Balapan belum ditetapkan dalam Panel Admin.', 'error');
+                    return { success: false };
+                }
+
+                const store = StorageManager.getAkhirBalapanStore();
+                const ev = store.events && store.events[eventNo];
+                if (!ev || ev.status === 'DISAHKAN_RASMI') {
+                    UIComponents.showToast('Tidak dapat menyimpan kerana acara telah disahkan rasmi.', 'error');
+                    return { success: false };
+                }
+
+                if (!AkhirBalapanModule.isEditableCell(gender, sheetRow, field)) {
+                    UIComponents.showToast('Julat suntingan tidak dibenarkan.', 'error');
+                    return { success: false };
+                }
+
+                try {
+                    const bodyParams = new URLSearchParams();
+                    bodyParams.set('action', 'update');
+                    bodyParams.set('eventNo', String(eventNo));
+                    bodyParams.set('gender', String(gender));
+                    bodyParams.set('sheetRow', String(sheetRow));
+                    bodyParams.set('noBib', String(noBib || ''));
+                    bodyParams.set('field', String(field));
+                    bodyParams.set('expectedValue', String(expectedValue || ''));
+                    bodyParams.set('value', String(value || ''));
+
+                    const response = await fetch(gasUrl, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8'
+                        },
+                        body: bodyParams.toString()
+                    });
+
+                    if (!response.ok) {
+                        throw new Error(`Status pelayan HTTP ${response.status}`);
+                    }
+
+                    const result = await response.json();
+                    if (!result || result.success !== true) {
+                        throw new Error((result && result.message) ? result.message : 'Kemas kini ditolak oleh Google Sheets.');
+                    }
+
+                    // Muat semula data untuk acara berkaitan selepas kemas kini disahkan
+                    try {
+                        const refreshUrl = new URL(gasUrl);
+                        refreshUrl.searchParams.set('action', 'data');
+                        const refreshRes = await fetch(refreshUrl.toString(), { method: 'GET' });
+                        if (refreshRes.ok) {
+                            const refreshPayload = await refreshRes.json();
+                            if (refreshPayload && refreshPayload.success === true && refreshPayload.events && refreshPayload.events[eventNo]) {
+                                const { nextEvents } = this.importAndNormalizeData(refreshPayload.events, store.events || {});
+                                if (nextEvents[eventNo]) {
+                                    store.events[eventNo] = nextEvents[eventNo];
+                                }
+                            }
+                        }
+                    } catch (refreshErr) {
+                        const rows = ev[gender] || [];
+                        const targetAthlete = rows.find(r => Number(r.sheetRow) === Number(sheetRow));
+                        if (targetAthlete) {
+                            targetAthlete[field] = value;
+                        }
+                        ev.updatedAt = result.updatedAt || new Date().toISOString();
+                    }
+
+                    StorageManager.saveAkhirBalapanStore(store);
+                    StorageManager.appendAkhirBalapanAuditLog({
+                        action: 'KEMASKINI_KEPUTUSAN_GS',
+                        eventNo,
+                        gender,
+                        sheetRow: Number(sheetRow),
+                        field,
+                        oldValue: expectedValue,
+                        newValue: value
+                    });
+
+                    UIComponents.showToast('Keputusan Akhir Balapan berjaya dikemas kini dalam Google Sheets!', 'success');
+                    return { success: true };
+                } catch (err) {
+                    UIComponents.showToast(`Gagal mengemas kini: ${err.message}`, 'error');
+                    return { success: false, message: err.message };
+                }
+            },
+
+            enableEditMode() {
+                const inputEl = document.getElementById('gas-url-akhir-balapan');
+                if (!inputEl) return;
+                inputEl.disabled = false;
+                inputEl.focus();
+                this.lastTestPassed = false;
+                this.updateModeBadge('Mod Suntingan Aktif');
+                UIComponents.showToast('Masukkan URL baharu, tekan Uji dan kemudian Simpan.', 'info');
+            },
+
+            requestDeleteUrl() {
+                const confirmBox = document.getElementById('akhir-balapan-delete-confirm-box');
+                if (confirmBox) confirmBox.classList.remove('hidden');
+            },
+
+            cancelDeleteUrl() {
+                const confirmBox = document.getElementById('akhir-balapan-delete-confirm-box');
+                if (confirmBox) confirmBox.classList.add('hidden');
+            },
+
+            confirmDeleteUrl() {
                 this.operationToken++;
                 this.isBusy = false;
                 UIComponents.hideLoading();
 
                 const prevConfig = StorageManager.getTournamentConfig();
-                const prevStore = StorageManager.getSaringanStore();
+                const prevStore = StorageManager.getAkhirBalapanStore();
 
                 try {
                     const nextConfig = { ...prevConfig };
-                    delete nextConfig.saringanAppsScriptUrl;
-                    delete nextConfig.saringanGasStatus;
+                    delete nextConfig.akhirBalapanAppsScriptUrl;
+                    delete nextConfig.akhirBalapanGasStatus;
                     window.localStorage.setItem(StorageManager.KEYS.CONFIG, JSON.stringify(nextConfig));
 
-                    const storeSaved = StorageManager.saveSaringanStore({ events: {} });
+                    const storeSaved = StorageManager.saveAkhirBalapanStore({ events: {} });
                     if (!storeSaved) {
-                        throw new Error('Gagal mengosongkan snapshot Acara Saringan dalam storan tempatan.');
+                        throw new Error('Gagal mengosongkan snapshot Akhir Balapan dalam storan tempatan.');
                     }
 
                     const verifyConfig = StorageManager.getTournamentConfig();
-                    const verifyStore = StorageManager.getSaringanStore();
-                    if (verifyConfig.saringanAppsScriptUrl || Object.keys(verifyStore.events || {}).length > 0) {
+                    const verifyStore = StorageManager.getAkhirBalapanStore();
+                    if (verifyConfig.akhirBalapanAppsScriptUrl || Object.keys(verifyStore.events || {}).length > 0) {
                         throw new Error('Pengesahan pemadaman dalam LocalStorage gagal.');
                     }
                 } catch (err) {
-                    // Rollback selamat sekiranya penyimpanan gagal
                     try {
                         window.localStorage.setItem(StorageManager.KEYS.CONFIG, JSON.stringify(prevConfig));
-                        StorageManager.saveSaringanStore(prevStore);
+                        StorageManager.saveAkhirBalapanStore(prevStore);
                     } catch (rollbackErr) {
                         console.error('Rollback gagal:', rollbackErr);
                     }
@@ -2522,16 +3471,18 @@ function doPost(e) {
                     return;
                 }
 
-                // Set semula keadaan modul Acara Saringan
-                SaringanModule.selectedEventNo = null;
-                SaringanModule.editingCell = null;
-                SaringanModule.isSavingCell = false;
+                StorageManager.appendAkhirBalapanAuditLog({
+                    action: 'HAPUS_KONFIGURASI_GAS'
+                });
 
-                // Set semula status ujian & UI Panel Admin
+                AkhirBalapanModule.selectedEventNo = null;
+                AkhirBalapanModule.editingCell = null;
+                AkhirBalapanModule.isSavingCell = false;
+
                 this.lastTestedUrl = null;
                 this.lastTestPassed = false;
 
-                const inputEl = document.getElementById('gas-url-saringan');
+                const inputEl = document.getElementById('gas-url-akhir-balapan');
                 if (inputEl) {
                     inputEl.value = '';
                     inputEl.disabled = false;
@@ -2544,13 +3495,13 @@ function doPost(e) {
                     connectionClass: 'text-slate-600',
                     updatedAt: '—',
                     tabCountText: '0 / 9 Tab',
-                    detailText: 'URL Google Apps Script dipadam dan paparan Acara Saringan telah dikosongkan. Google Sheets asal dan log audit kekal terpelihara.'
+                    detailText: 'URL Google Apps Script dipadam dan paparan Akhir Balapan telah dikosongkan. Google Sheets asal dan log audit kekal terpelihara.'
                 });
-                this.syncLiveIndicators();
 
-                // Muat semula paparan Acara Saringan dan empat kad statistik
-                AppController.loadView('saringan');
-                UIComponents.showToast('URL Google Apps Script dipadam dan paparan Acara Saringan telah dikosongkan.', 'success');
+                if (AppController.currentView === 'akhir-balapan') {
+                    AppController.loadView('akhir-balapan');
+                }
+                UIComponents.showToast('URL Google Apps Script dipadam dan paparan Akhir Balapan telah dikosongkan.', 'success');
             }
         };
 
@@ -2565,6 +3516,7 @@ function doPost(e) {
                 this.renderNavigation();
                 AdminNavigation.init();
                 SaringanGasController.init();
+                AkhirBalapanGasController.init();
                 this.loadView(this.currentView);
                 lucide.createIcons();
             },
@@ -2673,9 +3625,11 @@ function doPost(e) {
                     ]);
                     if (stageEl) stageEl.innerHTML = SaringanModule.renderPublicView();
                 } else if (viewId === 'akhir-balapan') {
-                    const events = Object.values(StorageManager.getAkhirBalapanStore().events || {});
+                    const hasActiveConn = AkhirBalapanModule.hasValidActiveConnection();
+                    const store = hasActiveConn ? StorageManager.getAkhirBalapanStore() : { events: {} };
+                    const events = Object.values(store.events || {});
                     UIComponents.renderSummaryCards([
-                        { label: 'Acara Akhir', value: events.length, icon: 'flag' },
+                        { label: 'Acara Akhir', value: `${events.length} / 9`, icon: 'flag' },
                         { label: 'Disahkan Rasmi', value: events.filter(e => e.status === 'DISAHKAN_RASMI').length, icon: 'shield-check' },
                         { label: 'Belum Selesai', value: events.filter(e => e.status !== 'DISAHKAN_RASMI').length, icon: 'clock' },
                         { label: 'Modul', value: 'Balapan', icon: 'activity' }
