@@ -3775,27 +3775,57 @@ function jsonResponse_(obj) {
             },
 
             openGasModal() {
+                const codeDisplay = document.getElementById('saringan-gas-code-display');
+                if (codeDisplay) codeDisplay.textContent = this.GAS_SOURCE_CODE;
                 const modal = document.getElementById('modal-saringan-gas-code');
+                if (modal) modal.classList.add('flex');
                 if (modal) modal.classList.remove('hidden');
             },
 
             closeGasModal() {
                 const modal = document.getElementById('modal-saringan-gas-code');
                 if (modal) modal.classList.add('hidden');
+                if (modal) modal.classList.remove('flex');
             },
 
             async copyGasCode() {
+                const codeText = this.GAS_SOURCE_CODE;
                 try {
-                    await navigator.clipboard.writeText(this.GAS_SOURCE_CODE);
-                    const fb = document.getElementById('saringan-copy-feedback');
-                    if (fb) {
-                        fb.classList.remove('hidden');
-                        setTimeout(() => fb.classList.add('hidden'), 2500);
+                    if (navigator.clipboard && window.isSecureContext) {
+                        await navigator.clipboard.writeText(codeText);
+                        this.showCopyFeedback();
+                        return;
                     }
-                    UIComponents.showToast('Kod GAS Acara Saringan disalin.', 'success');
-                } catch (err) {
-                    UIComponents.showToast('Gagal menyalin kod secara automatik.', 'error');
+                } catch (e) {}
+
+                try {
+                    const ta = document.createElement('textarea');
+                    ta.value = codeText;
+                    ta.style.position = 'fixed';
+                    ta.style.top = '0';
+                    ta.style.left = '0';
+                    ta.style.opacity = '0';
+                    document.body.appendChild(ta);
+                    ta.focus();
+                    ta.select();
+                    const success = document.execCommand('copy');
+                    ta.remove();
+                    if (success) {
+                        this.showCopyFeedback();
+                        return;
+                    }
+                } catch (err) {}
+
+                UIComponents.showToast('Sila salin kod secara manual daripada kotak kod di atas.', 'warning');
+            },
+
+            showCopyFeedback() {
+                const fb = document.getElementById('saringan-copy-feedback');
+                if (fb) {
+                    fb.classList.remove('hidden');
+                    setTimeout(() => fb.classList.add('hidden'), 2500);
                 }
+                UIComponents.showToast('Kod GAS Acara Saringan berjaya disalin!', 'success');
             },
 
             enableEditMode() {
@@ -4193,27 +4223,57 @@ function jsonResponse_(obj) {
             },
 
             openGasModal() {
+                const codeDisplay = document.getElementById('akhir-balapan-gas-code-display');
+                if (codeDisplay) codeDisplay.textContent = this.GAS_SOURCE_CODE;
                 const modal = document.getElementById('modal-akhir-balapan-gas-code');
+                if (modal) modal.classList.add('flex');
                 if (modal) modal.classList.remove('hidden');
             },
 
             closeGasModal() {
                 const modal = document.getElementById('modal-akhir-balapan-gas-code');
                 if (modal) modal.classList.add('hidden');
+                if (modal) modal.classList.remove('flex');
             },
 
             async copyGasCode() {
+                const codeText = this.GAS_SOURCE_CODE;
                 try {
-                    await navigator.clipboard.writeText(this.GAS_SOURCE_CODE);
-                    const fb = document.getElementById('akhir-balapan-copy-feedback');
-                    if (fb) {
-                        fb.classList.remove('hidden');
-                        setTimeout(() => fb.classList.add('hidden'), 2500);
+                    if (navigator.clipboard && window.isSecureContext) {
+                        await navigator.clipboard.writeText(codeText);
+                        this.showCopyFeedback();
+                        return;
                     }
-                    UIComponents.showToast('Kod GAS Akhir Balapan disalin.', 'success');
-                } catch (err) {
-                    UIComponents.showToast('Gagal menyalin kod.', 'error');
+                } catch (e) {}
+
+                try {
+                    const ta = document.createElement('textarea');
+                    ta.value = codeText;
+                    ta.style.position = 'fixed';
+                    ta.style.top = '0';
+                    ta.style.left = '0';
+                    ta.style.opacity = '0';
+                    document.body.appendChild(ta);
+                    ta.focus();
+                    ta.select();
+                    const success = document.execCommand('copy');
+                    ta.remove();
+                    if (success) {
+                        this.showCopyFeedback();
+                        return;
+                    }
+                } catch (err) {}
+
+                UIComponents.showToast('Sila salin kod secara manual daripada kotak kod di atas.', 'warning');
+            },
+
+            showCopyFeedback() {
+                const fb = document.getElementById('akhir-balapan-copy-feedback');
+                if (fb) {
+                    fb.classList.remove('hidden');
+                    setTimeout(() => fb.classList.add('hidden'), 2500);
                 }
+                UIComponents.showToast('Kod GAS Akhir Balapan berjaya disalin!', 'success');
             },
 
             enableEditMode() {
@@ -4715,27 +4775,57 @@ function jsonResponse_(obj) {
             },
 
             openGasModal() {
+                const codeDisplay = document.getElementById('relay-gas-code-display');
+                if (codeDisplay) codeDisplay.textContent = this.GAS_SOURCE_CODE;
                 const modal = document.getElementById('modal-relay-gas-code');
+                if (modal) modal.classList.add('flex');
                 if (modal) modal.classList.remove('hidden');
             },
 
             closeGasModal() {
                 const modal = document.getElementById('modal-relay-gas-code');
                 if (modal) modal.classList.add('hidden');
+                if (modal) modal.classList.remove('flex');
             },
 
             async copyGasCode() {
+                const codeText = this.GAS_SOURCE_CODE;
                 try {
-                    await navigator.clipboard.writeText(this.GAS_SOURCE_CODE);
-                    const fb = document.getElementById('relay-copy-feedback');
-                    if (fb) {
-                        fb.classList.remove('hidden');
-                        setTimeout(() => fb.classList.add('hidden'), 2500);
+                    if (navigator.clipboard && window.isSecureContext) {
+                        await navigator.clipboard.writeText(codeText);
+                        this.showCopyFeedback();
+                        return;
                     }
-                    UIComponents.showToast('Kod GAS Acara Relay disalin.', 'success');
-                } catch (err) {
-                    UIComponents.showToast('Gagal menyalin kod.', 'error');
+                } catch (e) {}
+
+                try {
+                    const ta = document.createElement('textarea');
+                    ta.value = codeText;
+                    ta.style.position = 'fixed';
+                    ta.style.top = '0';
+                    ta.style.left = '0';
+                    ta.style.opacity = '0';
+                    document.body.appendChild(ta);
+                    ta.focus();
+                    ta.select();
+                    const success = document.execCommand('copy');
+                    ta.remove();
+                    if (success) {
+                        this.showCopyFeedback();
+                        return;
+                    }
+                } catch (err) {}
+
+                UIComponents.showToast('Sila salin kod secara manual daripada kotak kod di atas.', 'warning');
+            },
+
+            showCopyFeedback() {
+                const fb = document.getElementById('relay-copy-feedback');
+                if (fb) {
+                    fb.classList.remove('hidden');
+                    setTimeout(() => fb.classList.add('hidden'), 2500);
                 }
+                UIComponents.showToast('Kod GAS Acara Relay berjaya disalin!', 'success');
             },
 
             enableEditMode() {
@@ -5291,29 +5381,45 @@ function jsonResponse_(obj) {
             },
 
             async copyGasCode() {
+                const codeText = this.GAS_SOURCE_CODE;
                 try {
                     if (navigator.clipboard && window.isSecureContext) {
-                        await navigator.clipboard.writeText(this.GAS_SOURCE_CODE);
-                    } else {
-                        const ta = document.createElement('textarea');
-                        ta.value = this.GAS_SOURCE_CODE;
-                        ta.style.position = 'fixed';
-                        ta.style.opacity = '0';
-                        document.body.appendChild(ta);
-                        ta.focus();
-                        ta.select();
-                        document.execCommand('copy');
-                        ta.remove();
+                        await navigator.clipboard.writeText(codeText);
+                        this.showCopyFeedback();
+                        return;
                     }
-                    const fb = document.getElementById('padang-copy-feedback');
-                    if (fb) {
-                        fb.classList.remove('hidden');
-                        setTimeout(() => fb.classList.add('hidden'), 2500);
-                    }
-                    UIComponents.showToast('Kod GAS Acara Padang disalin.', 'success');
-                } catch (err) {
-                    UIComponents.showToast('Gagal menyalin kod.', 'error');
+                } catch (e) {
+                    // Fallback to execCommand
                 }
+
+                try {
+                    const ta = document.createElement('textarea');
+                    ta.value = codeText;
+                    ta.style.position = 'fixed';
+                    ta.style.top = '0';
+                    ta.style.left = '0';
+                    ta.style.opacity = '0';
+                    document.body.appendChild(ta);
+                    ta.focus();
+                    ta.select();
+                    const success = document.execCommand('copy');
+                    ta.remove();
+                    if (success) {
+                        this.showCopyFeedback();
+                        return;
+                    }
+                } catch (err) {}
+
+                UIComponents.showToast('Sila salin kod secara manual daripada kotak kod di atas.', 'warning');
+            },
+
+            showCopyFeedback() {
+                const fb = document.getElementById('padang-copy-feedback');
+                if (fb) {
+                    fb.classList.remove('hidden');
+                    setTimeout(() => fb.classList.add('hidden'), 2500);
+                }
+                UIComponents.showToast('Kod GAS berjaya disalin!', 'success');
             },
 
             enableEditMode() {
