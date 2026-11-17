@@ -5022,6 +5022,12 @@ function jsonResponse_(obj) {
             GAS_SOURCE_CODE: `/**
  * STATISTIX HUB — GOOGLE APPS SCRIPT (ACARA PADANG)
  * Tab Dibenarkan: LONGJUMP, HIGHJUMP, SHOTPUT
+ * Julat Bacaan:
+ * - Lelaki   : A9:N16 (14 kolum; B:C merged = Nama Atlet, M:N merged = Kedudukan)
+ * - Perempuan: A26:N33 (14 kolum; B:C merged = Nama Atlet, M:N merged = Kedudukan)
+ * Julat Suntingan (doPost):
+ * - Lelaki   : L9:L16 (Catatan Terbaik, kolum 12) & M9:M16 (Kedudukan, kolum 13)
+ * - Perempuan: L26:L33 (Catatan Terbaik, kolum 12) & M26:M33 (Kedudukan, kolum 13)
  */
 const ALLOWED_TABS = ['LONGJUMP', 'HIGHJUMP', 'SHOTPUT'];
 
@@ -5063,28 +5069,30 @@ function doGet(e) {
 
 function readPadangRows_(sheet, startRow, endRow) {
   const numRows = endRow - startRow + 1;
-  const values = sheet.getRange(startRow, 1, numRows, 12).getDisplayValues();
+  // Baca julat penuh A:N (14 kolum) menggunakan getDisplayValues()
+  const values = sheet.getRange(startRow, 1, numRows, 14).getDisplayValues();
   const rows = [];
   for (var i = 0; i < values.length; i++) {
     var r = values[i];
-    var namaAtlet = String(r[1] || '').trim();
-    var pasukan = String(r[2] || '').trim();
-    var noBib = String(r[3] || '').trim();
+    var giliran = String(r[0] || '').trim();          // Kolum A (1)
+    var namaAtlet = String(r[1] || '').trim();        // Kolum B:C merged -> baca B (2)
+    var pasukan = String(r[3] || '').trim();          // Kolum D (4)
+    var noBib = String(r[4] || '').trim();            // Kolum E (5)
     if (!namaAtlet && !pasukan && !noBib) continue;
     rows.push({
       sheetRow: startRow + i,
-      giliran: String(r[0] || '').trim(),
+      giliran: giliran,
       namaAtlet: namaAtlet,
       pasukan: pasukan,
       noBib: noBib,
-      p1: String(r[4] || '').trim(),
-      p2: String(r[5] || '').trim(),
-      p3: String(r[6] || '').trim(),
-      p4: String(r[7] || '').trim(),
-      p5: String(r[8] || '').trim(),
-      p6: String(r[9] || '').trim(),
-      catatanTerbaik: String(r[10] || '').trim(),
-      kedudukan: String(r[11] || '').trim()
+      p1: String(r[5] || '').trim(),                  // Kolum F (6)
+      p2: String(r[6] || '').trim(),                  // Kolum G (7)
+      p3: String(r[7] || '').trim(),                  // Kolum H (8)
+      p4: String(r[8] || '').trim(),                  // Kolum I (9)
+      p5: String(r[9] || '').trim(),                  // Kolum J (10)
+      p6: String(r[10] || '').trim(),                 // Kolum K (11)
+      catatanTerbaik: String(r[11] || '').trim(),     // Kolum L (12)
+      kedudukan: String(r[12] || '').trim()           // Kolum M:N merged -> baca M (13)
     });
   }
   return rows;
@@ -5093,21 +5101,62 @@ function readPadangRows_(sheet, startRow, endRow) {
 function doPost(e) {
   const params = (e && e.parameter) || {};
   const eventNo = String(params.eventNo || '').trim().toUpperCase();
+  const gender = String(params.gender || '').trim().toLowerCase();
   const sheetRow = Number(params.sheetRow);
+  const noBib = String(params.noBib || '').trim();
   const field = String(params.field || '').trim();
+  const hasExpected = Object.prototype.hasOwnProperty.call(params, 'expectedValue');
+  const expectedValue = hasExpected ? String(params.expectedValue || '').trim() : null;
   const value = String(params.value || '').trim();
 
   if (ALLOWED_TABS.indexOf(eventNo) === -1) {
     return jsonResponse_({ success: false, message: 'Tab acara tidak sah.' });
   }
+  if (gender !== 'lelaki' && gender !== 'perempuan') {
+    return jsonResponse_({ success: false, message: 'Kategori tidak sah.' });
+  }
+  const validRow = (gender === 'lelaki' && sheetRow >= 9 && sheetRow <= 16) ||
+                   (gender === 'perempuan' && sheetRow >= 26 && sheetRow <= 33);
+  if (!validRow) {
+    return jsonResponse_({ success: false, message: 'Julat baris tidak dibenarkan untuk suntingan.' });
+  }
+  if (field !== 'catatanTerbaik' && field !== 'kedudukan') {
+    return jsonResponse_({ success: false, message: 'Medan tidak dibenarkan untuk suntingan.' });
+  }
+
   const ss = SpreadsheetApp.getActiveSpreadsheet();
   const sheet = ss.getSheetByName(eventNo);
-  if (!sheet) return jsonResponse_({ success: false, message: 'Helaian tidak ditemui.' });
+  if (!sheet) {
+    return jsonResponse_({ success: false, message: 'Helaian tidak ditemui.' });
+  }
 
-  const targetCol = field === 'catatanTerbaik' ? 11 : 12; // K=11, L=12
-  sheet.getRange(sheetRow, targetCol).setValue(value);
+  // Sahkan identiti baris menggunakan No Bib (kolum E = 5)
+  const currentBib = String(sheet.getRange(sheetRow, 5).getDisplayValue() || '').trim();
+  if (noBib && currentBib && noBib !== currentBib) {
+    return jsonResponse_({ success: false, message: 'Konflik rekod: No Bib pada baris Google Sheets tidak sepadan.' });
+  }
 
-  return jsonResponse_({ success: true, updatedAt: new Date().toISOString() });
+  // Pemetaan kolum wajib: catatanTerbaik -> L (12), kedudukan -> M (13, sel kiri atas M:N)
+  const targetCol = field === 'catatanTerbaik' ? 12 : 13;
+  const targetRange = sheet.getRange(sheetRow, targetCol);
+  const currentVal = String(targetRange.getDisplayValue() || '').trim();
+
+  if (hasExpected && expectedValue !== currentVal) {
+    return jsonResponse_({
+      success: false,
+      message: 'Konflik kemas kini serentak: Nilai sel telah berubah dalam Google Sheets. Sila muat semula data.'
+    });
+  }
+
+  targetRange.setValue(value);
+  SpreadsheetApp.flush();
+  const confirmedValue = String(targetRange.getDisplayValue() || '').trim();
+
+  return jsonResponse_({
+    success: true,
+    confirmedValue: confirmedValue,
+    updatedAt: new Date().toISOString()
+  });
 }
 
 function jsonResponse_(obj) {
@@ -5130,6 +5179,74 @@ function jsonResponse_(obj) {
                 }
                 this.updateModeBadge(Boolean(savedUrl));
                 this.restoreSavedStatus();
+            },
+
+            isValidGasExecUrl(url) {
+                try {
+                    const parsed = new URL(String(url || '').trim());
+                    return parsed.protocol === 'https:' &&
+                        parsed.hostname === 'script.google.com' &&
+                        /\/exec\/?$/.test(parsed.pathname);
+                } catch (e) {
+                    return false;
+                }
+            },
+
+            importAndNormalizeData(rawEvents, existingStore) {
+                if (!rawEvents || typeof rawEvents !== 'object' || Array.isArray(rawEvents)) {
+                    return { nextEvents: {}, tabCount: 0, validStructureCount: 0 };
+                }
+
+                const nextEvents = {};
+                let tabCount = 0;
+                let validStructureCount = 0;
+
+                const normalizeRows = (rows, minRow, maxRow) => {
+                    if (!Array.isArray(rows)) return [];
+                    return rows
+                        .filter(r => r && typeof r === 'object')
+                        .filter(r => {
+                            const sr = Number(r.sheetRow);
+                            return Number.isInteger(sr) && sr >= minRow && sr <= maxRow;
+                        })
+                        .map(r => ({
+                            sheetRow: Number(r.sheetRow),
+                            giliran: String(r.giliran || '').trim(),
+                            namaAtlet: String(r.namaAtlet || '').trim(),
+                            pasukan: String(r.pasukan || '').trim(),
+                            noBib: String(r.noBib || '').trim(),
+                            p1: String(r.p1 || '').trim(),
+                            p2: String(r.p2 || '').trim(),
+                            p3: String(r.p3 || '').trim(),
+                            p4: String(r.p4 || '').trim(),
+                            p5: String(r.p5 || '').trim(),
+                            p6: String(r.p6 || '').trim(),
+                            catatanTerbaik: String(r.catatanTerbaik || '').trim(),
+                            kedudukan: String(r.kedudukan || '').trim()
+                        }));
+                };
+
+                PadangModule.ALLOWED_EVENT_NOS.forEach(no => {
+                    const incoming = rawEvents[no];
+                    if (!incoming || typeof incoming !== 'object' || Array.isArray(incoming)) return;
+
+                    const hasValidCategoryArrays = Array.isArray(incoming.lelaki) || Array.isArray(incoming.perempuan);
+                    if (!hasValidCategoryArrays) return;
+
+                    validStructureCount++;
+                    tabCount++;
+                    const prev = existingStore && existingStore.events && existingStore.events[no];
+                    nextEvents[no] = {
+                        eventNo: no,
+                        status: prev && prev.status === 'DISAHKAN_RASMI' ? 'DISAHKAN_RASMI' : 'BELUM_SELESAI',
+                        verifiedAt: prev ? prev.verifiedAt : null,
+                        updatedAt: new Date().toISOString(),
+                        lelaki: normalizeRows(incoming.lelaki, 9, 16),
+                        perempuan: normalizeRows(incoming.perempuan, 26, 33)
+                    };
+                });
+
+                return { nextEvents, tabCount, validStructureCount };
             },
 
             updateModeBadge(isLocked) {
@@ -5162,6 +5279,8 @@ function jsonResponse_(obj) {
             },
 
             openGasModal() {
+                const codeDisplay = document.getElementById('padang-gas-code-display');
+                if (codeDisplay) codeDisplay.textContent = this.GAS_SOURCE_CODE;
                 const modal = document.getElementById('modal-padang-gas-code');
                 if (modal) modal.classList.remove('hidden');
             },
@@ -5173,7 +5292,19 @@ function jsonResponse_(obj) {
 
             async copyGasCode() {
                 try {
-                    await navigator.clipboard.writeText(this.GAS_SOURCE_CODE);
+                    if (navigator.clipboard && window.isSecureContext) {
+                        await navigator.clipboard.writeText(this.GAS_SOURCE_CODE);
+                    } else {
+                        const ta = document.createElement('textarea');
+                        ta.value = this.GAS_SOURCE_CODE;
+                        ta.style.position = 'fixed';
+                        ta.style.opacity = '0';
+                        document.body.appendChild(ta);
+                        ta.focus();
+                        ta.select();
+                        document.execCommand('copy');
+                        ta.remove();
+                    }
                     const fb = document.getElementById('padang-copy-feedback');
                     if (fb) {
                         fb.classList.remove('hidden');
@@ -5290,6 +5421,10 @@ function jsonResponse_(obj) {
                     UIComponents.showToast('Sila masukkan URL Google Apps Script terlebih dahulu.', 'warning');
                     return;
                 }
+                if (!this.isValidGasExecUrl(url)) {
+                    UIComponents.showToast('URL GAS mesti menggunakan pautan Web App rasmi Google Apps Script yang berakhir dengan /exec.', 'error');
+                    return;
+                }
 
                 UIComponents.showLoading('Menguji sambungan Acara Padang...');
                 try {
@@ -5317,14 +5452,17 @@ function jsonResponse_(obj) {
                     const connEl = document.getElementById('padang-status-connection');
                     const tabsEl = document.getElementById('padang-status-tabs');
                     const detailEl = document.getElementById('padang-status-detail');
-                    if (connEl) connEl.textContent = 'Ujian Berjaya';
+                    const statusLabel = check.tabCount === check.totalExpected
+                        ? `Ujian Sambungan Berjaya — ${check.tabCount} / ${check.totalExpected} Tab`
+                        : `Ujian Berjaya (${check.tabCount} / ${check.totalExpected} Tab)`;
+                    if (connEl) connEl.textContent = statusLabel;
                     if (tabsEl) tabsEl.textContent = `${check.tabCount} / ${check.totalExpected} Tab`;
                     if (detailEl) {
                         detailEl.textContent = check.missingTabs.length > 0
                             ? `Sambungan disahkan (${check.tabCount}/${check.totalExpected} tab ditemui; tab tiada: ${check.missingTabs.join(', ')}). Tekan Simpan untuk mengimport data acara.`
-                            : `Sambungan disahkan (${check.tabCount}/${check.totalExpected} tab ditemui). Tekan Simpan untuk mengimport data acara.`;
+                            : `Ujian Sambungan Berjaya — 3 / 3 Tab (LONGJUMP, HIGHJUMP, SHOTPUT). Tekan Simpan untuk mengimport data acara.`;
                     }
-                    UIComponents.showToast(`Ujian sambungan berjaya. Tab Google Sheets berjaya dikenal pasti (${check.tabCount}/${check.totalExpected}).`, 'success');
+                    UIComponents.showToast(`${statusLabel}. Tekan Simpan untuk mengimport data acara.`, 'success');
                 } catch (err) {
                     const connEl = document.getElementById('padang-status-connection');
                     if (connEl) connEl.textContent = 'Ujian Gagal';
@@ -5341,40 +5479,64 @@ function jsonResponse_(obj) {
                     UIComponents.showToast('Sila masukkan URL Google Apps Script.', 'warning');
                     return;
                 }
+                if (!this.isValidGasExecUrl(url)) {
+                    UIComponents.showToast('URL GAS mesti menggunakan pautan Web App rasmi Google Apps Script yang berakhir dengan /exec.', 'error');
+                    return;
+                }
 
                 UIComponents.showLoading('Mengimport data Acara Padang...');
                 try {
-                    const res = await fetch(url);
-                    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-                    const data = await res.json();
-                    if (!data || data.success !== true || String(data.module || '').trim() !== this.EXPECTED_MODULE || !data.events || typeof data.events !== 'object' || Array.isArray(data.events)) {
-                        if (data && Array.isArray(data.foundTabs)) {
+                    let res;
+                    try {
+                        res = await fetch(url);
+                    } catch (netErr) {
+                        throw new Error('URL GAS tidak dapat diakses.');
+                    }
+                    if (!res.ok) {
+                        throw new Error(`Pelayan GAS mengembalikan ralat HTTP ${res.status}.`);
+                    }
+
+                    let data;
+                    try {
+                        data = await res.json();
+                    } catch (parseErr) {
+                        throw new Error('Respons daripada GAS bukan format JSON yang sah.');
+                    }
+
+                    if (!data || typeof data !== 'object' || Array.isArray(data)) {
+                        throw new Error('Struktur respons JSON daripada GAS tidak sah.');
+                    }
+                    if (data.success === false) {
+                        const rawMsg = typeof data.message === 'string' && data.message.trim()
+                            ? data.message.trim().slice(0, 140)
+                            : 'GAS melaporkan ralat semasa membaca data.';
+                        throw new Error(rawMsg);
+                    }
+                    if (data.success !== true) {
+                        throw new Error('Respons GAS tidak mengesahkan kejayaan operasi.');
+                    }
+
+                    const respModule = String(data.module || '').trim();
+                    if (!respModule || respModule !== this.EXPECTED_MODULE) {
+                        throw new Error('URL GAS tidak sepadan dengan modul Acara Padang.');
+                    }
+
+                    if (!data.events || typeof data.events !== 'object' || Array.isArray(data.events)) {
+                        if (Array.isArray(data.foundTabs)) {
+                            const detailEl = document.getElementById('padang-status-detail');
+                            if (detailEl) {
+                                detailEl.textContent = 'Sambungan GAS berjaya, tetapi endpoint data keputusan belum tersedia. Sila kemas kini deployment GAS menggunakan KOD GOOGLE APP SCRIPT / GAS.';
+                            }
                             throw new Error('Sambungan GAS berjaya, tetapi endpoint data keputusan belum tersedia.');
                         }
                         throw new Error('Endpoint GAS tidak memulangkan objek keputusan acara (events) yang sah untuk diimport.');
                     }
 
                     const existingStore = StorageManager.getPadangStore();
-                    const nextEvents = {};
-                    let tabCount = 0;
+                    const { nextEvents, tabCount, validStructureCount } = this.importAndNormalizeData(data.events, existingStore);
 
-                    PadangModule.ALLOWED_EVENT_NOS.forEach(no => {
-                        const incoming = data.events[no];
-                        if (!incoming || typeof incoming !== 'object') return;
-                        tabCount++;
-                        const prev = existingStore.events && existingStore.events[no];
-                        nextEvents[no] = {
-                            eventNo: no,
-                            status: prev && prev.status === 'DISAHKAN_RASMI' ? 'DISAHKAN_RASMI' : 'BELUM_SELESAI',
-                            verifiedAt: prev ? prev.verifiedAt : null,
-                            updatedAt: new Date().toISOString(),
-                            lelaki: Array.isArray(incoming.lelaki) ? incoming.lelaki : [],
-                            perempuan: Array.isArray(incoming.perempuan) ? incoming.perempuan : []
-                        };
-                    });
-
-                    if (tabCount === 0) {
-                        throw new Error('Tiada rekod tab acara sah ditemui dalam respons GAS.');
+                    if (tabCount === 0 || validStructureCount === 0) {
+                        throw new Error('Tiada rekod tab acara padang sah ditemui dalam respons GAS.');
                     }
 
                     const nowIso = new Date().toISOString();
@@ -5394,11 +5556,18 @@ function jsonResponse_(obj) {
                     const connEl = document.getElementById('padang-status-connection');
                     const updEl = document.getElementById('padang-status-updated');
                     const tabsEl = document.getElementById('padang-status-tabs');
+                    const detailEl = document.getElementById('padang-status-detail');
                     if (connEl) connEl.textContent = 'Tersambung & Tersimpan';
                     if (updEl) updEl.textContent = SaringanModule.formatDateTime(nowIso);
                     if (tabsEl) tabsEl.textContent = `${tabCount} / 3 Tab`;
+                    if (detailEl) {
+                        detailEl.textContent = `Data keputusan sebenar berjaya diimport daripada ${tabCount} / 3 tab Google Sheets (LONGJUMP, HIGHJUMP, SHOTPUT).`;
+                    }
 
                     GlobalLiveStatusController.updateIndicator();
+                    if (!AppController.isAdminOpen && AppController.currentView === 'padang') {
+                        AppController.loadView('padang');
+                    }
                     UIComponents.showToast(`Berjaya menyimpan & mengimport ${tabCount} tab Acara Padang.`, 'success');
                 } catch (err) {
                     UIComponents.showToast(`Gagal mengimport data: ${err.message}`, 'error');
@@ -5437,11 +5606,15 @@ function jsonResponse_(obj) {
                         throw new Error((result && result.message) || 'Kemas kini ditolak.');
                     }
 
+                    const finalSavedValue = typeof result.confirmedValue === 'string'
+                        ? result.confirmedValue.trim()
+                        : String(value || '').trim();
+
                     const store = StorageManager.getPadangStore();
                     const ev = store.events && store.events[eventNo];
                     if (ev && Array.isArray(ev[gender])) {
                         const row = ev[gender].find(r => Number(r.sheetRow) === Number(sheetRow));
-                        if (row) row[field] = value;
+                        if (row) row[field] = finalSavedValue;
                         ev.updatedAt = result.updatedAt || new Date().toISOString();
                     }
                     StorageManager.savePadangStore(store);
@@ -5451,7 +5624,8 @@ function jsonResponse_(obj) {
                         gender,
                         sheetRow,
                         field,
-                        newValue: value
+                        oldValue: expectedValue,
+                        newValue: finalSavedValue
                     });
                     UIComponents.showToast('Keputusan Acara Padang berjaya dikemas kini!', 'success');
                     return { success: true };
