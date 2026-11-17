@@ -190,6 +190,11 @@
             background-color: #DB2777;
             color: #FFFFFF;
         }
+
+        /* Latar Belakang Championship Gold Gradient untuk Kad Atas Podium Kedudukan 1 */
+        .podium-rank1-gold-header {
+            background: linear-gradient(135deg, #AA8A24 0%, #D4AF37 55%, #F3E5AB 100%);
+        }
     </style>
 </head>
 <body class="min-h-screen flex flex-col font-sans antialiased selection:bg-gold/30 selection:text-navy-dark">
@@ -3257,7 +3262,7 @@
                         orderClass: totalSlots >= 2 ? 'order-1 lg:order-3' : 'order-1',
                         pedestalHeight: 'min-h-[168px] sm:min-h-[205px]',
                         cardBorder: 'border-2 border-gold shadow-gold-glow',
-                        headerBg: 'bg-gradient-to-br from-navy-dark via-navy-primary to-navy-dark text-white',
+                        headerBg: 'podium-rank1-gold-header text-slate',
                         pedestalBg: 'bg-gradient-to-b from-amber-300 via-gold to-amber-500 text-navy-dark border-t-2 border-amber-200',
                         badgeBg: 'bg-gold text-navy-dark',
                         rankLabel: '#1',
