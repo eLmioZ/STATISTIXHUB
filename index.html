@@ -833,7 +833,147 @@
 
                     </div>
                 </div>
-                    <!-- Footer Modal: Salin Kod & Tutup -->
+                <!-- Kontena Kandungan Pengurusan Pengguna (Tersembunyi secara lalai) -->
+                <div id="admin-content-pengurusan-pengguna" class="hidden space-y-6"></div>
+            </section>
+        </main>
+    </div>
+
+    <!-- ===================================================================== -->
+    <!-- MODAL KOD GOOGLE APPS SCRIPT — ACARA SARINGAN (STATISTIX_SARINGAN)    -->
+    <!-- ===================================================================== -->
+    <div
+        id="modal-saringan-gas-code"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="modal-saringan-gas-title"
+        class="fixed inset-0 z-50 hidden bg-navy-dark/70 backdrop-blur-xs p-3 sm:p-6 overflow-y-auto"
+    >
+        <div class="min-h-full flex items-center justify-center">
+            <div class="bg-white w-full max-w-4xl rounded-2xl shadow-2xl border border-slate-200 overflow-hidden flex flex-col max-h-[90vh]">
+                <!-- Header Modal -->
+                <div class="bg-navy-dark text-white px-4 sm:px-6 py-4 flex items-center justify-between gap-3 border-b border-navy-secondary/60">
+                    <div class="flex items-center gap-3 min-w-0">
+                        <div class="w-9 h-9 rounded-xl bg-gold/15 border border-gold/40 flex items-center justify-center shrink-0">
+                            <i data-lucide="file-code-2" class="w-5 h-5 text-gold"></i>
+                        </div>
+                        <div class="min-w-0">
+                            <h3 id="modal-saringan-gas-title" class="font-display font-bold text-sm sm:text-base text-white truncate">
+                                Kod Google Apps Script — Acara Saringan
+                            </h3>
+                            <p class="text-[11px] text-slate-300 truncate">
+                                Statistix_Saringan_Code.gs • Pasang sebagai Bound Script pada Google Sheets
+                            </p>
+                        </div>
+                    </div>
+
+                    <button
+                        type="button"
+                        id="btn-close-saringan-gas-top"
+                        onclick="SaringanGasController.closeGasModal()"
+                        aria-label="Tutup Modal Kod GAS Acara Saringan"
+                        class="w-11 h-11 rounded-xl bg-navy-primary hover:bg-navy-secondary text-slate-200 hover:text-white flex items-center justify-center transition-colors cursor-pointer shrink-0"
+                    >
+                        <i data-lucide="x" class="w-5 h-5"></i>
+                    </button>
+                </div>
+
+                <!-- Arahan Ringkas Pemasangan Bound Script -->
+                <div class="px-4 sm:px-6 py-3 bg-surface-bg border-b border-slate-200 text-xs text-ink flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                    <p class="leading-relaxed">
+                        <span class="font-bold text-navy-primary">Panduan:</span> Buka Google Sheets &rarr; <span class="font-semibold">Extensions &rarr; Apps Script</span> &rarr; Tampal kod di bawah &rarr; <span class="font-semibold">Deploy &rarr; New deployment &rarr; Web app</span> (Execute as: <em>Me</em>, Who has access: <em>Anyone</em>).
+                    </p>
+                    <span class="text-[11px] font-mono font-semibold text-navy-secondary shrink-0">9 Tab Aktif</span>
+                </div>
+
+                <!-- Kawasan Paparan Kod Monospace dengan Skrol (Diisi melalui textContent sahaja) -->
+                <div class="p-4 sm:p-6 bg-slate-950 overflow-auto flex-1">
+                    <pre class="text-xs font-mono text-emerald-300 leading-relaxed whitespace-pre select-all"><code id="saringan-gas-code-display"></code></pre>
+                </div>
+
+                <!-- Footer Modal: Salin Kod & Tutup -->
+                <div class="px-4 sm:px-6 py-3.5 bg-white border-t border-slate-200 flex flex-wrap items-center justify-between gap-3">
+                    <span id="saringan-copy-feedback" class="text-xs font-semibold text-emerald-700 hidden">
+                        Kod berjaya disalin ke papan keratan!
+                    </span>
+                    <div class="flex items-center gap-2.5 ml-auto">
+                        <button
+                            type="button"
+                            id="btn-copy-saringan-gas-code"
+                            onclick="SaringanGasController.copyGasCode()"
+                            class="inline-flex items-center justify-center gap-2 min-h-[44px] px-4 py-2.5 rounded-xl text-xs font-bold bg-gold hover:bg-gold-light text-navy-dark shadow-xs transition-colors cursor-pointer"
+                        >
+                            <i data-lucide="copy" class="w-4 h-4"></i>
+                            <span>Salin Kod</span>
+                        </button>
+                        <button
+                            type="button"
+                            id="btn-close-saringan-gas-bottom"
+                            onclick="SaringanGasController.closeGasModal()"
+                            class="inline-flex items-center justify-center gap-2 min-h-[44px] px-4 py-2.5 rounded-xl text-xs font-semibold bg-navy-primary hover:bg-navy-dark text-white transition-colors cursor-pointer"
+                        >
+                            <i data-lucide="x-circle" class="w-4 h-4"></i>
+                            <span>Tutup</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===================================================================== -->
+    <!-- MODAL KOD GOOGLE APPS SCRIPT — AKHIR BALAPAN (STATISTIX_AKHIR_BALAPAN) -->
+    <!-- ===================================================================== -->
+    <div
+        id="modal-akhir-balapan-gas-code"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="modal-akhir-balapan-gas-title"
+        class="fixed inset-0 z-50 hidden bg-navy-dark/70 backdrop-blur-xs p-3 sm:p-6 overflow-y-auto"
+    >
+        <div class="min-h-full flex items-center justify-center">
+            <div class="bg-white w-full max-w-4xl rounded-2xl shadow-2xl border border-slate-200 overflow-hidden flex flex-col max-h-[90vh]">
+                <!-- Header Modal -->
+                <div class="bg-navy-dark text-white px-4 sm:px-6 py-4 flex items-center justify-between gap-3 border-b border-navy-secondary/60">
+                    <div class="flex items-center gap-3 min-w-0">
+                        <div class="w-9 h-9 rounded-xl bg-gold/15 border border-gold/40 flex items-center justify-center shrink-0">
+                            <i data-lucide="file-code-2" class="w-5 h-5 text-gold"></i>
+                        </div>
+                        <div class="min-w-0">
+                            <h3 id="modal-akhir-balapan-gas-title" class="font-display font-bold text-sm sm:text-base text-white truncate">
+                                Kod Google Apps Script — Akhir Balapan
+                            </h3>
+                            <p class="text-[11px] text-slate-300 truncate">
+                                Statistix_Akhir_Balapan_Code.gs • Pasang sebagai Bound Script pada Google Sheets
+                            </p>
+                        </div>
+                    </div>
+
+                    <button
+                        type="button"
+                        id="btn-close-akhir-balapan-gas-top"
+                        onclick="AkhirBalapanGasController.closeGasModal()"
+                        aria-label="Tutup Modal Kod GAS Akhir Balapan"
+                        class="w-11 h-11 rounded-xl bg-navy-primary hover:bg-navy-secondary text-slate-200 hover:text-white flex items-center justify-center transition-colors cursor-pointer shrink-0"
+                    >
+                        <i data-lucide="x" class="w-5 h-5"></i>
+                    </button>
+                </div>
+
+                <!-- Arahan Ringkas Pemasangan Bound Script -->
+                <div class="px-4 sm:px-6 py-3 bg-surface-bg border-b border-slate-200 text-xs text-ink flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                    <p class="leading-relaxed">
+                        <span class="font-bold text-navy-primary">Panduan:</span> Buka Google Sheets &rarr; <span class="font-semibold">Extensions &rarr; Apps Script</span> &rarr; Tampal kod di bawah &rarr; <span class="font-semibold">Deploy &rarr; New deployment &rarr; Web app</span> (Execute as: <em>Me</em>, Who has access: <em>Anyone</em>).
+                    </p>
+                    <span class="text-[11px] font-mono font-semibold text-navy-secondary shrink-0">9 Tab Aktif</span>
+                </div>
+
+                <!-- Kawasan Paparan Kod Monospace dengan Skrol (Diisi melalui textContent sahaja) -->
+                <div class="p-4 sm:p-6 bg-slate-950 overflow-auto flex-1">
+                    <pre class="text-xs font-mono text-emerald-300 leading-relaxed whitespace-pre select-all"><code id="akhir-balapan-gas-code-display"></code></pre>
+                </div>
+
+                <!-- Footer Modal: Salin Kod & Tutup -->
                 <div class="px-4 sm:px-6 py-3.5 bg-white border-t border-slate-200 flex flex-wrap items-center justify-between gap-3">
                     <span id="akhir-balapan-copy-feedback" class="text-xs font-semibold text-emerald-700 hidden">
                         Kod berjaya disalin ke papan keratan!
