@@ -1958,14 +1958,14 @@
                 }
 
                 if (isVerified || !athlete.sheetRow) {
-                    return `<span class="block px-2.5 py-1.5 ${alignClass} text-navy-primary">${this.escapeHtml(displayVal)}</span>`;
+                    return `<span class="block px-2.5 py-1.5 alignClasstext-navy-primary">{this.escapeHtml(displayVal)}</span>`;
                 }
 
                 return `
                     <button
                         type="button"
                         title="Klik untuk sunting ${field === 'kedudukan' ? 'Kedudukan' : 'Masa'} (Baris ${athlete.sheetRow})"
-                        onclick="SaringanModule.startInlineEdit('${this.escapeHtml(eventNo)}', '${gender}', '${heat}', ${Number(athlete.sheetRow)}, '${this.escapeHtml(athlete.noBib || '')}', '${field}', '${this.escapeHtml(rawVal)}')"
+                        onclick="SaringanModule.startInlineEdit('this.escapeHtml(eventNo)','{gender}', '${heat}', Number(athlete.sheetRow),'{this.escapeHtml(athlete.noBib || '')}', 'field','{this.escapeHtml(rawVal)}')"
                         class="w-full min-h-[38px] block px-2.5 py-1.5 rounded-lg hover:bg-gold/15 border border-transparent hover:border-gold/40 transition-colors cursor-pointer ${alignClass} text-navy-primary"
                     >${this.escapeHtml(displayVal)}</button>
                 `;
@@ -2124,7 +2124,7 @@
                 if (isVerified) {
                     return `
                         <button type="button"
-                            onclick="${safeModule}.toggleOfficialVerification('${safeEventNo}')"
+                            onclick="safeModule.toggleOfficialVerification('{safeEventNo}')"
                             class="inline-flex items-center gap-1.5 min-h-[44px] px-3.5 py-2 rounded-xl text-xs font-bold bg-rose-100 hover:bg-rose-200 text-rose-800 border border-rose-300 transition-colors cursor-pointer">
                             <i data-lucide="shield-off" class="w-3.5 h-3.5"></i>
                             <span>Batal Pengesahan</span>
@@ -2134,7 +2134,7 @@
 
                 return `
                     <button type="button"
-                        onclick="${safeModule}.toggleOfficialVerification('${safeEventNo}')"
+                        onclick="safeModule.toggleOfficialVerification('{safeEventNo}')"
                         class="inline-flex items-center gap-1.5 min-h-[44px] px-3.5 py-2 rounded-xl text-xs font-bold bg-emerald-600 hover:bg-emerald-700 text-white shadow-2xs transition-colors cursor-pointer">
                         <i data-lucide="shield-check" class="w-3.5 h-3.5"></i>
                         <span>Sahkan Rasmi</span>
@@ -2346,14 +2346,14 @@
                 }
 
                 if (!canEdit) {
-                    return `<span class="block px-2.5 py-1.5 ${alignClass} text-navy-primary">${SaringanModule.escapeHtml(displayVal)}</span>`;
+                    return `<span class="block px-2.5 py-1.5 alignClasstext-navy-primary">{SaringanModule.escapeHtml(displayVal)}</span>`;
                 }
 
                 return `
                     <button
                         type="button"
                         title="Klik untuk sunting ${field === 'kedudukan' ? 'Kedudukan' : 'Masa'} (Baris ${athlete.sheetRow})"
-                        onclick="AkhirBalapanModule.startInlineEdit('${SaringanModule.escapeHtml(eventNo)}', '${gender}', ${Number(athlete.sheetRow)}, '${SaringanModule.escapeHtml(athlete.noBib || '')}', '${field}', '${SaringanModule.escapeHtml(rawVal)}')"
+                        onclick="AkhirBalapanModule.startInlineEdit('SaringanModule.escapeHtml(eventNo)','{gender}', Number(athlete.sheetRow),'{SaringanModule.escapeHtml(athlete.noBib || '')}', 'field','{SaringanModule.escapeHtml(rawVal)}')"
                         class="w-full min-h-[38px] block px-2.5 py-1.5 rounded-lg hover:bg-gold/15 border border-transparent hover:border-gold/40 transition-colors cursor-pointer ${alignClass} text-navy-primary"
                     >${SaringanModule.escapeHtml(displayVal)}</button>
                 `;
@@ -2388,7 +2388,7 @@
                         <div class="rounded-xl border border-slate-200/90 overflow-hidden bg-white shadow-2xs">
                             <div class="px-4 py-3 ${headerBarClass} border-b flex items-center justify-between gap-2">
                                 <span class="font-display text-xs sm:text-sm font-bold uppercase tracking-wider text-white">${SaringanModule.escapeHtml(title)}</span>
-                                <span class="px-2.5 py-0.5 rounded-full text-[11px] font-semibold border ${countBadgeClass}">${rows.length} Atlet</span>
+                                <span class="px-2.5 py-0.5 rounded-full text-[11px] font-semibold border countBadgeClass">{rows.length} Atlet</span>
                             </div>
                             <div class="overflow-x-auto">
                                 <table class="w-full min-w-[600px] text-left border-collapse">
@@ -2682,14 +2682,14 @@
                 }
 
                 if (!canEdit) {
-                    return `<span class="block px-2.5 py-1.5 ${alignClass} text-navy-primary">${SaringanModule.escapeHtml(displayVal)}</span>`;
+                    return `<span class="block px-2.5 py-1.5 alignClasstext-navy-primary">{SaringanModule.escapeHtml(displayVal)}</span>`;
                 }
 
                 return `
                     <button
                         type="button"
                         title="Klik untuk sunting ${field === 'kedudukan' ? 'Kedudukan' : 'Masa'} (Baris ${teamRow.sheetRow})"
-                        onclick="RelayModule.startInlineEdit('${SaringanModule.escapeHtml(eventNo)}', '${gender}', ${Number(teamRow.sheetRow)}, '${field}', '${SaringanModule.escapeHtml(rawVal)}')"
+                        onclick="RelayModule.startInlineEdit('SaringanModule.escapeHtml(eventNo)','{gender}', Number(teamRow.sheetRow),'{field}', '${SaringanModule.escapeHtml(rawVal)}')"
                         class="w-full min-h-[38px] block px-2.5 py-1.5 rounded-lg hover:bg-gold/15 border border-transparent hover:border-gold/40 transition-colors cursor-pointer ${alignClass} text-navy-primary"
                     >${SaringanModule.escapeHtml(displayVal)}</button>
                 `;
@@ -2724,7 +2724,7 @@
                         <div class="rounded-xl border border-slate-200/90 overflow-hidden bg-white shadow-2xs">
                             <div class="px-4 py-3 ${headerBarClass} border-b flex items-center justify-between gap-2">
                                 <span class="font-display text-xs sm:text-sm font-bold uppercase tracking-wider text-white">${SaringanModule.escapeHtml(title)}</span>
-                                <span class="px-2.5 py-0.5 rounded-full text-[11px] font-semibold border ${countBadgeClass}">${rows.length} Pasukan</span>
+                                <span class="px-2.5 py-0.5 rounded-full text-[11px] font-semibold border countBadgeClass">{rows.length} Pasukan</span>
                             </div>
                             <div class="overflow-x-auto">
                                 <table class="w-full min-w-[540px] text-left border-collapse">
@@ -3027,14 +3027,14 @@
                 }
 
                 if (!canEdit) {
-                    return `<span class="block px-2.5 py-1.5 ${alignClass} text-navy-primary">${SaringanModule.escapeHtml(displayVal)}</span>`;
+                    return `<span class="block px-2.5 py-1.5 alignClasstext-navy-primary">{SaringanModule.escapeHtml(displayVal)}</span>`;
                 }
 
                 return `
                     <button
                         type="button"
                         title="Klik untuk sunting ${fieldLabel} (Baris ${athlete.sheetRow})"
-                        onclick="PadangModule.startInlineEdit('${SaringanModule.escapeHtml(eventNo)}', '${gender}', ${Number(athlete.sheetRow)}, '${SaringanModule.escapeHtml(athlete.noBib || '')}', '${field}', '${SaringanModule.escapeHtml(rawVal)}')"
+                        onclick="PadangModule.startInlineEdit('SaringanModule.escapeHtml(eventNo)','{gender}', Number(athlete.sheetRow),'{SaringanModule.escapeHtml(athlete.noBib || '')}', 'field','{SaringanModule.escapeHtml(rawVal)}')"
                         class="w-full min-h-[38px] block px-2.5 py-1.5 rounded-lg hover:bg-gold/15 border border-transparent hover:border-gold/40 transition-colors cursor-pointer ${alignClass} text-navy-primary"
                     >${SaringanModule.escapeHtml(displayVal)}</button>
                 `;
@@ -3069,7 +3069,7 @@
                         <div class="rounded-xl border border-slate-200/90 overflow-hidden bg-white shadow-2xs">
                             <div class="px-4 py-3 ${headerBarClass} border-b flex items-center justify-between gap-2">
                                 <span class="font-display text-xs sm:text-sm font-bold uppercase tracking-wider text-white">${SaringanModule.escapeHtml(title)}</span>
-                                <span class="px-2.5 py-0.5 rounded-full text-[11px] font-semibold border ${countBadgeClass}">${rows.length} Atlet</span>
+                                <span class="px-2.5 py-0.5 rounded-full text-[11px] font-semibold border countBadgeClass">{rows.length} Atlet</span>
                             </div>
                             <div class="overflow-x-auto">
                                 <table class="w-full min-w-[980px] text-left border-collapse">
@@ -3199,7 +3199,7 @@
                         const rankNum = parseInt(String(row.kedudukan || '').trim(), 10);
                         if (rankNum !== 1 && rankNum !== 2 && rankNum !== 3) return;
 
-                        const rowIdentity = `${sourceModule}:${eventNo}:${gender}:${row.sheetRow || idx}:${teamRaw.toUpperCase()}:${rankNum}`;
+                        const rowIdentity = `sourceModule:{eventNo}:gender:{row.sheetRow || idx}:teamRaw.toUpperCase():{rankNum}`;
                         if (seenCategoryRows.has(rowIdentity)) return;
                         seenCategoryRows.add(rowIdentity);
 
@@ -3228,7 +3228,7 @@
                 const collectFromStore = (sourceName, allowedNos, storeObj) => {
                     const eventsMap = (storeObj && storeObj.events) || {};
                     allowedNos.forEach(eventNo => {
-                        const eventKey = `${sourceName}:${eventNo}`;
+                        const eventKey = `sourceName:{eventNo}`;
                         if (seenEventKeys.has(eventKey)) return;
                         seenEventKeys.add(eventKey);
 
@@ -3388,7 +3388,7 @@
                                             return `
                                                 <tr class="border-b border-slate-100 even:bg-slate-50/40 hover:bg-surface-bg/80 transition-colors">
                                                     <td class="py-3 px-3.5 text-xs sm:text-sm font-display font-extrabold text-center text-navy-primary">${rankNo}</td>
-                                                    <td class="py-3 px-3.5 text-xs sm:text-sm font-bold ${teamColorClass}">${esc(team.pasukan)}</td>
+                                                    <td class="py-3 px-3.5 text-xs sm:text-sm font-bold teamColorClass">{esc(team.pasukan)}</td>
                                                     <td class="py-3 px-3.5 text-xs sm:text-sm font-display font-extrabold text-center text-amber-600">${team.emas}</td>
                                                     <td class="py-3 px-3.5 text-xs sm:text-sm font-display font-bold text-center text-slate-600">${team.perak}</td>
                                                     <td class="py-3 px-3.5 text-xs sm:text-sm font-display font-bold text-center text-amber-800">${team.gangsa}</td>
@@ -3633,6 +3633,7 @@
          * 4I. PENGAWAL GAS ACARA SARINGAN (SaringanGasController)
          */
         const SaringanGasController = {
+            EXPECTED_MODULE: 'saringan',
             GAS_SOURCE_CODE: `/**
  * STATISTIX HUB — GOOGLE APPS SCRIPT (ACARA SARINGAN)
  * Julat Bacaan:
@@ -3871,6 +3872,55 @@ function jsonResponse_(obj) {
                 UIComponents.showToast('URL dan data Acara Saringan telah dihapus.', 'warning');
             },
 
+            validateGasTestResponse(data) {
+                if (!data || typeof data !== 'object' || Array.isArray(data)) {
+                    return { ok: false, message: 'Ujian sambungan gagal: Struktur respons GAS tidak disokong.' };
+                }
+                if (data.success === false) {
+                    const rawMsg = typeof data.message === 'string' && data.message.trim()
+                        ? data.message.trim().slice(0, 140)
+                        : 'GAS melaporkan ralat semasa ujian sambungan.';
+                    return { ok: false, message: `Ujian sambungan gagal: ${rawMsg}` };
+                }
+                if (data.success !== true) {
+                    return { ok: false, message: 'Ujian sambungan gagal: Struktur respons GAS tidak disokong.' };
+                }
+                const respModule = String(data.module || '').trim();
+                if (!respModule || respModule !== this.EXPECTED_MODULE) {
+                    return { ok: false, message: 'Ujian sambungan gagal: URL GAS tidak sepadan dengan modul yang dipilih.' };
+                }
+
+                const allowed = SaringanModule.ALLOWED_EVENT_NOS;
+                if (Array.isArray(data.foundTabs)) {
+                    const normalizedFound = data.foundTabs.map(t => String(t).trim());
+                    const matchedTabs = allowed.filter(no => normalizedFound.includes(no));
+                    const missingTabs = Array.isArray(data.missingTabs)
+                        ? data.missingTabs.map(t => String(t).trim()).filter(Boolean)
+                        : allowed.filter(no => !normalizedFound.includes(no));
+                    return {
+                        ok: true,
+                        responseType: 'metadata',
+                        tabCount: matchedTabs.length,
+                        totalExpected: allowed.length,
+                        missingTabs
+                    };
+                }
+
+                if (data.events && typeof data.events === 'object' && !Array.isArray(data.events)) {
+                    const matchedTabs = allowed.filter(no => data.events[no] && typeof data.events[no] === 'object');
+                    const missingTabs = allowed.filter(no => !(data.events[no] && typeof data.events[no] === 'object'));
+                    return {
+                        ok: true,
+                        responseType: 'events',
+                        tabCount: matchedTabs.length,
+                        totalExpected: allowed.length,
+                        missingTabs
+                    };
+                }
+
+                return { ok: false, message: 'Ujian sambungan gagal: Struktur respons GAS tidak disokong.' };
+            },
+
             async testConnection() {
                 const inputEl = document.getElementById('gas-url-saringan');
                 const url = inputEl ? inputEl.value.trim() : '';
@@ -3881,22 +3931,42 @@ function jsonResponse_(obj) {
 
                 UIComponents.showLoading('Menguji sambungan Acara Saringan...');
                 try {
-                    const res = await fetch(url);
-                    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-                    const data = await res.json();
-                    if (!data || data.success !== true || !data.events) {
-                        throw new Error('Format JSON tidak sah daripada GAS.');
+                    let res;
+                    try {
+                        res = await fetch(url);
+                    } catch (netErr) {
+                        throw new Error('Ujian sambungan gagal: URL GAS tidak dapat diakses.');
                     }
-                    const tabCount = SaringanModule.ALLOWED_EVENT_NOS.filter(no => Boolean(data.events[no])).length;
+                    if (!res.ok) {
+                        throw new Error(`Ujian sambungan gagal: URL GAS tidak dapat diakses (HTTP ${res.status}).`);
+                    }
+                    let data;
+                    try {
+                        data = await res.json();
+                    } catch (parseErr) {
+                        throw new Error('Ujian sambungan gagal: Respons GAS bukan JSON yang sah.');
+                    }
+
+                    const check = this.validateGasTestResponse(data);
+                    if (!check.ok) {
+                        throw new Error(check.message);
+                    }
+
                     const connEl = document.getElementById('saringan-status-connection');
                     const tabsEl = document.getElementById('saringan-status-tabs');
+                    const detailEl = document.getElementById('saringan-status-detail');
                     if (connEl) connEl.textContent = 'Ujian Berjaya';
-                    if (tabsEl) tabsEl.textContent = `${tabCount} / 9 Tab`;
-                    UIComponents.showToast(`Sambungan berjaya! ${tabCount} tab ditemui.`, 'success');
+                    if (tabsEl) tabsEl.textContent = `${check.tabCount} / ${check.totalExpected} Tab`;
+                    if (detailEl) {
+                        detailEl.textContent = check.missingTabs.length > 0
+                            ? `Sambungan disahkan (${check.tabCount}/${check.totalExpected} tab ditemui; tab tiada: ${check.missingTabs.join(', ')}). Tekan Simpan untuk mengimport data acara.`
+                            : `Sambungan disahkan (${check.tabCount}/${check.totalExpected} tab ditemui). Tekan Simpan untuk mengimport data acara.`;
+                    }
+                    UIComponents.showToast(`Ujian sambungan berjaya. Tab Google Sheets berjaya dikenal pasti (${check.tabCount}/${check.totalExpected}).`, 'success');
                 } catch (err) {
                     const connEl = document.getElementById('saringan-status-connection');
                     if (connEl) connEl.textContent = 'Ujian Gagal';
-                    UIComponents.showToast(`Ujian sambungan gagal: ${err.message}`, 'error');
+                    UIComponents.showToast(err.message, 'error');
                 } finally {
                     UIComponents.hideLoading();
                 }
@@ -3915,8 +3985,8 @@ function jsonResponse_(obj) {
                     const res = await fetch(url);
                     if (!res.ok) throw new Error(`HTTP ${res.status}`);
                     const data = await res.json();
-                    if (!data || data.success !== true || !data.events) {
-                        throw new Error('Struktur data tidak sah.');
+                    if (!data || data.success !== true || String(data.module || '').trim() !== this.EXPECTED_MODULE || !data.events || typeof data.events !== 'object' || Array.isArray(data.events)) {
+                        throw new Error('Endpoint GAS tidak memulangkan objek keputusan acara (events) yang sah untuk diimport.');
                     }
 
                     const existingStore = StorageManager.getSaringanStore();
@@ -3925,7 +3995,7 @@ function jsonResponse_(obj) {
 
                     SaringanModule.ALLOWED_EVENT_NOS.forEach(no => {
                         const incoming = data.events[no];
-                        if (!incoming) return;
+                        if (!incoming || typeof incoming !== 'object') return;
                         tabCount++;
                         const prev = existingStore.events && existingStore.events[no];
                         nextEvents[no] = {
@@ -3943,6 +4013,10 @@ function jsonResponse_(obj) {
                             }
                         };
                     });
+
+                    if (tabCount === 0) {
+                        throw new Error('Tiada rekod tab acara sah ditemui dalam respons GAS.');
+                    }
 
                     const nowIso = new Date().toISOString();
                     StorageManager.saveSaringanStore({ events: nextEvents });
@@ -3979,6 +4053,7 @@ function jsonResponse_(obj) {
          * 4J. PENGAWAL GAS AKHIR BALAPAN (AkhirBalapanGasController)
          */
         const AkhirBalapanGasController = {
+            EXPECTED_MODULE: 'akhir-balapan',
             GAS_SOURCE_CODE: `/**
  * STATISTIX HUB — GOOGLE APPS SCRIPT (AKHIR BALAPAN)
  * Julat Bacaan:
@@ -4214,7 +4289,7 @@ function jsonResponse_(obj) {
 
                 AkhirBalapanModule.ALLOWED_EVENT_NOS.forEach(no => {
                     const incoming = rawEvents[no];
-                    if (!incoming) return;
+                    if (!incoming || typeof incoming !== 'object') return;
                     tabCount++;
                     const prev = existingStore.events && existingStore.events[no];
                     nextEvents[no] = {
@@ -4230,6 +4305,55 @@ function jsonResponse_(obj) {
                 return { nextEvents, tabCount };
             },
 
+            validateGasTestResponse(data) {
+                if (!data || typeof data !== 'object' || Array.isArray(data)) {
+                    return { ok: false, message: 'Ujian sambungan gagal: Struktur respons GAS tidak disokong.' };
+                }
+                if (data.success === false) {
+                    const rawMsg = typeof data.message === 'string' && data.message.trim()
+                        ? data.message.trim().slice(0, 140)
+                        : 'GAS melaporkan ralat semasa ujian sambungan.';
+                    return { ok: false, message: `Ujian sambungan gagal: ${rawMsg}` };
+                }
+                if (data.success !== true) {
+                    return { ok: false, message: 'Ujian sambungan gagal: Struktur respons GAS tidak disokong.' };
+                }
+                const respModule = String(data.module || '').trim();
+                if (!respModule || respModule !== this.EXPECTED_MODULE) {
+                    return { ok: false, message: 'Ujian sambungan gagal: URL GAS tidak sepadan dengan modul yang dipilih.' };
+                }
+
+                const allowed = AkhirBalapanModule.ALLOWED_EVENT_NOS;
+                if (Array.isArray(data.foundTabs)) {
+                    const normalizedFound = data.foundTabs.map(t => String(t).trim());
+                    const matchedTabs = allowed.filter(no => normalizedFound.includes(no));
+                    const missingTabs = Array.isArray(data.missingTabs)
+                        ? data.missingTabs.map(t => String(t).trim()).filter(Boolean)
+                        : allowed.filter(no => !normalizedFound.includes(no));
+                    return {
+                        ok: true,
+                        responseType: 'metadata',
+                        tabCount: matchedTabs.length,
+                        totalExpected: allowed.length,
+                        missingTabs
+                    };
+                }
+
+                if (data.events && typeof data.events === 'object' && !Array.isArray(data.events)) {
+                    const matchedTabs = allowed.filter(no => data.events[no] && typeof data.events[no] === 'object');
+                    const missingTabs = allowed.filter(no => !(data.events[no] && typeof data.events[no] === 'object'));
+                    return {
+                        ok: true,
+                        responseType: 'events',
+                        tabCount: matchedTabs.length,
+                        totalExpected: allowed.length,
+                        missingTabs
+                    };
+                }
+
+                return { ok: false, message: 'Ujian sambungan gagal: Struktur respons GAS tidak disokong.' };
+            },
+
             async testConnection() {
                 const inputEl = document.getElementById('gas-url-akhir-balapan');
                 const url = inputEl ? inputEl.value.trim() : '';
@@ -4240,22 +4364,42 @@ function jsonResponse_(obj) {
 
                 UIComponents.showLoading('Menguji sambungan Akhir Balapan...');
                 try {
-                    const res = await fetch(url);
-                    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-                    const data = await res.json();
-                    if (!data || data.success !== true || !data.events) {
-                        throw new Error('Format JSON tidak sah daripada GAS.');
+                    let res;
+                    try {
+                        res = await fetch(url);
+                    } catch (netErr) {
+                        throw new Error('Ujian sambungan gagal: URL GAS tidak dapat diakses.');
                     }
-                    const tabCount = AkhirBalapanModule.ALLOWED_EVENT_NOS.filter(no => Boolean(data.events[no])).length;
+                    if (!res.ok) {
+                        throw new Error(`Ujian sambungan gagal: URL GAS tidak dapat diakses (HTTP ${res.status}).`);
+                    }
+                    let data;
+                    try {
+                        data = await res.json();
+                    } catch (parseErr) {
+                        throw new Error('Ujian sambungan gagal: Respons GAS bukan JSON yang sah.');
+                    }
+
+                    const check = this.validateGasTestResponse(data);
+                    if (!check.ok) {
+                        throw new Error(check.message);
+                    }
+
                     const connEl = document.getElementById('akhir-balapan-status-connection');
                     const tabsEl = document.getElementById('akhir-balapan-status-tabs');
+                    const detailEl = document.getElementById('akhir-balapan-status-detail');
                     if (connEl) connEl.textContent = 'Ujian Berjaya';
-                    if (tabsEl) tabsEl.textContent = `${tabCount} / 9 Tab`;
-                    UIComponents.showToast(`Sambungan berjaya! ${tabCount} tab ditemui.`, 'success');
+                    if (tabsEl) tabsEl.textContent = `${check.tabCount} / ${check.totalExpected} Tab`;
+                    if (detailEl) {
+                        detailEl.textContent = check.missingTabs.length > 0
+                            ? `Sambungan disahkan (${check.tabCount}/${check.totalExpected} tab ditemui; tab tiada: ${check.missingTabs.join(', ')}). Tekan Simpan untuk mengimport data acara.`
+                            : `Sambungan disahkan (${check.tabCount}/${check.totalExpected} tab ditemui). Tekan Simpan untuk mengimport data acara.`;
+                    }
+                    UIComponents.showToast(`Ujian sambungan berjaya. Tab Google Sheets berjaya dikenal pasti (${check.tabCount}/${check.totalExpected}).`, 'success');
                 } catch (err) {
                     const connEl = document.getElementById('akhir-balapan-status-connection');
                     if (connEl) connEl.textContent = 'Ujian Gagal';
-                    UIComponents.showToast(`Ujian sambungan gagal: ${err.message}`, 'error');
+                    UIComponents.showToast(err.message, 'error');
                 } finally {
                     UIComponents.hideLoading();
                 }
@@ -4274,12 +4418,15 @@ function jsonResponse_(obj) {
                     const res = await fetch(url);
                     if (!res.ok) throw new Error(`HTTP ${res.status}`);
                     const data = await res.json();
-                    if (!data || data.success !== true || !data.events) {
-                        throw new Error('Struktur data tidak sah.');
+                    if (!data || data.success !== true || String(data.module || '').trim() !== this.EXPECTED_MODULE || !data.events || typeof data.events !== 'object' || Array.isArray(data.events)) {
+                        throw new Error('Endpoint GAS tidak memulangkan objek keputusan acara (events) yang sah untuk diimport.');
                     }
 
                     const existingStore = StorageManager.getAkhirBalapanStore();
                     const { nextEvents, tabCount } = this.importAndNormalizeData(data.events, existingStore);
+                    if (tabCount === 0) {
+                        throw new Error('Tiada rekod tab acara sah ditemui dalam respons GAS.');
+                    }
 
                     const nowIso = new Date().toISOString();
                     StorageManager.saveAkhirBalapanStore({ events: nextEvents });
@@ -4370,6 +4517,7 @@ function jsonResponse_(obj) {
          * 4K. PENGAWAL GAS ACARA RELAY (RelayGasController)
          */
         const RelayGasController = {
+            EXPECTED_MODULE: 'relay',
             GAS_SOURCE_CODE: `/**
  * STATISTIX HUB — GOOGLE APPS SCRIPT (ACARA RELAY)
  * Tab Dibenarkan: 411, 412, 413, 414, 415, 424, 425
@@ -4572,6 +4720,55 @@ function jsonResponse_(obj) {
                 UIComponents.showToast('URL dan data Acara Relay telah dihapus.', 'warning');
             },
 
+            validateGasTestResponse(data) {
+                if (!data || typeof data !== 'object' || Array.isArray(data)) {
+                    return { ok: false, message: 'Ujian sambungan gagal: Struktur respons GAS tidak disokong.' };
+                }
+                if (data.success === false) {
+                    const rawMsg = typeof data.message === 'string' && data.message.trim()
+                        ? data.message.trim().slice(0, 140)
+                        : 'GAS melaporkan ralat semasa ujian sambungan.';
+                    return { ok: false, message: `Ujian sambungan gagal: ${rawMsg}` };
+                }
+                if (data.success !== true) {
+                    return { ok: false, message: 'Ujian sambungan gagal: Struktur respons GAS tidak disokong.' };
+                }
+                const respModule = String(data.module || '').trim();
+                if (!respModule || respModule !== this.EXPECTED_MODULE) {
+                    return { ok: false, message: 'Ujian sambungan gagal: URL GAS tidak sepadan dengan modul yang dipilih.' };
+                }
+
+                const allowed = RelayModule.ALLOWED_EVENT_NOS;
+                if (Array.isArray(data.foundTabs)) {
+                    const normalizedFound = data.foundTabs.map(t => String(t).trim());
+                    const matchedTabs = allowed.filter(no => normalizedFound.includes(no));
+                    const missingTabs = Array.isArray(data.missingTabs)
+                        ? data.missingTabs.map(t => String(t).trim()).filter(Boolean)
+                        : allowed.filter(no => !normalizedFound.includes(no));
+                    return {
+                        ok: true,
+                        responseType: 'metadata',
+                        tabCount: matchedTabs.length,
+                        totalExpected: allowed.length,
+                        missingTabs
+                    };
+                }
+
+                if (data.events && typeof data.events === 'object' && !Array.isArray(data.events)) {
+                    const matchedTabs = allowed.filter(no => data.events[no] && typeof data.events[no] === 'object');
+                    const missingTabs = allowed.filter(no => !(data.events[no] && typeof data.events[no] === 'object'));
+                    return {
+                        ok: true,
+                        responseType: 'events',
+                        tabCount: matchedTabs.length,
+                        totalExpected: allowed.length,
+                        missingTabs
+                    };
+                }
+
+                return { ok: false, message: 'Ujian sambungan gagal: Struktur respons GAS tidak disokong.' };
+            },
+
             async testConnection() {
                 const inputEl = document.getElementById('gas-url-relay');
                 const url = inputEl ? inputEl.value.trim() : '';
@@ -4582,22 +4779,42 @@ function jsonResponse_(obj) {
 
                 UIComponents.showLoading('Menguji sambungan Acara Relay...');
                 try {
-                    const res = await fetch(url);
-                    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-                    const data = await res.json();
-                    if (!data || data.success !== true || !data.events) {
-                        throw new Error('Format JSON tidak sah.');
+                    let res;
+                    try {
+                        res = await fetch(url);
+                    } catch (netErr) {
+                        throw new Error('Ujian sambungan gagal: URL GAS tidak dapat diakses.');
                     }
-                    const tabCount = RelayModule.ALLOWED_EVENT_NOS.filter(no => Boolean(data.events[no])).length;
+                    if (!res.ok) {
+                        throw new Error(`Ujian sambungan gagal: URL GAS tidak dapat diakses (HTTP ${res.status}).`);
+                    }
+                    let data;
+                    try {
+                        data = await res.json();
+                    } catch (parseErr) {
+                        throw new Error('Ujian sambungan gagal: Respons GAS bukan JSON yang sah.');
+                    }
+
+                    const check = this.validateGasTestResponse(data);
+                    if (!check.ok) {
+                        throw new Error(check.message);
+                    }
+
                     const connEl = document.getElementById('relay-status-connection');
                     const tabsEl = document.getElementById('relay-status-tabs');
+                    const detailEl = document.getElementById('relay-status-detail');
                     if (connEl) connEl.textContent = 'Ujian Berjaya';
-                    if (tabsEl) tabsEl.textContent = `${tabCount} / 7 Tab`;
-                    UIComponents.showToast(`Sambungan berjaya! ${tabCount} tab ditemui.`, 'success');
+                    if (tabsEl) tabsEl.textContent = `${check.tabCount} / ${check.totalExpected} Tab`;
+                    if (detailEl) {
+                        detailEl.textContent = check.missingTabs.length > 0
+                            ? `Sambungan disahkan (${check.tabCount}/${check.totalExpected} tab ditemui; tab tiada: ${check.missingTabs.join(', ')}). Tekan Simpan untuk mengimport data acara.`
+                            : `Sambungan disahkan (${check.tabCount}/${check.totalExpected} tab ditemui). Tekan Simpan untuk mengimport data acara.`;
+                    }
+                    UIComponents.showToast(`Ujian sambungan berjaya. Tab Google Sheets berjaya dikenal pasti (${check.tabCount}/${check.totalExpected}).`, 'success');
                 } catch (err) {
                     const connEl = document.getElementById('relay-status-connection');
                     if (connEl) connEl.textContent = 'Ujian Gagal';
-                    UIComponents.showToast(`Ujian sambungan gagal: ${err.message}`, 'error');
+                    UIComponents.showToast(err.message, 'error');
                 } finally {
                     UIComponents.hideLoading();
                 }
@@ -4616,8 +4833,8 @@ function jsonResponse_(obj) {
                     const res = await fetch(url);
                     if (!res.ok) throw new Error(`HTTP ${res.status}`);
                     const data = await res.json();
-                    if (!data || data.success !== true || !data.events) {
-                        throw new Error('Struktur data tidak sah.');
+                    if (!data || data.success !== true || String(data.module || '').trim() !== this.EXPECTED_MODULE || !data.events || typeof data.events !== 'object' || Array.isArray(data.events)) {
+                        throw new Error('Endpoint GAS tidak memulangkan objek keputusan acara (events) yang sah untuk diimport.');
                     }
 
                     const existingStore = StorageManager.getRelayStore();
@@ -4626,7 +4843,7 @@ function jsonResponse_(obj) {
 
                     RelayModule.ALLOWED_EVENT_NOS.forEach(no => {
                         const incoming = data.events[no];
-                        if (!incoming) return;
+                        if (!incoming || typeof incoming !== 'object') return;
                         tabCount++;
                         const prev = existingStore.events && existingStore.events[no];
                         nextEvents[no] = {
@@ -4638,6 +4855,10 @@ function jsonResponse_(obj) {
                             perempuan: Array.isArray(incoming.perempuan) ? incoming.perempuan : []
                         };
                     });
+
+                    if (tabCount === 0) {
+                        throw new Error('Tiada rekod tab acara sah ditemui dalam respons GAS.');
+                    }
 
                     const nowIso = new Date().toISOString();
                     StorageManager.saveRelayStore({ events: nextEvents });
@@ -4727,6 +4948,7 @@ function jsonResponse_(obj) {
          * 4L. PENGAWAL GAS ACARA PADANG (PadangGasController)
          */
         const PadangGasController = {
+            EXPECTED_MODULE: 'padang',
             GAS_SOURCE_CODE: `/**
  * STATISTIX HUB — GOOGLE APPS SCRIPT (ACARA PADANG)
  * Tab Dibenarkan: LONGJUMP, HIGHJUMP, SHOTPUT
@@ -4934,6 +5156,55 @@ function jsonResponse_(obj) {
                 UIComponents.showToast('URL dan data Acara Padang telah dihapus.', 'warning');
             },
 
+            validateGasTestResponse(data) {
+                if (!data || typeof data !== 'object' || Array.isArray(data)) {
+                    return { ok: false, message: 'Ujian sambungan gagal: Struktur respons GAS tidak disokong.' };
+                }
+                if (data.success === false) {
+                    const rawMsg = typeof data.message === 'string' && data.message.trim()
+                        ? data.message.trim().slice(0, 140)
+                        : 'GAS melaporkan ralat semasa ujian sambungan.';
+                    return { ok: false, message: `Ujian sambungan gagal: ${rawMsg}` };
+                }
+                if (data.success !== true) {
+                    return { ok: false, message: 'Ujian sambungan gagal: Struktur respons GAS tidak disokong.' };
+                }
+                const respModule = String(data.module || '').trim();
+                if (!respModule || respModule !== this.EXPECTED_MODULE) {
+                    return { ok: false, message: 'Ujian sambungan gagal: URL GAS tidak sepadan dengan modul yang dipilih.' };
+                }
+
+                const allowed = PadangModule.ALLOWED_EVENT_NOS;
+                if (Array.isArray(data.foundTabs)) {
+                    const normalizedFound = data.foundTabs.map(t => String(t).trim().toUpperCase());
+                    const matchedTabs = allowed.filter(no => normalizedFound.includes(no));
+                    const missingTabs = Array.isArray(data.missingTabs)
+                        ? data.missingTabs.map(t => String(t).trim().toUpperCase()).filter(Boolean)
+                        : allowed.filter(no => !normalizedFound.includes(no));
+                    return {
+                        ok: true,
+                        responseType: 'metadata',
+                        tabCount: matchedTabs.length,
+                        totalExpected: allowed.length,
+                        missingTabs
+                    };
+                }
+
+                if (data.events && typeof data.events === 'object' && !Array.isArray(data.events)) {
+                    const matchedTabs = allowed.filter(no => data.events[no] && typeof data.events[no] === 'object');
+                    const missingTabs = allowed.filter(no => !(data.events[no] && typeof data.events[no] === 'object'));
+                    return {
+                        ok: true,
+                        responseType: 'events',
+                        tabCount: matchedTabs.length,
+                        totalExpected: allowed.length,
+                        missingTabs
+                    };
+                }
+
+                return { ok: false, message: 'Ujian sambungan gagal: Struktur respons GAS tidak disokong.' };
+            },
+
             async testConnection() {
                 const inputEl = document.getElementById('gas-url-padang');
                 const url = inputEl ? inputEl.value.trim() : '';
@@ -4944,22 +5215,42 @@ function jsonResponse_(obj) {
 
                 UIComponents.showLoading('Menguji sambungan Acara Padang...');
                 try {
-                    const res = await fetch(url);
-                    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-                    const data = await res.json();
-                    if (!data || data.success !== true || !data.events) {
-                        throw new Error('Format JSON tidak sah.');
+                    let res;
+                    try {
+                        res = await fetch(url);
+                    } catch (netErr) {
+                        throw new Error('Ujian sambungan gagal: URL GAS tidak dapat diakses.');
                     }
-                    const tabCount = PadangModule.ALLOWED_EVENT_NOS.filter(no => Boolean(data.events[no])).length;
+                    if (!res.ok) {
+                        throw new Error(`Ujian sambungan gagal: URL GAS tidak dapat diakses (HTTP ${res.status}).`);
+                    }
+                    let data;
+                    try {
+                        data = await res.json();
+                    } catch (parseErr) {
+                        throw new Error('Ujian sambungan gagal: Respons GAS bukan JSON yang sah.');
+                    }
+
+                    const check = this.validateGasTestResponse(data);
+                    if (!check.ok) {
+                        throw new Error(check.message);
+                    }
+
                     const connEl = document.getElementById('padang-status-connection');
                     const tabsEl = document.getElementById('padang-status-tabs');
+                    const detailEl = document.getElementById('padang-status-detail');
                     if (connEl) connEl.textContent = 'Ujian Berjaya';
-                    if (tabsEl) tabsEl.textContent = `${tabCount} / 3 Tab`;
-                    UIComponents.showToast(`Sambungan berjaya! ${tabCount} tab ditemui.`, 'success');
+                    if (tabsEl) tabsEl.textContent = `${check.tabCount} / ${check.totalExpected} Tab`;
+                    if (detailEl) {
+                        detailEl.textContent = check.missingTabs.length > 0
+                            ? `Sambungan disahkan (${check.tabCount}/${check.totalExpected} tab ditemui; tab tiada: ${check.missingTabs.join(', ')}). Tekan Simpan untuk mengimport data acara.`
+                            : `Sambungan disahkan (${check.tabCount}/${check.totalExpected} tab ditemui). Tekan Simpan untuk mengimport data acara.`;
+                    }
+                    UIComponents.showToast(`Ujian sambungan berjaya. Tab Google Sheets berjaya dikenal pasti (${check.tabCount}/${check.totalExpected}).`, 'success');
                 } catch (err) {
                     const connEl = document.getElementById('padang-status-connection');
                     if (connEl) connEl.textContent = 'Ujian Gagal';
-                    UIComponents.showToast(`Ujian sambungan gagal: ${err.message}`, 'error');
+                    UIComponents.showToast(err.message, 'error');
                 } finally {
                     UIComponents.hideLoading();
                 }
@@ -4978,8 +5269,8 @@ function jsonResponse_(obj) {
                     const res = await fetch(url);
                     if (!res.ok) throw new Error(`HTTP ${res.status}`);
                     const data = await res.json();
-                    if (!data || data.success !== true || !data.events) {
-                        throw new Error('Struktur data tidak sah.');
+                    if (!data || data.success !== true || String(data.module || '').trim() !== this.EXPECTED_MODULE || !data.events || typeof data.events !== 'object' || Array.isArray(data.events)) {
+                        throw new Error('Endpoint GAS tidak memulangkan objek keputusan acara (events) yang sah untuk diimport.');
                     }
 
                     const existingStore = StorageManager.getPadangStore();
@@ -4988,7 +5279,7 @@ function jsonResponse_(obj) {
 
                     PadangModule.ALLOWED_EVENT_NOS.forEach(no => {
                         const incoming = data.events[no];
-                        if (!incoming) return;
+                        if (!incoming || typeof incoming !== 'object') return;
                         tabCount++;
                         const prev = existingStore.events && existingStore.events[no];
                         nextEvents[no] = {
@@ -5000,6 +5291,10 @@ function jsonResponse_(obj) {
                             perempuan: Array.isArray(incoming.perempuan) ? incoming.perempuan : []
                         };
                     });
+
+                    if (tabCount === 0) {
+                        throw new Error('Tiada rekod tab acara sah ditemui dalam respons GAS.');
+                    }
 
                     const nowIso = new Date().toISOString();
                     StorageManager.savePadangStore({ events: nextEvents });
@@ -5099,7 +5394,7 @@ function jsonResponse_(obj) {
                 return `
                     <button
                         type="button"
-                        onclick="ResultPrintController.printEvent('${safeModule}', '${safeEventNo}')"
+                        onclick="ResultPrintController.printEvent('safeModule','{safeEventNo}')"
                         aria-label="Cetak Keputusan Acara ${safeEventNo}"
                         class="inline-flex items-center gap-1.5 min-h-[44px] px-3.5 py-2 rounded-xl text-xs font-sans font-bold bg-gold hover:bg-gold-light text-navy-dark shadow-2xs transition-colors cursor-pointer"
                     >
@@ -5143,7 +5438,7 @@ function jsonResponse_(obj) {
 
             buildTableHtml(headers, rowsHtml, emptyColspan) {
                 const theadCells = headers.map(h =>
-                    `<th style="text-align:${h.align || 'left'};${h.width ? 'width:' + h.width + ';' : ''}">${SaringanModule.escapeHtml(h.label)}</th>`
+                    `<th style="text-align:h.align||'left';{h.width ? 'width:' + h.width + ';' : ''}">${SaringanModule.escapeHtml(h.label)}</th>`
                 ).join('');
 
                 const tbodyContent = rowsHtml
@@ -5168,7 +5463,7 @@ function jsonResponse_(obj) {
                     const raw = String(team || '').trim();
                     if (!raw) return '<td>—</td>';
                     const colorHex = this.getTeamPrintColorHex(raw);
-                    return `<td style="color:${colorHex};font-weight:700;">${esc(raw)}</td>`;
+                    return `<td style="color:colorHex;font-weight:700;">{esc(raw)}</td>`;
                 };
 
                 if (moduleId === 'saringan') {
@@ -5195,7 +5490,7 @@ function jsonResponse_(obj) {
                         `).join('');
                         return `
                             <div class="subtable-block">
-                                <div class="subtable-title">${esc(heatLabel)} (${list.length} Peserta)</div>
+                                <div class="subtable-title">esc(heatLabel)({list.length} Peserta)</div>
                                 ${this.buildTableHtml(headers, body, 6)}
                             </div>
                         `;
@@ -5244,7 +5539,7 @@ function jsonResponse_(obj) {
                         `).join('');
                         return `
                             <section class="category-section">
-                                <div class="category-banner ${bannerClass}">${esc(bannerText)} (${list.length} Atlet)</div>
+                                <div class="category-banner bannerClass">{esc(bannerText)} (${list.length} Atlet)</div>
                                 ${this.buildTableHtml(headers, body, 6)}
                             </section>
                         `;
@@ -5276,7 +5571,7 @@ function jsonResponse_(obj) {
                         `).join('');
                         return `
                             <section class="category-section">
-                                <div class="category-banner ${bannerClass}">${esc(bannerText)} (${list.length} Pasukan)</div>
+                                <div class="category-banner bannerClass">{esc(bannerText)} (${list.length} Pasukan)</div>
                                 ${this.buildTableHtml(headers, body, 4)}
                             </section>
                         `;
@@ -5324,7 +5619,7 @@ function jsonResponse_(obj) {
                         `).join('');
                         return `
                             <section class="category-section">
-                                <div class="category-banner ${bannerClass}">${esc(bannerText)} (${list.length} Atlet)</div>
+                                <div class="category-banner bannerClass">{esc(bannerText)} (${list.length} Atlet)</div>
                                 ${this.buildTableHtml(headers, body, 12)}
                             </section>
                         `;
@@ -5361,7 +5656,7 @@ function jsonResponse_(obj) {
 <html lang="ms">
 <head>
     <meta charset="UTF-8">
-    <title>STATISTIX HUB — ${SaringanModule.escapeHtml(moduleHeading)} (${SaringanModule.escapeHtml(eventNo)})</title>
+    <title>STATISTIX HUB — SaringanModule.escapeHtml(moduleHeading)({SaringanModule.escapeHtml(eventNo)})</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Montserrat:wght@700;800&display=swap" rel="stylesheet">
