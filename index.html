@@ -1149,6 +1149,7 @@
         },
 
         startInlineEdit(eventNo, gender, heat, sheetRow, noBib, field, currentValue) {
+            if (this.isSavingCell) return;
             const store = StorageManager.getSaringanStore();
             const ev = store.events && store.events[eventNo];
             if (!ev) return;
@@ -1158,28 +1159,74 @@
                 return;
             }
 
+            if (gender !== 'lelaki' && gender !== 'perempuan') return;
+            if (heat !== 'saringan1' && heat !== 'saringan2') return;
+            const rowNum = Number(sheetRow);
+            const validRow = (heat === 'saringan1' && rowNum >= 2 && rowNum <= 12) ||
+                             (heat === 'saringan2' && rowNum >= 18 && rowNum <= 25);
+            if (!validRow) return;
             if (field !== 'kedudukan' && field !== 'masa') return;
 
             this.editingCell = {
                 eventNo: String(eventNo),
                 gender: String(gender),
                 heat: String(heat),
-                sheetRow: Number(sheetRow),
+                sheetRow: rowNum,
                 noBib: String(noBib || ''),
                 field: String(field),
                 expectedValue: String(currentValue || '').trim(),
                 draftValue: String(currentValue || '').trim()
             };
             AppController.loadView('saringan');
+
+            requestAnimationFrame(() => {
+                const inputEl = document.getElementById('saringan-inline-edit-input');
+                if (inputEl) {
+                    inputEl.focus();
+                    inputEl.select();
+                }
+            });
         },
 
         cancelInlineEdit() {
+            if (this.isSavingCell || !this.editingCell) return;
             this.editingCell = null;
             AppController.loadView('saringan');
         },
 
+        handleInlineInputKeydown(event) {
+            if (event.key === 'Enter') {
+                event.preventDefault();
+                event.stopPropagation();
+                if (!this.isSavingCell) {
+                    this.saveInlineEdit();
+                }
+            } else if (event.key === 'Escape') {
+                event.preventDefault();
+                event.stopPropagation();
+                if (!this.isSavingCell) {
+                    this.cancelInlineEdit();
+                }
+            }
+        },
+
+        handleInlineInputBlur() {
+            if (this.isSavingCell) return;
+            this.cancelInlineEdit();
+        },
+
         async saveInlineEdit() {
             if (!this.editingCell || this.isSavingCell) return;
+
+            const inputEl = document.getElementById('saringan-inline-edit-input');
+            const newValue = inputEl ? inputEl.value.trim() : this.editingCell.draftValue;
+
+            // Jika nilai tidak berubah, tutup input tanpa menghantar permintaan ke GAS
+            if (newValue === this.editingCell.expectedValue) {
+                this.editingCell = null;
+                AppController.loadView('saringan');
+                return;
+            }
 
             const config = StorageManager.getTournamentConfig();
             const gasUrl = (config.saringanAppsScriptUrl || '').trim();
@@ -1188,9 +1235,6 @@
                 return;
             }
 
-            const inputEl = document.getElementById('saringan-inline-edit-input');
-            const newValue = inputEl ? inputEl.value.trim() : this.editingCell.draftValue;
-
             const store = StorageManager.getSaringanStore();
             const ev = store.events && store.events[this.editingCell.eventNo];
             if (!ev || ev.status === 'DISAHKAN_RASMI') {
@@ -1198,8 +1242,14 @@
                 return;
             }
 
+            this.editingCell.draftValue = newValue;
             this.isSavingCell = true;
-            UIComponents.showLoading('Menyimpan Keputusan ke Google Sheets...');
+            if (inputEl) {
+                inputEl.disabled = true;
+                inputEl.classList.add('opacity-60', 'cursor-wait');
+            }
+            const savingBadge = document.getElementById('saringan-inline-saving-indicator');
+            if (savingBadge) savingBadge.classList.remove('hidden');
 
             try {
                 const bodyParams = new URLSearchParams();
@@ -1255,14 +1305,20 @@
                     newValue
                 });
 
+                this.isSavingCell = false;
                 this.editingCell = null;
                 AppController.loadView('saringan');
                 UIComponents.showToast('Keputusan berjaya dikemas kini dalam Google Sheets!', 'success');
             } catch (err) {
-                UIComponents.showToast(`Gagal mengemas kini: ${err.message}`, 'error');
-            } finally {
                 this.isSavingCell = false;
-                UIComponents.hideLoading();
+                if (savingBadge) savingBadge.classList.add('hidden');
+                if (inputEl) {
+                    inputEl.disabled = false;
+                    inputEl.classList.remove('opacity-60', 'cursor-wait');
+                    inputEl.focus();
+                    inputEl.select();
+                }
+                UIComponents.showToast(`Gagal mengemas kini: ${err.message}`, 'error');
             }
         },
 
@@ -1276,30 +1332,31 @@
                 Number(this.editingCell.sheetRow) === Number(athlete.sheetRow) &&
                 this.editingCell.field === field;
 
+            const alignClass = field === 'masa' ? 'font-mono font-semibold text-right' : 'font-bold text-center';
+
             if (isEditingThis) {
                 return `
-                    <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-1.5 min-w-[150px]">
+                    <div class="relative w-full">
                         <input
                             id="saringan-inline-edit-input"
                             type="text"
+                            enterkeyhint="done"
                             value="${this.escapeHtml(this.editingCell.draftValue)}"
-                            class="w-full px-2 py-1 text-xs font-mono border border-navy-primary rounded-lg bg-white text-navy-dark focus:outline-none focus:ring-2 focus:ring-gold"
+                            oninput="if(SaringanModule.editingCell){SaringanModule.editingCell.draftValue=this.value;}"
+                            onkeydown="SaringanModule.handleInlineInputKeydown(event)"
+                            onblur="SaringanModule.handleInlineInputBlur()"
+                            aria-label="Sunting ${field === 'kedudukan' ? 'Kedudukan' : 'Masa'}"
+                            class="w-full px-2 py-1 text-xs ${alignClass} border-2 border-gold rounded-lg bg-white text-navy-dark focus:outline-none focus:ring-2 focus:ring-gold/50 transition-all"
                         >
-                        <div class="flex items-center gap-1 shrink-0">
-                            <button type="button" onclick="SaringanModule.saveInlineEdit()" class="px-2 py-1 rounded-md text-[10px] font-bold bg-emerald-600 hover:bg-emerald-700 text-white cursor-pointer">
-                                Simpan Keputusan
-                            </button>
-                            <button type="button" onclick="SaringanModule.cancelInlineEdit()" class="px-2 py-1 rounded-md text-[10px] font-semibold bg-slate-200 hover:bg-slate-300 text-slate-800 cursor-pointer">
-                                Batal
-                            </button>
-                        </div>
+                        <span id="saringan-inline-saving-indicator" class="hidden block text-[9px] font-semibold text-amber-700 mt-0.5 text-center">
+                            Menyimpan...
+                        </span>
                     </div>
                 `;
             }
 
-            const alignClass = field === 'masa' ? 'font-mono font-semibold text-right' : 'font-bold text-center';
             if (isVerified || !athlete.sheetRow) {
-                return `<span class="block ${alignClass} text-navy-primary">${this.escapeHtml(displayVal)}</span>`;
+                return `<span class="block px-2 py-1 ${alignClass} text-navy-primary">${this.escapeHtml(displayVal)}</span>`;
             }
 
             return `
@@ -1307,11 +1364,8 @@
                     type="button"
                     title="Klik untuk sunting ${field === 'kedudukan' ? 'Kedudukan' : 'Masa'} (Baris ${athlete.sheetRow})"
                     onclick="SaringanModule.startInlineEdit('${this.escapeHtml(eventNo)}', '${gender}', '${heat}', ${Number(athlete.sheetRow)}, '${this.escapeHtml(athlete.noBib || '')}', '${field}', '${this.escapeHtml(rawVal)}')"
-                    class="w-full inline-flex items-center justify-between gap-1.5 px-2 py-1 rounded-lg hover:bg-gold/15 border border-transparent hover:border-gold/40 transition-colors cursor-pointer group ${alignClass}"
-                >
-                    <span class="flex-1 ${alignClass} text-navy-primary">${this.escapeHtml(displayVal)}</span>
-                    <i data-lucide="pencil" class="w-3 h-3 text-slate-400 group-hover:text-navy-primary shrink-0"></i>
-                </button>
+                    class="w-full block px-2 py-1 rounded-lg hover:bg-gold/15 border border-transparent hover:border-gold/40 transition-colors cursor-pointer ${alignClass} text-navy-primary"
+                >${this.escapeHtml(displayVal)}</button>
             `;
         },
 
