@@ -1899,6 +1899,11 @@
                 }
             },
 
+            handleInlineInputBlur() {
+                if (this.isSavingCell) return;
+                this.cancelInlineEdit();
+            },
+
             async saveInlineEdit() {
                 if (!this.editingCell || this.isSavingCell) return;
 
@@ -1959,7 +1964,7 @@
 
                 if (isEditingThis) {
                     return `
-                        <div class="space-y-1.5 min-w-[115px]">
+                        <div class="relative w-full">
                             <input
                                 id="akhir-balapan-inline-edit-input"
                                 type="text"
@@ -1967,22 +1972,11 @@
                                 value="${SaringanModule.escapeHtml(this.editingCell.draftValue)}"
                                 oninput="if(AkhirBalapanModule.editingCell){AkhirBalapanModule.editingCell.draftValue=this.value;}"
                                 onkeydown="AkhirBalapanModule.handleInlineInputKeydown(event)"
+                                onblur="AkhirBalapanModule.handleInlineInputBlur()"
                                 aria-label="Sunting ${field === 'kedudukan' ? 'Kedudukan' : 'Masa'}"
-                                class="w-full min-h-[36px] px-2 py-1 text-base sm:text-xs ${alignClass} border-2 border-gold rounded-lg bg-white text-navy-dark focus:outline-none focus:ring-2 focus:ring-gold/50 transition-all"
+                                class="w-full min-h-[38px] px-2.5 py-1.5 text-base sm:text-xs ${alignClass} border-2 border-gold rounded-lg bg-white text-navy-dark focus:outline-none focus:ring-2 focus:ring-gold/50 transition-all"
                             >
-                            <div class="flex items-center justify-end gap-1">
-                                <button
-                                    type="button"
-                                    onclick="AkhirBalapanModule.saveInlineEdit()"
-                                    class="px-2 py-1 rounded-md text-[10px] font-bold bg-emerald-600 hover:bg-emerald-700 text-white cursor-pointer"
-                                >Simpan</button>
-                                <button
-                                    type="button"
-                                    onclick="AkhirBalapanModule.cancelInlineEdit()"
-                                    class="px-2 py-1 rounded-md text-[10px] font-semibold bg-slate-200 hover:bg-slate-300 text-slate-700 cursor-pointer"
-                                >Batal</button>
-                            </div>
-                            <span id="akhir-balapan-inline-saving-indicator" class="hidden block text-[10px] font-semibold text-amber-700 text-center">
+                            <span id="akhir-balapan-inline-saving-indicator" class="hidden block text-[10px] font-semibold text-amber-700 mt-0.5 text-center">
                                 Menyimpan...
                             </span>
                         </div>
@@ -1990,7 +1984,7 @@
                 }
 
                 if (!canEdit) {
-                    return `<span class="block px-2 py-1 ${alignClass} text-navy-primary">${SaringanModule.escapeHtml(displayVal)}</span>`;
+                    return `<span class="block px-2.5 py-1.5 ${alignClass} text-navy-primary">${SaringanModule.escapeHtml(displayVal)}</span>`;
                 }
 
                 return `
@@ -1998,7 +1992,7 @@
                         type="button"
                         title="Klik untuk sunting ${field === 'kedudukan' ? 'Kedudukan' : 'Masa'} (Baris ${athlete.sheetRow})"
                         onclick="AkhirBalapanModule.startInlineEdit('${SaringanModule.escapeHtml(eventNo)}', '${gender}', ${Number(athlete.sheetRow)}, '${SaringanModule.escapeHtml(athlete.noBib || '')}', '${field}', '${SaringanModule.escapeHtml(rawVal)}')"
-                        class="w-full min-h-[36px] block px-2 py-1 rounded-lg hover:bg-gold/15 border border-transparent hover:border-gold/40 transition-colors cursor-pointer ${alignClass} text-navy-primary"
+                        class="w-full min-h-[38px] block px-2.5 py-1.5 rounded-lg hover:bg-gold/15 border border-transparent hover:border-gold/40 transition-colors cursor-pointer ${alignClass} text-navy-primary"
                     >${SaringanModule.escapeHtml(displayVal)}</button>
                 `;
             },
@@ -2021,32 +2015,32 @@
                 const isVerified = ev.status === 'DISAHKAN_RASMI';
 
                 const renderTable = (gender, title, rows) => `
-                    <div class="rounded-xl border border-slate-200/90 overflow-hidden bg-white">
-                        <div class="px-4 py-2.5 bg-surface-bg border-b border-slate-200/80 flex items-center justify-between gap-2">
-                            <span class="font-display text-xs font-bold uppercase tracking-wider text-navy-primary">${SaringanModule.escapeHtml(title)}</span>
-                            <span class="text-[11px] font-medium text-ink-muted">${rows.length} Atlet</span>
+                    <div class="rounded-xl border border-slate-200/90 overflow-hidden bg-white shadow-2xs">
+                        <div class="px-4 py-3 bg-surface-bg border-b border-slate-200/80 flex items-center justify-between gap-2">
+                            <span class="font-display text-xs sm:text-sm font-bold uppercase tracking-wider text-navy-primary">${SaringanModule.escapeHtml(title)}</span>
+                            <span class="px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-white border border-slate-200 text-navy-secondary">${rows.length} Atlet</span>
                         </div>
                         <div class="overflow-x-auto">
-                            <table class="w-full text-left border-collapse">
+                            <table class="w-full min-w-[600px] text-left border-collapse">
                                 <thead>
-                                    <tr class="bg-navy-primary text-white font-display text-[11px] uppercase tracking-wider">
-                                        <th class="py-2.5 px-3 text-center w-16">Ked.</th>
-                                        <th class="py-2.5 px-3 text-center w-14">Lorong</th>
-                                        <th class="py-2.5 px-3">Nama Atlet</th>
-                                        <th class="py-2.5 px-3">Pasukan</th>
-                                        <th class="py-2.5 px-3 text-right w-28">Masa</th>
+                                    <tr class="bg-navy-primary text-white font-display text-[11px] sm:text-xs uppercase tracking-wider">
+                                        <th class="py-3 px-3.5 text-center w-16">Lorong</th>
+                                        <th class="py-3 px-3.5 min-w-[200px]">Nama Atlet</th>
+                                        <th class="py-3 px-3.5 min-w-[140px]">Pasukan</th>
+                                        <th class="py-3 px-3.5 text-center w-28">Kedudukan</th>
+                                        <th class="py-3 px-3.5 text-right w-32">Masa</th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     ${rows.length === 0
-                                        ? `<tr><td colspan="5" class="py-6 px-4 text-center text-xs text-ink-muted">Tiada rekod atlet.</td></tr>`
+                                        ? `<tr><td colspan="5" class="py-7 px-4 text-center text-xs sm:text-sm text-ink-muted">Tiada rekod atlet.</td></tr>`
                                         : rows.map(r => `
-                                            <tr class="border-b border-slate-100 hover:bg-surface-bg/70">
-                                                <td class="py-1.5 px-2 text-xs">${this.renderEditableCell(ev.eventNo, gender, r, 'kedudukan', isVerified)}</td>
-                                                <td class="py-2.5 px-3 text-xs font-semibold text-center text-ink-muted">${SaringanModule.escapeHtml(r.lorong || '—')}</td>
-                                                <td class="py-2.5 px-3 text-xs font-semibold text-ink">${SaringanModule.escapeHtml(r.namaAtlet || '—')}</td>
-                                                <td class="py-2.5 px-3 text-xs text-ink-muted">${SaringanModule.escapeHtml(r.pasukan || '—')}</td>
-                                                <td class="py-1.5 px-2 text-xs">${this.renderEditableCell(ev.eventNo, gender, r, 'masa', isVerified)}</td>
+                                            <tr class="border-b border-slate-100 even:bg-slate-50/40 hover:bg-surface-bg/80 transition-colors">
+                                                <td class="py-2.5 px-3.5 text-xs sm:text-sm font-semibold text-center text-ink-muted">${SaringanModule.escapeHtml(r.lorong || '—')}</td>
+                                                <td class="py-2.5 px-3.5 text-xs sm:text-sm font-semibold text-ink">${SaringanModule.escapeHtml(r.namaAtlet || '—')}</td>
+                                                <td class="py-2.5 px-3.5 text-xs sm:text-sm text-ink-muted">${SaringanModule.escapeHtml(r.pasukan || '—')}</td>
+                                                <td class="py-1.5 px-2.5 text-xs sm:text-sm">${this.renderEditableCell(ev.eventNo, gender, r, 'kedudukan', isVerified)}</td>
+                                                <td class="py-1.5 px-2.5 text-xs sm:text-sm">${this.renderEditableCell(ev.eventNo, gender, r, 'masa', isVerified)}</td>
                                             </tr>
                                         `).join('')}
                                 </tbody>
@@ -2056,7 +2050,7 @@
                 `;
 
                 return `
-                    <div class="p-4 sm:p-6 space-y-6">
+                    <div class="p-4 sm:p-6 lg:p-7 space-y-6">
                         <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4 pb-4 border-b border-slate-200/80">
                             <div class="flex items-center gap-2 overflow-x-auto no-scrollbar pb-1">
                                 ${this.ALLOWED_EVENT_NOS.map(no => {
@@ -2093,9 +2087,9 @@
                             </div>
                         </div>
 
-                        <div class="grid grid-cols-1 xl:grid-cols-2 gap-6">
-                            ${renderTable('lelaki', 'Akhir Balapan Lelaki', ev.lelaki || [])}
-                            ${renderTable('perempuan', 'Akhir Balapan Perempuan', ev.perempuan || [])}
+                        <div class="space-y-6">
+                            ${renderTable('lelaki', 'Lelaki Akhir', ev.lelaki || [])}
+                            ${renderTable('perempuan', 'Perempuan Akhir', ev.perempuan || [])}
                         </div>
                     </div>
                 `;
