@@ -2324,51 +2324,9 @@
             renderEditableCell(eventNo, gender, teamRow, field, isVerified) {
                 const rawVal = String(teamRow[field] || '').trim();
                 const displayVal = rawVal || '—';
-                const canEdit = !isVerified && this.isEditableCell(gender, teamRow.sheetRow, field);
-                const isEditingThis = this.editingCell &&
-                    this.editingCell.eventNo === String(eventNo) &&
-                    this.editingCell.gender === gender &&
-                    Number(this.editingCell.sheetRow) === Number(teamRow.sheetRow) &&
-                    this.editingCell.field === field;
-
                 const alignClass = field === 'masa' ? 'font-mono font-semibold text-right' : 'font-bold text-center';
 
-                if (isEditingThis) {
-                    return `
-                        <div class="relative w-full">
-                            <input
-                                id="relay-inline-edit-input"
-                                type="text"
-                                enterkeyhint="done"
-                                value="${SaringanModule.escapeHtml(this.editingCell.draftValue)}"
-                                oninput="if(RelayModule.editingCell){RelayModule.editingCell.draftValue=this.value;}"
-                                onkeydown="RelayModule.handleInlineInputKeydown(event)"
-                                onblur="RelayModule.handleInlineInputBlur()"
-                                aria-label="Sunting ${field === 'kedudukan' ? 'Kedudukan' : 'Masa'}"
-                                class="w-full min-h-[38px] px-2.5 py-1.5 text-base sm:text-xs ${alignClass} border-2 border-gold rounded-lg bg-white text-navy-dark focus:outline-none focus:ring-2 focus:ring-gold/50 transition-all"
-                            >
-                            <span id="relay-inline-saving-indicator" class="hidden block text-[10px] font-semibold text-amber-700 mt-0.5 text-center">
-                                Menyimpan...
-                            </span>
-                        </div>
-                    `;
-                }
-
-                if (!canEdit) {
-                    return `<span class="block px-2.5 py-1.5 ${alignClass} text-navy-primary">${SaringanModule.escapeHtml(displayVal)}</span>`;
-                }
-
-                return `
-                    <button
-                        type="button"
-                        title="Klik untuk sunting ${field === 'kedudukan' ? 'Kedudukan' : 'Masa'} (Baris ${teamRow.sheetRow})"
-                        onclick="RelayModule.startInlineEdit('${SaringanModule.escapeHtml(eventNo)}', '${gender}', ${Number(teamRow.sheetRow)}, '${field}', '${SaringanModule.escapeHtml(rawVal)}')"
-                        class="group w-full min-h-[38px] inline-flex items-center ${field === 'masa' ? 'justify-end' : 'justify-center'} gap-1.5 px-2.5 py-1.5 rounded-lg hover:bg-gold/15 border border-transparent hover:border-gold/40 transition-colors cursor-pointer ${alignClass} text-navy-primary"
-                    >
-                        <span>${SaringanModule.escapeHtml(displayVal)}</span>
-                        <i data-lucide="pencil" class="w-3 h-3 text-slate-400 group-hover:text-navy-primary shrink-0"></i>
-                    </button>
-                `;
+                return `<span class="block px-2.5 py-1.5 ${alignClass} text-navy-primary">${SaringanModule.escapeHtml(displayVal)}</span>`;
             },
 
             renderPublicView() {
