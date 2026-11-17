@@ -588,50 +588,124 @@
                         </div>
 
                         <!-- KAD 3 — ACARA RELAY -->
-                        <div class="bg-white rounded-2xl p-5 sm:p-6 shadow-card border border-slate-200/80 space-y-4">
-                            <div class="flex items-start gap-3.5">
-                                <div class="w-10 h-10 rounded-xl bg-navy-primary/5 border border-slate-200/80 flex items-center justify-center shrink-0">
-                                    <i data-lucide="users" class="w-5 h-5 text-gold-dark"></i>
+                        <div class="bg-white rounded-2xl p-5 sm:p-6 shadow-card border border-slate-200/80 space-y-5">
+                            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-slate-100">
+                                <div class="flex items-start gap-3.5">
+                                    <div class="w-10 h-10 rounded-xl bg-navy-primary/5 border border-slate-200/80 flex items-center justify-center shrink-0">
+                                        <i data-lucide="users" class="w-5 h-5 text-gold-dark"></i>
+                                    </div>
+                                    <div class="min-w-0">
+                                        <h4 class="font-display font-bold text-base sm:text-lg text-navy-primary">
+                                            Acara Relay
+                                        </h4>
+                                        <p class="text-xs sm:text-sm text-ink-muted mt-0.5">
+                                            Tetapan pautan Google Apps Script untuk data acara lari berganti-ganti (7 Tab: 411–415, 424, 425).
+                                        </p>
+                                    </div>
                                 </div>
-                                <div class="min-w-0">
-                                    <h4 class="font-display font-bold text-base sm:text-lg text-navy-primary">
-                                        Acara Relay
-                                    </h4>
-                                    <p class="text-xs sm:text-sm text-ink-muted mt-0.5">
-                                        Tetapan pautan Google Apps Script untuk data acara lari berganti-ganti.
-                                    </p>
-                                </div>
+
+                                <button
+                                    type="button"
+                                    id="btn-open-relay-gas-modal"
+                                    onclick="RelayGasController.openGasModal()"
+                                    class="inline-flex items-center justify-center gap-2 min-h-[44px] px-3.5 py-2.5 rounded-xl text-xs font-bold bg-navy-dark hover:bg-navy-primary text-gold-light border border-gold/40 shadow-xs transition-all cursor-pointer shrink-0 self-start sm:self-center"
+                                >
+                                    <i data-lucide="code-2" class="w-4 h-4 text-gold"></i>
+                                    <span>KOD GOOGLE APP SCRIPT / GAS</span>
+                                </button>
                             </div>
 
                             <div class="space-y-2">
-                                <label for="gas-url-relay" class="block text-xs font-semibold text-navy-primary">
-                                    URL Google Apps Script
-                                </label>
+                                <div class="flex items-center justify-between gap-2">
+                                    <label for="gas-url-relay" class="block text-xs font-semibold text-navy-primary">
+                                        URL Google Apps Script
+                                    </label>
+                                    <span id="relay-url-mode-badge" class="inline-flex items-center px-2 py-0.5 rounded-md text-[10px] font-bold uppercase tracking-wider bg-slate-100 text-slate-600 border border-slate-200">
+                                        Sedia Diisi
+                                    </span>
+                                </div>
                                 <input
                                     id="gas-url-relay"
                                     type="url"
                                     placeholder="https://script.google.com/macros/s/.../exec"
-                                    class="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 bg-surface-bg/60 text-xs sm:text-sm font-mono text-ink placeholder:text-slate-400 focus:outline-none focus:bg-white focus:border-navy-primary focus:ring-2 focus:ring-gold/40 transition-all"
+                                    class="w-full min-h-[44px] px-3.5 py-2.5 rounded-xl border border-slate-300 bg-surface-bg/60 text-base sm:text-sm font-mono text-ink placeholder:text-slate-400 focus:outline-none focus:bg-white focus:border-navy-primary focus:ring-2 focus:ring-gold/40 transition-all disabled:bg-slate-100 disabled:text-slate-500 disabled:cursor-not-allowed"
                                 >
                             </div>
 
-                            <div class="pt-1 grid grid-cols-2 sm:flex sm:flex-wrap items-center gap-2.5">
-                                <button type="button" class="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-xs font-semibold bg-navy-primary hover:bg-navy-dark text-white transition-colors cursor-pointer">
+                            <div class="grid grid-cols-2 sm:flex sm:flex-wrap items-center gap-2.5">
+                                <button
+                                    type="button"
+                                    id="btn-relay-gas-test"
+                                    onclick="RelayGasController.testConnection()"
+                                    class="inline-flex items-center justify-center gap-2 min-h-[44px] px-4 py-2.5 rounded-xl text-xs font-semibold bg-navy-primary hover:bg-navy-dark text-white transition-colors cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed"
+                                >
                                     <i data-lucide="flask-conical" class="w-4 h-4"></i>
                                     <span>Uji</span>
                                 </button>
-                                <button type="button" class="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-xs font-semibold bg-emerald-600 hover:bg-emerald-700 text-white transition-colors cursor-pointer">
+                                <button
+                                    type="button"
+                                    id="btn-relay-gas-save"
+                                    onclick="RelayGasController.saveAndImportData()"
+                                    class="inline-flex items-center justify-center gap-2 min-h-[44px] px-4 py-2.5 rounded-xl text-xs font-semibold bg-emerald-600 hover:bg-emerald-700 text-white transition-colors cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed"
+                                >
                                     <i data-lucide="save" class="w-4 h-4"></i>
                                     <span>Simpan</span>
                                 </button>
-                                <button type="button" class="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-xs font-semibold bg-gold hover:bg-gold-light text-navy-dark transition-colors cursor-pointer">
+                                <button
+                                    type="button"
+                                    id="btn-relay-gas-edit"
+                                    onclick="RelayGasController.enableEditMode()"
+                                    class="inline-flex items-center justify-center gap-2 min-h-[44px] px-4 py-2.5 rounded-xl text-xs font-semibold bg-gold hover:bg-gold-light text-navy-dark transition-colors cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed"
+                                >
                                     <i data-lucide="pencil" class="w-4 h-4"></i>
                                     <span>Edit</span>
                                 </button>
-                                <button type="button" class="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-xs font-semibold bg-rose-100 hover:bg-rose-200/80 text-rose-800 border border-rose-200 transition-colors cursor-pointer">
+                                <button
+                                    type="button"
+                                    id="btn-relay-gas-delete"
+                                    onclick="RelayGasController.requestDeleteUrl()"
+                                    class="inline-flex items-center justify-center gap-2 min-h-[44px] px-4 py-2.5 rounded-xl text-xs font-semibold bg-rose-100 hover:bg-rose-200/80 text-rose-800 border border-rose-200 transition-colors cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed"
+                                >
                                     <i data-lucide="trash-2" class="w-4 h-4"></i>
                                     <span>Hapus</span>
                                 </button>
+                            </div>
+
+                            <!-- Pengesahan Inline Hapus URL Konfigurasi & Kosongkan Snapshot Acara Relay -->
+                            <div id="relay-delete-confirm-box" class="hidden p-4 rounded-xl bg-rose-50 border border-rose-200 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                                <div class="text-xs text-rose-900">
+                                    <p class="font-bold">Adakah anda pasti mahu menghapus URL Google Apps Script dan mengosongkan paparan Acara Relay?</p>
+                                    <p class="text-[11px] text-rose-700 mt-1">Semua data Acara Relay yang disimpan dalam aplikasi ini akan dikosongkan. Data asal Google Sheets dan log audit tidak akan dipadam.</p>
+                                </div>
+                                <div class="flex items-center gap-2 shrink-0">
+                                    <button type="button" onclick="RelayGasController.confirmDeleteUrl()" class="min-h-[44px] px-4 py-2 rounded-xl text-xs font-bold bg-rose-600 hover:bg-rose-700 text-white cursor-pointer">
+                                        Ya, Hapus
+                                    </button>
+                                    <button type="button" onclick="RelayGasController.cancelDeleteUrl()" class="min-h-[44px] px-4 py-2 rounded-xl text-xs font-semibold bg-white hover:bg-slate-100 text-slate-700 border border-slate-300 cursor-pointer">
+                                        Batal
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- Bahagian Status Sambungan, Masa Kemas Kini & Jumlah Tab -->
+                            <div id="relay-gas-status-panel" class="rounded-xl bg-surface-bg border border-slate-200/90 p-4 space-y-2.5">
+                                <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs">
+                                    <div class="bg-white rounded-lg p-3 border border-slate-200/70">
+                                        <p class="text-[10px] font-bold uppercase tracking-wider text-ink-muted">Status Sambungan</p>
+                                        <p id="relay-status-connection" class="font-bold text-navy-primary mt-1">Belum Diuji</p>
+                                    </div>
+                                    <div class="bg-white rounded-lg p-3 border border-slate-200/70">
+                                        <p class="text-[10px] font-bold uppercase tracking-wider text-ink-muted">Masa Kemas Kini</p>
+                                        <p id="relay-status-updated" class="font-mono font-semibold text-navy-primary mt-1">—</p>
+                                    </div>
+                                    <div class="bg-white rounded-lg p-3 border border-slate-200/70">
+                                        <p class="text-[10px] font-bold uppercase tracking-wider text-ink-muted">Tab Berjaya Dibaca</p>
+                                        <p id="relay-status-tabs" class="font-bold text-navy-primary mt-1">0 / 7 Tab</p>
+                                    </div>
+                                </div>
+                                <p id="relay-status-detail" class="text-[11px] text-ink-muted leading-relaxed">
+                                    Tampal URL Web App deployment (<span class="font-mono">/exec</span>) daripada Google Sheets dan tekan <span class="font-semibold text-navy-primary">Uji</span> sebelum menyimpan.
+                                </p>
                             </div>
                         </div>
 
@@ -856,38 +930,23 @@
     </div>
 
     <!-- ===================================================================== -->
-    <!-- COPYRIGHT KHUSUS PERANTI MUDAH ALIH & TABLET (< LG)                   -->
+    <!-- NAVIGASI BAWAH MUDAH ALIH (MOBILE & TABLET BAWAH LG)                   -->
     <!-- ===================================================================== -->
-    <footer id="mobile-copyright-footer" class="lg:hidden w-full bg-[#0B132B] text-white border-t border-navy-secondary/60 px-4 pt-5 pb-[calc(5.25rem+env(safe-area-inset-bottom,0px))] text-center">
-        <div class="max-w-md mx-auto">
-            <p class="font-display font-bold text-xs tracking-wide text-white">
-                STATISTIX HUB
-            </p>
-            <p class="text-[11px] sm:text-xs text-slate-300 mt-1">
-                Hak Cipta Terpelihara &copy; 2026 <span class="text-[#D4AF37] font-semibold">eL_mioZ</span>
-            </p>
-        </div>
-    </footer>
-
-    <!-- ===================================================================== -->
-    <!-- NAVIGASI MOBILE (BOTTOM NAVIGATION MESRA SENTUHAN)                   -->
-    <!-- ===================================================================== -->
-    <nav id="mobile-bottom-nav" class="lg:hidden fixed bottom-0 inset-x-0 z-40 bg-navy-dark text-white border-t border-navy-secondary/60 shadow-2xl pb-[env(safe-area-inset-bottom,0px)]" aria-label="Navigasi Mudah Alih">
-        <div id="mobile-nav-list" class="grid grid-cols-5 min-h-[64px]">
-            <!-- 5 Item Navigasi Utama dijana secara dinamik -->
+    <nav id="mobile-bottom-nav" aria-label="Menu Navigasi Mudah Alih" class="lg:hidden fixed bottom-0 inset-x-0 z-40 bg-navy-dark text-white border-t border-navy-secondary/60 shadow-lg pb-[env(safe-area-inset-bottom,0px)]">
+        <div id="mobile-nav-list" class="grid grid-cols-5 h-16">
+            <!-- Dijana secara dinamik oleh AppController.renderNavigation() -->
         </div>
     </nav>
 
     <!-- ===================================================================== -->
-    <!-- KONTENA NOTIFIKASI TOAST & LOADING OVERLAY                            -->
+    <!-- KONTENA TOAST NOTIFIKASI & OVERLAY PEMUATAN                           -->
     <!-- ===================================================================== -->
-    <div id="toast-container" class="fixed bottom-[calc(5.25rem+env(safe-area-inset-bottom,0px))] lg:bottom-6 right-4 left-4 sm:left-auto sm:w-96 z-50 flex flex-col gap-2 pointer-events-none"></div>
+    <div id="toast-container" class="fixed bottom-[calc(4.75rem+env(safe-area-inset-bottom,0px))] lg:bottom-6 right-4 z-50 flex flex-col gap-2.5 max-w-sm w-[calc(100vw-2rem)] pointer-events-none"></div>
 
-    <div id="loading-overlay" class="fixed inset-0 z-50 bg-navy-dark/50 backdrop-blur-xs hidden items-center justify-center p-4">
-        <div class="bg-white rounded-2xl p-6 max-w-xs w-full shadow-2xl border border-slate-200 text-center">
-            <div class="w-11 h-11 rounded-full border-4 border-slate-200 border-t-gold animate-spin mx-auto"></div>
-            <p id="loading-message" class="font-display font-bold text-sm text-navy-primary mt-4">Memproses Data...</p>
-            <p class="text-xs text-ink-muted mt-1">Sila tunggu sebentar.</p>
+    <div id="loading-overlay" class="fixed inset-0 z-50 hidden items-center justify-center bg-navy-dark/60 backdrop-blur-xs p-4">
+        <div class="bg-white rounded-2xl px-6 py-5 shadow-2xl border border-slate-200 flex items-center gap-3.5 max-w-xs w-full">
+            <div class="w-6 h-6 rounded-full border-2 border-navy-primary border-t-gold animate-spin shrink-0"></div>
+            <p id="loading-message" class="text-xs sm:text-sm font-semibold text-navy-primary">Memproses Data...</p>
         </div>
     </div>
 
@@ -2100,48 +2159,260 @@
          * 4D. MODUL ACARA RELAY (RelayModule)
          */
         const RelayModule = {
+            ALLOWED_EVENT_NOS: ['411', '412', '413', '414', '415', '424', '425'],
             selectedEventNo: null,
+            editingCell: null,
+            isSavingCell: false,
+
+            hasValidActiveConnection() {
+                const config = StorageManager.getTournamentConfig();
+                const savedUrl = String(config.relayAppsScriptUrl || '').trim();
+                if (!savedUrl) return false;
+                const store = StorageManager.getRelayStore();
+                const eventsMap = (store && store.events) || {};
+                return this.ALLOWED_EVENT_NOS.some(no => Boolean(eventsMap[no]));
+            },
+
+            isEditableCell(gender, sheetRow, field) {
+                const rowNum = Number(sheetRow);
+                if (field !== 'masa' && field !== 'kedudukan') return false;
+                if (gender !== 'lelaki' && gender !== 'perempuan') return false;
+                return rowNum >= 5 && rowNum <= 8;
+            },
 
             selectEvent(eventNo) {
-                this.selectedEventNo = eventNo;
+                if (!this.ALLOWED_EVENT_NOS.includes(String(eventNo))) return;
+                this.selectedEventNo = String(eventNo);
+                this.editingCell = null;
                 AppController.loadView('relay');
             },
 
-            renderPublicView() {
+            toggleOfficialVerification(eventNo) {
                 const store = StorageManager.getRelayStore();
-                const eventNos = Object.keys(store.events || {});
-                if (eventNos.length === 0) {
+                const ev = store.events && store.events[eventNo];
+                if (!ev) return;
+
+                const isCurrentlyVerified = ev.status === 'DISAHKAN_RASMI';
+                ev.status = isCurrentlyVerified ? 'BELUM_SELESAI' : 'DISAHKAN_RASMI';
+                ev.verifiedAt = isCurrentlyVerified ? null : new Date().toISOString();
+                ev.updatedAt = new Date().toISOString();
+
+                StorageManager.saveRelayStore(store);
+                StorageManager.appendRelayAuditLog({
+                    action: isCurrentlyVerified ? 'BATAL_PENGESAHAN' : 'SAHKAN_RASMI',
+                    eventNo
+                });
+
+                this.editingCell = null;
+                AppController.loadView('relay');
+                UIComponents.showToast(
+                    isCurrentlyVerified
+                        ? `Pengesahan rasmi Acara Relay ${eventNo} telah dibatalkan.`
+                        : `Acara Relay ${eventNo} telah disahkan secara rasmi.`,
+                    isCurrentlyVerified ? 'warning' : 'success'
+                );
+            },
+
+            startInlineEdit(eventNo, gender, sheetRow, field, currentValue) {
+                if (this.isSavingCell) return;
+                const store = StorageManager.getRelayStore();
+                const ev = store.events && store.events[eventNo];
+                if (!ev) return;
+
+                if (ev.status === 'DISAHKAN_RASMI') {
+                    UIComponents.showToast('Acara berstatus DISAHKAN RASMI. Batalkan pengesahan dahulu sebelum menyunting.', 'warning');
+                    return;
+                }
+
+                if (!this.isEditableCell(gender, sheetRow, field)) {
+                    UIComponents.showToast('Sel ini dikunci (read-only). Hanya Masa dan Kedudukan baris 5 hingga 8 dibenarkan.', 'warning');
+                    return;
+                }
+
+                this.editingCell = {
+                    eventNo: String(eventNo),
+                    gender: String(gender),
+                    sheetRow: Number(sheetRow),
+                    field: String(field),
+                    expectedValue: String(currentValue || '').trim(),
+                    draftValue: String(currentValue || '').trim()
+                };
+                AppController.loadView('relay');
+
+                requestAnimationFrame(() => {
+                    const inputEl = document.getElementById('relay-inline-edit-input');
+                    if (inputEl) {
+                        inputEl.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                        inputEl.focus();
+                        inputEl.select();
+                    }
+                });
+            },
+
+            cancelInlineEdit() {
+                if (this.isSavingCell || !this.editingCell) return;
+                this.editingCell = null;
+                AppController.loadView('relay');
+            },
+
+            handleInlineInputKeydown(event) {
+                if (event.key === 'Enter') {
+                    event.preventDefault();
+                    event.stopPropagation();
+                    if (!this.isSavingCell) {
+                        this.saveInlineEdit();
+                    }
+                } else if (event.key === 'Escape') {
+                    event.preventDefault();
+                    event.stopPropagation();
+                    if (!this.isSavingCell) {
+                        this.cancelInlineEdit();
+                    }
+                }
+            },
+
+            handleInlineInputBlur() {
+                if (this.isSavingCell) return;
+                this.cancelInlineEdit();
+            },
+
+            async saveInlineEdit() {
+                if (!this.editingCell || this.isSavingCell) return;
+
+                const inputEl = document.getElementById('relay-inline-edit-input');
+                const newValue = inputEl ? inputEl.value.trim() : this.editingCell.draftValue;
+
+                if (newValue === this.editingCell.expectedValue) {
+                    this.editingCell = null;
+                    AppController.loadView('relay');
+                    return;
+                }
+
+                this.editingCell.draftValue = newValue;
+                this.isSavingCell = true;
+                if (inputEl) {
+                    inputEl.disabled = true;
+                    inputEl.classList.add('opacity-60', 'cursor-wait');
+                }
+                const savingBadge = document.getElementById('relay-inline-saving-indicator');
+                if (savingBadge) savingBadge.classList.remove('hidden');
+
+                const result = await RelayGasController.updateCell({
+                    eventNo: this.editingCell.eventNo,
+                    gender: this.editingCell.gender,
+                    sheetRow: this.editingCell.sheetRow,
+                    field: this.editingCell.field,
+                    expectedValue: this.editingCell.expectedValue,
+                    value: newValue
+                });
+
+                this.isSavingCell = false;
+                if (result && result.success) {
+                    this.editingCell = null;
+                    AppController.loadView('relay');
+                } else {
+                    if (savingBadge) savingBadge.classList.add('hidden');
+                    if (inputEl) {
+                        inputEl.disabled = false;
+                        inputEl.classList.remove('opacity-60', 'cursor-wait');
+                        inputEl.focus();
+                        inputEl.select();
+                    }
+                }
+            },
+
+            renderEditableCell(eventNo, gender, teamRow, field, isVerified) {
+                const rawVal = String(teamRow[field] || '').trim();
+                const displayVal = rawVal || '—';
+                const canEdit = !isVerified && this.isEditableCell(gender, teamRow.sheetRow, field);
+                const isEditingThis = this.editingCell &&
+                    this.editingCell.eventNo === String(eventNo) &&
+                    this.editingCell.gender === gender &&
+                    Number(this.editingCell.sheetRow) === Number(teamRow.sheetRow) &&
+                    this.editingCell.field === field;
+
+                const alignClass = field === 'masa' ? 'font-mono font-semibold text-right' : 'font-bold text-center';
+
+                if (isEditingThis) {
+                    return `
+                        <div class="relative w-full">
+                            <input
+                                id="relay-inline-edit-input"
+                                type="text"
+                                enterkeyhint="done"
+                                value="${SaringanModule.escapeHtml(this.editingCell.draftValue)}"
+                                oninput="if(RelayModule.editingCell){RelayModule.editingCell.draftValue=this.value;}"
+                                onkeydown="RelayModule.handleInlineInputKeydown(event)"
+                                onblur="RelayModule.handleInlineInputBlur()"
+                                aria-label="Sunting ${field === 'kedudukan' ? 'Kedudukan' : 'Masa'}"
+                                class="w-full min-h-[38px] px-2.5 py-1.5 text-base sm:text-xs ${alignClass} border-2 border-gold rounded-lg bg-white text-navy-dark focus:outline-none focus:ring-2 focus:ring-gold/50 transition-all"
+                            >
+                            <span id="relay-inline-saving-indicator" class="hidden block text-[10px] font-semibold text-amber-700 mt-0.5 text-center">
+                                Menyimpan...
+                            </span>
+                        </div>
+                    `;
+                }
+
+                if (!canEdit) {
+                    return `<span class="block px-2.5 py-1.5 ${alignClass} text-navy-primary">${SaringanModule.escapeHtml(displayVal)}</span>`;
+                }
+
+                return `
+                    <button
+                        type="button"
+                        title="Klik untuk sunting ${field === 'kedudukan' ? 'Kedudukan' : 'Masa'} (Baris ${teamRow.sheetRow})"
+                        onclick="RelayModule.startInlineEdit('${SaringanModule.escapeHtml(eventNo)}', '${gender}', ${Number(teamRow.sheetRow)}, '${field}', '${SaringanModule.escapeHtml(rawVal)}')"
+                        class="group w-full min-h-[38px] inline-flex items-center ${field === 'masa' ? 'justify-end' : 'justify-center'} gap-1.5 px-2.5 py-1.5 rounded-lg hover:bg-gold/15 border border-transparent hover:border-gold/40 transition-colors cursor-pointer ${alignClass} text-navy-primary"
+                    >
+                        <span>${SaringanModule.escapeHtml(displayVal)}</span>
+                        <i data-lucide="pencil" class="w-3 h-3 text-slate-400 group-hover:text-navy-primary shrink-0"></i>
+                    </button>
+                `;
+            },
+
+            renderPublicView() {
+                if (!this.hasValidActiveConnection()) {
                     return UIComponents.renderEmptyState('Acara Relay');
                 }
-                if (!this.selectedEventNo || !store.events[this.selectedEventNo]) {
-                    this.selectedEventNo = eventNos[0];
+
+                const store = StorageManager.getRelayStore();
+                const eventsMap = store.events || {};
+                const availableNos = this.ALLOWED_EVENT_NOS.filter(no => Boolean(eventsMap[no]));
+                if (availableNos.length === 0) {
+                    return UIComponents.renderEmptyState('Acara Relay');
                 }
-                const ev = store.events[this.selectedEventNo];
-                const renderTable = (title, rows) => `
-                    <div class="rounded-xl border border-slate-200/90 overflow-hidden bg-white">
-                        <div class="px-4 py-2.5 bg-surface-bg border-b border-slate-200/80 flex items-center justify-between">
-                            <span class="font-display text-xs font-bold uppercase tracking-wider text-navy-primary">${SaringanModule.escapeHtml(title)}</span>
-                            <span class="text-[11px] font-medium text-ink-muted">${rows.length} Pasukan</span>
+                if (!this.selectedEventNo || !availableNos.includes(this.selectedEventNo)) {
+                    this.selectedEventNo = availableNos[0];
+                }
+                const ev = eventsMap[this.selectedEventNo];
+                const isVerified = ev.status === 'DISAHKAN_RASMI';
+
+                const renderTable = (gender, title, rows) => `
+                    <div class="rounded-xl border border-slate-200/90 overflow-hidden bg-white shadow-2xs">
+                        <div class="px-4 py-3 bg-surface-bg border-b border-slate-200/80 flex items-center justify-between gap-2">
+                            <span class="font-display text-xs sm:text-sm font-bold uppercase tracking-wider text-navy-primary">${SaringanModule.escapeHtml(title)}</span>
+                            <span class="px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-white border border-slate-200 text-navy-secondary">${rows.length} Pasukan</span>
                         </div>
                         <div class="overflow-x-auto">
-                            <table class="w-full text-left border-collapse">
+                            <table class="w-full min-w-[540px] text-left border-collapse">
                                 <thead>
-                                    <tr class="bg-navy-primary text-white font-display text-[11px] uppercase tracking-wider">
-                                        <th class="py-2.5 px-3 text-center w-14">Ked.</th>
-                                        <th class="py-2.5 px-3 text-center w-14">Lorong</th>
-                                        <th class="py-2.5 px-3">Pasukan</th>
-                                        <th class="py-2.5 px-3 text-right">Masa</th>
+                                    <tr class="bg-navy-primary text-white font-display text-[11px] sm:text-xs uppercase tracking-wider">
+                                        <th class="py-3 px-3.5 text-center w-20">Lorong</th>
+                                        <th class="py-3 px-3.5 min-w-[200px]">Pasukan</th>
+                                        <th class="py-3 px-3.5 text-right w-36">Masa</th>
+                                        <th class="py-3 px-3.5 text-center w-32">Kedudukan</th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     ${rows.length === 0
-                                        ? `<tr><td colspan="4" class="py-6 px-4 text-center text-xs text-ink-muted">Tiada rekod pasukan.</td></tr>`
+                                        ? `<tr><td colspan="4" class="py-7 px-4 text-center text-xs sm:text-sm text-ink-muted">Tiada rekod pasukan.</td></tr>`
                                         : rows.map(r => `
-                                            <tr class="border-b border-slate-100 hover:bg-surface-bg/70">
-                                                <td class="py-2.5 px-3 text-xs font-bold text-center text-navy-primary">${SaringanModule.escapeHtml(r.kedudukan || '—')}</td>
-                                                <td class="py-2.5 px-3 text-xs font-semibold text-center text-ink-muted">${SaringanModule.escapeHtml(r.lorong || '—')}</td>
-                                                <td class="py-2.5 px-3 text-xs font-semibold text-ink">${SaringanModule.escapeHtml(r.pasukan || '—')}</td>
-                                                <td class="py-2.5 px-3 text-xs font-mono font-semibold text-right text-navy-primary">${SaringanModule.escapeHtml(r.masa || '—')}</td>
+                                            <tr class="border-b border-slate-100 even:bg-slate-50/40 hover:bg-surface-bg/80 transition-colors">
+                                                <td class="py-2.5 px-3.5 text-xs sm:text-sm font-semibold text-center text-ink-muted">${SaringanModule.escapeHtml(r.lorong || '—')}</td>
+                                                <td class="py-2.5 px-3.5 text-xs sm:text-sm font-semibold text-ink">${SaringanModule.escapeHtml(r.pasukan || '—')}</td>
+                                                <td class="py-1.5 px-2.5 text-xs sm:text-sm">${this.renderEditableCell(ev.eventNo, gender, r, 'masa', isVerified)}</td>
+                                                <td class="py-1.5 px-2.5 text-xs sm:text-sm">${this.renderEditableCell(ev.eventNo, gender, r, 'kedudukan', isVerified)}</td>
                                             </tr>
                                         `).join('')}
                                 </tbody>
@@ -2151,10 +2422,46 @@
                 `;
 
                 return `
-                    <div class="p-4 sm:p-6 space-y-6">
-                        <div class="grid grid-cols-1 xl:grid-cols-2 gap-6">
-                            ${renderTable('Relay Lelaki', ev.lelaki || [])}
-                            ${renderTable('Relay Perempuan', ev.perempuan || [])}
+                    <div class="p-4 sm:p-6 lg:p-7 space-y-6">
+                        <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4 pb-4 border-b border-slate-200/80">
+                            <div class="flex items-center gap-2 overflow-x-auto no-scrollbar pb-1">
+                                ${this.ALLOWED_EVENT_NOS.map(no => {
+                                    const exists = Boolean(eventsMap[no]);
+                                    const isActive = no === this.selectedEventNo;
+                                    return `
+                                        <button
+                                            type="button"
+                                            ${!exists ? 'disabled' : ''}
+                                            onclick="RelayModule.selectEvent('${no}')"
+                                            aria-label="Acara ${no}"
+                                            class="min-w-[48px] min-h-[44px] px-4 py-2 rounded-xl text-xs font-display font-bold text-center transition-all shrink-0 ${
+                                                isActive
+                                                    ? 'bg-navy-primary text-gold shadow-xs cursor-pointer'
+                                                    : exists
+                                                        ? 'bg-surface-bg hover:bg-slate-200/80 text-navy-primary cursor-pointer'
+                                                        : 'bg-slate-100 text-slate-400 cursor-not-allowed'
+                                            }"
+                                        >
+                                            ${no}
+                                        </button>
+                                    `;
+                                }).join('')}
+                            </div>
+
+                            <div class="flex flex-wrap items-center justify-end gap-2.5 shrink-0">
+                                ${isVerified ? `
+                                    <span class="inline-flex items-center gap-1.5 min-h-[38px] px-3.5 py-1.5 rounded-xl text-xs font-bold bg-emerald-100 text-emerald-800 border border-emerald-300">
+                                        <i data-lucide="check-circle-2" class="w-3.5 h-3.5"></i>
+                                        <span>DISAHKAN RASMI</span>
+                                    </span>
+                                ` : ''}
+                                ${VerificationButtonController.renderEventButton('RelayModule', ev)}
+                            </div>
+                        </div>
+
+                        <div class="space-y-6">
+                            ${renderTable('lelaki', 'Pasukan Lelaki', ev.lelaki || [])}
+                            ${renderTable('perempuan', 'Pasukan Perempuan', ev.perempuan || [])}
                         </div>
                     </div>
                 `;
@@ -3500,6 +3807,703 @@ function doPost(e) {
         };
 
         /**
+         * 4J. PENGAWAL INTEGRASI GOOGLE APPS SCRIPT — ACARA RELAY (RelayGasController)
+         */
+        const RelayGasController = {
+            EXPECTED_TABS: ['411', '412', '413', '414', '415', '424', '425'],
+            isBusy: false,
+            operationToken: 0,
+            lastTestedUrl: null,
+            lastTestPassed: false,
+
+            GAS_SOURCE_CODE: `/**
+ * STATISTIX HUB — GOOGLE APPS SCRIPT RASMI (ACARA RELAY)
+ * Fail: Statistix_Relay_Code.gs
+ * Pemasangan: Bound Script pada Google Sheets Kejohanan
+ * Tab Wajib: 411, 412, 413, 414, 415, 424, 425
+ * Julat Bacaan: Pasukan Lelaki A5:G8, Pasukan Perempuan I5:O8
+ * Julat Suntingan Sah:
+ *   - Lelaki: Masa (D5:D8), Kedudukan (F5:F8)
+ *   - Perempuan: Masa (L5:L8), Kedudukan (N5:N8)
+ */
+
+var RELAY_TABS = ['411', '412', '413', '414', '415', '424', '425'];
+
+function jsonResponseRelay_(payload) {
+  return ContentService
+    .createTextOutput(JSON.stringify(payload))
+    .setMimeType(ContentService.MimeType.JSON);
+}
+
+function doGet(e) {
+  try {
+    var params = (e && e.parameter) ? e.parameter : {};
+    var action = String(params.action || 'test').toLowerCase();
+    var ss = SpreadsheetApp.getActiveSpreadsheet();
+
+    if (action === 'test') {
+      var missingTabs = [];
+      var foundTabs = [];
+      for (var i = 0; i < RELAY_TABS.length; i++) {
+        var tabName = RELAY_TABS[i];
+        if (ss.getSheetByName(tabName)) {
+          foundTabs.push(tabName);
+        } else {
+          missingTabs.push(tabName);
+        }
+      }
+      return jsonResponseRelay_({
+        success: missingTabs.length === 0,
+        module: 'relay',
+        spreadsheetName: ss.getName(),
+        foundTabs: foundTabs,
+        missingTabs: missingTabs,
+        totalExpected: RELAY_TABS.length,
+        timestamp: new Date().toISOString()
+      });
+    }
+
+    if (action === 'data') {
+      var eventsData = {};
+      var missing = [];
+
+      for (var j = 0; j < RELAY_TABS.length; j++) {
+        var evNo = RELAY_TABS[j];
+        var sheet = ss.getSheetByName(evNo);
+        if (!sheet) {
+          missing.push(evNo);
+          continue;
+        }
+        eventsData[evNo] = {
+          eventNo: evNo,
+          lelaki: readRelayCategoryRows_(sheet, 5, 8, 1),    // A5:G8
+          perempuan: readRelayCategoryRows_(sheet, 5, 8, 9)  // I5:O8
+        };
+      }
+
+      if (missing.length > 0) {
+        return jsonResponseRelay_({
+          success: false,
+          module: 'relay',
+          message: 'Tab hilang: ' + missing.join(', '),
+          missingTabs: missing
+        });
+      }
+
+      return jsonResponseRelay_({
+        success: true,
+        module: 'relay',
+        events: eventsData,
+        timestamp: new Date().toISOString()
+      });
+    }
+
+    return jsonResponseRelay_({
+      success: false,
+      module: 'relay',
+      message: 'Parameter action tidak sah.'
+    });
+  } catch (err) {
+    return jsonResponseRelay_({
+      success: false,
+      module: 'relay',
+      message: String(err && err.message ? err.message : err)
+    });
+  }
+}
+
+function readRelayCategoryRows_(sheet, startRow, endRow, startCol) {
+  var numRows = endRow - startRow + 1;
+  var values = sheet.getRange(startRow, startCol, numRows, 7).getDisplayValues();
+  var list = [];
+
+  for (var i = 0; i < values.length; i++) {
+    var row = values[i];
+    var lorong = String(row[0] || '').trim();    // A / I
+    var pasukan = String(row[1] || '').trim();   // B / J (merged B:C / J:K)
+    var masa = String(row[3] || '').trim();      // D / L (merged D:E / L:M)
+    var kedudukan = String(row[5] || '').trim(); // F / N (merged F:G / N:O)
+
+    if (!pasukan) {
+      continue;
+    }
+
+    list.push({
+      sheetRow: startRow + i,
+      lorong: lorong,
+      pasukan: pasukan,
+      masa: masa,
+      kedudukan: kedudukan
+    });
+  }
+  return list;
+}
+
+function doPost(e) {
+  var lock = LockService.getScriptLock();
+  lock.waitLock(10000);
+  try {
+    var params = (e && e.parameter) ? e.parameter : {};
+    var action = String(params.action || '').toLowerCase();
+    if (action !== 'update') {
+      return jsonResponseRelay_({ success: false, message: 'Tindakan POST tidak disokong.' });
+    }
+
+    var eventNo = String(params.eventNo || '').trim();
+    var gender = String(params.gender || '').trim().toLowerCase();
+    var sheetRow = parseInt(params.sheetRow, 10);
+    var field = String(params.field || '').trim().toLowerCase();
+    var expectedValue = String(params.expectedValue || '').trim();
+    var newValue = String(params.value || '').trim();
+
+    if (RELAY_TABS.indexOf(eventNo) === -1) {
+      return jsonResponseRelay_({ success: false, message: 'Nombor acara Relay tidak sah.' });
+    }
+    if (gender !== 'lelaki' && gender !== 'perempuan') {
+      return jsonResponseRelay_({ success: false, message: 'Kategori Relay tidak sah.' });
+    }
+    if (isNaN(sheetRow) || sheetRow < 5 || sheetRow > 8) {
+      return jsonResponseRelay_({
+        success: false,
+        message: 'Baris ' + sheetRow + ' di luar julat sah (baris 5 hingga 8 sahaja).'
+      });
+    }
+
+    var targetCol = null;
+    if (gender === 'lelaki') {
+      if (field === 'masa') targetCol = 4;      // Sel utama D
+      if (field === 'kedudukan') targetCol = 6; // Sel utama F
+    } else if (gender === 'perempuan') {
+      if (field === 'masa') targetCol = 12;     // Sel utama L
+      if (field === 'kedudukan') targetCol = 14;// Sel utama N
+    }
+
+    if (!targetCol) {
+      return jsonResponseRelay_({
+        success: false,
+        message: 'Medan suntingan tidak dibenarkan (hanya Masa dan Kedudukan).'
+      });
+    }
+
+    var ss = SpreadsheetApp.getActiveSpreadsheet();
+    var sheet = ss.getSheetByName(eventNo);
+    if (!sheet) {
+      return jsonResponseRelay_({ success: false, message: 'Tab ' + eventNo + ' tidak ditemui.' });
+    }
+
+    var cell = sheet.getRange(sheetRow, targetCol);
+    var currentVal = String(cell.getDisplayValue() || '').trim();
+    if (currentVal !== expectedValue) {
+      return jsonResponseRelay_({
+        success: false,
+        message: 'Konflik data dikesan. Nilai semasa dalam Sheet ialah "' + currentVal + '".'
+      });
+    }
+
+    cell.setValue(newValue);
+    SpreadsheetApp.flush();
+
+    return jsonResponseRelay_({
+      success: true,
+      module: 'relay',
+      eventNo: eventNo,
+      gender: gender,
+      sheetRow: sheetRow,
+      field: field,
+      value: newValue,
+      updatedAt: new Date().toISOString()
+    });
+  } catch (err) {
+    return jsonResponseRelay_({
+      success: false,
+      message: String(err && err.message ? err.message : err)
+    });
+  } finally {
+    lock.releaseLock();
+  }
+}`,
+
+            init() {
+                const codeEl = document.getElementById('relay-gas-code-display');
+                if (codeEl) {
+                    codeEl.textContent = this.GAS_SOURCE_CODE;
+                }
+
+                const config = StorageManager.getTournamentConfig();
+                const inputEl = document.getElementById('gas-url-relay');
+                if (inputEl && config.relayAppsScriptUrl) {
+                    inputEl.value = config.relayAppsScriptUrl;
+                    inputEl.disabled = true;
+                    this.updateModeBadge('Tersimpan (Terkunci)');
+                }
+
+                if (config.relayGasStatus) {
+                    this.updateStatusPanel(config.relayGasStatus);
+                }
+
+                document.addEventListener('keydown', (e) => {
+                    if (e.key === 'Escape') {
+                        const modal = document.getElementById('modal-relay-gas-code');
+                        if (modal && !modal.classList.contains('hidden')) {
+                            this.closeGasModal();
+                        }
+                    }
+                });
+            },
+
+            updateModeBadge(label) {
+                const badge = document.getElementById('relay-url-mode-badge');
+                if (badge) badge.textContent = label;
+            },
+
+            updateStatusPanel({ connectionText, connectionClass, updatedAt, tabCountText, detailText }) {
+                const connEl = document.getElementById('relay-status-connection');
+                const updEl = document.getElementById('relay-status-updated');
+                const tabEl = document.getElementById('relay-status-tabs');
+                const detEl = document.getElementById('relay-status-detail');
+
+                if (connEl && connectionText) {
+                    connEl.textContent = connectionText;
+                    connEl.className = `font-bold mt-1 ${connectionClass || 'text-navy-primary'}`;
+                }
+                if (updEl && updatedAt) updEl.textContent = updatedAt;
+                if (tabEl && tabCountText) tabEl.textContent = tabCountText;
+                if (detEl && detailText) detEl.textContent = detailText;
+            },
+
+            openGasModal() {
+                const modal = document.getElementById('modal-relay-gas-code');
+                const codeEl = document.getElementById('relay-gas-code-display');
+                const feedback = document.getElementById('relay-copy-feedback');
+                if (codeEl) codeEl.textContent = this.GAS_SOURCE_CODE;
+                if (feedback) feedback.classList.add('hidden');
+                if (modal) {
+                    modal.classList.remove('hidden');
+                    lucide.createIcons();
+                }
+            },
+
+            closeGasModal() {
+                const modal = document.getElementById('modal-relay-gas-code');
+                if (modal) modal.classList.add('hidden');
+            },
+
+            copyGasCode() {
+                const feedback = document.getElementById('relay-copy-feedback');
+                const tempTextarea = document.createElement('textarea');
+                tempTextarea.value = this.GAS_SOURCE_CODE;
+                tempTextarea.style.position = 'fixed';
+                tempTextarea.style.opacity = '0';
+                document.body.appendChild(tempTextarea);
+                tempTextarea.select();
+
+                let copied = false;
+                try {
+                    copied = document.execCommand('copy');
+                } catch (err) {
+                    copied = false;
+                }
+                document.body.removeChild(tempTextarea);
+
+                if (copied) {
+                    if (feedback) feedback.classList.remove('hidden');
+                    UIComponents.showToast('Kod Google Apps Script Acara Relay berjaya disalin.', 'success');
+                } else {
+                    UIComponents.showToast('Gagal menyalin kod secara automatik. Sila salin secara manual.', 'warning');
+                }
+            },
+
+            validateUrlFormat(url) {
+                if (!url) return false;
+                try {
+                    const parsed = new URL(url);
+                    return parsed.protocol === 'https:' &&
+                           parsed.hostname.includes('script.google.com') &&
+                           parsed.pathname.endsWith('/exec');
+                } catch (e) {
+                    return false;
+                }
+            },
+
+            importAndNormalizeData(rawEvents, existingEvents = {}) {
+                const nextEvents = {};
+                const nowIso = new Date().toISOString();
+
+                this.EXPECTED_TABS.forEach(evNo => {
+                    const prevEv = existingEvents[evNo] || {};
+                    const incomingEv = rawEvents[evNo] || {};
+
+                    const normalizeRows = (rows) => {
+                        if (!Array.isArray(rows)) return [];
+                        return rows
+                            .filter(r => r && Number(r.sheetRow) >= 5 && Number(r.sheetRow) <= 8 && String(r.pasukan || '').trim() !== '')
+                            .map(r => ({
+                                sheetRow: Number(r.sheetRow),
+                                lorong: String(r.lorong || '').trim(),
+                                pasukan: String(r.pasukan || '').trim(),
+                                masa: String(r.masa || '').trim(),
+                                kedudukan: String(r.kedudukan || '').trim()
+                            }));
+                    };
+
+                    nextEvents[evNo] = {
+                        eventNo: evNo,
+                        status: prevEv.status === 'DISAHKAN_RASMI' ? 'DISAHKAN_RASMI' : 'BELUM_SELESAI',
+                        lelaki: normalizeRows(incomingEv.lelaki),
+                        perempuan: normalizeRows(incomingEv.perempuan),
+                        updatedAt: nowIso,
+                        verifiedAt: prevEv.status === 'DISAHKAN_RASMI' ? (prevEv.verifiedAt || nowIso) : null
+                    };
+                });
+
+                return { nextEvents, nowIso };
+            },
+
+            async testConnection() {
+                if (this.isBusy) return;
+                const inputEl = document.getElementById('gas-url-relay');
+                const url = inputEl ? inputEl.value.trim() : '';
+
+                if (!this.validateUrlFormat(url)) {
+                    UIComponents.showToast('Sila masukkan URL HTTPS Google Apps Script yang sah dan berakhir dengan /exec.', 'error');
+                    return;
+                }
+
+                this.isBusy = true;
+                this.lastTestPassed = false;
+                const currentOpToken = ++this.operationToken;
+                UIComponents.showLoading('Menguji Sambungan GAS Acara Relay...');
+
+                try {
+                    const testUrl = new URL(url);
+                    testUrl.searchParams.set('action', 'test');
+
+                    const res = await fetch(testUrl.toString(), { method: 'GET' });
+                    if (currentOpToken !== this.operationToken) return;
+                    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+
+                    const data = await res.json();
+                    if (currentOpToken !== this.operationToken) return;
+                    if (!data || data.module !== 'relay') {
+                        throw new Error('Respons modul tidak sepadan dengan Acara Relay.');
+                    }
+
+                    const foundTabs = Array.isArray(data.foundTabs) ? data.foundTabs : [];
+                    const missingTabs = Array.isArray(data.missingTabs)
+                        ? data.missingTabs
+                        : this.EXPECTED_TABS.filter(t => !foundTabs.includes(t));
+
+                    const nowText = SaringanModule.formatDateTime(new Date().toISOString());
+
+                    if (data.success === true && missingTabs.length === 0 && foundTabs.length === 7) {
+                        this.lastTestedUrl = url;
+                        this.lastTestPassed = true;
+                        this.updateStatusPanel({
+                            connectionText: 'Berjaya Diuji',
+                            connectionClass: 'text-emerald-700',
+                            updatedAt: nowText,
+                            tabCountText: '7 / 7 Tab',
+                            detailText: 'Sambungan berjaya — 7/7 tab Acara Relay dikenal pasti.'
+                        });
+                        UIComponents.showToast('Sambungan berjaya — 7/7 tab Acara Relay dikenal pasti.', 'success');
+                    } else {
+                        const missingMsg = missingTabs.length > 0
+                            ? `Tab tidak ditemui: ${missingTabs.join(', ')}`
+                            : 'Tidak semua 7 tab ditemui.';
+                        this.updateStatusPanel({
+                            connectionText: 'Gagal',
+                            connectionClass: 'text-rose-700',
+                            updatedAt: nowText,
+                            tabCountText: `${foundTabs.length} / 7 Tab`,
+                            detailText: missingMsg
+                        });
+                        UIComponents.showToast(`Ujian gagal: ${missingMsg}`, 'error');
+                    }
+                } catch (err) {
+                    if (currentOpToken === this.operationToken) {
+                        this.updateStatusPanel({
+                            connectionText: 'Gagal',
+                            connectionClass: 'text-rose-700',
+                            updatedAt: SaringanModule.formatDateTime(new Date().toISOString()),
+                            tabCountText: '0 / 7 Tab',
+                            detailText: `Ralat sambungan: ${err.message}`
+                        });
+                        UIComponents.showToast(`Sambungan gagal: ${err.message}`, 'error');
+                    }
+                } finally {
+                    if (currentOpToken === this.operationToken) {
+                        this.isBusy = false;
+                        UIComponents.hideLoading();
+                    }
+                }
+            },
+
+            async saveAndImportData() {
+                if (this.isBusy) return;
+                const inputEl = document.getElementById('gas-url-relay');
+                const url = inputEl ? inputEl.value.trim() : '';
+
+                if (!this.validateUrlFormat(url)) {
+                    UIComponents.showToast('Sila masukkan URL HTTPS Google Apps Script (/exec) yang sah.', 'error');
+                    return;
+                }
+
+                this.isBusy = true;
+                const currentOpToken = ++this.operationToken;
+                UIComponents.showLoading('Menguji & Mengimport Data 7 Tab Acara Relay...');
+
+                try {
+                    if (!this.lastTestPassed || this.lastTestedUrl !== url) {
+                        const testUrl = new URL(url);
+                        testUrl.searchParams.set('action', 'test');
+                        const testRes = await fetch(testUrl.toString(), { method: 'GET' });
+                        if (currentOpToken !== this.operationToken) return;
+                        if (!testRes.ok) throw new Error(`HTTP ${testRes.status}`);
+
+                        const testData = await testRes.json();
+                        if (currentOpToken !== this.operationToken) return;
+                        if (!testData || testData.module !== 'relay' || testData.success !== true) {
+                            const missing = (testData && Array.isArray(testData.missingTabs) && testData.missingTabs.length > 0)
+                                ? `Tab tidak ditemui: ${testData.missingTabs.join(', ')}`
+                                : ((testData && testData.message) || 'Ujian sambungan modul relay gagal.');
+                            throw new Error(missing);
+                        }
+                        this.lastTestedUrl = url;
+                        this.lastTestPassed = true;
+                    }
+
+                    const dataUrl = new URL(url);
+                    dataUrl.searchParams.set('action', 'data');
+
+                    const res = await fetch(dataUrl.toString(), { method: 'GET' });
+                    if (currentOpToken !== this.operationToken) return;
+                    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+
+                    const payload = await res.json();
+                    if (currentOpToken !== this.operationToken) return;
+                    if (!payload || payload.success !== true || payload.module !== 'relay' || !payload.events) {
+                        throw new Error((payload && payload.message) ? payload.message : 'Struktur data GAS Acara Relay tidak sah.');
+                    }
+
+                    const missing = this.EXPECTED_TABS.filter(no => !payload.events[no]);
+                    if (missing.length > 0) {
+                        throw new Error(`Data tidak lengkap. Tab tidak ditemui: ${missing.join(', ')}`);
+                    }
+
+                    const existingStore = StorageManager.getRelayStore();
+                    const { nextEvents, nowIso } = this.importAndNormalizeData(payload.events, existingStore.events || {});
+
+                    if (currentOpToken !== this.operationToken) return;
+
+                    const savedStore = StorageManager.saveRelayStore({ events: nextEvents });
+                    if (!savedStore) {
+                        throw new Error('Gagal menyimpan rekod Acara Relay dalam storan tempatan.');
+                    }
+
+                    const statusObj = {
+                        connectionText: 'Aktif & Disimpan',
+                        connectionClass: 'text-emerald-700',
+                        updatedAt: SaringanModule.formatDateTime(nowIso),
+                        tabCountText: '7 / 7 Tab',
+                        detailText: 'Sambungan berjaya — 7/7 tab Acara Relay dikenal pasti dan disimpan.'
+                    };
+
+                    const savedCfg = StorageManager.saveTournamentConfig({
+                        relayAppsScriptUrl: url,
+                        relayGasStatus: statusObj
+                    });
+                    if (!savedCfg) {
+                        throw new Error('Gagal menyimpan URL GAS Acara Relay.');
+                    }
+
+                    StorageManager.appendRelayAuditLog({
+                        action: 'IMPORT_DATA_GAS',
+                        tabsImported: this.EXPECTED_TABS.length
+                    });
+
+                    if (inputEl) inputEl.disabled = true;
+                    this.updateModeBadge('Tersimpan (Terkunci)');
+                    this.updateStatusPanel(statusObj);
+
+                    if (AppController.currentView === 'relay') {
+                        AppController.loadView('relay');
+                    }
+                    UIComponents.showToast('Sambungan berjaya — 7/7 tab Acara Relay disimpan!', 'success');
+                } catch (err) {
+                    if (currentOpToken === this.operationToken) {
+                        UIComponents.showToast(`Gagal mengimport data: ${err.message}. Data sedia ada dikekalkan.`, 'error');
+                    }
+                } finally {
+                    if (currentOpToken === this.operationToken) {
+                        this.isBusy = false;
+                        UIComponents.hideLoading();
+                    }
+                }
+            },
+
+            async updateCell({ eventNo, gender, sheetRow, field, expectedValue, value }) {
+                const config = StorageManager.getTournamentConfig();
+                const gasUrl = String(config.relayAppsScriptUrl || '').trim();
+                if (!gasUrl) {
+                    UIComponents.showToast('URL Google Apps Script Acara Relay belum ditetapkan dalam Panel Admin.', 'error');
+                    return { success: false };
+                }
+
+                const store = StorageManager.getRelayStore();
+                const ev = store.events && store.events[eventNo];
+                if (!ev || ev.status === 'DISAHKAN_RASMI') {
+                    UIComponents.showToast('Tidak dapat menyimpan kerana acara telah disahkan rasmi.', 'error');
+                    return { success: false };
+                }
+
+                if (!RelayModule.isEditableCell(gender, sheetRow, field)) {
+                    UIComponents.showToast('Julat suntingan tidak dibenarkan.', 'error');
+                    return { success: false };
+                }
+
+                try {
+                    const bodyParams = new URLSearchParams();
+                    bodyParams.set('action', 'update');
+                    bodyParams.set('eventNo', String(eventNo));
+                    bodyParams.set('gender', String(gender));
+                    bodyParams.set('sheetRow', String(sheetRow));
+                    bodyParams.set('field', String(field));
+                    bodyParams.set('expectedValue', String(expectedValue || ''));
+                    bodyParams.set('value', String(value || ''));
+
+                    const response = await fetch(gasUrl, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8'
+                        },
+                        body: bodyParams.toString()
+                    });
+
+                    if (!response.ok) {
+                        throw new Error(`Status pelayan HTTP ${response.status}`);
+                    }
+
+                    const result = await response.json();
+                    if (!result || result.success !== true) {
+                        throw new Error((result && result.message) ? result.message : 'Kemas kini ditolak oleh Google Sheets.');
+                    }
+
+                    const rows = ev[gender] || [];
+                    const targetTeam = rows.find(r => Number(r.sheetRow) === Number(sheetRow));
+                    if (targetTeam) {
+                        targetTeam[field] = value;
+                    }
+                    ev.updatedAt = result.updatedAt || new Date().toISOString();
+
+                    StorageManager.saveRelayStore(store);
+                    StorageManager.appendRelayAuditLog({
+                        action: 'KEMASKINI_KEPUTUSAN_GS',
+                        eventNo,
+                        gender,
+                        sheetRow: Number(sheetRow),
+                        field,
+                        oldValue: expectedValue,
+                        newValue: value
+                    });
+
+                    UIComponents.showToast('Keputusan Acara Relay berjaya dikemas kini dalam Google Sheets!', 'success');
+                    return { success: true };
+                } catch (err) {
+                    UIComponents.showToast(`Gagal mengemas kini: ${err.message}`, 'error');
+                    return { success: false, message: err.message };
+                }
+            },
+
+            enableEditMode() {
+                const inputEl = document.getElementById('gas-url-relay');
+                if (!inputEl) return;
+                inputEl.disabled = false;
+                inputEl.focus();
+                this.lastTestPassed = false;
+                this.updateModeBadge('Mod Suntingan Aktif');
+                UIComponents.showToast('Masukkan URL baharu, tekan Uji dan kemudian Simpan.', 'info');
+            },
+
+            requestDeleteUrl() {
+                const confirmBox = document.getElementById('relay-delete-confirm-box');
+                if (confirmBox) confirmBox.classList.remove('hidden');
+            },
+
+            cancelDeleteUrl() {
+                const confirmBox = document.getElementById('relay-delete-confirm-box');
+                if (confirmBox) confirmBox.classList.add('hidden');
+            },
+
+            confirmDeleteUrl() {
+                this.operationToken++;
+                this.isBusy = false;
+                UIComponents.hideLoading();
+
+                const prevConfig = StorageManager.getTournamentConfig();
+                const prevStore = StorageManager.getRelayStore();
+
+                try {
+                    const nextConfig = { ...prevConfig };
+                    delete nextConfig.relayAppsScriptUrl;
+                    delete nextConfig.relayGasStatus;
+                    window.localStorage.setItem(StorageManager.KEYS.CONFIG, JSON.stringify(nextConfig));
+
+                    const storeSaved = StorageManager.saveRelayStore({ events: {} });
+                    if (!storeSaved) {
+                        throw new Error('Gagal mengosongkan snapshot Acara Relay dalam storan tempatan.');
+                    }
+
+                    const verifyConfig = StorageManager.getTournamentConfig();
+                    const verifyStore = StorageManager.getRelayStore();
+                    if (verifyConfig.relayAppsScriptUrl || Object.keys(verifyStore.events || {}).length > 0) {
+                        throw new Error('Pengesahan pemadaman dalam LocalStorage gagal.');
+                    }
+                } catch (err) {
+                    try {
+                        window.localStorage.setItem(StorageManager.KEYS.CONFIG, JSON.stringify(prevConfig));
+                        StorageManager.saveRelayStore(prevStore);
+                    } catch (rollbackErr) {
+                        console.error('Rollback gagal:', rollbackErr);
+                    }
+                    UIComponents.showToast(`Gagal menghapus URL dan mengosongkan data: ${err.message}`, 'error');
+                    return;
+                }
+
+                StorageManager.appendRelayAuditLog({
+                    action: 'HAPUS_KONFIGURASI_GAS'
+                });
+
+                RelayModule.selectedEventNo = null;
+                RelayModule.editingCell = null;
+                RelayModule.isSavingCell = false;
+
+                this.lastTestedUrl = null;
+                this.lastTestPassed = false;
+
+                const inputEl = document.getElementById('gas-url-relay');
+                if (inputEl) {
+                    inputEl.value = '';
+                    inputEl.disabled = false;
+                }
+
+                this.cancelDeleteUrl();
+                this.updateModeBadge('Sedia Diisi');
+                this.updateStatusPanel({
+                    connectionText: 'Belum Diuji',
+                    connectionClass: 'text-slate-600',
+                    updatedAt: '—',
+                    tabCountText: '0 / 7 Tab',
+                    detailText: 'URL Google Apps Script dipadam dan paparan Acara Relay telah dikosongkan. Google Sheets asal dan log audit kekal terpelihara.'
+                });
+
+                if (AppController.currentView === 'relay') {
+                    AppController.loadView('relay');
+                }
+                UIComponents.showToast('URL Google Apps Script dipadam dan paparan Acara Relay telah dikosongkan.', 'success');
+            }
+        };
+
+        /**
          * 5. PENGAWAL UTAMA APLIKASI (AppController)
          */
         const AppController = {
@@ -3511,6 +4515,7 @@ function doPost(e) {
                 AdminNavigation.init();
                 SaringanGasController.init();
                 AkhirBalapanGasController.init();
+                RelayGasController.init();
                 this.loadView(this.currentView);
                 lucide.createIcons();
             },
@@ -3630,9 +4635,11 @@ function doPost(e) {
                     ]);
                     if (stageEl) stageEl.innerHTML = AkhirBalapanModule.renderPublicView();
                 } else if (viewId === 'relay') {
-                    const events = Object.values(StorageManager.getRelayStore().events || {});
+                    const hasActiveConn = RelayModule.hasValidActiveConnection();
+                    const store = hasActiveConn ? StorageManager.getRelayStore() : { events: {} };
+                    const events = Object.values(store.events || {});
                     UIComponents.renderSummaryCards([
-                        { label: 'Acara Relay', value: events.length, icon: 'users' },
+                        { label: 'Acara Relay', value: `${events.length} / 7`, icon: 'users' },
                         { label: 'Disahkan Rasmi', value: events.filter(e => e.status === 'DISAHKAN_RASMI').length, icon: 'shield-check' },
                         { label: 'Belum Selesai', value: events.filter(e => e.status !== 'DISAHKAN_RASMI').length, icon: 'clock' },
                         { label: 'Kategori', value: 'Berpasukan', icon: 'award' }
