@@ -245,9 +245,9 @@
                     </div>
 
                     <!-- Butang Akses Panel Admin Berasingan -->
-                    <button id="btn-toggle-admin" type="button" onclick="AppController.toggleAdminView()" class="flex items-center gap-1.5 sm:gap-2 min-h-[40px] sm:min-h-[44px] px-2.5 py-2 sm:px-4 sm:py-2.5 rounded-xl text-[11px] sm:text-sm font-semibold bg-gold text-navy-dark hover:bg-gold-light transition-all shadow-gold-glow cursor-pointer">
-                        <i id="admin-btn-icon" data-lucide="shield-check" class="w-3.5 h-3.5 sm:w-4 sm:h-4 shrink-0"></i>
-                        <span id="admin-btn-label" class="whitespace-nowrap">Panel Admin</span>
+                    <button id="btn-toggle-admin" type="button" aria-label="Buka Panel Admin" onclick="AppController.toggleAdminView()" class="flex items-center justify-center sm:justify-start gap-0 sm:gap-2 min-w-[44px] min-h-[44px] p-2.5 sm:px-4 sm:py-2.5 rounded-xl text-[11px] sm:text-sm font-semibold bg-gold text-navy-dark hover:bg-gold-light transition-all shadow-gold-glow cursor-pointer">
+                        <i id="admin-btn-icon" data-lucide="shield-check" class="w-4 h-4 shrink-0"></i>
+                        <span id="admin-btn-label" class="hidden sm:inline whitespace-nowrap">Panel Admin</span>
                     </button>
                 </div>
             </div>
@@ -5707,10 +5707,12 @@ function jsonResponse_(obj) {
                     this.isAdminOpen = false;
                     const publicWs = document.getElementById('public-workspace');
                     const adminWs = document.getElementById('admin-workspace');
+                    const adminBtn = document.getElementById('btn-toggle-admin');
                     const adminLabel = document.getElementById('admin-btn-label');
                     if (publicWs) publicWs.classList.remove('hidden');
                     if (adminWs) adminWs.classList.add('hidden');
                     if (adminLabel) adminLabel.textContent = 'Panel Admin';
+                    if (adminBtn) adminBtn.setAttribute('aria-label', 'Buka Panel Admin');
                 }
                 this.renderNavigation();
                 this.loadView(viewId);
@@ -5720,16 +5722,19 @@ function jsonResponse_(obj) {
                 this.isAdminOpen = !this.isAdminOpen;
                 const publicWs = document.getElementById('public-workspace');
                 const adminWs = document.getElementById('admin-workspace');
+                const adminBtn = document.getElementById('btn-toggle-admin');
                 const adminLabel = document.getElementById('admin-btn-label');
 
                 if (this.isAdminOpen) {
                     if (publicWs) publicWs.classList.add('hidden');
                     if (adminWs) adminWs.classList.remove('hidden');
                     if (adminLabel) adminLabel.textContent = 'Paparan Awam';
+                    if (adminBtn) adminBtn.setAttribute('aria-label', 'Kembali ke Paparan Awam');
                 } else {
                     if (adminWs) adminWs.classList.add('hidden');
                     if (publicWs) publicWs.classList.remove('hidden');
                     if (adminLabel) adminLabel.textContent = 'Panel Admin';
+                    if (adminBtn) adminBtn.setAttribute('aria-label', 'Buka Panel Admin');
                     this.loadView(this.currentView);
                 }
 
