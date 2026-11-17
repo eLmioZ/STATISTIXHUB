@@ -2090,12 +2090,7 @@
                     <div class="space-y-8">
                         <section class="space-y-4">
                             <div class="flex items-center justify-between gap-2 pb-2 border-b border-slate-200/70">
-                                <div class="flex items-center gap-2.5">
-                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-md text-[11px] font-display font-bold uppercase tracking-wider gender-badge-lelaki">Lelaki</span>
-                                    <h3 class="font-display font-bold text-sm sm:text-base lg:text-lg text-navy-primary uppercase tracking-wide">
-                                        Kategori Lelaki — Acara ${this.escapeHtml(activeEvent.eventNo)}
-                                    </h3>
-                                </div>
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-md text-[11px] font-display font-bold uppercase tracking-wider gender-badge-lelaki">Lelaki</span>
                             </div>
                             <div class="space-y-4">
                                 ${this.renderHeatTable(activeEvent.eventNo, 'lelaki', 'saringan1', 'Lelaki • Saringan 1', activeEvent.lelaki && activeEvent.lelaki.saringan1, isVerified)}
@@ -2105,12 +2100,7 @@
 
                         <section class="space-y-4 pt-2 border-t border-slate-200">
                             <div class="flex items-center justify-between gap-2 pb-2 border-b border-slate-200/70">
-                                <div class="flex items-center gap-2.5">
-                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-md text-[11px] font-display font-bold uppercase tracking-wider gender-badge-perempuan">Perempuan</span>
-                                    <h3 class="font-display font-bold text-sm sm:text-base lg:text-lg text-navy-primary uppercase tracking-wide">
-                                        Kategori Perempuan — Acara ${this.escapeHtml(activeEvent.eventNo)}
-                                    </h3>
-                                </div>
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-md text-[11px] font-display font-bold uppercase tracking-wider gender-badge-perempuan">Perempuan</span>
                             </div>
                             <div class="space-y-4">
                                 ${this.renderHeatTable(activeEvent.eventNo, 'perempuan', 'saringan1', 'Perempuan • Saringan 1', activeEvent.perempuan && activeEvent.perempuan.saringan1, isVerified)}
@@ -2471,8 +2461,22 @@
                         </div>
 
                         <div class="space-y-6">
-                            ${renderTable('lelaki', 'Lelaki Akhir', ev.lelaki || [])}
-                            ${renderTable('perempuan', 'Perempuan Akhir', ev.perempuan || [])}
+                            <div class="space-y-3">
+                                <div>
+                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-md text-[11px] font-display font-bold uppercase tracking-wider gender-badge-lelaki">
+                                        Lelaki
+                                    </span>
+                                </div>
+                                ${renderTable('lelaki', 'Lelaki Akhir', ev.lelaki || [])}
+                            </div>
+                            <div class="space-y-3">
+                                <div>
+                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-md text-[11px] font-display font-bold uppercase tracking-wider gender-badge-perempuan">
+                                        Perempuan
+                                    </span>
+                                </div>
+                                ${renderTable('perempuan', 'Perempuan Akhir', ev.perempuan || [])}
+                            </div>
                         </div>
                     </div>
                 `;
@@ -2790,8 +2794,22 @@
                         </div>
 
                         <div class="space-y-6">
-                            ${renderTable('lelaki', 'Pasukan Lelaki', ev.lelaki || [])}
-                            ${renderTable('perempuan', 'Pasukan Perempuan', ev.perempuan || [])}
+                            <div class="space-y-3">
+                                <div>
+                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-md text-[11px] font-display font-bold uppercase tracking-wider gender-badge-lelaki">
+                                        Lelaki
+                                    </span>
+                                </div>
+                                ${renderTable('lelaki', 'Pasukan Lelaki', ev.lelaki || [])}
+                            </div>
+                            <div class="space-y-3">
+                                <div>
+                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-md text-[11px] font-display font-bold uppercase tracking-wider gender-badge-perempuan">
+                                        Perempuan
+                                    </span>
+                                </div>
+                                ${renderTable('perempuan', 'Pasukan Perempuan', ev.perempuan || [])}
+                            </div>
                         </div>
                     </div>
                 `;
@@ -3136,8 +3154,22 @@
                         </div>
 
                         <div class="space-y-6">
-                            ${renderTable('lelaki', 'Acara Padang Lelaki', ev.lelaki || [])}
-                            ${renderTable('perempuan', 'Acara Padang Perempuan', ev.perempuan || [])}
+                            <div class="space-y-3">
+                                <div>
+                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-md text-[11px] font-display font-bold uppercase tracking-wider gender-badge-lelaki">
+                                        Lelaki
+                                    </span>
+                                </div>
+                                ${renderTable('lelaki', 'Acara Padang Lelaki', ev.lelaki || [])}
+                            </div>
+                            <div class="space-y-3">
+                                <div>
+                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-md text-[11px] font-display font-bold uppercase tracking-wider gender-badge-perempuan">
+                                        Perempuan
+                                    </span>
+                                </div>
+                                ${renderTable('perempuan', 'Acara Padang Perempuan', ev.perempuan || [])}
+                            </div>
                         </div>
                     </div>
                 `;
