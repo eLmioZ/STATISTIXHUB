@@ -131,7 +131,7 @@
                 <!-- Kawalan Kanan: Akses Panel Admin -->
                 <div class="flex items-center gap-2 sm:gap-3 shrink-0">
                     <!-- Butang Akses Panel Admin Berasingan -->
-                    <button id="btn-toggle-admin" type="button" onclick="AppController.toggleAdminView()" class="flex items-center gap-2 px-3.5 py-2 sm:px-4 sm:py-2.5 rounded-xl text-xs sm:text-sm font-semibold bg-gold text-navy-dark hover:bg-gold-light transition-all shadow-gold-glow cursor-pointer">
+                    <button id="btn-toggle-admin" type="button" onclick="AppController.toggleAdminView()" class="flex items-center gap-2 min-h-[44px] px-3.5 py-2 sm:px-4 sm:py-2.5 rounded-xl text-xs sm:text-sm font-semibold bg-gold text-navy-dark hover:bg-gold-light transition-all shadow-gold-glow cursor-pointer">
                         <i id="admin-btn-icon" data-lucide="shield-check" class="w-4 h-4"></i>
                         <span id="admin-btn-label">Panel Admin</span>
                     </button>
@@ -146,8 +146,8 @@
     <div class="flex-1 flex max-w-[1600px] w-full mx-auto">
 
         <!-- SIDEBAR NAVIGASI DESKTOP (LG KE ATAS) -->
-        <aside id="desktop-sidebar" class="hidden lg:flex lg:flex-col lg:w-72 shrink-0 bg-navy-primary text-white border-r border-navy-secondary/40">
-            <div class="p-5 flex-1 flex flex-col justify-between">
+        <aside id="desktop-sidebar" class="hidden lg:flex lg:flex-col lg:w-64 xl:w-72 shrink-0 bg-navy-primary text-white border-r border-navy-secondary/40">
+            <div class="p-4 xl:p-5 flex-1 flex flex-col justify-between">
                 <div>
                     <div class="px-3 mb-3">
                         <p class="text-[11px] font-bold uppercase tracking-widest text-slate-400">
@@ -175,30 +175,30 @@
         </aside>
 
         <!-- KAWASAN KANDUNGAN UTAMA -->
-        <main class="flex-1 w-full min-w-0 p-4 sm:p-6 lg:p-8 pb-24 lg:pb-10">
+        <main class="flex-1 w-full min-w-0 p-4 sm:p-6 lg:p-7 xl:p-8 pb-[calc(6.5rem+env(safe-area-inset-bottom,0px))] lg:pb-10">
 
             <!-- =============================================================== -->
             <!-- PAPARAN AWAM UTAMA (5 MODUL STATISTIK KEJOHANAN)                -->
             <!-- =============================================================== -->
-            <section id="public-workspace" class="space-y-6">
+            <section id="public-workspace" class="space-y-5 sm:space-y-6">
                 <!-- Bar Tajuk Modul -->
                 <div class="bg-white rounded-2xl p-5 sm:p-6 shadow-card border border-slate-200/80">
-                    <div>
+                    <div class="max-w-3xl">
                         <div class="flex items-center gap-2 text-xs font-semibold text-navy-secondary uppercase tracking-wider">
                             <i id="view-breadcrumb-icon" data-lucide="layers" class="w-3.5 h-3.5 text-gold-dark"></i>
                             <span id="view-breadcrumb-category">Modul Statistik Kejohanan</span>
                         </div>
-                        <h2 id="view-main-title" class="font-display font-bold text-xl sm:text-2xl text-navy-primary mt-1">
+                        <h2 id="view-main-title" class="font-display font-bold text-xl sm:text-2xl xl:text-[26px] text-navy-primary mt-1 leading-tight">
                             Acara Saringan
                         </h2>
-                        <p id="view-main-subtitle" class="text-xs sm:text-sm text-ink-muted mt-0.5">
+                        <p id="view-main-subtitle" class="text-xs sm:text-sm text-ink-muted mt-1 leading-relaxed">
                             Paparan keputusan saringan mengikut kategori acara dan laluan kelayakan ke peringkat akhir.
                         </p>
                     </div>
                 </div>
 
                 <!-- Ringkasan Statistik Modul -->
-                <div id="module-summary-cards" class="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+                <div id="module-summary-cards" class="grid grid-cols-2 xl:grid-cols-4 gap-3.5 sm:gap-4 lg:gap-5">
                     <!-- Dijana secara dinamik mengikut modul aktif -->
                 </div>
 
@@ -238,13 +238,13 @@
                         <button type="button"
                             id="admin-tab-tetapan-acara"
                             onclick="AdminNavigation.switchTab('tetapan-acara')"
-                            class="px-4 py-3 rounded-xl text-xs sm:text-sm font-bold transition-all cursor-pointer text-center bg-navy-primary text-gold border-b-2 border-gold shadow-xs">
+                            class="min-h-[44px] px-4 py-3 rounded-xl text-xs sm:text-sm font-bold transition-all cursor-pointer text-center bg-navy-primary text-gold border-b-2 border-gold shadow-xs">
                             Tetapan Acara
                         </button>
                         <button type="button"
                             id="admin-tab-pengurusan-pengguna"
                             onclick="AdminNavigation.switchTab('pengurusan-pengguna')"
-                            class="px-4 py-3 rounded-xl text-xs sm:text-sm font-bold transition-all cursor-pointer text-center bg-surface-bg text-navy-primary hover:bg-slate-200/70">
+                            class="min-h-[44px] px-4 py-3 rounded-xl text-xs sm:text-sm font-bold transition-all cursor-pointer text-center bg-surface-bg text-navy-primary hover:bg-slate-200/70">
                             Pengurusan Pengguna
                         </button>
                     </nav>
@@ -294,7 +294,7 @@
                                     type="button"
                                     id="btn-open-saringan-gas-modal"
                                     onclick="SaringanGasController.openGasModal()"
-                                    class="inline-flex items-center justify-center gap-2 px-3.5 py-2.5 rounded-xl text-xs font-bold bg-navy-dark hover:bg-navy-primary text-gold-light border border-gold/40 shadow-xs transition-all cursor-pointer shrink-0 self-start sm:self-center"
+                                    class="inline-flex items-center justify-center gap-2 min-h-[44px] px-3.5 py-2.5 rounded-xl text-xs font-bold bg-navy-dark hover:bg-navy-primary text-gold-light border border-gold/40 shadow-xs transition-all cursor-pointer shrink-0 self-start sm:self-center"
                                 >
                                     <i data-lucide="code-2" class="w-4 h-4 text-gold"></i>
                                     <span>KOD GOOGLE APP SCRIPT / GAS</span>
@@ -315,7 +315,7 @@
                                     id="gas-url-saringan"
                                     type="url"
                                     placeholder="https://script.google.com/macros/s/.../exec"
-                                    class="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 bg-surface-bg/60 text-xs sm:text-sm font-mono text-ink placeholder:text-slate-400 focus:outline-none focus:bg-white focus:border-navy-primary focus:ring-2 focus:ring-gold/40 transition-all disabled:bg-slate-100 disabled:text-slate-500 disabled:cursor-not-allowed"
+                                    class="w-full min-h-[44px] px-3.5 py-2.5 rounded-xl border border-slate-300 bg-surface-bg/60 text-base sm:text-sm font-mono text-ink placeholder:text-slate-400 focus:outline-none focus:bg-white focus:border-navy-primary focus:ring-2 focus:ring-gold/40 transition-all disabled:bg-slate-100 disabled:text-slate-500 disabled:cursor-not-allowed"
                                 >
                             </div>
 
@@ -325,7 +325,7 @@
                                     type="button"
                                     id="btn-saringan-gas-test"
                                     onclick="SaringanGasController.testConnection()"
-                                    class="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-xs font-semibold bg-navy-primary hover:bg-navy-dark text-white transition-colors cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed"
+                                    class="inline-flex items-center justify-center gap-2 min-h-[44px] px-4 py-2.5 rounded-xl text-xs font-semibold bg-navy-primary hover:bg-navy-dark text-white transition-colors cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed"
                                 >
                                     <i data-lucide="flask-conical" class="w-4 h-4"></i>
                                     <span>Uji</span>
@@ -334,7 +334,7 @@
                                     type="button"
                                     id="btn-saringan-gas-save"
                                     onclick="SaringanGasController.saveAndImportData()"
-                                    class="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-xs font-semibold bg-emerald-600 hover:bg-emerald-700 text-white transition-colors cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed"
+                                    class="inline-flex items-center justify-center gap-2 min-h-[44px] px-4 py-2.5 rounded-xl text-xs font-semibold bg-emerald-600 hover:bg-emerald-700 text-white transition-colors cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed"
                                 >
                                     <i data-lucide="save" class="w-4 h-4"></i>
                                     <span>Simpan</span>
@@ -343,7 +343,7 @@
                                     type="button"
                                     id="btn-saringan-gas-edit"
                                     onclick="SaringanGasController.enableEditMode()"
-                                    class="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-xs font-semibold bg-gold hover:bg-gold-light text-navy-dark transition-colors cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed"
+                                    class="inline-flex items-center justify-center gap-2 min-h-[44px] px-4 py-2.5 rounded-xl text-xs font-semibold bg-gold hover:bg-gold-light text-navy-dark transition-colors cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed"
                                 >
                                     <i data-lucide="pencil" class="w-4 h-4"></i>
                                     <span>Edit</span>
@@ -352,24 +352,24 @@
                                     type="button"
                                     id="btn-saringan-gas-delete"
                                     onclick="SaringanGasController.requestDeleteUrl()"
-                                    class="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-xs font-semibold bg-rose-100 hover:bg-rose-200/80 text-rose-800 border border-rose-200 transition-colors cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed"
+                                    class="inline-flex items-center justify-center gap-2 min-h-[44px] px-4 py-2.5 rounded-xl text-xs font-semibold bg-rose-100 hover:bg-rose-200/80 text-rose-800 border border-rose-200 transition-colors cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed"
                                 >
                                     <i data-lucide="trash-2" class="w-4 h-4"></i>
                                     <span>Hapus</span>
                                 </button>
                             </div>
 
-                            <!-- Pengesahan Inline Hapus URL Konfigurasi Sahaja -->
-                            <div id="saringan-delete-confirm-box" class="hidden p-3.5 rounded-xl bg-rose-50 border border-rose-200 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                            <!-- Pengesahan Inline Hapus URL Konfigurasi & Kosongkan Snapshot Saringan -->
+                            <div id="saringan-delete-confirm-box" class="hidden p-4 rounded-xl bg-rose-50 border border-rose-200 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                                 <div class="text-xs text-rose-900">
-                                    <p class="font-bold">Sahkan pemadaman URL Google Apps Script?</p>
-                                    <p class="text-[11px] text-rose-700 mt-0.5">Hanya URL konfigurasi dipadam. Keputusan tempatan, status pengesahan rasmi, log audit dan Google Sheets kekal selamat.</p>
+                                    <p class="font-bold">Adakah anda pasti mahu menghapus URL Google Apps Script dan mengosongkan paparan Acara Saringan?</p>
+                                    <p class="text-[11px] text-rose-700 mt-1">Semua data Acara Saringan yang disimpan dalam aplikasi ini akan dikosongkan. Data asal Google Sheets dan log audit tidak akan dipadam.</p>
                                 </div>
                                 <div class="flex items-center gap-2 shrink-0">
-                                    <button type="button" onclick="SaringanGasController.confirmDeleteUrl()" class="px-3 py-1.5 rounded-lg text-xs font-bold bg-rose-600 hover:bg-rose-700 text-white cursor-pointer">
-                                        Ya, Hapus URL
+                                    <button type="button" onclick="SaringanGasController.confirmDeleteUrl()" class="min-h-[44px] px-4 py-2 rounded-xl text-xs font-bold bg-rose-600 hover:bg-rose-700 text-white cursor-pointer">
+                                        Ya, Hapus
                                     </button>
-                                    <button type="button" onclick="SaringanGasController.cancelDeleteUrl()" class="px-3 py-1.5 rounded-lg text-xs font-semibold bg-white hover:bg-slate-100 text-slate-700 border border-slate-300 cursor-pointer">
+                                    <button type="button" onclick="SaringanGasController.cancelDeleteUrl()" class="min-h-[44px] px-4 py-2 rounded-xl text-xs font-semibold bg-white hover:bg-slate-100 text-slate-700 border border-slate-300 cursor-pointer">
                                         Batal
                                     </button>
                                 </div>
@@ -582,7 +582,7 @@
                         id="btn-close-saringan-gas-top"
                         onclick="SaringanGasController.closeGasModal()"
                         aria-label="Tutup Modal Kod GAS"
-                        class="w-9 h-9 rounded-xl bg-navy-primary hover:bg-navy-secondary text-slate-200 hover:text-white flex items-center justify-center transition-colors cursor-pointer shrink-0"
+                        class="w-11 h-11 rounded-xl bg-navy-primary hover:bg-navy-secondary text-slate-200 hover:text-white flex items-center justify-center transition-colors cursor-pointer shrink-0"
                     >
                         <i data-lucide="x" class="w-5 h-5"></i>
                     </button>
@@ -611,7 +611,7 @@
                             type="button"
                             id="btn-copy-saringan-gas-code"
                             onclick="SaringanGasController.copyGasCode()"
-                            class="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold bg-gold hover:bg-gold-light text-navy-dark shadow-xs transition-colors cursor-pointer"
+                            class="inline-flex items-center justify-center gap-2 min-h-[44px] px-4 py-2.5 rounded-xl text-xs font-bold bg-gold hover:bg-gold-light text-navy-dark shadow-xs transition-colors cursor-pointer"
                         >
                             <i data-lucide="copy" class="w-4 h-4"></i>
                             <span>Salin Kod</span>
@@ -620,7 +620,7 @@
                             type="button"
                             id="btn-close-saringan-gas-bottom"
                             onclick="SaringanGasController.closeGasModal()"
-                            class="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-xs font-semibold bg-navy-primary hover:bg-navy-dark text-white transition-colors cursor-pointer"
+                            class="inline-flex items-center justify-center gap-2 min-h-[44px] px-4 py-2.5 rounded-xl text-xs font-semibold bg-navy-primary hover:bg-navy-dark text-white transition-colors cursor-pointer"
                         >
                             <i data-lucide="x-circle" class="w-4 h-4"></i>
                             <span>Tutup</span>
@@ -648,8 +648,8 @@
     <!-- ===================================================================== -->
     <!-- NAVIGASI MOBILE (BOTTOM NAVIGATION MESRA SENTUHAN)                   -->
     <!-- ===================================================================== -->
-    <nav id="mobile-bottom-nav" class="lg:hidden fixed bottom-0 inset-x-0 z-40 bg-navy-dark text-white border-t border-navy-secondary/60 shadow-2xl" aria-label="Navigasi Mudah Alih">
-        <div id="mobile-nav-list" class="grid grid-cols-5 h-16">
+    <nav id="mobile-bottom-nav" class="lg:hidden fixed bottom-0 inset-x-0 z-40 bg-navy-dark text-white border-t border-navy-secondary/60 shadow-2xl pb-[env(safe-area-inset-bottom,0px)]" aria-label="Navigasi Mudah Alih">
+        <div id="mobile-nav-list" class="grid grid-cols-5 min-h-[64px]">
             <!-- 5 Item Navigasi Utama dijana secara dinamik -->
         </div>
     </nav>
@@ -657,7 +657,7 @@
     <!-- ===================================================================== -->
     <!-- KONTENA NOTIFIKASI TOAST & LOADING OVERLAY                            -->
     <!-- ===================================================================== -->
-    <div id="toast-container" class="fixed bottom-20 lg:bottom-6 right-4 left-4 sm:left-auto sm:w-96 z-50 flex flex-col gap-2 pointer-events-none"></div>
+    <div id="toast-container" class="fixed bottom-[calc(5.25rem+env(safe-area-inset-bottom,0px))] lg:bottom-6 right-4 left-4 sm:left-auto sm:w-96 z-50 flex flex-col gap-2 pointer-events-none"></div>
 
     <div id="loading-overlay" class="fixed inset-0 z-50 bg-navy-dark/50 backdrop-blur-xs hidden items-center justify-center p-4">
         <div class="bg-white rounded-2xl p-6 max-w-xs w-full shadow-2xl border border-slate-200 text-center">
@@ -1042,16 +1042,16 @@
                 if (!container) return;
 
                 container.innerHTML = statsArray.map(stat => `
-                    <div class="bg-white rounded-2xl p-4 sm:p-5 shadow-soft border border-slate-200/80 flex items-center justify-between gap-3">
+                    <div class="bg-white rounded-2xl p-4 sm:p-5 shadow-soft border border-slate-200/80 flex items-center justify-between gap-3.5 min-h-[88px]">
                         <div class="min-w-0">
                             <p class="font-display text-[11px] sm:text-xs font-semibold text-ink-muted uppercase tracking-wider truncate">
                                 ${stat.label}
                             </p>
-                            <p class="font-display font-extrabold text-xl sm:text-2xl text-navy-primary mt-1">
+                            <p class="font-display font-extrabold text-xl sm:text-2xl text-navy-primary mt-1.5 leading-none">
                                 ${stat.value}
                             </p>
                         </div>
-                        <div class="w-10 h-10 sm:w-11 sm:h-11 rounded-xl ${stat.accentBg || 'bg-surface-bg'} flex items-center justify-center shrink-0">
+                        <div class="w-10 h-10 rounded-xl ${stat.accentBg || 'bg-surface-bg'} flex items-center justify-center shrink-0">
                             <i data-lucide="${stat.icon}" class="w-5 h-5 ${stat.accentText || 'text-navy-primary'}"></i>
                         </div>
                     </div>
@@ -1085,17 +1085,27 @@
      */
     const SaringanModule = {
         ALLOWED_EVENT_NOS: ['101', '102', '103', '104', '105', '106', '204', '205', '300'],
-        selectedEventNo: '101',
+        selectedEventNo: null,
         editingCell: null,
         isSavingCell: false,
 
-        escapeHtml(val) {
-            return String(val ?? '')
+        escapeHtml(str) {
+            if (str === null || str === undefined) return '';
+            return String(str)
                 .replace(/&/g, '&amp;')
                 .replace(/</g, '&lt;')
                 .replace(/>/g, '&gt;')
                 .replace(/"/g, '&quot;')
                 .replace(/'/g, '&#39;');
+        },
+
+        hasValidActiveConnection() {
+            const config = StorageManager.getTournamentConfig();
+            const savedUrl = String(config.saringanAppsScriptUrl || '').trim();
+            if (!savedUrl) return false;
+            const store = StorageManager.getSaringanStore();
+            const eventsMap = (store && store.events) || {};
+            return this.ALLOWED_EVENT_NOS.some(no => Boolean(eventsMap[no]));
         },
 
         formatDateTime(isoString) {
@@ -1182,6 +1192,7 @@
             requestAnimationFrame(() => {
                 const inputEl = document.getElementById('saringan-inline-edit-input');
                 if (inputEl) {
+                    inputEl.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
                     inputEl.focus();
                     inputEl.select();
                 }
@@ -1346,9 +1357,9 @@
                             onkeydown="SaringanModule.handleInlineInputKeydown(event)"
                             onblur="SaringanModule.handleInlineInputBlur()"
                             aria-label="Sunting ${field === 'kedudukan' ? 'Kedudukan' : 'Masa'}"
-                            class="w-full px-2 py-1 text-xs ${alignClass} border-2 border-gold rounded-lg bg-white text-navy-dark focus:outline-none focus:ring-2 focus:ring-gold/50 transition-all"
+                            class="w-full min-h-[38px] px-2.5 py-1.5 text-base sm:text-xs ${alignClass} border-2 border-gold rounded-lg bg-white text-navy-dark focus:outline-none focus:ring-2 focus:ring-gold/50 transition-all"
                         >
-                        <span id="saringan-inline-saving-indicator" class="hidden block text-[9px] font-semibold text-amber-700 mt-0.5 text-center">
+                        <span id="saringan-inline-saving-indicator" class="hidden block text-[10px] font-semibold text-amber-700 mt-0.5 text-center">
                             Menyimpan...
                         </span>
                     </div>
@@ -1356,7 +1367,7 @@
             }
 
             if (isVerified || !athlete.sheetRow) {
-                return `<span class="block px-2 py-1 ${alignClass} text-navy-primary">${this.escapeHtml(displayVal)}</span>`;
+                return `<span class="block px-2.5 py-1.5 ${alignClass} text-navy-primary">${this.escapeHtml(displayVal)}</span>`;
             }
 
             return `
@@ -1364,7 +1375,7 @@
                     type="button"
                     title="Klik untuk sunting ${field === 'kedudukan' ? 'Kedudukan' : 'Masa'} (Baris ${athlete.sheetRow})"
                     onclick="SaringanModule.startInlineEdit('${this.escapeHtml(eventNo)}', '${gender}', '${heat}', ${Number(athlete.sheetRow)}, '${this.escapeHtml(athlete.noBib || '')}', '${field}', '${this.escapeHtml(rawVal)}')"
-                    class="w-full block px-2 py-1 rounded-lg hover:bg-gold/15 border border-transparent hover:border-gold/40 transition-colors cursor-pointer ${alignClass} text-navy-primary"
+                    class="w-full min-h-[38px] block px-2.5 py-1.5 rounded-lg hover:bg-gold/15 border border-transparent hover:border-gold/40 transition-colors cursor-pointer ${alignClass} text-navy-primary"
                 >${this.escapeHtml(displayVal)}</button>
             `;
         },
@@ -1375,40 +1386,40 @@
 
             return `
                 <div class="rounded-xl border border-slate-200/90 overflow-hidden bg-white shadow-2xs">
-                    <div class="px-4 py-2.5 bg-surface-bg border-b border-slate-200/80 flex items-center justify-between gap-2">
-                        <span class="font-display text-xs font-bold uppercase tracking-wider text-navy-primary">
+                    <div class="px-4 py-3 bg-surface-bg border-b border-slate-200/80 flex items-center justify-between gap-2">
+                        <span class="font-display text-xs sm:text-sm font-bold uppercase tracking-wider text-navy-primary">
                             ${this.escapeHtml(title)}
                         </span>
-                        <div class="flex items-center gap-2">
-                            <span class="text-[10px] font-mono text-slate-500 hidden sm:inline">${colHint}</span>
-                            <span class="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-white border border-slate-200 text-navy-secondary">
+                        <div class="flex items-center gap-2 shrink-0">
+                            <span class="text-[11px] font-mono text-slate-500 hidden sm:inline">${colHint}</span>
+                            <span class="px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-white border border-slate-200 text-navy-secondary">
                                 ${safeRows.length} Peserta
                             </span>
                         </div>
                     </div>
                     <div class="overflow-x-auto">
-                        <table class="w-full text-left border-collapse">
+                        <table class="w-full min-w-[640px] text-left border-collapse">
                             <thead>
-                                <tr class="bg-navy-primary text-white font-display text-[11px] uppercase tracking-wider">
-                                    <th class="py-2.5 px-3 text-center w-14">Lorong</th>
-                                    <th class="py-2.5 px-3">Nama Atlet</th>
-                                    <th class="py-2.5 px-3">Pasukan</th>
-                                    <th class="py-2.5 px-3 text-center w-20">No Bib</th>
-                                    <th class="py-2.5 px-3 text-center w-24">Kedudukan</th>
-                                    <th class="py-2.5 px-3 text-right w-28">Masa</th>
+                                <tr class="bg-navy-primary text-white font-display text-[11px] sm:text-xs uppercase tracking-wider">
+                                    <th class="py-3 px-3.5 text-center w-16">Lorong</th>
+                                    <th class="py-3 px-3.5 min-w-[200px]">Nama Atlet</th>
+                                    <th class="py-3 px-3.5 min-w-[140px]">Pasukan</th>
+                                    <th class="py-3 px-3.5 text-center w-24">No Bib</th>
+                                    <th class="py-3 px-3.5 text-center w-28">Kedudukan</th>
+                                    <th class="py-3 px-3.5 text-right w-32">Masa</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 ${safeRows.length === 0
-                                    ? `<tr><td colspan="6" class="py-6 px-4 text-center text-xs text-ink-muted">Tiada rekod peserta dalam ${this.escapeHtml(title)}.</td></tr>`
+                                    ? `<tr><td colspan="6" class="py-7 px-4 text-center text-xs sm:text-sm text-ink-muted">Tiada rekod peserta dalam ${this.escapeHtml(title)}.</td></tr>`
                                     : safeRows.map(athlete => `
-                                        <tr class="border-b border-slate-100 hover:bg-surface-bg/70 transition-colors">
-                                            <td class="py-2.5 px-3 text-xs font-semibold text-center text-ink-muted">${this.escapeHtml(athlete.lorong || '—')}</td>
-                                            <td class="py-2.5 px-3 text-xs font-semibold text-ink">${this.escapeHtml(athlete.namaAtlet || '—')}</td>
-                                            <td class="py-2.5 px-3 text-xs text-ink-muted">${this.escapeHtml(athlete.pasukan || '—')}</td>
-                                            <td class="py-2.5 px-3 text-xs font-mono text-center text-slate-600">${this.escapeHtml(athlete.noBib || '—')}</td>
-                                            <td class="py-2 px-2 text-xs">${this.renderEditableCell(eventNo, gender, heat, athlete, 'kedudukan', isVerified)}</td>
-                                            <td class="py-2 px-2 text-xs">${this.renderEditableCell(eventNo, gender, heat, athlete, 'masa', isVerified)}</td>
+                                        <tr class="border-b border-slate-100 even:bg-slate-50/40 hover:bg-surface-bg/80 transition-colors">
+                                            <td class="py-2.5 px-3.5 text-xs sm:text-sm font-semibold text-center text-ink-muted">${this.escapeHtml(athlete.lorong || '—')}</td>
+                                            <td class="py-2.5 px-3.5 text-xs sm:text-sm font-semibold text-ink">${this.escapeHtml(athlete.namaAtlet || '—')}</td>
+                                            <td class="py-2.5 px-3.5 text-xs sm:text-sm text-ink-muted">${this.escapeHtml(athlete.pasukan || '—')}</td>
+                                            <td class="py-2.5 px-3.5 text-xs sm:text-sm font-mono text-center text-slate-600">${this.escapeHtml(athlete.noBib || '—')}</td>
+                                            <td class="py-1.5 px-2.5 text-xs sm:text-sm">${this.renderEditableCell(eventNo, gender, heat, athlete, 'kedudukan', isVerified)}</td>
+                                            <td class="py-1.5 px-2.5 text-xs sm:text-sm">${this.renderEditableCell(eventNo, gender, heat, athlete, 'masa', isVerified)}</td>
                                         </tr>
                                     `).join('')}
                             </tbody>
@@ -1419,6 +1430,10 @@
         },
 
         renderPublicView() {
+            if (!this.hasValidActiveConnection()) {
+                return UIComponents.renderEmptyState('Acara Saringan');
+            }
+
             const store = StorageManager.getSaringanStore();
             const eventsMap = store.events || {};
             const availableNos = this.ALLOWED_EVENT_NOS.filter(no => Boolean(eventsMap[no]));
@@ -1427,7 +1442,7 @@
                 return UIComponents.renderEmptyState('Acara Saringan');
             }
 
-            if (!availableNos.includes(this.selectedEventNo)) {
+            if (!this.selectedEventNo || !availableNos.includes(this.selectedEventNo)) {
                 this.selectedEventNo = availableNos[0];
             }
 
@@ -1435,10 +1450,10 @@
             const isVerified = activeEvent.status === 'DISAHKAN_RASMI';
 
             return `
-                <div class="p-4 sm:p-6 space-y-6">
+                <div class="p-4 sm:p-6 lg:p-7 space-y-6">
                     <!-- Bar Pilihan 9 Tab Acara -->
                     <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4 pb-4 border-b border-slate-200/80">
-                        <div class="flex items-center gap-1.5 overflow-x-auto no-scrollbar pb-1">
+                        <div class="flex items-center gap-2 overflow-x-auto no-scrollbar pb-1">
                             ${this.ALLOWED_EVENT_NOS.map(no => {
                                 const exists = Boolean(eventsMap[no]);
                                 const isActive = no === this.selectedEventNo;
@@ -1447,7 +1462,7 @@
                                         type="button"
                                         ${!exists ? 'disabled' : ''}
                                         onclick="SaringanModule.selectEvent('${no}')"
-                                        class="px-3.5 py-2 rounded-xl text-xs font-display font-bold transition-all shrink-0 ${
+                                        class="min-h-[44px] px-4 py-2 rounded-xl text-xs font-display font-bold transition-all shrink-0 ${
                                             isActive
                                                 ? 'bg-navy-primary text-gold shadow-xs cursor-pointer'
                                                 : exists
@@ -1462,7 +1477,7 @@
                         </div>
 
                         <div class="flex flex-wrap items-center gap-2.5 shrink-0">
-                            <span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold ${
+                            <span class="inline-flex items-center gap-1.5 min-h-[38px] px-3.5 py-1.5 rounded-xl text-xs font-bold ${
                                 isVerified
                                     ? 'bg-emerald-100 text-emerald-800 border border-emerald-300'
                                     : 'bg-amber-100 text-amber-800 border border-amber-300'
@@ -1474,29 +1489,37 @@
                         </div>
                     </div>
 
-                    <!-- Grid Dua Kategori: Lelaki & Perempuan (Masing-masing Saringan 1 & Saringan 2) -->
-                    <div class="grid grid-cols-1 xl:grid-cols-2 gap-6">
-                        <div class="space-y-4">
-                            <div class="flex items-center gap-2">
-                                <span class="w-2.5 h-2.5 rounded-full bg-navy-primary"></span>
-                                <h3 class="font-display font-bold text-sm sm:text-base text-navy-primary uppercase tracking-wide">
-                                    Kategori Lelaki — Acara ${this.escapeHtml(activeEvent.eventNo)}
-                                </h3>
+                    <!-- Susunan Kategori Menegak yang Jelas & Mudah Dibaca pada Semua Resolusi -->
+                    <div class="space-y-8">
+                        <section class="space-y-4">
+                            <div class="flex items-center justify-between gap-2 pb-2 border-b border-slate-200/70">
+                                <div class="flex items-center gap-2.5">
+                                    <span class="w-3 h-3 rounded-full bg-navy-primary"></span>
+                                    <h3 class="font-display font-bold text-sm sm:text-base lg:text-lg text-navy-primary uppercase tracking-wide">
+                                        Kategori Lelaki — Acara ${this.escapeHtml(activeEvent.eventNo)}
+                                    </h3>
+                                </div>
                             </div>
-                            ${this.renderHeatTable(activeEvent.eventNo, 'lelaki', 'saringan1', 'Lelaki • Saringan 1', activeEvent.lelaki && activeEvent.lelaki.saringan1, isVerified)}
-                            ${this.renderHeatTable(activeEvent.eventNo, 'lelaki', 'saringan2', 'Lelaki • Saringan 2', activeEvent.lelaki && activeEvent.lelaki.saringan2, isVerified)}
-                        </div>
+                            <div class="space-y-4">
+                                ${this.renderHeatTable(activeEvent.eventNo, 'lelaki', 'saringan1', 'Lelaki • Saringan 1', activeEvent.lelaki && activeEvent.lelaki.saringan1, isVerified)}
+                                ${this.renderHeatTable(activeEvent.eventNo, 'lelaki', 'saringan2', 'Lelaki • Saringan 2', activeEvent.lelaki && activeEvent.lelaki.saringan2, isVerified)}
+                            </div>
+                        </section>
 
-                        <div class="space-y-4">
-                            <div class="flex items-center gap-2">
-                                <span class="w-2.5 h-2.5 rounded-full bg-gold-dark"></span>
-                                <h3 class="font-display font-bold text-sm sm:text-base text-navy-primary uppercase tracking-wide">
-                                    Kategori Perempuan — Acara ${this.escapeHtml(activeEvent.eventNo)}
-                                </h3>
+                        <section class="space-y-4 pt-2 border-t border-slate-200">
+                            <div class="flex items-center justify-between gap-2 pb-2 border-b border-slate-200/70">
+                                <div class="flex items-center gap-2.5">
+                                    <span class="w-3 h-3 rounded-full bg-gold-dark"></span>
+                                    <h3 class="font-display font-bold text-sm sm:text-base lg:text-lg text-navy-primary uppercase tracking-wide">
+                                        Kategori Perempuan — Acara ${this.escapeHtml(activeEvent.eventNo)}
+                                    </h3>
+                                </div>
                             </div>
-                            ${this.renderHeatTable(activeEvent.eventNo, 'perempuan', 'saringan1', 'Perempuan • Saringan 1', activeEvent.perempuan && activeEvent.perempuan.saringan1, isVerified)}
-                            ${this.renderHeatTable(activeEvent.eventNo, 'perempuan', 'saringan2', 'Perempuan • Saringan 2', activeEvent.perempuan && activeEvent.perempuan.saringan2, isVerified)}
-                        </div>
+                            <div class="space-y-4">
+                                ${this.renderHeatTable(activeEvent.eventNo, 'perempuan', 'saringan1', 'Perempuan • Saringan 1', activeEvent.perempuan && activeEvent.perempuan.saringan1, isVerified)}
+                                ${this.renderHeatTable(activeEvent.eventNo, 'perempuan', 'saringan2', 'Perempuan • Saringan 2', activeEvent.perempuan && activeEvent.perempuan.saringan2, isVerified)}
+                            </div>
+                        </section>
                     </div>
                 </div>
             `;
@@ -1517,7 +1540,7 @@
                     return `
                         <button type="button"
                             onclick="${safeModule}.toggleOfficialVerification('${safeEventNo}')"
-                            class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold bg-rose-100 hover:bg-rose-200 text-rose-800 border border-rose-300 transition-colors cursor-pointer">
+                            class="inline-flex items-center gap-1.5 min-h-[44px] px-3.5 py-2 rounded-xl text-xs font-bold bg-rose-100 hover:bg-rose-200 text-rose-800 border border-rose-300 transition-colors cursor-pointer">
                             <i data-lucide="shield-off" class="w-3.5 h-3.5"></i>
                             <span>Batal Pengesahan</span>
                         </button>
@@ -1527,7 +1550,7 @@
                 return `
                     <button type="button"
                         onclick="${safeModule}.toggleOfficialVerification('${safeEventNo}')"
-                        class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold bg-emerald-600 hover:bg-emerald-700 text-white shadow-2xs transition-colors cursor-pointer">
+                        class="inline-flex items-center gap-1.5 min-h-[44px] px-3.5 py-2 rounded-xl text-xs font-bold bg-emerald-600 hover:bg-emerald-700 text-white shadow-2xs transition-colors cursor-pointer">
                         <i data-lucide="shield-check" class="w-3.5 h-3.5"></i>
                         <span>Sahkan Rasmi</span>
                     </button>
@@ -1854,6 +1877,7 @@
         const SaringanGasController = {
             EXPECTED_TABS: ['101', '102', '103', '104', '105', '106', '204', '205', '300'],
             isBusy: false,
+            operationToken: 0,
             lastTestedUrl: null,
             lastTestPassed: false,
 
@@ -2190,6 +2214,7 @@ function doPost(e) {
 
                 this.isBusy = true;
                 this.lastTestPassed = false;
+                const currentOpToken = ++this.operationToken;
                 UIComponents.showLoading('Menguji Sambungan Google Apps Script...');
 
                 try {
@@ -2197,9 +2222,11 @@ function doPost(e) {
                     testUrl.searchParams.set('action', 'test');
 
                     const res = await fetch(testUrl.toString(), { method: 'GET' });
+                    if (currentOpToken !== this.operationToken) return;
                     if (!res.ok) throw new Error(`HTTP ${res.status}`);
 
                     const data = await res.json();
+                    if (currentOpToken !== this.operationToken) return;
                     if (!data || data.module !== 'saringan') {
                         throw new Error('Respons modul tidak sepadan dengan Acara Saringan.');
                     }
@@ -2245,8 +2272,10 @@ function doPost(e) {
                     });
                     UIComponents.showToast(`Sambungan gagal: ${err.message}`, 'error');
                 } finally {
-                    this.isBusy = false;
-                    UIComponents.hideLoading();
+                    if (currentOpToken === this.operationToken) {
+                        this.isBusy = false;
+                        UIComponents.hideLoading();
+                    }
                 }
             },
 
@@ -2266,6 +2295,7 @@ function doPost(e) {
                 }
 
                 this.isBusy = true;
+                const currentOpToken = ++this.operationToken;
                 UIComponents.showLoading('Mengimport Data 9 Tab Acara Saringan...');
 
                 try {
@@ -2273,9 +2303,11 @@ function doPost(e) {
                     dataUrl.searchParams.set('action', 'data');
 
                     const res = await fetch(dataUrl.toString(), { method: 'GET' });
+                    if (currentOpToken !== this.operationToken) return;
                     if (!res.ok) throw new Error(`HTTP ${res.status}`);
 
                     const payload = await res.json();
+                    if (currentOpToken !== this.operationToken) return;
                     if (!payload || payload.success !== true || payload.module !== 'saringan' || !payload.events) {
                         throw new Error((payload && payload.message) ? payload.message : 'Struktur data GAS tidak sah.');
                     }
@@ -2309,6 +2341,8 @@ function doPost(e) {
                         };
                     });
 
+                    if (currentOpToken !== this.operationToken) return;
+
                     StorageManager.saveSaringanStore({ events: nextEvents });
 
                     const statusObj = {
@@ -2331,10 +2365,14 @@ function doPost(e) {
                     AppController.loadView('saringan');
                     UIComponents.showToast('URL dan data 9 tab Acara Saringan berjaya disimpan!', 'success');
                 } catch (err) {
-                    UIComponents.showToast(`Gagal mengimport data: ${err.message}. Data sedia ada dikekalkan.`, 'error');
+                    if (currentOpToken === this.operationToken) {
+                        UIComponents.showToast(`Gagal mengimport data: ${err.message}. Data sedia ada dikekalkan.`, 'error');
+                    }
                 } finally {
-                    this.isBusy = false;
-                    UIComponents.hideLoading();
+                    if (currentOpToken === this.operationToken) {
+                        this.isBusy = false;
+                        UIComponents.hideLoading();
+                    }
                 }
             },
 
@@ -2359,10 +2397,50 @@ function doPost(e) {
             },
 
             confirmDeleteUrl() {
-                const config = StorageManager.getTournamentConfig();
-                delete config.saringanAppsScriptUrl;
-                delete config.saringanGasStatus;
-                window.localStorage.setItem(StorageManager.KEYS.CONFIG, JSON.stringify(config));
+                // Batalkan sebarang permintaan import atau ujian GAS yang sedang berjalan
+                this.operationToken++;
+                this.isBusy = false;
+                UIComponents.hideLoading();
+
+                const prevConfig = StorageManager.getTournamentConfig();
+                const prevStore = StorageManager.getSaringanStore();
+
+                try {
+                    const nextConfig = { ...prevConfig };
+                    delete nextConfig.saringanAppsScriptUrl;
+                    delete nextConfig.saringanGasStatus;
+                    window.localStorage.setItem(StorageManager.KEYS.CONFIG, JSON.stringify(nextConfig));
+
+                    const storeSaved = StorageManager.saveSaringanStore({ events: {} });
+                    if (!storeSaved) {
+                        throw new Error('Gagal mengosongkan snapshot Acara Saringan dalam storan tempatan.');
+                    }
+
+                    const verifyConfig = StorageManager.getTournamentConfig();
+                    const verifyStore = StorageManager.getSaringanStore();
+                    if (verifyConfig.saringanAppsScriptUrl || Object.keys(verifyStore.events || {}).length > 0) {
+                        throw new Error('Pengesahan pemadaman dalam LocalStorage gagal.');
+                    }
+                } catch (err) {
+                    // Rollback selamat sekiranya penyimpanan gagal
+                    try {
+                        window.localStorage.setItem(StorageManager.KEYS.CONFIG, JSON.stringify(prevConfig));
+                        StorageManager.saveSaringanStore(prevStore);
+                    } catch (rollbackErr) {
+                        console.error('Rollback gagal:', rollbackErr);
+                    }
+                    UIComponents.showToast(`Gagal menghapus URL dan mengosongkan data: ${err.message}`, 'error');
+                    return;
+                }
+
+                // Set semula keadaan modul Acara Saringan
+                SaringanModule.selectedEventNo = null;
+                SaringanModule.editingCell = null;
+                SaringanModule.isSavingCell = false;
+
+                // Set semula status ujian & UI Panel Admin
+                this.lastTestedUrl = null;
+                this.lastTestPassed = false;
 
                 const inputEl = document.getElementById('gas-url-saringan');
                 if (inputEl) {
@@ -2370,18 +2448,19 @@ function doPost(e) {
                     inputEl.disabled = false;
                 }
 
-                this.lastTestedUrl = null;
-                this.lastTestPassed = false;
                 this.cancelDeleteUrl();
                 this.updateModeBadge('Sedia Diisi');
                 this.updateStatusPanel({
-                    connectionText: 'URL Dipadam',
+                    connectionText: 'Belum Dikonfigurasi',
                     connectionClass: 'text-slate-600',
                     updatedAt: '—',
                     tabCountText: '0 / 9 Tab',
-                    detailText: 'URL konfigurasi dipadam. Keputusan tempatan dan status pengesahan rasmi dikekalkan.'
+                    detailText: 'URL Google Apps Script dipadam dan paparan Acara Saringan telah dikosongkan. Google Sheets asal dan log audit kekal terpelihara.'
                 });
-                UIComponents.showToast('URL konfigurasi Google Apps Script telah dipadam.', 'info');
+
+                // Muat semula paparan Acara Saringan dan empat kad statistik
+                AppController.loadView('saringan');
+                UIComponents.showToast('URL Google Apps Script dipadam dan paparan Acara Saringan telah dikosongkan.', 'success');
             }
         };
 
@@ -2482,7 +2561,8 @@ function doPost(e) {
                 if (catEl) catEl.textContent = meta.category;
 
                 if (viewId === 'saringan') {
-                    const store = StorageManager.getSaringanStore();
+                    const hasActiveConn = SaringanModule.hasValidActiveConnection();
+                    const store = hasActiveConn ? StorageManager.getSaringanStore() : { events: {} };
                     const events = Object.values(store.events || {});
                     const verifiedCount = events.filter(e => e.status === 'DISAHKAN_RASMI').length;
                     let totalAthletes = 0;
