@@ -208,7 +208,7 @@
 
                 <!-- Identiti Sistem & Logo Kejohanan -->
                 <div class="flex items-center gap-2.5 sm:gap-4 min-w-0 flex-1">
-                    <!-- Kotak Logo Kejohanan (Boleh dikonfigurasi dalam Panel Admin) -->
+                    <!-- Kotak Logo Kejohanan -->
                     <div id="tournament-logo-box" class="w-9 h-9 sm:w-12 sm:h-12 rounded-xl bg-navy-primary border border-gold/40 flex items-center justify-center shrink-0 overflow-hidden shadow-inner">
                         <img id="tournament-logo-img" src="" alt="Logo Kejohanan" class="w-full h-full object-contain hidden">
                         <i id="tournament-logo-placeholder" data-lucide="trophy" class="w-4 h-4 sm:w-6 sm:h-6 text-gold"></i>
@@ -366,7 +366,7 @@
                     </nav>
                 </div>
 
-                <!-- Kontena Kandungan Tetapan Acara (UI Design Only) -->
+                <!-- Kontena Kandungan Tetapan Acara -->
                 <div id="admin-content-tetapan-acara" class="space-y-6">
                     <!-- Kad Tajuk Utama Tetapan Acara -->
                     <div class="bg-white rounded-2xl p-5 sm:p-6 shadow-card border border-slate-200/80">
@@ -388,9 +388,8 @@
                     <!-- Susunan Menegak 4 Kad Tetapan Acara -->
                     <div class="space-y-5">
 
-                        <!-- KAD 1 — ACARA SARINGAN (UI + GAS + DATA IMPORT + EDIT KEPUTUSAN) -->
+                        <!-- KAD 1 — ACARA SARINGAN -->
                         <div class="bg-white rounded-2xl p-5 sm:p-6 shadow-card border border-slate-200/80 space-y-5">
-                            <!-- Header Kad: Tajuk Kiri & Butang KOD GAS Kanan -->
                             <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-slate-100">
                                 <div class="flex items-start gap-3.5">
                                     <div class="w-10 h-10 rounded-xl bg-navy-primary/5 border border-slate-200/80 flex items-center justify-center shrink-0">
@@ -419,7 +418,6 @@
                                 </button>
                             </div>
 
-                            <!-- Bahagian Konfigurasi URL -->
                             <div class="space-y-2">
                                 <div class="flex items-center justify-between gap-2">
                                     <label for="gas-url-saringan" class="block text-xs font-semibold text-navy-primary">
@@ -437,7 +435,6 @@
                                 >
                             </div>
 
-                            <!-- Bar Tindakan: [ Uji ] [ Simpan ] [ Edit ] [ Hapus ] -->
                             <div class="grid grid-cols-2 sm:flex sm:flex-wrap items-center gap-2.5">
                                 <button
                                     type="button"
@@ -477,7 +474,6 @@
                                 </button>
                             </div>
 
-                            <!-- Pengesahan Inline Hapus URL Konfigurasi & Kosongkan Snapshot Saringan -->
                             <div id="saringan-delete-confirm-box" class="hidden p-4 rounded-xl bg-rose-50 border border-rose-200 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                                 <div class="text-xs text-rose-900">
                                     <p class="font-bold">Adakah anda pasti mahu menghapus URL Google Apps Script dan mengosongkan paparan Acara Saringan?</p>
@@ -493,7 +489,6 @@
                                 </div>
                             </div>
 
-                            <!-- Bahagian Status Sambungan, Masa Kemas Kini & Jumlah Tab -->
                             <div id="saringan-gas-status-panel" class="rounded-xl bg-surface-bg border border-slate-200/90 p-4 space-y-2.5">
                                 <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs">
                                     <div class="bg-white rounded-lg p-3 border border-slate-200/70">
@@ -599,7 +594,6 @@
                                 </button>
                             </div>
 
-                            <!-- Pengesahan Inline Hapus URL Konfigurasi & Kosongkan Snapshot Akhir Balapan -->
                             <div id="akhir-balapan-delete-confirm-box" class="hidden p-4 rounded-xl bg-rose-50 border border-rose-200 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                                 <div class="text-xs text-rose-900">
                                     <p class="font-bold">Adakah anda pasti mahu menghapus URL Google Apps Script dan mengosongkan paparan Akhir Balapan?</p>
@@ -615,7 +609,6 @@
                                 </div>
                             </div>
 
-                            <!-- Bahagian Status Sambungan, Masa Kemas Kini & Jumlah Tab -->
                             <div id="akhir-balapan-gas-status-panel" class="rounded-xl bg-surface-bg border border-slate-200/90 p-4 space-y-2.5">
                                 <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs">
                                     <div class="bg-white rounded-lg p-3 border border-slate-200/70">
@@ -721,7 +714,6 @@
                                 </button>
                             </div>
 
-                            <!-- Pengesahan Inline Hapus URL Konfigurasi & Kosongkan Snapshot Acara Relay -->
                             <div id="relay-delete-confirm-box" class="hidden p-4 rounded-xl bg-rose-50 border border-rose-200 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                                 <div class="text-xs text-rose-900">
                                     <p class="font-bold">Adakah anda pasti mahu menghapus URL Google Apps Script dan mengosongkan paparan Acara Relay?</p>
@@ -737,7 +729,6 @@
                                 </div>
                             </div>
 
-                            <!-- Bahagian Status Sambungan, Masa Kemas Kini & Jumlah Tab -->
                             <div id="relay-gas-status-panel" class="rounded-xl bg-surface-bg border border-slate-200/90 p-4 space-y-2.5">
                                 <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs">
                                     <div class="bg-white rounded-lg p-3 border border-slate-200/70">
@@ -843,7 +834,6 @@
                                 </button>
                             </div>
 
-                            <!-- Pengesahan Inline Hapus URL Konfigurasi & Kosongkan Snapshot Acara Padang -->
                             <div id="padang-delete-confirm-box" class="hidden p-4 rounded-xl bg-rose-50 border border-rose-200 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                                 <div class="text-xs text-rose-900">
                                     <p class="font-bold">Adakah anda pasti mahu menghapus URL Google Apps Script dan mengosongkan paparan Acara Padang?</p>
@@ -859,7 +849,6 @@
                                 </div>
                             </div>
 
-                            <!-- Bahagian Status Sambungan, Masa Kemas Kini & Jumlah Tab -->
                             <div id="padang-gas-status-panel" class="rounded-xl bg-surface-bg border border-slate-200/90 p-4 space-y-2.5">
                                 <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs">
                                     <div class="bg-white rounded-lg p-3 border border-slate-200/70">
@@ -901,7 +890,6 @@
     >
         <div class="min-h-full flex items-center justify-center">
             <div class="bg-white w-full max-w-4xl rounded-2xl shadow-2xl border border-slate-200 overflow-hidden flex flex-col max-h-[90vh]">
-                <!-- Header Modal -->
                 <div class="bg-navy-dark text-white px-4 sm:px-6 py-4 flex items-center justify-between gap-3 border-b border-navy-secondary/60">
                     <div class="flex items-center gap-3 min-w-0">
                         <div class="w-9 h-9 rounded-xl bg-gold/15 border border-gold/40 flex items-center justify-center shrink-0">
@@ -928,20 +916,17 @@
                     </button>
                 </div>
 
-                <!-- Arahan Ringkas Pemasangan Bound Script -->
                 <div class="px-4 sm:px-6 py-3 bg-surface-bg border-b border-slate-200 text-xs text-ink flex flex-col sm:flex-row sm:items-center justify-between gap-2">
                     <p class="leading-relaxed">
-                        <span class="font-bold text-navy-primary">Panduan:</span> Buka Google Sheets &rarr; <span class="font-semibold">Extensions &rarr; Apps Script</span> &rarr; Tampal kod di bawah &rarr; <span class="font-semibold">Deploy &rarr; New deployment &rarr; Web app</span> (Execute as: <em>Me</em>, Who has access: <em>Anyone</em>).
+                        <span class="font-bold text-navy-primary">Panduan:</span> Buka Google Sheets &rarr; <span class="font-semibold">Extensions &rarr; Apps Script</span> &rarr; Tampal kod di bawah &rarr; <span class="font-semibold">Deploy &rarr; Manage deployments &rarr; Edit &rarr; Version: New version &rarr; Deploy</span>.
                     </p>
                     <span class="text-[11px] font-mono font-semibold text-navy-secondary shrink-0">9 Tab Aktif</span>
                 </div>
 
-                <!-- Kawasan Paparan Kod Monospace dengan Skrol (Diisi melalui textContent sahaja) -->
                 <div class="p-4 sm:p-6 bg-slate-950 overflow-auto flex-1">
                     <pre class="text-xs font-mono text-emerald-300 leading-relaxed whitespace-pre select-all"><code id="saringan-gas-code-display"></code></pre>
                 </div>
 
-                <!-- Footer Modal: Salin Kod & Tutup -->
                 <div class="px-4 sm:px-6 py-3.5 bg-white border-t border-slate-200 flex flex-wrap items-center justify-between gap-3">
                     <span id="saringan-copy-feedback" class="text-xs font-semibold text-emerald-700 hidden">
                         Kod berjaya disalin ke papan keratan!
@@ -983,7 +968,6 @@
     >
         <div class="min-h-full flex items-center justify-center">
             <div class="bg-white w-full max-w-4xl rounded-2xl shadow-2xl border border-slate-200 overflow-hidden flex flex-col max-h-[90vh]">
-                <!-- Header Modal -->
                 <div class="bg-navy-dark text-white px-4 sm:px-6 py-4 flex items-center justify-between gap-3 border-b border-navy-secondary/60">
                     <div class="flex items-center gap-3 min-w-0">
                         <div class="w-9 h-9 rounded-xl bg-gold/15 border border-gold/40 flex items-center justify-center shrink-0">
@@ -1010,20 +994,17 @@
                     </button>
                 </div>
 
-                <!-- Arahan Ringkas Pemasangan Bound Script -->
                 <div class="px-4 sm:px-6 py-3 bg-surface-bg border-b border-slate-200 text-xs text-ink flex flex-col sm:flex-row sm:items-center justify-between gap-2">
                     <p class="leading-relaxed">
-                        <span class="font-bold text-navy-primary">Panduan:</span> Buka Google Sheets &rarr; <span class="font-semibold">Extensions &rarr; Apps Script</span> &rarr; Tampal kod di bawah &rarr; <span class="font-semibold">Deploy &rarr; New deployment &rarr; Web app</span> (Execute as: <em>Me</em>, Who has access: <em>Anyone</em>).
+                        <span class="font-bold text-navy-primary">Panduan:</span> Buka Google Sheets &rarr; <span class="font-semibold">Extensions &rarr; Apps Script</span> &rarr; Tampal kod di bawah &rarr; <span class="font-semibold">Deploy &rarr; Manage deployments &rarr; Edit &rarr; Version: New version &rarr; Deploy</span>.
                     </p>
                     <span class="text-[11px] font-mono font-semibold text-navy-secondary shrink-0">9 Tab Aktif</span>
                 </div>
 
-                <!-- Kawasan Paparan Kod Monospace dengan Skrol (Diisi melalui textContent sahaja) -->
                 <div class="p-4 sm:p-6 bg-slate-950 overflow-auto flex-1">
                     <pre class="text-xs font-mono text-emerald-300 leading-relaxed whitespace-pre select-all"><code id="akhir-balapan-gas-code-display"></code></pre>
                 </div>
 
-                <!-- Footer Modal: Salin Kod & Tutup -->
                 <div class="px-4 sm:px-6 py-3.5 bg-white border-t border-slate-200 flex flex-wrap items-center justify-between gap-3">
                     <span id="akhir-balapan-copy-feedback" class="text-xs font-semibold text-emerald-700 hidden">
                         Kod berjaya disalin ke papan keratan!
@@ -1065,7 +1046,6 @@
     >
         <div class="min-h-full flex items-center justify-center">
             <div class="bg-white w-full max-w-4xl rounded-2xl shadow-2xl border border-slate-200 overflow-hidden flex flex-col max-h-[90vh]">
-                <!-- Header Modal -->
                 <div class="bg-navy-dark text-white px-4 sm:px-6 py-4 flex items-center justify-between gap-3 border-b border-navy-secondary/60">
                     <div class="flex items-center gap-3 min-w-0">
                         <div class="w-9 h-9 rounded-xl bg-gold/15 border border-gold/40 flex items-center justify-center shrink-0">
@@ -1092,20 +1072,17 @@
                     </button>
                 </div>
 
-                <!-- Arahan Ringkas Pemasangan Bound Script -->
                 <div class="px-4 sm:px-6 py-3 bg-surface-bg border-b border-slate-200 text-xs text-ink flex flex-col sm:flex-row sm:items-center justify-between gap-2">
                     <p class="leading-relaxed">
-                        <span class="font-bold text-navy-primary">Panduan:</span> Buka Google Sheets &rarr; <span class="font-semibold">Extensions &rarr; Apps Script</span> &rarr; Tampal kod di bawah &rarr; <span class="font-semibold">Deploy &rarr; New deployment &rarr; Web app</span> (Execute as: <em>Me</em>, Who has access: <em>Anyone</em>).
+                        <span class="font-bold text-navy-primary">Panduan:</span> Buka Google Sheets &rarr; <span class="font-semibold">Extensions &rarr; Apps Script</span> &rarr; Tampal kod di bawah &rarr; <span class="font-semibold">Deploy &rarr; Manage deployments &rarr; Edit &rarr; Version: New version &rarr; Deploy</span>.
                     </p>
                     <span class="text-[11px] font-mono font-semibold text-navy-secondary shrink-0">7 Tab Aktif</span>
                 </div>
 
-                <!-- Kawasan Paparan Kod Monospace dengan Skrol (Diisi melalui textContent sahaja) -->
                 <div class="p-4 sm:p-6 bg-slate-950 overflow-auto flex-1">
                     <pre class="text-xs font-mono text-emerald-300 leading-relaxed whitespace-pre select-all"><code id="relay-gas-code-display"></code></pre>
                 </div>
 
-                <!-- Footer Modal: Salin Kod & Tutup -->
                 <div class="px-4 sm:px-6 py-3.5 bg-white border-t border-slate-200 flex flex-wrap items-center justify-between gap-3">
                     <span id="relay-copy-feedback" class="text-xs font-semibold text-emerald-700 hidden">
                         Kod berjaya disalin ke papan keratan!
@@ -1147,7 +1124,6 @@
     >
         <div class="min-h-full flex items-center justify-center">
             <div class="bg-white w-full max-w-4xl rounded-2xl shadow-2xl border border-slate-200 overflow-hidden flex flex-col max-h-[90vh]">
-                <!-- Header Modal -->
                 <div class="bg-navy-dark text-white px-4 sm:px-6 py-4 flex items-center justify-between gap-3 border-b border-navy-secondary/60">
                     <div class="flex items-center gap-3 min-w-0">
                         <div class="w-9 h-9 rounded-xl bg-gold/15 border border-gold/40 flex items-center justify-center shrink-0">
@@ -1174,20 +1150,17 @@
                     </button>
                 </div>
 
-                <!-- Arahan Ringkas Pemasangan Bound Script -->
                 <div class="px-4 sm:px-6 py-3 bg-surface-bg border-b border-slate-200 text-xs text-ink flex flex-col sm:flex-row sm:items-center justify-between gap-2">
                     <p class="leading-relaxed">
-                        <span class="font-bold text-navy-primary">Panduan:</span> Buka Google Sheets &rarr; <span class="font-semibold">Extensions &rarr; Apps Script</span> &rarr; Tampal kod di bawah &rarr; <span class="font-semibold">Deploy &rarr; New deployment &rarr; Web app</span> (Execute as: <em>Me</em>, Who has access: <em>Anyone</em>).
+                        <span class="font-bold text-navy-primary">Panduan:</span> Buka Google Sheets &rarr; <span class="font-semibold">Extensions &rarr; Apps Script</span> &rarr; Tampal kod di bawah &rarr; <span class="font-semibold">Deploy &rarr; Manage deployments &rarr; Edit &rarr; Version: New version &rarr; Deploy</span>.
                     </p>
                     <span class="text-[11px] font-mono font-semibold text-navy-secondary shrink-0">3 Tab Aktif</span>
                 </div>
 
-                <!-- Kawasan Paparan Kod Monospace dengan Skrol (Diisi melalui textContent sahaja) -->
                 <div class="p-4 sm:p-6 bg-slate-950 overflow-auto flex-1">
                     <pre class="text-xs font-mono text-emerald-300 leading-relaxed whitespace-pre select-all"><code id="padang-gas-code-display"></code></pre>
                 </div>
 
-                <!-- Footer Modal: Salin Kod & Tutup -->
                 <div class="px-4 sm:px-6 py-3.5 bg-white border-t border-slate-200 flex flex-wrap items-center justify-between gap-3">
                     <span id="padang-copy-feedback" class="text-xs font-semibold text-emerald-700 hidden">
                         Kod berjaya disalin ke papan keratan!
@@ -1290,7 +1263,6 @@
 
         /**
          * 2. LAPISAN PENYIMPANAN TEMPATAN (StorageManager)
-         * Menguruskan penyimpanan dan capaian data kejohanan secara selamat dalam LocalStorage.
          */
         const StorageManager = {
             KEYS: {
@@ -1663,8 +1635,6 @@
 
         /**
          * 4A. MODUL ACARA SARINGAN (SaringanModule)
-         * Menguruskan paparan 9 tab acara (101–106, 204, 205, 300), pengesahan rasmi,
-         * dan penyuntingan keputusan inline pentadbir (Lelaki F/G, Perempuan N/O).
          */
         const SaringanModule = {
             ALLOWED_EVENT_NOS: ['101', '102', '103', '104', '105', '106', '204', '205', '300'],
@@ -1958,14 +1928,14 @@
                 }
 
                 if (isVerified || !athlete.sheetRow) {
-                    return `<span class="block px-2.5 py-1.5 alignClasstext-navy-primary">{this.escapeHtml(displayVal)}</span>`;
+                    return `<span class="block px-2.5 py-1.5 ${alignClass} text-navy-primary">${this.escapeHtml(displayVal)}</span>`;
                 }
 
                 return `
                     <button
                         type="button"
                         title="Klik untuk sunting ${field === 'kedudukan' ? 'Kedudukan' : 'Masa'} (Baris ${athlete.sheetRow})"
-                        onclick="SaringanModule.startInlineEdit('this.escapeHtml(eventNo)','{gender}', '${heat}', Number(athlete.sheetRow),'{this.escapeHtml(athlete.noBib || '')}', 'field','{this.escapeHtml(rawVal)}')"
+                        onclick="SaringanModule.startInlineEdit('${this.escapeHtml(eventNo)}', '${gender}', '${heat}', ${Number(athlete.sheetRow)}, '${this.escapeHtml(athlete.noBib || '')}', '${field}', '${this.escapeHtml(rawVal)}')"
                         class="w-full min-h-[38px] block px-2.5 py-1.5 rounded-lg hover:bg-gold/15 border border-transparent hover:border-gold/40 transition-colors cursor-pointer ${alignClass} text-navy-primary"
                     >${this.escapeHtml(displayVal)}</button>
                 `;
@@ -2084,7 +2054,7 @@
                             </div>
                         </div>
 
-                        <!-- Susunan Kategori Menegak yang Jelas & Mudah Dibaca pada Semua Resolusi -->
+                        <!-- Susunan Kategori Menegak -->
                         <div class="space-y-8">
                             <section class="space-y-4">
                                 <div class="flex items-center justify-between gap-2 pb-2 border-b border-slate-200/70">
@@ -2124,7 +2094,7 @@
                 if (isVerified) {
                     return `
                         <button type="button"
-                            onclick="safeModule.toggleOfficialVerification('{safeEventNo}')"
+                            onclick="${safeModule}.toggleOfficialVerification('${safeEventNo}')"
                             class="inline-flex items-center gap-1.5 min-h-[44px] px-3.5 py-2 rounded-xl text-xs font-bold bg-rose-100 hover:bg-rose-200 text-rose-800 border border-rose-300 transition-colors cursor-pointer">
                             <i data-lucide="shield-off" class="w-3.5 h-3.5"></i>
                             <span>Batal Pengesahan</span>
@@ -2134,7 +2104,7 @@
 
                 return `
                     <button type="button"
-                        onclick="safeModule.toggleOfficialVerification('{safeEventNo}')"
+                        onclick="${safeModule}.toggleOfficialVerification('${safeEventNo}')"
                         class="inline-flex items-center gap-1.5 min-h-[44px] px-3.5 py-2 rounded-xl text-xs font-bold bg-emerald-600 hover:bg-emerald-700 text-white shadow-2xs transition-colors cursor-pointer">
                         <i data-lucide="shield-check" class="w-3.5 h-3.5"></i>
                         <span>Sahkan Rasmi</span>
@@ -2346,14 +2316,14 @@
                 }
 
                 if (!canEdit) {
-                    return `<span class="block px-2.5 py-1.5 alignClasstext-navy-primary">{SaringanModule.escapeHtml(displayVal)}</span>`;
+                    return `<span class="block px-2.5 py-1.5 ${alignClass} text-navy-primary">${SaringanModule.escapeHtml(displayVal)}</span>`;
                 }
 
                 return `
                     <button
                         type="button"
                         title="Klik untuk sunting ${field === 'kedudukan' ? 'Kedudukan' : 'Masa'} (Baris ${athlete.sheetRow})"
-                        onclick="AkhirBalapanModule.startInlineEdit('SaringanModule.escapeHtml(eventNo)','{gender}', Number(athlete.sheetRow),'{SaringanModule.escapeHtml(athlete.noBib || '')}', 'field','{SaringanModule.escapeHtml(rawVal)}')"
+                        onclick="AkhirBalapanModule.startInlineEdit('${SaringanModule.escapeHtml(eventNo)}', '${gender}', ${Number(athlete.sheetRow)}, '${SaringanModule.escapeHtml(athlete.noBib || '')}', '${field}', '${SaringanModule.escapeHtml(rawVal)}')"
                         class="w-full min-h-[38px] block px-2.5 py-1.5 rounded-lg hover:bg-gold/15 border border-transparent hover:border-gold/40 transition-colors cursor-pointer ${alignClass} text-navy-primary"
                     >${SaringanModule.escapeHtml(displayVal)}</button>
                 `;
@@ -2388,7 +2358,7 @@
                         <div class="rounded-xl border border-slate-200/90 overflow-hidden bg-white shadow-2xs">
                             <div class="px-4 py-3 ${headerBarClass} border-b flex items-center justify-between gap-2">
                                 <span class="font-display text-xs sm:text-sm font-bold uppercase tracking-wider text-white">${SaringanModule.escapeHtml(title)}</span>
-                                <span class="px-2.5 py-0.5 rounded-full text-[11px] font-semibold border countBadgeClass">{rows.length} Atlet</span>
+                                <span class="px-2.5 py-0.5 rounded-full text-[11px] font-semibold border ${countBadgeClass}">${rows.length} Atlet</span>
                             </div>
                             <div class="overflow-x-auto">
                                 <table class="w-full min-w-[600px] text-left border-collapse">
@@ -2682,14 +2652,14 @@
                 }
 
                 if (!canEdit) {
-                    return `<span class="block px-2.5 py-1.5 alignClasstext-navy-primary">{SaringanModule.escapeHtml(displayVal)}</span>`;
+                    return `<span class="block px-2.5 py-1.5 ${alignClass} text-navy-primary">${SaringanModule.escapeHtml(displayVal)}</span>`;
                 }
 
                 return `
                     <button
                         type="button"
                         title="Klik untuk sunting ${field === 'kedudukan' ? 'Kedudukan' : 'Masa'} (Baris ${teamRow.sheetRow})"
-                        onclick="RelayModule.startInlineEdit('SaringanModule.escapeHtml(eventNo)','{gender}', Number(teamRow.sheetRow),'{field}', '${SaringanModule.escapeHtml(rawVal)}')"
+                        onclick="RelayModule.startInlineEdit('${SaringanModule.escapeHtml(eventNo)}', '${gender}', ${Number(teamRow.sheetRow)}, '${field}', '${SaringanModule.escapeHtml(rawVal)}')"
                         class="w-full min-h-[38px] block px-2.5 py-1.5 rounded-lg hover:bg-gold/15 border border-transparent hover:border-gold/40 transition-colors cursor-pointer ${alignClass} text-navy-primary"
                     >${SaringanModule.escapeHtml(displayVal)}</button>
                 `;
@@ -2724,7 +2694,7 @@
                         <div class="rounded-xl border border-slate-200/90 overflow-hidden bg-white shadow-2xs">
                             <div class="px-4 py-3 ${headerBarClass} border-b flex items-center justify-between gap-2">
                                 <span class="font-display text-xs sm:text-sm font-bold uppercase tracking-wider text-white">${SaringanModule.escapeHtml(title)}</span>
-                                <span class="px-2.5 py-0.5 rounded-full text-[11px] font-semibold border countBadgeClass">{rows.length} Pasukan</span>
+                                <span class="px-2.5 py-0.5 rounded-full text-[11px] font-semibold border ${countBadgeClass}">${rows.length} Pasukan</span>
                             </div>
                             <div class="overflow-x-auto">
                                 <table class="w-full min-w-[540px] text-left border-collapse">
@@ -3027,14 +2997,14 @@
                 }
 
                 if (!canEdit) {
-                    return `<span class="block px-2.5 py-1.5 alignClasstext-navy-primary">{SaringanModule.escapeHtml(displayVal)}</span>`;
+                    return `<span class="block px-2.5 py-1.5 ${alignClass} text-navy-primary">${SaringanModule.escapeHtml(displayVal)}</span>`;
                 }
 
                 return `
                     <button
                         type="button"
                         title="Klik untuk sunting ${fieldLabel} (Baris ${athlete.sheetRow})"
-                        onclick="PadangModule.startInlineEdit('SaringanModule.escapeHtml(eventNo)','{gender}', Number(athlete.sheetRow),'{SaringanModule.escapeHtml(athlete.noBib || '')}', 'field','{SaringanModule.escapeHtml(rawVal)}')"
+                        onclick="PadangModule.startInlineEdit('${SaringanModule.escapeHtml(eventNo)}', '${gender}', ${Number(athlete.sheetRow)}, '${SaringanModule.escapeHtml(athlete.noBib || '')}', '${field}', '${SaringanModule.escapeHtml(rawVal)}')"
                         class="w-full min-h-[38px] block px-2.5 py-1.5 rounded-lg hover:bg-gold/15 border border-transparent hover:border-gold/40 transition-colors cursor-pointer ${alignClass} text-navy-primary"
                     >${SaringanModule.escapeHtml(displayVal)}</button>
                 `;
@@ -3069,7 +3039,7 @@
                         <div class="rounded-xl border border-slate-200/90 overflow-hidden bg-white shadow-2xs">
                             <div class="px-4 py-3 ${headerBarClass} border-b flex items-center justify-between gap-2">
                                 <span class="font-display text-xs sm:text-sm font-bold uppercase tracking-wider text-white">${SaringanModule.escapeHtml(title)}</span>
-                                <span class="px-2.5 py-0.5 rounded-full text-[11px] font-semibold border countBadgeClass">{rows.length} Atlet</span>
+                                <span class="px-2.5 py-0.5 rounded-full text-[11px] font-semibold border ${countBadgeClass}">${rows.length} Atlet</span>
                             </div>
                             <div class="overflow-x-auto">
                                 <table class="w-full min-w-[980px] text-left border-collapse">
@@ -3179,8 +3149,6 @@
 
         /**
          * 4F. MODUL PODIUM PINGAT (PodiumModule)
-         * Mengumpulkan jumlah pingat rasmi (Emas, Perak, Gangsa) daripada Akhir Balapan,
-         * Acara Relay dan Acara Padang yang berstatus DISAHKAN_RASMI.
          */
         const PodiumModule = {
             collectOfficialPodiumDataByTeam() {
@@ -3199,7 +3167,7 @@
                         const rankNum = parseInt(String(row.kedudukan || '').trim(), 10);
                         if (rankNum !== 1 && rankNum !== 2 && rankNum !== 3) return;
 
-                        const rowIdentity = `sourceModule:{eventNo}:gender:{row.sheetRow || idx}:teamRaw.toUpperCase():{rankNum}`;
+                        const rowIdentity = `${sourceModule}:${eventNo}:${gender}:${row.sheetRow || idx}:${teamRaw.toUpperCase()}:${rankNum}`;
                         if (seenCategoryRows.has(rowIdentity)) return;
                         seenCategoryRows.add(rowIdentity);
 
@@ -3228,7 +3196,7 @@
                 const collectFromStore = (sourceName, allowedNos, storeObj) => {
                     const eventsMap = (storeObj && storeObj.events) || {};
                     allowedNos.forEach(eventNo => {
-                        const eventKey = `sourceName:{eventNo}`;
+                        const eventKey = `${sourceName}:${eventNo}`;
                         if (seenEventKeys.has(eventKey)) return;
                         seenEventKeys.add(eventKey);
 
@@ -3388,7 +3356,7 @@
                                             return `
                                                 <tr class="border-b border-slate-100 even:bg-slate-50/40 hover:bg-surface-bg/80 transition-colors">
                                                     <td class="py-3 px-3.5 text-xs sm:text-sm font-display font-extrabold text-center text-navy-primary">${rankNo}</td>
-                                                    <td class="py-3 px-3.5 text-xs sm:text-sm font-bold teamColorClass">{esc(team.pasukan)}</td>
+                                                    <td class="py-3 px-3.5 text-xs sm:text-sm font-bold ${teamColorClass}">${esc(team.pasukan)}</td>
                                                     <td class="py-3 px-3.5 text-xs sm:text-sm font-display font-extrabold text-center text-amber-600">${team.emas}</td>
                                                     <td class="py-3 px-3.5 text-xs sm:text-sm font-display font-bold text-center text-slate-600">${team.perak}</td>
                                                     <td class="py-3 px-3.5 text-xs sm:text-sm font-display font-bold text-center text-amber-800">${team.gangsa}</td>
@@ -3422,7 +3390,6 @@
                         { team: topFour[2], rank: 3 }
                     ];
                 } else {
-                    // Susunan wajib dari kiri ke kanan: TEMPAT 4 -> TEMPAT 2 -> TEMPAT 1 -> TEMPAT 3
                     orderedSlots = [
                         { team: topFour[3], rank: 4 },
                         { team: topFour[1], rank: 2 },
@@ -3647,12 +3614,16 @@ const ALLOWED_TABS = ['101', '102', '103', '104', '105', '106', '204', '205', '3
 function doGet(e) {
   const ss = SpreadsheetApp.getActiveSpreadsheet();
   const events = {};
-  let tabsRead = 0;
+  const foundTabs = [];
+  const missingTabs = [];
 
   ALLOWED_TABS.forEach(function(tabName) {
     const sheet = ss.getSheetByName(tabName);
-    if (!sheet) return;
-    tabsRead++;
+    if (!sheet) {
+      missingTabs.push(tabName);
+      return;
+    }
+    foundTabs.push(tabName);
     events[tabName] = {
       eventNo: tabName,
       lelaki: {
@@ -3670,7 +3641,11 @@ function doGet(e) {
     .createTextOutput(JSON.stringify({
       success: true,
       module: 'saringan',
-      tabsRead: tabsRead,
+      spreadsheetName: ss.getName(),
+      foundTabs: foundTabs,
+      missingTabs: missingTabs,
+      tabsRead: foundTabs.length,
+      totalExpected: ALLOWED_TABS.length,
       totalTabs: ALLOWED_TABS.length,
       events: events,
       updatedAt: new Date().toISOString()
@@ -3986,6 +3961,9 @@ function jsonResponse_(obj) {
                     if (!res.ok) throw new Error(`HTTP ${res.status}`);
                     const data = await res.json();
                     if (!data || data.success !== true || String(data.module || '').trim() !== this.EXPECTED_MODULE || !data.events || typeof data.events !== 'object' || Array.isArray(data.events)) {
+                        if (data && Array.isArray(data.foundTabs)) {
+                            throw new Error('Sambungan GAS berjaya, tetapi endpoint data keputusan belum tersedia.');
+                        }
                         throw new Error('Endpoint GAS tidak memulangkan objek keputusan acara (events) yang sah untuk diimport.');
                     }
 
@@ -4056,21 +4034,29 @@ function jsonResponse_(obj) {
             EXPECTED_MODULE: 'akhir-balapan',
             GAS_SOURCE_CODE: `/**
  * STATISTIX HUB — GOOGLE APPS SCRIPT (AKHIR BALAPAN)
+ * Fail: Code.gs (Bound Script pada Google Sheets "2. Acara Akhir")
  * Julat Bacaan:
  * - Lelaki   : A6:G13 (8 baris)
  * - Perempuan: A20:G27 (8 baris)
+ * Julat Suntingan (doPost):
+ * - Lelaki   : F6:G13
+ * - Perempuan: F20:G27
  */
 const ALLOWED_TABS = ['101', '102', '103', '104', '105', '106', '204', '205', '300'];
 
 function doGet(e) {
   const ss = SpreadsheetApp.getActiveSpreadsheet();
   const events = {};
-  let tabsRead = 0;
+  const foundTabs = [];
+  const missingTabs = [];
 
   ALLOWED_TABS.forEach(function(tabName) {
     const sheet = ss.getSheetByName(tabName);
-    if (!sheet) return;
-    tabsRead++;
+    if (!sheet) {
+      missingTabs.push(tabName);
+      return;
+    }
+    foundTabs.push(tabName);
     events[tabName] = {
       eventNo: tabName,
       lelaki: readAkhirRows_(sheet, 6, 13),
@@ -4082,7 +4068,11 @@ function doGet(e) {
     .createTextOutput(JSON.stringify({
       success: true,
       module: 'akhir-balapan',
-      tabsRead: tabsRead,
+      spreadsheetName: ss.getName(),
+      foundTabs: foundTabs,
+      missingTabs: missingTabs,
+      tabsRead: foundTabs.length,
+      totalExpected: ALLOWED_TABS.length,
       totalTabs: ALLOWED_TABS.length,
       events: events,
       updatedAt: new Date().toISOString()
@@ -4276,22 +4266,43 @@ function jsonResponse_(obj) {
             },
 
             importAndNormalizeData(rawEvents, existingStore) {
+                if (!rawEvents || typeof rawEvents !== 'object' || Array.isArray(rawEvents)) {
+                    return { nextEvents: {}, tabCount: 0, validStructureCount: 0 };
+                }
+
                 const nextEvents = {};
                 let tabCount = 0;
+                let validStructureCount = 0;
 
                 const normalizeRows = (rows, minRow, maxRow) => {
                     if (!Array.isArray(rows)) return [];
-                    return rows.filter(r => {
-                        const sr = Number(r.sheetRow);
-                        return Number.isNaN(sr) || (sr >= minRow && sr <= maxRow);
-                    });
+                    return rows
+                        .filter(r => r && typeof r === 'object')
+                        .filter(r => {
+                            const sr = Number(r.sheetRow);
+                            return Number.isNaN(sr) || (sr >= minRow && sr <= maxRow);
+                        })
+                        .map((r, idx) => ({
+                            sheetRow: Number.isFinite(Number(r.sheetRow)) ? Number(r.sheetRow) : (minRow + idx),
+                            lorong: String(r.lorong || '').trim(),
+                            namaAtlet: String(r.namaAtlet || '').trim(),
+                            pasukan: String(r.pasukan || '').trim(),
+                            noBib: String(r.noBib || '').trim(),
+                            kedudukan: String(r.kedudukan || '').trim(),
+                            masa: String(r.masa || '').trim()
+                        }));
                 };
 
                 AkhirBalapanModule.ALLOWED_EVENT_NOS.forEach(no => {
                     const incoming = rawEvents[no];
-                    if (!incoming || typeof incoming !== 'object') return;
+                    if (!incoming || typeof incoming !== 'object' || Array.isArray(incoming)) return;
+
+                    const hasValidCategoryArrays = Array.isArray(incoming.lelaki) || Array.isArray(incoming.perempuan);
+                    if (!hasValidCategoryArrays) return;
+
+                    validStructureCount++;
                     tabCount++;
-                    const prev = existingStore.events && existingStore.events[no];
+                    const prev = existingStore && existingStore.events && existingStore.events[no];
                     nextEvents[no] = {
                         eventNo: no,
                         status: prev && prev.status === 'DISAHKAN_RASMI' ? 'DISAHKAN_RASMI' : 'BELUM_SELESAI',
@@ -4302,7 +4313,7 @@ function jsonResponse_(obj) {
                     };
                 });
 
-                return { nextEvents, tabCount };
+                return { nextEvents, tabCount, validStructureCount };
             },
 
             validateGasTestResponse(data) {
@@ -4415,19 +4426,63 @@ function jsonResponse_(obj) {
 
                 UIComponents.showLoading('Mengimport data Akhir Balapan...');
                 try {
-                    const res = await fetch(url);
-                    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-                    const data = await res.json();
-                    if (!data || data.success !== true || String(data.module || '').trim() !== this.EXPECTED_MODULE || !data.events || typeof data.events !== 'object' || Array.isArray(data.events)) {
+                    // LANGKAH A & B — VALIDATE URL & REQUEST EVENT DATA
+                    let res;
+                    try {
+                        res = await fetch(url);
+                    } catch (netErr) {
+                        throw new Error('URL GAS tidak dapat diakses.');
+                    }
+                    if (!res.ok) {
+                        throw new Error(`Pelayan GAS mengembalikan ralat HTTP ${res.status}.`);
+                    }
+
+                    // LANGKAH C — VALIDATE RESPONSE
+                    let data;
+                    try {
+                        data = await res.json();
+                    } catch (parseErr) {
+                        throw new Error('Respons daripada GAS bukan format JSON yang sah.');
+                    }
+
+                    if (!data || typeof data !== 'object' || Array.isArray(data)) {
+                        throw new Error('Struktur respons JSON daripada GAS tidak sah.');
+                    }
+                    if (data.success === false) {
+                        const rawMsg = typeof data.message === 'string' && data.message.trim()
+                            ? data.message.trim().slice(0, 140)
+                            : 'GAS melaporkan ralat semasa membaca data.';
+                        throw new Error(rawMsg);
+                    }
+                    if (data.success !== true) {
+                        throw new Error('Respons GAS tidak mengesahkan kejayaan operasi.');
+                    }
+
+                    const respModule = String(data.module || '').trim();
+                    if (!respModule || respModule !== this.EXPECTED_MODULE) {
+                        throw new Error('URL GAS tidak sepadan dengan modul Akhir Balapan.');
+                    }
+
+                    const hasEventsObj = data.events && typeof data.events === 'object' && !Array.isArray(data.events);
+                    if (!hasEventsObj) {
+                        if (Array.isArray(data.foundTabs)) {
+                            const detailEl = document.getElementById('akhir-balapan-status-detail');
+                            if (detailEl) {
+                                detailEl.textContent = 'Sambungan GAS berjaya, tetapi endpoint data keputusan belum tersedia. Sila kemas kini deployment GAS menggunakan KOD GOOGLE APP SCRIPT / GAS.';
+                            }
+                            throw new Error('Sambungan GAS berjaya, tetapi endpoint data keputusan belum tersedia.');
+                        }
                         throw new Error('Endpoint GAS tidak memulangkan objek keputusan acara (events) yang sah untuk diimport.');
                     }
 
+                    // LANGKAH D — NORMALIZE DATA
                     const existingStore = StorageManager.getAkhirBalapanStore();
-                    const { nextEvents, tabCount } = this.importAndNormalizeData(data.events, existingStore);
-                    if (tabCount === 0) {
-                        throw new Error('Tiada rekod tab acara sah ditemui dalam respons GAS.');
+                    const { nextEvents, tabCount, validStructureCount } = this.importAndNormalizeData(data.events, existingStore);
+                    if (tabCount === 0 || validStructureCount === 0) {
+                        throw new Error('Tiada struktur data acara Akhir Balapan (lelaki/perempuan) yang sah ditemui dalam objek events.');
                     }
 
+                    // LANGKAH E — SAVE DATA
                     const nowIso = new Date().toISOString();
                     StorageManager.saveAkhirBalapanStore({ events: nextEvents });
                     StorageManager.saveTournamentConfig({
@@ -4445,9 +4500,13 @@ function jsonResponse_(obj) {
                     const connEl = document.getElementById('akhir-balapan-status-connection');
                     const updEl = document.getElementById('akhir-balapan-status-updated');
                     const tabsEl = document.getElementById('akhir-balapan-status-tabs');
+                    const detailEl = document.getElementById('akhir-balapan-status-detail');
                     if (connEl) connEl.textContent = 'Tersambung & Tersimpan';
                     if (updEl) updEl.textContent = SaringanModule.formatDateTime(nowIso);
                     if (tabsEl) tabsEl.textContent = `${tabCount} / 9 Tab`;
+                    if (detailEl) {
+                        detailEl.textContent = `Data keputusan sebenar berjaya diimport daripada ${tabCount} / 9 tab Google Sheets.`;
+                    }
 
                     GlobalLiveStatusController.updateIndicator();
                     UIComponents.showToast(`Berjaya menyimpan & mengimport ${tabCount} tab Akhir Balapan.`, 'success');
@@ -4527,12 +4586,16 @@ const ALLOWED_TABS = ['411', '412', '413', '414', '415', '424', '425'];
 function doGet(e) {
   const ss = SpreadsheetApp.getActiveSpreadsheet();
   const events = {};
-  let tabsRead = 0;
+  const foundTabs = [];
+  const missingTabs = [];
 
   ALLOWED_TABS.forEach(function(tabName) {
     const sheet = ss.getSheetByName(tabName);
-    if (!sheet) return;
-    tabsRead++;
+    if (!sheet) {
+      missingTabs.push(tabName);
+      return;
+    }
+    foundTabs.push(tabName);
     events[tabName] = {
       eventNo: tabName,
       lelaki: readRelayRows_(sheet, 5, 8, 1),
@@ -4544,7 +4607,11 @@ function doGet(e) {
     .createTextOutput(JSON.stringify({
       success: true,
       module: 'relay',
-      tabsRead: tabsRead,
+      spreadsheetName: ss.getName(),
+      foundTabs: foundTabs,
+      missingTabs: missingTabs,
+      tabsRead: foundTabs.length,
+      totalExpected: ALLOWED_TABS.length,
       totalTabs: ALLOWED_TABS.length,
       events: events,
       updatedAt: new Date().toISOString()
@@ -4834,6 +4901,9 @@ function jsonResponse_(obj) {
                     if (!res.ok) throw new Error(`HTTP ${res.status}`);
                     const data = await res.json();
                     if (!data || data.success !== true || String(data.module || '').trim() !== this.EXPECTED_MODULE || !data.events || typeof data.events !== 'object' || Array.isArray(data.events)) {
+                        if (data && Array.isArray(data.foundTabs)) {
+                            throw new Error('Sambungan GAS berjaya, tetapi endpoint data keputusan belum tersedia.');
+                        }
                         throw new Error('Endpoint GAS tidak memulangkan objek keputusan acara (events) yang sah untuk diimport.');
                     }
 
@@ -4958,12 +5028,16 @@ const ALLOWED_TABS = ['LONGJUMP', 'HIGHJUMP', 'SHOTPUT'];
 function doGet(e) {
   const ss = SpreadsheetApp.getActiveSpreadsheet();
   const events = {};
-  let tabsRead = 0;
+  const foundTabs = [];
+  const missingTabs = [];
 
   ALLOWED_TABS.forEach(function(tabName) {
     const sheet = ss.getSheetByName(tabName);
-    if (!sheet) return;
-    tabsRead++;
+    if (!sheet) {
+      missingTabs.push(tabName);
+      return;
+    }
+    foundTabs.push(tabName);
     events[tabName] = {
       eventNo: tabName,
       lelaki: readPadangRows_(sheet, 9, 16),
@@ -4975,7 +5049,11 @@ function doGet(e) {
     .createTextOutput(JSON.stringify({
       success: true,
       module: 'padang',
-      tabsRead: tabsRead,
+      spreadsheetName: ss.getName(),
+      foundTabs: foundTabs,
+      missingTabs: missingTabs,
+      tabsRead: foundTabs.length,
+      totalExpected: ALLOWED_TABS.length,
       totalTabs: ALLOWED_TABS.length,
       events: events,
       updatedAt: new Date().toISOString()
@@ -5270,6 +5348,9 @@ function jsonResponse_(obj) {
                     if (!res.ok) throw new Error(`HTTP ${res.status}`);
                     const data = await res.json();
                     if (!data || data.success !== true || String(data.module || '').trim() !== this.EXPECTED_MODULE || !data.events || typeof data.events !== 'object' || Array.isArray(data.events)) {
+                        if (data && Array.isArray(data.foundTabs)) {
+                            throw new Error('Sambungan GAS berjaya, tetapi endpoint data keputusan belum tersedia.');
+                        }
                         throw new Error('Endpoint GAS tidak memulangkan objek keputusan acara (events) yang sah untuk diimport.');
                     }
 
@@ -5383,8 +5464,6 @@ function jsonResponse_(obj) {
 
         /**
          * 4M. PENGAWAL CETAKAN DOKUMEN KEPUTUSAN RASMI (ResultPrintController)
-         * Membina dokumen cetakan A4 khusus mengikut modul dan nombor acara terpilih
-         * daripada snapshot storan tempatan tanpa mengubah data atau memanggil rangkaian.
          */
         const ResultPrintController = {
             renderPrintButton(moduleId, eventNo) {
@@ -5394,7 +5473,7 @@ function jsonResponse_(obj) {
                 return `
                     <button
                         type="button"
-                        onclick="ResultPrintController.printEvent('safeModule','{safeEventNo}')"
+                        onclick="ResultPrintController.printEvent('${safeModule}', '${safeEventNo}')"
                         aria-label="Cetak Keputusan Acara ${safeEventNo}"
                         class="inline-flex items-center gap-1.5 min-h-[44px] px-3.5 py-2 rounded-xl text-xs font-sans font-bold bg-gold hover:bg-gold-light text-navy-dark shadow-2xs transition-colors cursor-pointer"
                     >
@@ -5438,7 +5517,7 @@ function jsonResponse_(obj) {
 
             buildTableHtml(headers, rowsHtml, emptyColspan) {
                 const theadCells = headers.map(h =>
-                    `<th style="text-align:h.align||'left';{h.width ? 'width:' + h.width + ';' : ''}">${SaringanModule.escapeHtml(h.label)}</th>`
+                    `<th style="text-align:${h.align || 'left'};${h.width ? 'width:' + h.width + ';' : ''}">${SaringanModule.escapeHtml(h.label)}</th>`
                 ).join('');
 
                 const tbodyContent = rowsHtml
@@ -5463,7 +5542,7 @@ function jsonResponse_(obj) {
                     const raw = String(team || '').trim();
                     if (!raw) return '<td>—</td>';
                     const colorHex = this.getTeamPrintColorHex(raw);
-                    return `<td style="color:colorHex;font-weight:700;">{esc(raw)}</td>`;
+                    return `<td style="color:${colorHex};font-weight:700;">${esc(raw)}</td>`;
                 };
 
                 if (moduleId === 'saringan') {
@@ -5490,7 +5569,7 @@ function jsonResponse_(obj) {
                         `).join('');
                         return `
                             <div class="subtable-block">
-                                <div class="subtable-title">esc(heatLabel)({list.length} Peserta)</div>
+                                <div class="subtable-title">${esc(heatLabel)} (${list.length} Peserta)</div>
                                 ${this.buildTableHtml(headers, body, 6)}
                             </div>
                         `;
@@ -5539,7 +5618,7 @@ function jsonResponse_(obj) {
                         `).join('');
                         return `
                             <section class="category-section">
-                                <div class="category-banner bannerClass">{esc(bannerText)} (${list.length} Atlet)</div>
+                                <div class="category-banner ${bannerClass}">${esc(bannerText)} (${list.length} Atlet)</div>
                                 ${this.buildTableHtml(headers, body, 6)}
                             </section>
                         `;
@@ -5571,7 +5650,7 @@ function jsonResponse_(obj) {
                         `).join('');
                         return `
                             <section class="category-section">
-                                <div class="category-banner bannerClass">{esc(bannerText)} (${list.length} Pasukan)</div>
+                                <div class="category-banner ${bannerClass}">${esc(bannerText)} (${list.length} Pasukan)</div>
                                 ${this.buildTableHtml(headers, body, 4)}
                             </section>
                         `;
@@ -5619,7 +5698,7 @@ function jsonResponse_(obj) {
                         `).join('');
                         return `
                             <section class="category-section">
-                                <div class="category-banner bannerClass">{esc(bannerText)} (${list.length} Atlet)</div>
+                                <div class="category-banner ${bannerClass}">${esc(bannerText)} (${list.length} Atlet)</div>
                                 ${this.buildTableHtml(headers, body, 12)}
                             </section>
                         `;
@@ -5656,7 +5735,7 @@ function jsonResponse_(obj) {
 <html lang="ms">
 <head>
     <meta charset="UTF-8">
-    <title>STATISTIX HUB — SaringanModule.escapeHtml(moduleHeading)({SaringanModule.escapeHtml(eventNo)})</title>
+    <title>STATISTIX HUB — ${SaringanModule.escapeHtml(moduleHeading)} (${SaringanModule.escapeHtml(eventNo)})</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Montserrat:wght@700;800&display=swap" rel="stylesheet">
@@ -5893,7 +5972,6 @@ function jsonResponse_(obj) {
                     return;
                 }
 
-                // Sandaran sekiranya tetingkap popup disekat oleh pelayar
                 const existingFrame = document.getElementById('statistix-hidden-print-frame');
                 if (existingFrame) existingFrame.remove();
 
