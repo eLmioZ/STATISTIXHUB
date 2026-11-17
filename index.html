@@ -3547,11 +3547,11 @@ function doGet(e) {
         eventsData[evNo] = {
           eventNo: evNo,
           lelaki: {
-            saringan1: readHeatRows_(sheet, 2, 12, 1),
+            saringan1: readHeatRows_(sheet, 5, 12, 1),
             saringan2: readHeatRows_(sheet, 18, 25, 1)
           },
           perempuan: {
-            saringan1: readHeatRows_(sheet, 2, 12, 9),
+            saringan1: readHeatRows_(sheet, 5, 12, 9),
             saringan2: readHeatRows_(sheet, 18, 25, 9)
           }
         };
@@ -3610,7 +3610,7 @@ function doPost(e) {
     var newValue = String(params.value || '').trim();
 
     if (SARINGAN_TABS.indexOf(eventNo) === -1) return jsonResponse_({ success: false, message: 'Acara tidak sah.' });
-    var validRow = (heat === 'saringan1' && sheetRow >= 2 && sheetRow <= 12) || (heat === 'saringan2' && sheetRow >= 18 && sheetRow <= 25);
+    var validRow = (heat === 'saringan1' && sheetRow >= 5 && sheetRow <= 12) || (heat === 'saringan2' && sheetRow >= 18 && sheetRow <= 25);
     if (!validRow) return jsonResponse_({ success: false, message: 'Baris di luar julat.' });
 
     var targetCol = null;
@@ -3924,7 +3924,7 @@ function doPost(e) {
  * Fail: Statistix_Akhir_Balapan_Code.gs
  * Pemasangan: Bound Script pada Google Sheets Kejohanan
  * Tab Wajib: 101, 102, 103, 104, 105, 106, 204, 205, 300
- * Julat Bacaan: Lelaki A2:G13, Perempuan A16:G27
+ * Julat Bacaan: Lelaki A6:G13, Perempuan A20:G27
  * Julat Suntingan Sah: Lelaki F6:G13, Perempuan F20:G27
  */
 
@@ -3977,8 +3977,8 @@ function doGet(e) {
         }
         eventsData[evNo] = {
           eventNo: evNo,
-          lelaki: readAkhirRows_(sheet, 2, 13),
-          perempuan: readAkhirRows_(sheet, 16, 27)
+          lelaki: readAkhirRows_(sheet, 6, 13),
+          perempuan: readAkhirRows_(sheet, 20, 27)
         };
       }
 
@@ -4256,8 +4256,8 @@ function doPost(e) {
                     nextEvents[evNo] = {
                         eventNo: evNo,
                         status: prevEv.status === 'DISAHKAN_RASMI' ? 'DISAHKAN_RASMI' : 'BELUM_SELESAI',
-                        lelaki: normalizeRows(incomingEv.lelaki, 2, 13),
-                        perempuan: normalizeRows(incomingEv.perempuan, 16, 27),
+                        lelaki: normalizeRows(incomingEv.lelaki, 6, 13),
+                        perempuan: normalizeRows(incomingEv.perempuan, 20, 27),
                         updatedAt: nowIso,
                         verifiedAt: prevEv.status === 'DISAHKAN_RASMI' ? (prevEv.verifiedAt || nowIso) : null
                     };
