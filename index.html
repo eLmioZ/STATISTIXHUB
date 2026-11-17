@@ -93,6 +93,50 @@
         .animate-view-enter {
             animation: fadeSlideUp 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards;
         }
+
+        /* Indikator Status LIVE Hijau Berkelip (Acara Saringan) */
+        @keyframes saringanLivePulse {
+            0%, 100% {
+                opacity: 1;
+                transform: scale(1);
+            }
+            50% {
+                opacity: 0.45;
+                transform: scale(0.85);
+            }
+        }
+
+        .saringan-live-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.375rem;
+            padding: 0.2rem 0.625rem;
+            border-radius: 9999px;
+            background-color: #DCFCE7;
+            border: 1px solid #86EFAC;
+            color: #15803D;
+            font-size: 0.6875rem;
+            font-weight: 700;
+            letter-spacing: 0.05em;
+            line-height: 1;
+            text-transform: uppercase;
+            white-space: nowrap;
+        }
+
+        .saringan-live-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 9999px;
+            background-color: #16A34A;
+            flex-shrink: 0;
+            animation: saringanLivePulse 1.6s ease-in-out infinite;
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            .saringan-live-dot {
+                animation: none;
+            }
+        }
     </style>
 </head>
 <body class="min-h-screen flex flex-col font-sans antialiased selection:bg-gold/30 selection:text-navy-dark">
@@ -183,17 +227,30 @@
             <section id="public-workspace" class="space-y-5 sm:space-y-6">
                 <!-- Bar Tajuk Modul -->
                 <div class="bg-white rounded-2xl p-5 sm:p-6 shadow-card border border-slate-200/80">
-                    <div class="max-w-3xl">
-                        <div class="flex items-center gap-2 text-xs font-semibold text-navy-secondary uppercase tracking-wider">
-                            <i id="view-breadcrumb-icon" data-lucide="layers" class="w-3.5 h-3.5 text-gold-dark"></i>
-                            <span id="view-breadcrumb-category">Modul Statistik Kejohanan</span>
+                    <div class="flex flex-wrap items-start justify-between gap-3">
+                        <div class="max-w-3xl min-w-0">
+                            <div class="flex items-center gap-2 text-xs font-semibold text-navy-secondary uppercase tracking-wider">
+                                <i id="view-breadcrumb-icon" data-lucide="layers" class="w-3.5 h-3.5 text-gold-dark"></i>
+                                <span id="view-breadcrumb-category">Modul Statistik Kejohanan</span>
+                            </div>
+                            <h2 id="view-main-title" class="font-display font-bold text-xl sm:text-2xl xl:text-[26px] text-navy-primary mt-1 leading-tight">
+                                Acara Saringan
+                            </h2>
+                            <p id="view-main-subtitle" class="text-xs sm:text-sm text-ink-muted mt-1 leading-relaxed">
+                                Paparan keputusan saringan mengikut kategori acara dan laluan kelayakan ke peringkat akhir.
+                            </p>
                         </div>
-                        <h2 id="view-main-title" class="font-display font-bold text-xl sm:text-2xl xl:text-[26px] text-navy-primary mt-1 leading-tight">
-                            Acara Saringan
-                        </h2>
-                        <p id="view-main-subtitle" class="text-xs sm:text-sm text-ink-muted mt-1 leading-relaxed">
-                            Paparan keputusan saringan mengikut kategori acara dan laluan kelayakan ke peringkat akhir.
-                        </p>
+
+                        <!-- Indikator LIVE Paparan Utama Acara Saringan -->
+                        <span
+                            id="saringan-public-live-badge"
+                            title="URL GAS tersimpan dan data acara tersedia. Status ini bukan pengesahan sambungan masa nyata."
+                            aria-label="Status LIVE: URL GAS tersimpan dan data acara tersedia. Status ini bukan pengesahan sambungan masa nyata."
+                            class="saringan-live-badge hidden shrink-0 self-start sm:self-center"
+                        >
+                            <span class="saringan-live-dot" aria-hidden="true"></span>
+                            <span>LIVE</span>
+                        </span>
                     </div>
                 </div>
 
@@ -281,9 +338,20 @@
                                         <i data-lucide="list-ordered" class="w-5 h-5 text-gold-dark"></i>
                                     </div>
                                     <div class="min-w-0">
-                                        <h4 class="font-display font-bold text-base sm:text-lg text-navy-primary">
-                                            Acara Saringan
-                                        </h4>
+                                        <div class="flex flex-wrap items-center gap-2">
+                                            <h4 class="font-display font-bold text-base sm:text-lg text-navy-primary">
+                                                Acara Saringan
+                                            </h4>
+                                            <span
+                                                id="saringan-admin-live-badge"
+                                                title="URL GAS tersimpan dan data acara tersedia. Status ini bukan pengesahan sambungan masa nyata."
+                                                aria-label="Status LIVE: URL GAS tersimpan dan data acara tersedia. Status ini bukan pengesahan sambungan masa nyata."
+                                                class="saringan-live-badge hidden"
+                                            >
+                                                <span class="saringan-live-dot" aria-hidden="true"></span>
+                                                <span>LIVE</span>
+                                            </span>
+                                        </div>
                                         <p class="text-xs sm:text-sm text-ink-muted mt-0.5">
                                             Tetapan pautan Google Apps Script untuk data acara saringan (9 Tab: 101–106, 204, 205, 300).
                                         </p>
@@ -2120,6 +2188,8 @@ function doPost(e) {
                     this.updateStatusPanel(config.saringanGasStatus);
                 }
 
+                this.syncLiveIndicators('saringan');
+
                 document.addEventListener('keydown', (e) => {
                     if (e.key === 'Escape') {
                         const modal = document.getElementById('modal-saringan-gas-code');
@@ -2128,6 +2198,25 @@ function doPost(e) {
                         }
                     }
                 });
+            },
+
+            syncLiveIndicators(activePublicView = AppController.currentView) {
+                const config = StorageManager.getTournamentConfig();
+                const hasSavedUrl = Boolean(String(config.saringanAppsScriptUrl || '').trim());
+                const isLive = hasSavedUrl && SaringanModule.hasValidActiveConnection();
+
+                const adminBadge = document.getElementById('saringan-admin-live-badge');
+                if (adminBadge) {
+                    adminBadge.classList.toggle('hidden', !isLive);
+                }
+
+                const publicBadge = document.getElementById('saringan-public-live-badge');
+                if (publicBadge) {
+                    const showPublicLive = isLive && activePublicView === 'saringan';
+                    publicBadge.classList.toggle('hidden', !showPublicLive);
+                }
+
+                return isLive;
             },
 
             updateModeBadge(label) {
@@ -2361,6 +2450,7 @@ function doPost(e) {
                     if (inputEl) inputEl.disabled = true;
                     this.updateModeBadge('Tersimpan (Terkunci)');
                     this.updateStatusPanel(statusObj);
+                    this.syncLiveIndicators();
 
                     AppController.loadView('saringan');
                     UIComponents.showToast('URL dan data 9 tab Acara Saringan berjaya disimpan!', 'success');
@@ -2457,6 +2547,7 @@ function doPost(e) {
                     tabCountText: '0 / 9 Tab',
                     detailText: 'URL Google Apps Script dipadam dan paparan Acara Saringan telah dikosongkan. Google Sheets asal dan log audit kekal terpelihara.'
                 });
+                this.syncLiveIndicators();
 
                 // Muat semula paparan Acara Saringan dan empat kad statistik
                 AppController.loadView('saringan');
@@ -2559,6 +2650,8 @@ function doPost(e) {
                 if (titleEl) titleEl.textContent = meta.label;
                 if (subEl) subEl.textContent = meta.subtitle;
                 if (catEl) catEl.textContent = meta.category;
+
+                SaringanGasController.syncLiveIndicators(viewId);
 
                 if (viewId === 'saringan') {
                     const hasActiveConn = SaringanModule.hasValidActiveConnection();
