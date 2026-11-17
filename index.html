@@ -166,6 +166,30 @@
                 animation: none;
             }
         }
+
+        /* Warna Rasmi Nama Pasukan */
+        .team-color-helang {
+            color: #15803D !important;
+        }
+        .team-color-garuda {
+            color: #DC2626 !important;
+        }
+        .team-color-kenyalang {
+            color: #CA8A04 !important;
+        }
+        .team-color-rajawali {
+            color: #2563EB !important;
+        }
+
+        /* Warna Identiti Kategori Lelaki & Perempuan */
+        .gender-badge-lelaki {
+            background-color: #1C2541;
+            color: #FFFFFF;
+        }
+        .gender-badge-perempuan {
+            background-color: #DB2777;
+            color: #FFFFFF;
+        }
     </style>
 </head>
 <body class="min-h-screen flex flex-col font-sans antialiased selection:bg-gold/30 selection:text-navy-dark">
@@ -1643,6 +1667,15 @@
         editingCell: null,
         isSavingCell: false,
 
+        getTeamDisplayColorClass(teamName) {
+            const normalized = String(teamName || '').trim().toUpperCase();
+            if (normalized === 'HELANG') return 'team-color-helang font-bold';
+            if (normalized === 'GARUDA') return 'team-color-garuda font-bold';
+            if (normalized === 'KENYALANG') return 'team-color-kenyalang font-bold';
+            if (normalized === 'RAJAWALI') return 'team-color-rajawali font-bold';
+            return '';
+        },
+
         escapeHtml(str) {
             if (str === null || str === undefined) return '';
             return String(str)
@@ -1937,16 +1970,22 @@
         renderHeatTable(eventNo, gender, heat, title, rows, isVerified) {
             const safeRows = Array.isArray(rows) ? rows : [];
             const colHint = gender === 'lelaki' ? 'Kolom F &amp; G' : 'Kolom N &amp; O';
+            const headerBarClass = gender === 'perempuan'
+                ? 'gender-badge-perempuan border-pink-700'
+                : 'gender-badge-lelaki border-navy-dark';
+            const countBadgeClass = gender === 'perempuan'
+                ? 'bg-white/15 border-white/30 text-white'
+                : 'bg-white/10 border-white/25 text-white';
 
             return `
                 <div class="rounded-xl border border-slate-200/90 overflow-hidden bg-white shadow-2xs">
-                    <div class="px-4 py-3 bg-surface-bg border-b border-slate-200/80 flex items-center justify-between gap-2">
-                        <span class="font-display text-xs sm:text-sm font-bold uppercase tracking-wider text-navy-primary">
+                    <div class="px-4 py-3 ${headerBarClass} border-b flex items-center justify-between gap-2">
+                        <span class="font-display text-xs sm:text-sm font-bold uppercase tracking-wider text-white">
                             ${this.escapeHtml(title)}
                         </span>
                         <div class="flex items-center gap-2 shrink-0">
-                            <span class="text-[11px] font-mono text-slate-500 hidden sm:inline">${colHint}</span>
-                            <span class="px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-white border border-slate-200 text-navy-secondary">
+                            <span class="text-[11px] font-mono text-white/80 hidden sm:inline">${colHint}</span>
+                            <span class="px-2.5 py-0.5 rounded-full text-[11px] font-semibold border ${countBadgeClass}">
                                 ${safeRows.length} Peserta
                             </span>
                         </div>
@@ -1970,7 +2009,7 @@
                                         <tr class="border-b border-slate-100 even:bg-slate-50/40 hover:bg-surface-bg/80 transition-colors">
                                             <td class="py-2.5 px-3.5 text-xs sm:text-sm font-semibold text-center text-ink-muted">${this.escapeHtml(athlete.lorong || '—')}</td>
                                             <td class="py-2.5 px-3.5 text-xs sm:text-sm font-semibold text-ink">${this.escapeHtml(athlete.namaAtlet || '—')}</td>
-                                            <td class="py-2.5 px-3.5 text-xs sm:text-sm text-ink-muted">${this.escapeHtml(athlete.pasukan || '—')}</td>
+                                            <td class="py-2.5 px-3.5 text-xs sm:text-sm ${this.getTeamDisplayColorClass(athlete.pasukan) || 'text-ink-muted'}">${this.escapeHtml(athlete.pasukan || '—')}</td>
                                             <td class="py-2.5 px-3.5 text-xs sm:text-sm font-mono text-center text-slate-600">${this.escapeHtml(athlete.noBib || '—')}</td>
                                             <td class="py-1.5 px-2.5 text-xs sm:text-sm">${this.renderEditableCell(eventNo, gender, heat, athlete, 'kedudukan', isVerified)}</td>
                                             <td class="py-1.5 px-2.5 text-xs sm:text-sm">${this.renderEditableCell(eventNo, gender, heat, athlete, 'masa', isVerified)}</td>
@@ -2047,7 +2086,7 @@
                         <section class="space-y-4">
                             <div class="flex items-center justify-between gap-2 pb-2 border-b border-slate-200/70">
                                 <div class="flex items-center gap-2.5">
-                                    <span class="w-3 h-3 rounded-full bg-navy-primary"></span>
+                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-md text-[11px] font-display font-bold uppercase tracking-wider gender-badge-lelaki">Lelaki</span>
                                     <h3 class="font-display font-bold text-sm sm:text-base lg:text-lg text-navy-primary uppercase tracking-wide">
                                         Kategori Lelaki — Acara ${this.escapeHtml(activeEvent.eventNo)}
                                     </h3>
@@ -2062,7 +2101,7 @@
                         <section class="space-y-4 pt-2 border-t border-slate-200">
                             <div class="flex items-center justify-between gap-2 pb-2 border-b border-slate-200/70">
                                 <div class="flex items-center gap-2.5">
-                                    <span class="w-3 h-3 rounded-full bg-gold-dark"></span>
+                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-md text-[11px] font-display font-bold uppercase tracking-wider gender-badge-perempuan">Perempuan</span>
                                     <h3 class="font-display font-bold text-sm sm:text-base lg:text-lg text-navy-primary uppercase tracking-wide">
                                         Kategori Perempuan — Acara ${this.escapeHtml(activeEvent.eventNo)}
                                     </h3>
@@ -2344,40 +2383,49 @@
                 const ev = eventsMap[this.selectedEventNo];
                 const isVerified = ev.status === 'DISAHKAN_RASMI';
 
-                const renderTable = (gender, title, rows) => `
-                    <div class="rounded-xl border border-slate-200/90 overflow-hidden bg-white shadow-2xs">
-                        <div class="px-4 py-3 bg-surface-bg border-b border-slate-200/80 flex items-center justify-between gap-2">
-                            <span class="font-display text-xs sm:text-sm font-bold uppercase tracking-wider text-navy-primary">${SaringanModule.escapeHtml(title)}</span>
-                            <span class="px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-white border border-slate-200 text-navy-secondary">${rows.length} Atlet</span>
+                const renderTable = (gender, title, rows) => {
+                    const headerBarClass = gender === 'perempuan'
+                        ? 'gender-badge-perempuan border-pink-700'
+                        : 'gender-badge-lelaki border-navy-dark';
+                    const countBadgeClass = gender === 'perempuan'
+                        ? 'bg-white/15 border-white/30 text-white'
+                        : 'bg-white/10 border-white/25 text-white';
+
+                    return `
+                        <div class="rounded-xl border border-slate-200/90 overflow-hidden bg-white shadow-2xs">
+                            <div class="px-4 py-3 ${headerBarClass} border-b flex items-center justify-between gap-2">
+                                <span class="font-display text-xs sm:text-sm font-bold uppercase tracking-wider text-white">${SaringanModule.escapeHtml(title)}</span>
+                                <span class="px-2.5 py-0.5 rounded-full text-[11px] font-semibold border ${countBadgeClass}">${rows.length} Atlet</span>
+                            </div>
+                            <div class="overflow-x-auto">
+                                <table class="w-full min-w-[600px] text-left border-collapse">
+                                    <thead>
+                                        <tr class="bg-navy-primary text-white font-display text-[11px] sm:text-xs uppercase tracking-wider">
+                                            <th class="py-3 px-3.5 text-center w-16">Lorong</th>
+                                            <th class="py-3 px-3.5 min-w-[200px]">Nama Atlet</th>
+                                            <th class="py-3 px-3.5 min-w-[140px]">Pasukan</th>
+                                            <th class="py-3 px-3.5 text-center w-28">Kedudukan</th>
+                                            <th class="py-3 px-3.5 text-right w-32">Masa</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        ${rows.length === 0
+                                            ? `<tr><td colspan="5" class="py-7 px-4 text-center text-xs sm:text-sm text-ink-muted">Tiada rekod atlet.</td></tr>`
+                                            : rows.map(r => `
+                                                <tr class="border-b border-slate-100 even:bg-slate-50/40 hover:bg-surface-bg/80 transition-colors">
+                                                    <td class="py-2.5 px-3.5 text-xs sm:text-sm font-semibold text-center text-ink-muted">${SaringanModule.escapeHtml(r.lorong || '—')}</td>
+                                                    <td class="py-2.5 px-3.5 text-xs sm:text-sm font-semibold text-ink">${SaringanModule.escapeHtml(r.namaAtlet || '—')}</td>
+                                                    <td class="py-2.5 px-3.5 text-xs sm:text-sm ${SaringanModule.getTeamDisplayColorClass(r.pasukan) || 'text-ink-muted'}">${SaringanModule.escapeHtml(r.pasukan || '—')}</td>
+                                                    <td class="py-1.5 px-2.5 text-xs sm:text-sm">${this.renderEditableCell(ev.eventNo, gender, r, 'kedudukan', isVerified)}</td>
+                                                    <td class="py-1.5 px-2.5 text-xs sm:text-sm">${this.renderEditableCell(ev.eventNo, gender, r, 'masa', isVerified)}</td>
+                                                </tr>
+                                            `).join('')}
+                                    </tbody>
+                                </table>
+                            </div>
                         </div>
-                        <div class="overflow-x-auto">
-                            <table class="w-full min-w-[600px] text-left border-collapse">
-                                <thead>
-                                    <tr class="bg-navy-primary text-white font-display text-[11px] sm:text-xs uppercase tracking-wider">
-                                        <th class="py-3 px-3.5 text-center w-16">Lorong</th>
-                                        <th class="py-3 px-3.5 min-w-[200px]">Nama Atlet</th>
-                                        <th class="py-3 px-3.5 min-w-[140px]">Pasukan</th>
-                                        <th class="py-3 px-3.5 text-center w-28">Kedudukan</th>
-                                        <th class="py-3 px-3.5 text-right w-32">Masa</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    ${rows.length === 0
-                                        ? `<tr><td colspan="5" class="py-7 px-4 text-center text-xs sm:text-sm text-ink-muted">Tiada rekod atlet.</td></tr>`
-                                        : rows.map(r => `
-                                            <tr class="border-b border-slate-100 even:bg-slate-50/40 hover:bg-surface-bg/80 transition-colors">
-                                                <td class="py-2.5 px-3.5 text-xs sm:text-sm font-semibold text-center text-ink-muted">${SaringanModule.escapeHtml(r.lorong || '—')}</td>
-                                                <td class="py-2.5 px-3.5 text-xs sm:text-sm font-semibold text-ink">${SaringanModule.escapeHtml(r.namaAtlet || '—')}</td>
-                                                <td class="py-2.5 px-3.5 text-xs sm:text-sm text-ink-muted">${SaringanModule.escapeHtml(r.pasukan || '—')}</td>
-                                                <td class="py-1.5 px-2.5 text-xs sm:text-sm">${this.renderEditableCell(ev.eventNo, gender, r, 'kedudukan', isVerified)}</td>
-                                                <td class="py-1.5 px-2.5 text-xs sm:text-sm">${this.renderEditableCell(ev.eventNo, gender, r, 'masa', isVerified)}</td>
-                                            </tr>
-                                        `).join('')}
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                `;
+                    `;
+                };
 
                 return `
                     <div class="p-4 sm:p-6 lg:p-7 space-y-6">
@@ -2656,38 +2704,47 @@
                 const ev = eventsMap[this.selectedEventNo];
                 const isVerified = ev.status === 'DISAHKAN_RASMI';
 
-                const renderTable = (gender, title, rows) => `
-                    <div class="rounded-xl border border-slate-200/90 overflow-hidden bg-white shadow-2xs">
-                        <div class="px-4 py-3 bg-surface-bg border-b border-slate-200/80 flex items-center justify-between gap-2">
-                            <span class="font-display text-xs sm:text-sm font-bold uppercase tracking-wider text-navy-primary">${SaringanModule.escapeHtml(title)}</span>
-                            <span class="px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-white border border-slate-200 text-navy-secondary">${rows.length} Pasukan</span>
+                const renderTable = (gender, title, rows) => {
+                    const headerBarClass = gender === 'perempuan'
+                        ? 'gender-badge-perempuan border-pink-700'
+                        : 'gender-badge-lelaki border-navy-dark';
+                    const countBadgeClass = gender === 'perempuan'
+                        ? 'bg-white/15 border-white/30 text-white'
+                        : 'bg-white/10 border-white/25 text-white';
+
+                    return `
+                        <div class="rounded-xl border border-slate-200/90 overflow-hidden bg-white shadow-2xs">
+                            <div class="px-4 py-3 ${headerBarClass} border-b flex items-center justify-between gap-2">
+                                <span class="font-display text-xs sm:text-sm font-bold uppercase tracking-wider text-white">${SaringanModule.escapeHtml(title)}</span>
+                                <span class="px-2.5 py-0.5 rounded-full text-[11px] font-semibold border ${countBadgeClass}">${rows.length} Pasukan</span>
+                            </div>
+                            <div class="overflow-x-auto">
+                                <table class="w-full min-w-[540px] text-left border-collapse">
+                                    <thead>
+                                        <tr class="bg-navy-primary text-white font-display text-[11px] sm:text-xs uppercase tracking-wider">
+                                            <th class="py-3 px-3.5 text-center w-20">Lorong</th>
+                                            <th class="py-3 px-3.5 min-w-[200px]">Pasukan</th>
+                                            <th class="py-3 px-3.5 text-right w-36">Masa</th>
+                                            <th class="py-3 px-3.5 text-center w-32">Kedudukan</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        ${rows.length === 0
+                                            ? `<tr><td colspan="4" class="py-7 px-4 text-center text-xs sm:text-sm text-ink-muted">Tiada rekod pasukan.</td></tr>`
+                                            : rows.map(r => `
+                                                <tr class="border-b border-slate-100 even:bg-slate-50/40 hover:bg-surface-bg/80 transition-colors">
+                                                    <td class="py-2.5 px-3.5 text-xs sm:text-sm font-semibold text-center text-ink-muted">${SaringanModule.escapeHtml(r.lorong || '—')}</td>
+                                                    <td class="py-2.5 px-3.5 text-xs sm:text-sm font-semibold ${SaringanModule.getTeamDisplayColorClass(r.pasukan) || 'text-ink'}">${SaringanModule.escapeHtml(r.pasukan || '—')}</td>
+                                                    <td class="py-1.5 px-2.5 text-xs sm:text-sm">${this.renderEditableCell(ev.eventNo, gender, r, 'masa', isVerified)}</td>
+                                                    <td class="py-1.5 px-2.5 text-xs sm:text-sm">${this.renderEditableCell(ev.eventNo, gender, r, 'kedudukan', isVerified)}</td>
+                                                </tr>
+                                            `).join('')}
+                                    </tbody>
+                                </table>
+                            </div>
                         </div>
-                        <div class="overflow-x-auto">
-                            <table class="w-full min-w-[540px] text-left border-collapse">
-                                <thead>
-                                    <tr class="bg-navy-primary text-white font-display text-[11px] sm:text-xs uppercase tracking-wider">
-                                        <th class="py-3 px-3.5 text-center w-20">Lorong</th>
-                                        <th class="py-3 px-3.5 min-w-[200px]">Pasukan</th>
-                                        <th class="py-3 px-3.5 text-right w-36">Masa</th>
-                                        <th class="py-3 px-3.5 text-center w-32">Kedudukan</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    ${rows.length === 0
-                                        ? `<tr><td colspan="4" class="py-7 px-4 text-center text-xs sm:text-sm text-ink-muted">Tiada rekod pasukan.</td></tr>`
-                                        : rows.map(r => `
-                                            <tr class="border-b border-slate-100 even:bg-slate-50/40 hover:bg-surface-bg/80 transition-colors">
-                                                <td class="py-2.5 px-3.5 text-xs sm:text-sm font-semibold text-center text-ink-muted">${SaringanModule.escapeHtml(r.lorong || '—')}</td>
-                                                <td class="py-2.5 px-3.5 text-xs sm:text-sm font-semibold text-ink">${SaringanModule.escapeHtml(r.pasukan || '—')}</td>
-                                                <td class="py-1.5 px-2.5 text-xs sm:text-sm">${this.renderEditableCell(ev.eventNo, gender, r, 'masa', isVerified)}</td>
-                                                <td class="py-1.5 px-2.5 text-xs sm:text-sm">${this.renderEditableCell(ev.eventNo, gender, r, 'kedudukan', isVerified)}</td>
-                                            </tr>
-                                        `).join('')}
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                `;
+                    `;
+                };
 
                 return `
                     <div class="p-4 sm:p-6 lg:p-7 space-y-6">
@@ -2977,54 +3034,63 @@
                 const ev = eventsMap[this.selectedEventNo];
                 const isVerified = ev.status === 'DISAHKAN_RASMI';
 
-                const renderTable = (gender, title, rows) => `
-                    <div class="rounded-xl border border-slate-200/90 overflow-hidden bg-white shadow-2xs">
-                        <div class="px-4 py-3 bg-surface-bg border-b border-slate-200/80 flex items-center justify-between gap-2">
-                            <span class="font-display text-xs sm:text-sm font-bold uppercase tracking-wider text-navy-primary">${SaringanModule.escapeHtml(title)}</span>
-                            <span class="px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-white border border-slate-200 text-navy-secondary">${rows.length} Atlet</span>
+                const renderTable = (gender, title, rows) => {
+                    const headerBarClass = gender === 'perempuan'
+                        ? 'gender-badge-perempuan border-pink-700'
+                        : 'gender-badge-lelaki border-navy-dark';
+                    const countBadgeClass = gender === 'perempuan'
+                        ? 'bg-white/15 border-white/30 text-white'
+                        : 'bg-white/10 border-white/25 text-white';
+
+                    return `
+                        <div class="rounded-xl border border-slate-200/90 overflow-hidden bg-white shadow-2xs">
+                            <div class="px-4 py-3 ${headerBarClass} border-b flex items-center justify-between gap-2">
+                                <span class="font-display text-xs sm:text-sm font-bold uppercase tracking-wider text-white">${SaringanModule.escapeHtml(title)}</span>
+                                <span class="px-2.5 py-0.5 rounded-full text-[11px] font-semibold border ${countBadgeClass}">${rows.length} Atlet</span>
+                            </div>
+                            <div class="overflow-x-auto">
+                                <table class="w-full min-w-[980px] text-left border-collapse">
+                                    <thead>
+                                        <tr class="bg-navy-primary text-white font-display text-[11px] sm:text-xs uppercase tracking-wider">
+                                            <th class="py-3 px-3 text-center w-16">Giliran</th>
+                                            <th class="py-3 px-3 min-w-[190px]">Nama Atlet</th>
+                                            <th class="py-3 px-3 min-w-[130px]">Pasukan</th>
+                                            <th class="py-3 px-3 text-center w-24">No Bib</th>
+                                            <th class="py-3 px-2.5 text-center w-16">P1</th>
+                                            <th class="py-3 px-2.5 text-center w-16">P2</th>
+                                            <th class="py-3 px-2.5 text-center w-16">P3</th>
+                                            <th class="py-3 px-2.5 text-center w-16">P4</th>
+                                            <th class="py-3 px-2.5 text-center w-16">P5</th>
+                                            <th class="py-3 px-2.5 text-center w-16">P6</th>
+                                            <th class="py-3 px-3 text-right w-32">Catatan Terbaik</th>
+                                            <th class="py-3 px-3 text-center w-28">Kedudukan</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        ${rows.length === 0
+                                            ? `<tr><td colspan="12" class="py-7 px-4 text-center text-xs sm:text-sm text-ink-muted">Tiada rekod atlet.</td></tr>`
+                                            : rows.map(r => `
+                                                <tr class="border-b border-slate-100 even:bg-slate-50/40 hover:bg-surface-bg/80 transition-colors">
+                                                    <td class="py-2.5 px-3 text-xs sm:text-sm font-semibold text-center text-ink-muted">${SaringanModule.escapeHtml(r.giliran || '—')}</td>
+                                                    <td class="py-2.5 px-3 text-xs sm:text-sm font-semibold text-ink">${SaringanModule.escapeHtml(r.namaAtlet || '—')}</td>
+                                                    <td class="py-2.5 px-3 text-xs sm:text-sm ${SaringanModule.getTeamDisplayColorClass(r.pasukan) || 'text-ink-muted'}">${SaringanModule.escapeHtml(r.pasukan || '—')}</td>
+                                                    <td class="py-2.5 px-3 text-xs sm:text-sm font-mono text-center text-slate-600">${SaringanModule.escapeHtml(r.noBib || '—')}</td>
+                                                    <td class="py-2.5 px-2.5 text-xs font-mono text-center text-slate-700">${SaringanModule.escapeHtml(r.p1 || '—')}</td>
+                                                    <td class="py-2.5 px-2.5 text-xs font-mono text-center text-slate-700">${SaringanModule.escapeHtml(r.p2 || '—')}</td>
+                                                    <td class="py-2.5 px-2.5 text-xs font-mono text-center text-slate-700">${SaringanModule.escapeHtml(r.p3 || '—')}</td>
+                                                    <td class="py-2.5 px-2.5 text-xs font-mono text-center text-slate-700">${SaringanModule.escapeHtml(r.p4 || '—')}</td>
+                                                    <td class="py-2.5 px-2.5 text-xs font-mono text-center text-slate-700">${SaringanModule.escapeHtml(r.p5 || '—')}</td>
+                                                    <td class="py-2.5 px-2.5 text-xs font-mono text-center text-slate-700">${SaringanModule.escapeHtml(r.p6 || '—')}</td>
+                                                    <td class="py-1.5 px-2 text-xs sm:text-sm">${this.renderEditableCell(ev.eventNo, gender, r, 'catatanTerbaik', isVerified)}</td>
+                                                    <td class="py-1.5 px-2 text-xs sm:text-sm">${this.renderEditableCell(ev.eventNo, gender, r, 'kedudukan', isVerified)}</td>
+                                                </tr>
+                                            `).join('')}
+                                    </tbody>
+                                </table>
+                            </div>
                         </div>
-                        <div class="overflow-x-auto">
-                            <table class="w-full min-w-[980px] text-left border-collapse">
-                                <thead>
-                                    <tr class="bg-navy-primary text-white font-display text-[11px] sm:text-xs uppercase tracking-wider">
-                                        <th class="py-3 px-3 text-center w-16">Giliran</th>
-                                        <th class="py-3 px-3 min-w-[190px]">Nama Atlet</th>
-                                        <th class="py-3 px-3 min-w-[130px]">Pasukan</th>
-                                        <th class="py-3 px-3 text-center w-24">No Bib</th>
-                                        <th class="py-3 px-2.5 text-center w-16">P1</th>
-                                        <th class="py-3 px-2.5 text-center w-16">P2</th>
-                                        <th class="py-3 px-2.5 text-center w-16">P3</th>
-                                        <th class="py-3 px-2.5 text-center w-16">P4</th>
-                                        <th class="py-3 px-2.5 text-center w-16">P5</th>
-                                        <th class="py-3 px-2.5 text-center w-16">P6</th>
-                                        <th class="py-3 px-3 text-right w-32">Catatan Terbaik</th>
-                                        <th class="py-3 px-3 text-center w-28">Kedudukan</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    ${rows.length === 0
-                                        ? `<tr><td colspan="12" class="py-7 px-4 text-center text-xs sm:text-sm text-ink-muted">Tiada rekod atlet.</td></tr>`
-                                        : rows.map(r => `
-                                            <tr class="border-b border-slate-100 even:bg-slate-50/40 hover:bg-surface-bg/80 transition-colors">
-                                                <td class="py-2.5 px-3 text-xs sm:text-sm font-semibold text-center text-ink-muted">${SaringanModule.escapeHtml(r.giliran || '—')}</td>
-                                                <td class="py-2.5 px-3 text-xs sm:text-sm font-semibold text-ink">${SaringanModule.escapeHtml(r.namaAtlet || '—')}</td>
-                                                <td class="py-2.5 px-3 text-xs sm:text-sm text-ink-muted">${SaringanModule.escapeHtml(r.pasukan || '—')}</td>
-                                                <td class="py-2.5 px-3 text-xs sm:text-sm font-mono text-center text-slate-600">${SaringanModule.escapeHtml(r.noBib || '—')}</td>
-                                                <td class="py-2.5 px-2.5 text-xs font-mono text-center text-slate-700">${SaringanModule.escapeHtml(r.p1 || '—')}</td>
-                                                <td class="py-2.5 px-2.5 text-xs font-mono text-center text-slate-700">${SaringanModule.escapeHtml(r.p2 || '—')}</td>
-                                                <td class="py-2.5 px-2.5 text-xs font-mono text-center text-slate-700">${SaringanModule.escapeHtml(r.p3 || '—')}</td>
-                                                <td class="py-2.5 px-2.5 text-xs font-mono text-center text-slate-700">${SaringanModule.escapeHtml(r.p4 || '—')}</td>
-                                                <td class="py-2.5 px-2.5 text-xs font-mono text-center text-slate-700">${SaringanModule.escapeHtml(r.p5 || '—')}</td>
-                                                <td class="py-2.5 px-2.5 text-xs font-mono text-center text-slate-700">${SaringanModule.escapeHtml(r.p6 || '—')}</td>
-                                                <td class="py-1.5 px-2 text-xs sm:text-sm">${this.renderEditableCell(ev.eventNo, gender, r, 'catatanTerbaik', isVerified)}</td>
-                                                <td class="py-1.5 px-2 text-xs sm:text-sm">${this.renderEditableCell(ev.eventNo, gender, r, 'kedudukan', isVerified)}</td>
-                                            </tr>
-                                        `).join('')}
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                `;
+                    `;
+                };
 
                 return `
                     <div class="p-4 sm:p-6 lg:p-7 space-y-6">
@@ -3257,7 +3323,7 @@
                             </div>
 
                             <div class="p-4 text-center space-y-3">
-                                <h4 class="font-display font-extrabold text-sm sm:text-base text-navy-primary uppercase tracking-tight leading-snug break-words">
+                                <h4 class="font-display font-extrabold text-sm sm:text-base ${SaringanModule.getTeamDisplayColorClass(team.pasukan) || 'text-navy-primary'} uppercase tracking-tight leading-snug break-words">
                                     ${SaringanModule.escapeHtml(team.pasukan)}
                                 </h4>
 
@@ -3347,7 +3413,7 @@
                                                             ${rank}
                                                         </span>
                                                     </td>
-                                                    <td class="py-3 px-4 text-xs sm:text-sm font-bold text-navy-primary uppercase">
+                                                    <td class="py-3 px-4 text-xs sm:text-sm font-bold ${SaringanModule.getTeamDisplayColorClass(team.pasukan) || 'text-navy-primary'} uppercase">
                                                         ${SaringanModule.escapeHtml(team.pasukan)}
                                                     </td>
                                                     <td class="py-3 px-3.5 text-center">
