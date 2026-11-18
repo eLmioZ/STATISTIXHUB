@@ -731,19 +731,19 @@
                     <div class="space-y-5">
 
                         <!-- KAD 1 — ACARA SARINGAN -->
-                        <div class="bg-white rounded-2xl p-5 sm:p-6 shadow-card border border-slate-200/80 space-y-5">
+                        <div class="bg-white rounded-2xl p-5 sm:p-6 shadow-card border border-slate-200/80 space-y-5 min-w-0">
                             <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-slate-100">
-                                <div class="flex items-start gap-3.5">
+                                <div class="flex items-start gap-3.5 min-w-0">
                                     <div class="w-10 h-10 rounded-xl bg-navy-primary/5 border border-slate-200/80 flex items-center justify-center shrink-0">
                                         <i data-lucide="list-ordered" class="w-5 h-5 text-gold-dark"></i>
                                     </div>
                                     <div class="min-w-0">
                                         <div class="flex flex-wrap items-center gap-2">
-                                            <h4 class="font-display font-bold text-base sm:text-lg text-navy-primary">
+                                            <h4 class="font-display font-bold text-base sm:text-lg text-navy-primary break-words">
                                                 ACARA SARINGAN
                                             </h4>
                                         </div>
-                                        <p class="text-xs sm:text-sm text-ink-muted mt-0.5">
+                                        <p class="text-xs sm:text-sm text-ink-muted mt-0.5 break-words">
                                             Tetapan pautan DATA ATHLETIX untuk modul Acara Saringan.
                                         </p>
                                     </div>
@@ -753,19 +753,19 @@
                                     type="button"
                                     id="btn-open-saringan-gas-modal"
                                     onclick="SaringanGasController.openGasModal()"
-                                    class="inline-flex items-center justify-center gap-2 min-h-[44px] px-3.5 py-2.5 rounded-xl text-xs font-bold bg-navy-dark hover:bg-navy-primary text-gold-light border border-gold/40 shadow-xs transition-all cursor-pointer shrink-0 self-start sm:self-center"
+                                    class="inline-flex items-center justify-center gap-2 min-h-[44px] px-3.5 py-2.5 rounded-xl text-xs font-bold bg-navy-dark hover:bg-navy-primary text-gold-light border border-gold/40 shadow-xs transition-all cursor-pointer shrink-0 self-start sm:self-center max-w-full"
                                 >
-                                    <i data-lucide="code-2" class="w-4 h-4 text-gold"></i>
-                                    <span>KOD GOOGLE APP SCRIPT / GAS</span>
+                                    <i data-lucide="code-2" class="w-4 h-4 text-gold shrink-0"></i>
+                                    <span class="truncate">KOD GOOGLE APP SCRIPT / GAS</span>
                                 </button>
                             </div>
 
-                            <div class="space-y-2">
-                                <div class="flex items-center justify-between gap-2">
-                                    <label for="gas-url-saringan" class="block text-xs font-semibold text-navy-primary">
+                            <div class="space-y-2 min-w-0">
+                                <div class="flex flex-wrap items-center justify-between gap-2">
+                                    <label for="gas-url-saringan" class="block text-xs font-semibold text-navy-primary min-w-0 break-words">
                                         URL Google Apps Script (GAS) — Acara Saringan
                                     </label>
-                                    <span id="saringan-url-mode-badge" class="inline-flex items-center px-2 py-0.5 rounded-md text-[10px] font-bold uppercase tracking-wider bg-slate-100 text-slate-600 border border-slate-200">
+                                    <span id="saringan-url-mode-badge" class="inline-flex items-center px-2 py-0.5 rounded-md text-[10px] font-bold uppercase tracking-wider bg-slate-100 text-slate-600 border border-slate-200 shrink-0">
                                         Sedia Diisi
                                     </span>
                                 </div>
@@ -773,7 +773,7 @@
                                     id="gas-url-saringan"
                                     type="url"
                                     placeholder="https://script.google.com/macros/s/.../exec"
-                                    class="w-full min-h-[44px] px-3.5 py-2.5 rounded-xl border border-slate-300 bg-surface-bg/60 text-base sm:text-sm font-mono text-ink placeholder:text-slate-400 focus:outline-none focus:bg-white focus:border-navy-primary focus:ring-2 focus:ring-gold/40 transition-all disabled:bg-slate-100 disabled:text-slate-500 disabled:cursor-not-allowed"
+                                    class="w-full min-w-0 min-h-[44px] px-3.5 py-2.5 rounded-xl border border-slate-300 bg-surface-bg/60 text-base sm:text-sm font-mono text-ink placeholder:text-slate-400 focus:outline-none focus:bg-white focus:border-navy-primary focus:ring-2 focus:ring-gold/40 transition-all disabled:bg-slate-100 disabled:text-slate-500 disabled:cursor-not-allowed"
                                 >
                             </div>
 
@@ -782,53 +782,53 @@
                                     type="button"
                                     id="btn-saringan-gas-test"
                                     onclick="SaringanGasController.testConnection()"
-                                    class="inline-flex items-center justify-center gap-2 min-h-[44px] px-4 py-2.5 rounded-xl text-xs font-semibold bg-navy-primary hover:bg-navy-dark text-white transition-colors cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed"
+                                    class="inline-flex items-center justify-center gap-2 min-h-[44px] px-4 py-2.5 rounded-xl text-xs font-semibold bg-navy-primary hover:bg-navy-dark text-white transition-colors cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed min-w-0"
                                 >
-                                    <i data-lucide="flask-conical" class="w-4 h-4"></i>
+                                    <i data-lucide="flask-conical" class="w-4 h-4 shrink-0"></i>
                                     <span>Uji</span>
                                 </button>
                                 <button
                                     type="button"
                                     id="btn-saringan-gas-save"
                                     onclick="SaringanGasController.saveAndImportData()"
-                                    class="inline-flex items-center justify-center gap-2 min-h-[44px] px-4 py-2.5 rounded-xl text-xs font-semibold bg-emerald-600 hover:bg-emerald-700 text-white transition-colors cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed"
+                                    class="inline-flex items-center justify-center gap-2 min-h-[44px] px-4 py-2.5 rounded-xl text-xs font-semibold bg-emerald-600 hover:bg-emerald-700 text-white transition-colors cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed min-w-0"
                                 >
-                                    <i data-lucide="save" class="w-4 h-4"></i>
+                                    <i data-lucide="save" class="w-4 h-4 shrink-0"></i>
                                     <span>Simpan</span>
                                 </button>
                                 <button
                                     type="button"
                                     id="btn-saringan-gas-edit"
                                     onclick="SaringanGasController.enableEditMode()"
-                                    class="inline-flex items-center justify-center gap-2 min-h-[44px] px-4 py-2.5 rounded-xl text-xs font-semibold bg-gold hover:bg-gold-light text-navy-dark transition-colors cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed"
+                                    class="inline-flex items-center justify-center gap-2 min-h-[44px] px-4 py-2.5 rounded-xl text-xs font-semibold bg-gold hover:bg-gold-light text-navy-dark transition-colors cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed min-w-0"
                                 >
-                                    <i data-lucide="pencil" class="w-4 h-4"></i>
+                                    <i data-lucide="pencil" class="w-4 h-4 shrink-0"></i>
                                     <span>Edit</span>
                                 </button>
                                 <button
                                     type="button"
                                     id="btn-saringan-gas-delete"
                                     onclick="SaringanGasController.requestDeleteUrl()"
-                                    class="inline-flex items-center justify-center gap-2 min-h-[44px] px-4 py-2.5 rounded-xl text-xs font-semibold bg-rose-100 hover:bg-rose-200/80 text-rose-800 border border-rose-200 transition-colors cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed"
+                                    class="inline-flex items-center justify-center gap-2 min-h-[44px] px-4 py-2.5 rounded-xl text-xs font-semibold bg-rose-100 hover:bg-rose-200/80 text-rose-800 border border-rose-200 transition-colors cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed min-w-0"
                                 >
-                                    <i data-lucide="trash-2" class="w-4 h-4"></i>
+                                    <i data-lucide="trash-2" class="w-4 h-4 shrink-0"></i>
                                     <span>Hapus</span>
                                 </button>
                             </div>
 
-                            <div id="saringan-delete-confirm-box" class="hidden p-4 rounded-xl bg-rose-50 border border-rose-200 space-y-3">
+                            <div id="saringan-delete-confirm-box" class="hidden p-4 rounded-xl bg-rose-50 border border-rose-200 space-y-3 min-w-0">
                                 <div class="text-xs text-rose-900 space-y-2">
                                     <p class="font-bold">Pilih tindakan penghapusan bagi Acara Saringan:</p>
-                                    <label class="flex items-start gap-2.5 p-2.5 rounded-lg bg-white border border-rose-200 cursor-pointer">
-                                        <input type="radio" name="saringan-delete-mode" value="url-only" checked class="mt-0.5 accent-navy-primary">
-                                        <span>
+                                    <label class="flex items-start gap-2.5 p-2.5 rounded-lg bg-white border border-rose-200 cursor-pointer min-w-0">
+                                        <input type="radio" name="saringan-delete-mode" value="url-only" checked class="mt-0.5 accent-navy-primary shrink-0">
+                                        <span class="min-w-0 break-words">
                                             <span class="font-bold text-navy-primary block">Pilihan A — Putuskan Sambungan URL Sahaja (Disyorkan)</span>
                                             <span class="text-[11px] text-ink-muted">Hapus URL GAS tersimpan dan hentikan sambungan, tetapi kekalkan semua data Acara Saringan yang telah diimport.</span>
                                         </span>
                                     </label>
-                                    <label class="flex items-start gap-2.5 p-2.5 rounded-lg bg-white border border-rose-200 cursor-pointer">
-                                        <input type="radio" name="saringan-delete-mode" value="url-and-data" class="mt-0.5 accent-rose-600">
-                                        <span>
+                                    <label class="flex items-start gap-2.5 p-2.5 rounded-lg bg-white border border-rose-200 cursor-pointer min-w-0">
+                                        <input type="radio" name="saringan-delete-mode" value="url-and-data" class="mt-0.5 accent-rose-600 shrink-0">
+                                        <span class="min-w-0 break-words">
                                             <span class="font-bold text-rose-800 block">Pilihan B — Putuskan Sambungan URL &amp; Kosongkan Data Modul</span>
                                             <span class="text-[11px] text-rose-700">Hapus URL GAS dan kosongkan semua rekod paparan Acara Saringan dalam aplikasi ini. Data asal Google Sheets ATHLETIX dan log audit tidak dipadam.</span>
                                         </span>
@@ -844,39 +844,41 @@
                                 </div>
                             </div>
 
-                            <div id="saringan-gas-status-panel" class="rounded-xl bg-surface-bg border border-slate-200/90 p-4 space-y-2.5">
+                            <div id="saringan-gas-status-panel" class="rounded-xl bg-surface-bg border border-slate-200/90 p-4 space-y-2.5 min-w-0">
                                 <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs">
-                                    <div class="bg-white rounded-lg p-3 border border-slate-200/70">
+                                    <div class="bg-white rounded-lg p-3 border border-slate-200/70 min-w-0">
                                         <p class="text-[10px] font-bold uppercase tracking-wider text-ink-muted">Status Sambungan</p>
-                                        <p id="saringan-status-connection" class="font-bold text-navy-primary mt-1">Belum Diuji</p>
+                                        <p id="saringan-status-connection" class="font-bold text-navy-primary mt-1 break-words">Belum Diuji</p>
                                     </div>
-                                    <div class="bg-white rounded-lg p-3 border border-slate-200/70">
+                                    <div class="bg-white rounded-lg p-3 border border-slate-200/70 min-w-0">
                                         <p class="text-[10px] font-bold uppercase tracking-wider text-ink-muted">Masa Kemas Kini</p>
-                                        <p id="saringan-status-updated" class="font-mono font-semibold text-navy-primary mt-1">—</p>
+                                        <p id="saringan-status-updated" class="font-mono font-semibold text-navy-primary mt-1 break-words">—</p>
                                     </div>
-                                    <div class="bg-white rounded-lg p-3 border border-slate-200/70">
+                                    <div class="bg-white rounded-lg p-3 border border-slate-200/70 min-w-0">
                                         <p class="text-[10px] font-bold uppercase tracking-wider text-ink-muted">Tab Berjaya Dibaca</p>
-                                        <p id="saringan-status-tabs" class="font-bold text-navy-primary mt-1">0 / 9 Tab</p>
+                                        <p id="saringan-status-tabs" class="font-bold text-navy-primary mt-1 break-words">0 / 9 Tab</p>
                                     </div>
                                 </div>
-                                <p id="saringan-status-detail" class="text-[11px] text-ink-muted leading-relaxed">
+                                <p id="saringan-status-detail" class="text-[11px] text-ink-muted leading-relaxed break-words">
                                     Tampal URL Web App deployment (<span class="font-mono">/exec</span>) daripada Google Sheets sumber ATHLETIX dan tekan <span class="font-semibold text-navy-primary">Uji</span> sebelum menyimpan.
                                 </p>
                             </div>
                         </div>
 
                         <!-- KAD 2 — AKHIR BALAPAN -->
-                        <div class="bg-white rounded-2xl p-5 sm:p-6 shadow-card border border-slate-200/80 space-y-5">
+                        <div class="bg-white rounded-2xl p-5 sm:p-6 shadow-card border border-slate-200/80 space-y-5 min-w-0">
                             <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-slate-100">
-                                <div class="flex items-start gap-3.5">
+                                <div class="flex items-start gap-3.5 min-w-0">
                                     <div class="w-10 h-10 rounded-xl bg-navy-primary/5 border border-slate-200/80 flex items-center justify-center shrink-0">
                                         <i data-lucide="flag" class="w-5 h-5 text-gold-dark"></i>
                                     </div>
                                     <div class="min-w-0">
-                                        <h4 class="font-display font-bold text-base sm:text-lg text-navy-primary">
-                                            AKHIR BALAPAN
-                                        </h4>
-                                        <p class="text-xs sm:text-sm text-ink-muted mt-0.5">
+                                        <div class="flex flex-wrap items-center gap-2">
+                                            <h4 class="font-display font-bold text-base sm:text-lg text-navy-primary break-words">
+                                                AKHIR BALAPAN
+                                            </h4>
+                                        </div>
+                                        <p class="text-xs sm:text-sm text-ink-muted mt-0.5 break-words">
                                             Tetapan pautan DATA ATHLETIX untuk modul Akhir Balapan.
                                         </p>
                                     </div>
@@ -886,19 +888,19 @@
                                     type="button"
                                     id="btn-open-akhir-balapan-gas-modal"
                                     onclick="AkhirBalapanGasController.openGasModal()"
-                                    class="inline-flex items-center justify-center gap-2 min-h-[44px] px-3.5 py-2.5 rounded-xl text-xs font-bold bg-navy-dark hover:bg-navy-primary text-gold-light border border-gold/40 shadow-xs transition-all cursor-pointer shrink-0 self-start sm:self-center"
+                                    class="inline-flex items-center justify-center gap-2 min-h-[44px] px-3.5 py-2.5 rounded-xl text-xs font-bold bg-navy-dark hover:bg-navy-primary text-gold-light border border-gold/40 shadow-xs transition-all cursor-pointer shrink-0 self-start sm:self-center max-w-full"
                                 >
-                                    <i data-lucide="code-2" class="w-4 h-4 text-gold"></i>
-                                    <span>KOD GOOGLE APP SCRIPT / GAS</span>
+                                    <i data-lucide="code-2" class="w-4 h-4 text-gold shrink-0"></i>
+                                    <span class="truncate">KOD GOOGLE APP SCRIPT / GAS</span>
                                 </button>
                             </div>
 
-                            <div class="space-y-2">
-                                <div class="flex items-center justify-between gap-2">
-                                    <label for="gas-url-akhir-balapan" class="block text-xs font-semibold text-navy-primary">
+                            <div class="space-y-2 min-w-0">
+                                <div class="flex flex-wrap items-center justify-between gap-2">
+                                    <label for="gas-url-akhir-balapan" class="block text-xs font-semibold text-navy-primary min-w-0 break-words">
                                         URL Google Apps Script (GAS) — Akhir Balapan
                                     </label>
-                                    <span id="akhir-balapan-url-mode-badge" class="inline-flex items-center px-2 py-0.5 rounded-md text-[10px] font-bold uppercase tracking-wider bg-slate-100 text-slate-600 border border-slate-200">
+                                    <span id="akhir-balapan-url-mode-badge" class="inline-flex items-center px-2 py-0.5 rounded-md text-[10px] font-bold uppercase tracking-wider bg-slate-100 text-slate-600 border border-slate-200 shrink-0">
                                         Sedia Diisi
                                     </span>
                                 </div>
@@ -906,7 +908,7 @@
                                     id="gas-url-akhir-balapan"
                                     type="url"
                                     placeholder="https://script.google.com/macros/s/.../exec"
-                                    class="w-full min-h-[44px] px-3.5 py-2.5 rounded-xl border border-slate-300 bg-surface-bg/60 text-base sm:text-sm font-mono text-ink placeholder:text-slate-400 focus:outline-none focus:bg-white focus:border-navy-primary focus:ring-2 focus:ring-gold/40 transition-all disabled:bg-slate-100 disabled:text-slate-500 disabled:cursor-not-allowed"
+                                    class="w-full min-w-0 min-h-[44px] px-3.5 py-2.5 rounded-xl border border-slate-300 bg-surface-bg/60 text-base sm:text-sm font-mono text-ink placeholder:text-slate-400 focus:outline-none focus:bg-white focus:border-navy-primary focus:ring-2 focus:ring-gold/40 transition-all disabled:bg-slate-100 disabled:text-slate-500 disabled:cursor-not-allowed"
                                 >
                             </div>
 
@@ -915,53 +917,53 @@
                                     type="button"
                                     id="btn-akhir-balapan-gas-test"
                                     onclick="AkhirBalapanGasController.testConnection()"
-                                    class="inline-flex items-center justify-center gap-2 min-h-[44px] px-4 py-2.5 rounded-xl text-xs font-semibold bg-navy-primary hover:bg-navy-dark text-white transition-colors cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed"
+                                    class="inline-flex items-center justify-center gap-2 min-h-[44px] px-4 py-2.5 rounded-xl text-xs font-semibold bg-navy-primary hover:bg-navy-dark text-white transition-colors cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed min-w-0"
                                 >
-                                    <i data-lucide="flask-conical" class="w-4 h-4"></i>
+                                    <i data-lucide="flask-conical" class="w-4 h-4 shrink-0"></i>
                                     <span>Uji</span>
                                 </button>
                                 <button
                                     type="button"
                                     id="btn-akhir-balapan-gas-save"
                                     onclick="AkhirBalapanGasController.saveAndImportData()"
-                                    class="inline-flex items-center justify-center gap-2 min-h-[44px] px-4 py-2.5 rounded-xl text-xs font-semibold bg-emerald-600 hover:bg-emerald-700 text-white transition-colors cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed"
+                                    class="inline-flex items-center justify-center gap-2 min-h-[44px] px-4 py-2.5 rounded-xl text-xs font-semibold bg-emerald-600 hover:bg-emerald-700 text-white transition-colors cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed min-w-0"
                                 >
-                                    <i data-lucide="save" class="w-4 h-4"></i>
+                                    <i data-lucide="save" class="w-4 h-4 shrink-0"></i>
                                     <span>Simpan</span>
                                 </button>
                                 <button
                                     type="button"
                                     id="btn-akhir-balapan-gas-edit"
                                     onclick="AkhirBalapanGasController.enableEditMode()"
-                                    class="inline-flex items-center justify-center gap-2 min-h-[44px] px-4 py-2.5 rounded-xl text-xs font-semibold bg-gold hover:bg-gold-light text-navy-dark transition-colors cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed"
+                                    class="inline-flex items-center justify-center gap-2 min-h-[44px] px-4 py-2.5 rounded-xl text-xs font-semibold bg-gold hover:bg-gold-light text-navy-dark transition-colors cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed min-w-0"
                                 >
-                                    <i data-lucide="pencil" class="w-4 h-4"></i>
+                                    <i data-lucide="pencil" class="w-4 h-4 shrink-0"></i>
                                     <span>Edit</span>
                                 </button>
                                 <button
                                     type="button"
                                     id="btn-akhir-balapan-gas-delete"
                                     onclick="AkhirBalapanGasController.requestDeleteUrl()"
-                                    class="inline-flex items-center justify-center gap-2 min-h-[44px] px-4 py-2.5 rounded-xl text-xs font-semibold bg-rose-100 hover:bg-rose-200/80 text-rose-800 border border-rose-200 transition-colors cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed"
+                                    class="inline-flex items-center justify-center gap-2 min-h-[44px] px-4 py-2.5 rounded-xl text-xs font-semibold bg-rose-100 hover:bg-rose-200/80 text-rose-800 border border-rose-200 transition-colors cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed min-w-0"
                                 >
-                                    <i data-lucide="trash-2" class="w-4 h-4"></i>
+                                    <i data-lucide="trash-2" class="w-4 h-4 shrink-0"></i>
                                     <span>Hapus</span>
                                 </button>
                             </div>
 
-                            <div id="akhir-balapan-delete-confirm-box" class="hidden p-4 rounded-xl bg-rose-50 border border-rose-200 space-y-3">
+                            <div id="akhir-balapan-delete-confirm-box" class="hidden p-4 rounded-xl bg-rose-50 border border-rose-200 space-y-3 min-w-0">
                                 <div class="text-xs text-rose-900 space-y-2">
                                     <p class="font-bold">Pilih tindakan penghapusan bagi Akhir Balapan:</p>
-                                    <label class="flex items-start gap-2.5 p-2.5 rounded-lg bg-white border border-rose-200 cursor-pointer">
-                                        <input type="radio" name="akhir-balapan-delete-mode" value="url-only" checked class="mt-0.5 accent-navy-primary">
-                                        <span>
+                                    <label class="flex items-start gap-2.5 p-2.5 rounded-lg bg-white border border-rose-200 cursor-pointer min-w-0">
+                                        <input type="radio" name="akhir-balapan-delete-mode" value="url-only" checked class="mt-0.5 accent-navy-primary shrink-0">
+                                        <span class="min-w-0 break-words">
                                             <span class="font-bold text-navy-primary block">Pilihan A — Putuskan Sambungan URL Sahaja (Disyorkan)</span>
                                             <span class="text-[11px] text-ink-muted">Hapus URL GAS tersimpan dan hentikan sambungan, tetapi kekalkan semua data Akhir Balapan yang telah diimport.</span>
                                         </span>
                                     </label>
-                                    <label class="flex items-start gap-2.5 p-2.5 rounded-lg bg-white border border-rose-200 cursor-pointer">
-                                        <input type="radio" name="akhir-balapan-delete-mode" value="url-and-data" class="mt-0.5 accent-rose-600">
-                                        <span>
+                                    <label class="flex items-start gap-2.5 p-2.5 rounded-lg bg-white border border-rose-200 cursor-pointer min-w-0">
+                                        <input type="radio" name="akhir-balapan-delete-mode" value="url-and-data" class="mt-0.5 accent-rose-600 shrink-0">
+                                        <span class="min-w-0 break-words">
                                             <span class="font-bold text-rose-800 block">Pilihan B — Putuskan Sambungan URL &amp; Kosongkan Data Modul</span>
                                             <span class="text-[11px] text-rose-700">Hapus URL GAS dan kosongkan semua rekod paparan Akhir Balapan dalam aplikasi ini. Data asal Google Sheets ATHLETIX dan log audit tidak dipadam.</span>
                                         </span>
@@ -977,39 +979,41 @@
                                 </div>
                             </div>
 
-                            <div id="akhir-balapan-gas-status-panel" class="rounded-xl bg-surface-bg border border-slate-200/90 p-4 space-y-2.5">
+                            <div id="akhir-balapan-gas-status-panel" class="rounded-xl bg-surface-bg border border-slate-200/90 p-4 space-y-2.5 min-w-0">
                                 <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs">
-                                    <div class="bg-white rounded-lg p-3 border border-slate-200/70">
+                                    <div class="bg-white rounded-lg p-3 border border-slate-200/70 min-w-0">
                                         <p class="text-[10px] font-bold uppercase tracking-wider text-ink-muted">Status Sambungan</p>
-                                        <p id="akhir-balapan-status-connection" class="font-bold text-navy-primary mt-1">Belum Diuji</p>
+                                        <p id="akhir-balapan-status-connection" class="font-bold text-navy-primary mt-1 break-words">Belum Diuji</p>
                                     </div>
-                                    <div class="bg-white rounded-lg p-3 border border-slate-200/70">
+                                    <div class="bg-white rounded-lg p-3 border border-slate-200/70 min-w-0">
                                         <p class="text-[10px] font-bold uppercase tracking-wider text-ink-muted">Masa Kemas Kini</p>
-                                        <p id="akhir-balapan-status-updated" class="font-mono font-semibold text-navy-primary mt-1">—</p>
+                                        <p id="akhir-balapan-status-updated" class="font-mono font-semibold text-navy-primary mt-1 break-words">—</p>
                                     </div>
-                                    <div class="bg-white rounded-lg p-3 border border-slate-200/70">
+                                    <div class="bg-white rounded-lg p-3 border border-slate-200/70 min-w-0">
                                         <p class="text-[10px] font-bold uppercase tracking-wider text-ink-muted">Tab Berjaya Dibaca</p>
-                                        <p id="akhir-balapan-status-tabs" class="font-bold text-navy-primary mt-1">0 / 9 Tab</p>
+                                        <p id="akhir-balapan-status-tabs" class="font-bold text-navy-primary mt-1 break-words">0 / 9 Tab</p>
                                     </div>
                                 </div>
-                                <p id="akhir-balapan-status-detail" class="text-[11px] text-ink-muted leading-relaxed">
+                                <p id="akhir-balapan-status-detail" class="text-[11px] text-ink-muted leading-relaxed break-words">
                                     Tampal URL Web App deployment (<span class="font-mono">/exec</span>) daripada Google Sheets sumber ATHLETIX dan tekan <span class="font-semibold text-navy-primary">Uji</span> sebelum menyimpan.
                                 </p>
                             </div>
                         </div>
 
                         <!-- KAD 3 — ACARA RELAY -->
-                        <div class="bg-white rounded-2xl p-5 sm:p-6 shadow-card border border-slate-200/80 space-y-5">
+                        <div class="bg-white rounded-2xl p-5 sm:p-6 shadow-card border border-slate-200/80 space-y-5 min-w-0">
                             <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-slate-100">
-                                <div class="flex items-start gap-3.5">
+                                <div class="flex items-start gap-3.5 min-w-0">
                                     <div class="w-10 h-10 rounded-xl bg-navy-primary/5 border border-slate-200/80 flex items-center justify-center shrink-0">
                                         <i data-lucide="users" class="w-5 h-5 text-gold-dark"></i>
                                     </div>
                                     <div class="min-w-0">
-                                        <h4 class="font-display font-bold text-base sm:text-lg text-navy-primary">
-                                            ACARA RELAY
-                                        </h4>
-                                        <p class="text-xs sm:text-sm text-ink-muted mt-0.5">
+                                        <div class="flex flex-wrap items-center gap-2">
+                                            <h4 class="font-display font-bold text-base sm:text-lg text-navy-primary break-words">
+                                                ACARA RELAY
+                                            </h4>
+                                        </div>
+                                        <p class="text-xs sm:text-sm text-ink-muted mt-0.5 break-words">
                                             Tetapan pautan DATA ATHLETIX untuk modul Acara Relay.
                                         </p>
                                     </div>
@@ -1019,19 +1023,19 @@
                                     type="button"
                                     id="btn-open-relay-gas-modal"
                                     onclick="RelayGasController.openGasModal()"
-                                    class="inline-flex items-center justify-center gap-2 min-h-[44px] px-3.5 py-2.5 rounded-xl text-xs font-bold bg-navy-dark hover:bg-navy-primary text-gold-light border border-gold/40 shadow-xs transition-all cursor-pointer shrink-0 self-start sm:self-center"
+                                    class="inline-flex items-center justify-center gap-2 min-h-[44px] px-3.5 py-2.5 rounded-xl text-xs font-bold bg-navy-dark hover:bg-navy-primary text-gold-light border border-gold/40 shadow-xs transition-all cursor-pointer shrink-0 self-start sm:self-center max-w-full"
                                 >
-                                    <i data-lucide="code-2" class="w-4 h-4 text-gold"></i>
-                                    <span>KOD GOOGLE APP SCRIPT / GAS</span>
+                                    <i data-lucide="code-2" class="w-4 h-4 text-gold shrink-0"></i>
+                                    <span class="truncate">KOD GOOGLE APP SCRIPT / GAS</span>
                                 </button>
                             </div>
 
-                            <div class="space-y-2">
-                                <div class="flex items-center justify-between gap-2">
-                                    <label for="gas-url-relay" class="block text-xs font-semibold text-navy-primary">
+                            <div class="space-y-2 min-w-0">
+                                <div class="flex flex-wrap items-center justify-between gap-2">
+                                    <label for="gas-url-relay" class="block text-xs font-semibold text-navy-primary min-w-0 break-words">
                                         URL Google Apps Script (GAS) — Acara Relay
                                     </label>
-                                    <span id="relay-url-mode-badge" class="inline-flex items-center px-2 py-0.5 rounded-md text-[10px] font-bold uppercase tracking-wider bg-slate-100 text-slate-600 border border-slate-200">
+                                    <span id="relay-url-mode-badge" class="inline-flex items-center px-2 py-0.5 rounded-md text-[10px] font-bold uppercase tracking-wider bg-slate-100 text-slate-600 border border-slate-200 shrink-0">
                                         Sedia Diisi
                                     </span>
                                 </div>
@@ -1039,7 +1043,7 @@
                                     id="gas-url-relay"
                                     type="url"
                                     placeholder="https://script.google.com/macros/s/.../exec"
-                                    class="w-full min-h-[44px] px-3.5 py-2.5 rounded-xl border border-slate-300 bg-surface-bg/60 text-base sm:text-sm font-mono text-ink placeholder:text-slate-400 focus:outline-none focus:bg-white focus:border-navy-primary focus:ring-2 focus:ring-gold/40 transition-all disabled:bg-slate-100 disabled:text-slate-500 disabled:cursor-not-allowed"
+                                    class="w-full min-w-0 min-h-[44px] px-3.5 py-2.5 rounded-xl border border-slate-300 bg-surface-bg/60 text-base sm:text-sm font-mono text-ink placeholder:text-slate-400 focus:outline-none focus:bg-white focus:border-navy-primary focus:ring-2 focus:ring-gold/40 transition-all disabled:bg-slate-100 disabled:text-slate-500 disabled:cursor-not-allowed"
                                 >
                             </div>
 
@@ -1048,53 +1052,53 @@
                                     type="button"
                                     id="btn-relay-gas-test"
                                     onclick="RelayGasController.testConnection()"
-                                    class="inline-flex items-center justify-center gap-2 min-h-[44px] px-4 py-2.5 rounded-xl text-xs font-semibold bg-navy-primary hover:bg-navy-dark text-white transition-colors cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed"
+                                    class="inline-flex items-center justify-center gap-2 min-h-[44px] px-4 py-2.5 rounded-xl text-xs font-semibold bg-navy-primary hover:bg-navy-dark text-white transition-colors cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed min-w-0"
                                 >
-                                    <i data-lucide="flask-conical" class="w-4 h-4"></i>
+                                    <i data-lucide="flask-conical" class="w-4 h-4 shrink-0"></i>
                                     <span>Uji</span>
                                 </button>
                                 <button
                                     type="button"
                                     id="btn-relay-gas-save"
                                     onclick="RelayGasController.saveAndImportData()"
-                                    class="inline-flex items-center justify-center gap-2 min-h-[44px] px-4 py-2.5 rounded-xl text-xs font-semibold bg-emerald-600 hover:bg-emerald-700 text-white transition-colors cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed"
+                                    class="inline-flex items-center justify-center gap-2 min-h-[44px] px-4 py-2.5 rounded-xl text-xs font-semibold bg-emerald-600 hover:bg-emerald-700 text-white transition-colors cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed min-w-0"
                                 >
-                                    <i data-lucide="save" class="w-4 h-4"></i>
+                                    <i data-lucide="save" class="w-4 h-4 shrink-0"></i>
                                     <span>Simpan</span>
                                 </button>
                                 <button
                                     type="button"
                                     id="btn-relay-gas-edit"
                                     onclick="RelayGasController.enableEditMode()"
-                                    class="inline-flex items-center justify-center gap-2 min-h-[44px] px-4 py-2.5 rounded-xl text-xs font-semibold bg-gold hover:bg-gold-light text-navy-dark transition-colors cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed"
+                                    class="inline-flex items-center justify-center gap-2 min-h-[44px] px-4 py-2.5 rounded-xl text-xs font-semibold bg-gold hover:bg-gold-light text-navy-dark transition-colors cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed min-w-0"
                                 >
-                                    <i data-lucide="pencil" class="w-4 h-4"></i>
+                                    <i data-lucide="pencil" class="w-4 h-4 shrink-0"></i>
                                     <span>Edit</span>
                                 </button>
                                 <button
                                     type="button"
                                     id="btn-relay-gas-delete"
                                     onclick="RelayGasController.requestDeleteUrl()"
-                                    class="inline-flex items-center justify-center gap-2 min-h-[44px] px-4 py-2.5 rounded-xl text-xs font-semibold bg-rose-100 hover:bg-rose-200/80 text-rose-800 border border-rose-200 transition-colors cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed"
+                                    class="inline-flex items-center justify-center gap-2 min-h-[44px] px-4 py-2.5 rounded-xl text-xs font-semibold bg-rose-100 hover:bg-rose-200/80 text-rose-800 border border-rose-200 transition-colors cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed min-w-0"
                                 >
-                                    <i data-lucide="trash-2" class="w-4 h-4"></i>
+                                    <i data-lucide="trash-2" class="w-4 h-4 shrink-0"></i>
                                     <span>Hapus</span>
                                 </button>
                             </div>
 
-                            <div id="relay-delete-confirm-box" class="hidden p-4 rounded-xl bg-rose-50 border border-rose-200 space-y-3">
+                            <div id="relay-delete-confirm-box" class="hidden p-4 rounded-xl bg-rose-50 border border-rose-200 space-y-3 min-w-0">
                                 <div class="text-xs text-rose-900 space-y-2">
                                     <p class="font-bold">Pilih tindakan penghapusan bagi Acara Relay:</p>
-                                    <label class="flex items-start gap-2.5 p-2.5 rounded-lg bg-white border border-rose-200 cursor-pointer">
-                                        <input type="radio" name="relay-delete-mode" value="url-only" checked class="mt-0.5 accent-navy-primary">
-                                        <span>
+                                    <label class="flex items-start gap-2.5 p-2.5 rounded-lg bg-white border border-rose-200 cursor-pointer min-w-0">
+                                        <input type="radio" name="relay-delete-mode" value="url-only" checked class="mt-0.5 accent-navy-primary shrink-0">
+                                        <span class="min-w-0 break-words">
                                             <span class="font-bold text-navy-primary block">Pilihan A — Putuskan Sambungan URL Sahaja (Disyorkan)</span>
                                             <span class="text-[11px] text-ink-muted">Hapus URL GAS tersimpan dan hentikan sambungan, tetapi kekalkan semua data Acara Relay yang telah diimport.</span>
                                         </span>
                                     </label>
-                                    <label class="flex items-start gap-2.5 p-2.5 rounded-lg bg-white border border-rose-200 cursor-pointer">
-                                        <input type="radio" name="relay-delete-mode" value="url-and-data" class="mt-0.5 accent-rose-600">
-                                        <span>
+                                    <label class="flex items-start gap-2.5 p-2.5 rounded-lg bg-white border border-rose-200 cursor-pointer min-w-0">
+                                        <input type="radio" name="relay-delete-mode" value="url-and-data" class="mt-0.5 accent-rose-600 shrink-0">
+                                        <span class="min-w-0 break-words">
                                             <span class="font-bold text-rose-800 block">Pilihan B — Putuskan Sambungan URL &amp; Kosongkan Data Modul</span>
                                             <span class="text-[11px] text-rose-700">Hapus URL GAS dan kosongkan semua rekod paparan Acara Relay dalam aplikasi ini. Data asal Google Sheets ATHLETIX dan log audit tidak dipadam.</span>
                                         </span>
@@ -1110,39 +1114,41 @@
                                 </div>
                             </div>
 
-                            <div id="relay-gas-status-panel" class="rounded-xl bg-surface-bg border border-slate-200/90 p-4 space-y-2.5">
+                            <div id="relay-gas-status-panel" class="rounded-xl bg-surface-bg border border-slate-200/90 p-4 space-y-2.5 min-w-0">
                                 <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs">
-                                    <div class="bg-white rounded-lg p-3 border border-slate-200/70">
+                                    <div class="bg-white rounded-lg p-3 border border-slate-200/70 min-w-0">
                                         <p class="text-[10px] font-bold uppercase tracking-wider text-ink-muted">Status Sambungan</p>
-                                        <p id="relay-status-connection" class="font-bold text-navy-primary mt-1">Belum Diuji</p>
+                                        <p id="relay-status-connection" class="font-bold text-navy-primary mt-1 break-words">Belum Diuji</p>
                                     </div>
-                                    <div class="bg-white rounded-lg p-3 border border-slate-200/70">
+                                    <div class="bg-white rounded-lg p-3 border border-slate-200/70 min-w-0">
                                         <p class="text-[10px] font-bold uppercase tracking-wider text-ink-muted">Masa Kemas Kini</p>
-                                        <p id="relay-status-updated" class="font-mono font-semibold text-navy-primary mt-1">—</p>
+                                        <p id="relay-status-updated" class="font-mono font-semibold text-navy-primary mt-1 break-words">—</p>
                                     </div>
-                                    <div class="bg-white rounded-lg p-3 border border-slate-200/70">
+                                    <div class="bg-white rounded-lg p-3 border border-slate-200/70 min-w-0">
                                         <p class="text-[10px] font-bold uppercase tracking-wider text-ink-muted">Tab Berjaya Dibaca</p>
-                                        <p id="relay-status-tabs" class="font-bold text-navy-primary mt-1">0 / 7 Tab</p>
+                                        <p id="relay-status-tabs" class="font-bold text-navy-primary mt-1 break-words">0 / 7 Tab</p>
                                     </div>
                                 </div>
-                                <p id="relay-status-detail" class="text-[11px] text-ink-muted leading-relaxed">
+                                <p id="relay-status-detail" class="text-[11px] text-ink-muted leading-relaxed break-words">
                                     Tampal URL Web App deployment (<span class="font-mono">/exec</span>) daripada Google Sheets sumber ATHLETIX dan tekan <span class="font-semibold text-navy-primary">Uji</span> sebelum menyimpan.
                                 </p>
                             </div>
                         </div>
 
                         <!-- KAD 4 — ACARA PADANG -->
-                        <div class="bg-white rounded-2xl p-5 sm:p-6 shadow-card border border-slate-200/80 space-y-5">
+                        <div class="bg-white rounded-2xl p-5 sm:p-6 shadow-card border border-slate-200/80 space-y-5 min-w-0">
                             <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-slate-100">
-                                <div class="flex items-start gap-3.5">
+                                <div class="flex items-start gap-3.5 min-w-0">
                                     <div class="w-10 h-10 rounded-xl bg-navy-primary/5 border border-slate-200/80 flex items-center justify-center shrink-0">
                                         <i data-lucide="compass" class="w-5 h-5 text-gold-dark"></i>
                                     </div>
                                     <div class="min-w-0">
-                                        <h4 class="font-display font-bold text-base sm:text-lg text-navy-primary">
-                                            ACARA PADANG
-                                        </h4>
-                                        <p class="text-xs sm:text-sm text-ink-muted mt-0.5">
+                                        <div class="flex flex-wrap items-center gap-2">
+                                            <h4 class="font-display font-bold text-base sm:text-lg text-navy-primary break-words">
+                                                ACARA PADANG
+                                            </h4>
+                                        </div>
+                                        <p class="text-xs sm:text-sm text-ink-muted mt-0.5 break-words">
                                             Tetapan pautan DATA ATHLETIX untuk modul Acara Padang.
                                         </p>
                                     </div>
@@ -1152,19 +1158,19 @@
                                     type="button"
                                     id="btn-open-padang-gas-modal"
                                     onclick="PadangGasController.openGasModal()"
-                                    class="inline-flex items-center justify-center gap-2 min-h-[44px] px-3.5 py-2.5 rounded-xl text-xs font-bold bg-navy-dark hover:bg-navy-primary text-gold-light border border-gold/40 shadow-xs transition-all cursor-pointer shrink-0 self-start sm:self-center"
+                                    class="inline-flex items-center justify-center gap-2 min-h-[44px] px-3.5 py-2.5 rounded-xl text-xs font-bold bg-navy-dark hover:bg-navy-primary text-gold-light border border-gold/40 shadow-xs transition-all cursor-pointer shrink-0 self-start sm:self-center max-w-full"
                                 >
-                                    <i data-lucide="code-2" class="w-4 h-4 text-gold"></i>
-                                    <span>KOD GOOGLE APP SCRIPT / GAS</span>
+                                    <i data-lucide="code-2" class="w-4 h-4 text-gold shrink-0"></i>
+                                    <span class="truncate">KOD GOOGLE APP SCRIPT / GAS</span>
                                 </button>
                             </div>
 
-                            <div class="space-y-2">
-                                <div class="flex items-center justify-between gap-2">
-                                    <label for="gas-url-padang" class="block text-xs font-semibold text-navy-primary">
+                            <div class="space-y-2 min-w-0">
+                                <div class="flex flex-wrap items-center justify-between gap-2">
+                                    <label for="gas-url-padang" class="block text-xs font-semibold text-navy-primary min-w-0 break-words">
                                         URL Google Apps Script (GAS) — Acara Padang
                                     </label>
-                                    <span id="padang-url-mode-badge" class="inline-flex items-center px-2 py-0.5 rounded-md text-[10px] font-bold uppercase tracking-wider bg-slate-100 text-slate-600 border border-slate-200">
+                                    <span id="padang-url-mode-badge" class="inline-flex items-center px-2 py-0.5 rounded-md text-[10px] font-bold uppercase tracking-wider bg-slate-100 text-slate-600 border border-slate-200 shrink-0">
                                         Sedia Diisi
                                     </span>
                                 </div>
@@ -1172,7 +1178,7 @@
                                     id="gas-url-padang"
                                     type="url"
                                     placeholder="https://script.google.com/macros/s/.../exec"
-                                    class="w-full min-h-[44px] px-3.5 py-2.5 rounded-xl border border-slate-300 bg-surface-bg/60 text-base sm:text-sm font-mono text-ink placeholder:text-slate-400 focus:outline-none focus:bg-white focus:border-navy-primary focus:ring-2 focus:ring-gold/40 transition-all disabled:bg-slate-100 disabled:text-slate-500 disabled:cursor-not-allowed"
+                                    class="w-full min-w-0 min-h-[44px] px-3.5 py-2.5 rounded-xl border border-slate-300 bg-surface-bg/60 text-base sm:text-sm font-mono text-ink placeholder:text-slate-400 focus:outline-none focus:bg-white focus:border-navy-primary focus:ring-2 focus:ring-gold/40 transition-all disabled:bg-slate-100 disabled:text-slate-500 disabled:cursor-not-allowed"
                                 >
                             </div>
 
@@ -1181,53 +1187,53 @@
                                     type="button"
                                     id="btn-padang-gas-test"
                                     onclick="PadangGasController.testConnection()"
-                                    class="inline-flex items-center justify-center gap-2 min-h-[44px] px-4 py-2.5 rounded-xl text-xs font-semibold bg-navy-primary hover:bg-navy-dark text-white transition-colors cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed"
+                                    class="inline-flex items-center justify-center gap-2 min-h-[44px] px-4 py-2.5 rounded-xl text-xs font-semibold bg-navy-primary hover:bg-navy-dark text-white transition-colors cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed min-w-0"
                                 >
-                                    <i data-lucide="flask-conical" class="w-4 h-4"></i>
+                                    <i data-lucide="flask-conical" class="w-4 h-4 shrink-0"></i>
                                     <span>Uji</span>
                                 </button>
                                 <button
                                     type="button"
                                     id="btn-padang-gas-save"
                                     onclick="PadangGasController.saveAndImportData()"
-                                    class="inline-flex items-center justify-center gap-2 min-h-[44px] px-4 py-2.5 rounded-xl text-xs font-semibold bg-emerald-600 hover:bg-emerald-700 text-white transition-colors cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed"
+                                    class="inline-flex items-center justify-center gap-2 min-h-[44px] px-4 py-2.5 rounded-xl text-xs font-semibold bg-emerald-600 hover:bg-emerald-700 text-white transition-colors cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed min-w-0"
                                 >
-                                    <i data-lucide="save" class="w-4 h-4"></i>
+                                    <i data-lucide="save" class="w-4 h-4 shrink-0"></i>
                                     <span>Simpan</span>
                                 </button>
                                 <button
                                     type="button"
                                     id="btn-padang-gas-edit"
                                     onclick="PadangGasController.enableEditMode()"
-                                    class="inline-flex items-center justify-center gap-2 min-h-[44px] px-4 py-2.5 rounded-xl text-xs font-semibold bg-gold hover:bg-gold-light text-navy-dark transition-colors cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed"
+                                    class="inline-flex items-center justify-center gap-2 min-h-[44px] px-4 py-2.5 rounded-xl text-xs font-semibold bg-gold hover:bg-gold-light text-navy-dark transition-colors cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed min-w-0"
                                 >
-                                    <i data-lucide="pencil" class="w-4 h-4"></i>
+                                    <i data-lucide="pencil" class="w-4 h-4 shrink-0"></i>
                                     <span>Edit</span>
                                 </button>
                                 <button
                                     type="button"
                                     id="btn-padang-gas-delete"
                                     onclick="PadangGasController.requestDeleteUrl()"
-                                    class="inline-flex items-center justify-center gap-2 min-h-[44px] px-4 py-2.5 rounded-xl text-xs font-semibold bg-rose-100 hover:bg-rose-200/80 text-rose-800 border border-rose-200 transition-colors cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed"
+                                    class="inline-flex items-center justify-center gap-2 min-h-[44px] px-4 py-2.5 rounded-xl text-xs font-semibold bg-rose-100 hover:bg-rose-200/80 text-rose-800 border border-rose-200 transition-colors cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed min-w-0"
                                 >
-                                    <i data-lucide="trash-2" class="w-4 h-4"></i>
+                                    <i data-lucide="trash-2" class="w-4 h-4 shrink-0"></i>
                                     <span>Hapus</span>
                                 </button>
                             </div>
 
-                            <div id="padang-delete-confirm-box" class="hidden p-4 rounded-xl bg-rose-50 border border-rose-200 space-y-3">
+                            <div id="padang-delete-confirm-box" class="hidden p-4 rounded-xl bg-rose-50 border border-rose-200 space-y-3 min-w-0">
                                 <div class="text-xs text-rose-900 space-y-2">
                                     <p class="font-bold">Pilih tindakan penghapusan bagi Acara Padang:</p>
-                                    <label class="flex items-start gap-2.5 p-2.5 rounded-lg bg-white border border-rose-200 cursor-pointer">
-                                        <input type="radio" name="padang-delete-mode" value="url-only" checked class="mt-0.5 accent-navy-primary">
-                                        <span>
+                                    <label class="flex items-start gap-2.5 p-2.5 rounded-lg bg-white border border-rose-200 cursor-pointer min-w-0">
+                                        <input type="radio" name="padang-delete-mode" value="url-only" checked class="mt-0.5 accent-navy-primary shrink-0">
+                                        <span class="min-w-0 break-words">
                                             <span class="font-bold text-navy-primary block">Pilihan A — Putuskan Sambungan URL Sahaja (Disyorkan)</span>
                                             <span class="text-[11px] text-ink-muted">Hapus URL GAS tersimpan dan hentikan sambungan, tetapi kekalkan semua data Acara Padang yang telah diimport.</span>
                                         </span>
                                     </label>
-                                    <label class="flex items-start gap-2.5 p-2.5 rounded-lg bg-white border border-rose-200 cursor-pointer">
-                                        <input type="radio" name="padang-delete-mode" value="url-and-data" class="mt-0.5 accent-rose-600">
-                                        <span>
+                                    <label class="flex items-start gap-2.5 p-2.5 rounded-lg bg-white border border-rose-200 cursor-pointer min-w-0">
+                                        <input type="radio" name="padang-delete-mode" value="url-and-data" class="mt-0.5 accent-rose-600 shrink-0">
+                                        <span class="min-w-0 break-words">
                                             <span class="font-bold text-rose-800 block">Pilihan B — Putuskan Sambungan URL &amp; Kosongkan Data Modul</span>
                                             <span class="text-[11px] text-rose-700">Hapus URL GAS dan kosongkan semua rekod paparan Acara Padang dalam aplikasi ini. Data asal Google Sheets ATHLETIX dan log audit tidak dipadam.</span>
                                         </span>
@@ -1243,22 +1249,22 @@
                                 </div>
                             </div>
 
-                            <div id="padang-gas-status-panel" class="rounded-xl bg-surface-bg border border-slate-200/90 p-4 space-y-2.5">
+                            <div id="padang-gas-status-panel" class="rounded-xl bg-surface-bg border border-slate-200/90 p-4 space-y-2.5 min-w-0">
                                 <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs">
-                                    <div class="bg-white rounded-lg p-3 border border-slate-200/70">
+                                    <div class="bg-white rounded-lg p-3 border border-slate-200/70 min-w-0">
                                         <p class="text-[10px] font-bold uppercase tracking-wider text-ink-muted">Status Sambungan</p>
-                                        <p id="padang-status-connection" class="font-bold text-navy-primary mt-1">Belum Diuji</p>
+                                        <p id="padang-status-connection" class="font-bold text-navy-primary mt-1 break-words">Belum Diuji</p>
                                     </div>
-                                    <div class="bg-white rounded-lg p-3 border border-slate-200/70">
+                                    <div class="bg-white rounded-lg p-3 border border-slate-200/70 min-w-0">
                                         <p class="text-[10px] font-bold uppercase tracking-wider text-ink-muted">Masa Kemas Kini</p>
-                                        <p id="padang-status-updated" class="font-mono font-semibold text-navy-primary mt-1">—</p>
+                                        <p id="padang-status-updated" class="font-mono font-semibold text-navy-primary mt-1 break-words">—</p>
                                     </div>
-                                    <div class="bg-white rounded-lg p-3 border border-slate-200/70">
+                                    <div class="bg-white rounded-lg p-3 border border-slate-200/70 min-w-0">
                                         <p class="text-[10px] font-bold uppercase tracking-wider text-ink-muted">Tab Berjaya Dibaca</p>
-                                        <p id="padang-status-tabs" class="font-bold text-navy-primary mt-1">0 / 3 Tab</p>
+                                        <p id="padang-status-tabs" class="font-bold text-navy-primary mt-1 break-words">0 / 3 Tab</p>
                                     </div>
                                 </div>
-                                <p id="padang-status-detail" class="text-[11px] text-ink-muted leading-relaxed">
+                                <p id="padang-status-detail" class="text-[11px] text-ink-muted leading-relaxed break-words">
                                     Tampal URL Web App deployment (<span class="font-mono">/exec</span>) daripada Google Sheets sumber ATHLETIX dan tekan <span class="font-semibold text-navy-primary">Uji</span> sebelum menyimpan.
                                 </p>
                             </div>
@@ -3902,7 +3908,7 @@
                         pedestalHeight: 'h-36 sm:h-44',
                         pedestalBg: 'bg-gradient-to-b from-gold via-gold to-gold-dark text-navy-dark border-gold-dark',
                         cardBorder: 'border-gold shadow-gold-glow',
-                        label: team.isProvisional ? 'Kedudukan 1 (Sementara)' : 'Juara Keseluruhan',
+                        label: team.isProvisional ? 'Kedudukan 1 (Sementara)' : 'Tempat Pertama',
                         iconHtml: '<i data-lucide="crown" class="w-5 h-5 text-navy-dark"></i>'
                     },
                     2: {
@@ -3911,7 +3917,7 @@
                         pedestalHeight: 'h-28 sm:h-36',
                         pedestalBg: 'bg-gradient-to-b from-slate-300 to-slate-400 text-navy-dark border-slate-400',
                         cardBorder: 'border-slate-300 shadow-soft',
-                        label: team.isProvisional ? 'Kedudukan 2 (Sementara)' : 'Naib Juara',
+                        label: team.isProvisional ? 'Kedudukan 2 (Sementara)' : 'Tempat Kedua',
                         iconHtml: '<i data-lucide="medal" class="w-4 h-4 text-slate-700"></i>'
                     },
                     3: {
