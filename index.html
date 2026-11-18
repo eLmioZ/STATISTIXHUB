@@ -1386,6 +1386,9 @@
             saveAkhirBalapanStore(storeObj) {
                 try {
                     window.localStorage.setItem(this.KEYS.AKHIR_BALAPAN_STORE, JSON.stringify(storeObj));
+                    if (typeof PodiumModule !== 'undefined' && typeof PodiumModule.refreshIfActive === 'function') {
+                        PodiumModule.refreshIfActive();
+                    }
                     return true;
                 } catch (error) {
                     console.error('Ralat menyimpan stor Akhir Balapan:', error);
@@ -1432,6 +1435,9 @@
             saveRelayStore(storeObj) {
                 try {
                     window.localStorage.setItem(this.KEYS.RELAY_STORE, JSON.stringify(storeObj));
+                    if (typeof PodiumModule !== 'undefined' && typeof PodiumModule.refreshIfActive === 'function') {
+                        PodiumModule.refreshIfActive();
+                    }
                     return true;
                 } catch (error) {
                     console.error('Ralat menyimpan stor Acara Relay:', error);
@@ -1478,6 +1484,9 @@
             savePadangStore(storeObj) {
                 try {
                     window.localStorage.setItem(this.KEYS.PADANG_STORE, JSON.stringify(storeObj));
+                    if (typeof PodiumModule !== 'undefined' && typeof PodiumModule.refreshIfActive === 'function') {
+                        PodiumModule.refreshIfActive();
+                    }
                     return true;
                 } catch (error) {
                     console.error('Ralat menyimpan stor Acara Padang:', error);
@@ -3182,60 +3191,212 @@
          * 4F. MODUL PODIUM PINGAT (PodiumModule)
          */
         const PodiumModule = {
-            collectOfficialPodiumDataByTeam() {
-                const teamMap = {};
-                const seenEventKeys = new Set();
+            DEFAULT_OFFICIAL_TEAMS: [
+                { id: 'HELANG', name: 'HELANG' },
+                { id: 'GARUDA', name: 'GARUDA' },
+                { id: 'KENYALANG', name: 'KENYALANG' },
+                { id: 'RAJAWALI', name: 'RAJAWALI' }
+            ],
+            _isRefreshing: false,
 
-                const processRows = (sourceModule, eventNo, gender, rows) => {
-                    if (!Array.isArray(rows)) return;
-                    const seenCategoryRows = new Set();
+            getOfficialTeamsConfig() {
+                const config = StorageManager.getTournamentConfig() || {};
+                if (Array.isArray(config.officialTeams) && config.officialTeams.length > 0) {
+                    const normalized = [];
+                    const seenIds = new Set();
+                    config.officialTeams.forEach(item => {
+                        const rawName = typeof item === 'string' ? item : (item && (item.name || item.pasukan || item.id));
+                        const canonical = String(rawName || '').trim().toUpperCase().replace(/\s+/g, ' ');
+                        if (!canonical || seenIds.has(canonical)) return;
+                        seenIds.add(canonical);
+                        normalized.push({
+                            id: String((item && item.id) || canonical).trim().toUpperCase(),
+                            name: canonical
+                        });
+                    });
+                    if (normalized.length > 0) return normalized;
+                }
+                return this.DEFAULT_OFFICIAL_TEAMS.map(t => ({ ...t }));
+            },
+
+            normalizeTeamIdentity(rawTeam, officialTeamsList) {
+                const cleaned = String(rawTeam || '').trim().toUpperCase().replace(/\s+/g, ' ');
+                if (!cleaned) return null;
+                const teams = Array.isArray(officialTeamsList) ? officialTeamsList : this.getOfficialTeamsConfig();
+                const found = teams.find(t => t.name === cleaned || t.id === cleaned);
+                return found ? found.name : null;
+            },
+
+            parseStrictRank(rawRank) {
+                const text = String(rawRank === null || rawRank === undefined ? '' : rawRank).trim();
+                if (!text || text === '—' || text === '-') {
+                    return { status: 'empty', rank: null, raw: text };
+                }
+                if (!/^[1-9]\d*$/.test(text)) {
+                    return { status: 'invalid', rank: null, raw: text };
+                }
+                const num = Number(text);
+                if (!Number.isSafeInteger(num) || num < 1 || num > 99) {
+                    return { status: 'invalid', rank: null, raw: text };
+                }
+                return { status: 'valid', rank: num, raw: text };
+            },
+
+            resolveParticipantIdentity(sourceModule, row, rowIndex, seenCategoryIdentities) {
+                const explicitId = String(row.participationId || row.participantId || row.id || '').trim();
+                if (explicitId) {
+                    return `ID:${explicitId}`;
+                }
+                if (sourceModule === 'relay') {
+                    if (Number.isInteger(Number(row.sheetRow)) && Number(row.sheetRow) > 0) {
+                        return `ROW:${Number(row.sheetRow)}`;
+                    }
+                    return `IDX:${rowIndex}`;
+                }
+                const noBib = String(row.noBib || '').trim().toUpperCase();
+                if (noBib && noBib !== '—' && noBib !== '-') {
+                    const bibKey = `BIB:${noBib}`;
+                    if (!seenCategoryIdentities.has(bibKey)) {
+                        return bibKey;
+                    }
+                }
+                if (Number.isInteger(Number(row.sheetRow)) && Number(row.sheetRow) > 0) {
+                    return `ROW:${Number(row.sheetRow)}`;
+                }
+                return `IDX:${rowIndex}`;
+            },
+
+            refreshIfActive() {
+                if (this._isRefreshing) return;
+                if (typeof AppController === 'undefined') return;
+                if (AppController.isAdminOpen || AppController.currentView !== 'podium') return;
+                const activeEl = document.activeElement;
+                if (activeEl && (activeEl.tagName === 'INPUT' || activeEl.tagName === 'TEXTAREA' || activeEl.tagName === 'SELECT')) {
+                    return;
+                }
+                this._isRefreshing = true;
+                try {
+                    AppController.loadView('podium');
+                } finally {
+                    this._isRefreshing = false;
+                }
+            },
+
+            collectOfficialPodiumDataByTeam() {
+                const officialTeams = this.getOfficialTeamsConfig();
+                const teamMap = {};
+                officialTeams.forEach(t => {
+                    teamMap[t.name] = {
+                        teamId: t.id,
+                        pasukan: t.name,
+                        emas: 0,
+                        perak: 0,
+                        gangsa: 0,
+                        jumlah: 0,
+                        isPlaceholder: false
+                    };
+                });
+
+                const seenEventKeys = new Set();
+                const seenDecisionKeys = new Set();
+                const auditWarnings = [];
+                let verifiedEventsCount = 0;
+                let totalPossibleEventsCount = 0;
+
+                const processCategoryRows = (sourceModule, eventNo, gender, rows) => {
+                    if (gender !== 'lelaki' && gender !== 'perempuan') {
+                        auditWarnings.push(`Kategori tidak sah (${String(gender)}) pada ${sourceModule.toUpperCase()} Acara ${eventNo}.`);
+                        return;
+                    }
+                    if (!Array.isArray(rows) || rows.length === 0) return;
+
+                    const seenCategoryIdentities = new Set();
+                    const validatedEntries = [];
+                    const rankFrequency = { 1: 0, 2: 0, 3: 0 };
 
                     rows.forEach((row, idx) => {
-                        if (!row || typeof row !== 'object') return;
-                        const teamRaw = String(row.pasukan || '').trim();
-                        if (!teamRaw) return;
+                        if (!row || typeof row !== 'object' || Array.isArray(row)) return;
 
-                        const rankNum = parseInt(String(row.kedudukan || '').trim(), 10);
-                        if (rankNum !== 1 && rankNum !== 2 && rankNum !== 3) return;
+                        const rawTeam = String(row.pasukan || '').trim();
+                        const rawRank = String(row.kedudukan || '').trim();
+                        if (!rawTeam && (!rawRank || rawRank === '—' || rawRank === '-')) return;
 
-                        const rowIdentity = `${sourceModule}:${eventNo}:${gender}:${row.sheetRow || idx}:${teamRaw.toUpperCase()}:${rankNum}`;
-                        if (seenCategoryRows.has(rowIdentity)) return;
-                        seenCategoryRows.add(rowIdentity);
+                        const participantIdentity = this.resolveParticipantIdentity(sourceModule, row, idx, seenCategoryIdentities);
+                        if (seenCategoryIdentities.has(participantIdentity)) {
+                            auditWarnings.push(`Rekod pendua diabaikan pada ${sourceModule.toUpperCase()} Acara ${eventNo} (${gender}, ${participantIdentity}).`);
+                            return;
+                        }
+                        seenCategoryIdentities.add(participantIdentity);
 
-                        const canonicalKey = teamRaw.toUpperCase();
-                        if (!teamMap[canonicalKey]) {
-                            teamMap[canonicalKey] = {
-                                pasukan: teamRaw,
-                                emas: 0,
-                                perak: 0,
-                                gangsa: 0,
-                                jumlah: 0
-                            };
+                        const decisionKey = `${sourceModule}:${eventNo}:${gender}:${participantIdentity}`;
+                        if (seenDecisionKeys.has(decisionKey)) {
+                            auditWarnings.push(`Keputusan berganda dicegah (${decisionKey}).`);
+                            return;
+                        }
+                        seenDecisionKeys.add(decisionKey);
+
+                        const parsedRank = this.parseStrictRank(row.kedudukan);
+                        if (parsedRank.status === 'empty') {
+                            return;
+                        }
+                        if (parsedRank.status === 'invalid') {
+                            auditWarnings.push(`Nilai kedudukan tidak sah "${parsedRank.raw}" diabaikan pada ${sourceModule.toUpperCase()} Acara ${eventNo} (${gender}).`);
+                            return;
                         }
 
-                        if (rankNum === 1) teamMap[canonicalKey].emas += 1;
-                        else if (rankNum === 2) teamMap[canonicalKey].perak += 1;
-                        else if (rankNum === 3) teamMap[canonicalKey].gangsa += 1;
+                        const canonicalTeam = this.normalizeTeamIdentity(rawTeam, officialTeams);
+                        if (!canonicalTeam) {
+                            auditWarnings.push(`Nama pasukan tidak dikenali "${rawTeam || 'KOSONG'}" diabaikan pada ${sourceModule.toUpperCase()} Acara ${eventNo} (${gender}).`);
+                            return;
+                        }
 
-                        teamMap[canonicalKey].jumlah =
-                            teamMap[canonicalKey].emas +
-                            teamMap[canonicalKey].perak +
-                            teamMap[canonicalKey].gangsa;
+                        if (parsedRank.rank === 1 || parsedRank.rank === 2 || parsedRank.rank === 3) {
+                            rankFrequency[parsedRank.rank] += 1;
+                        }
+
+                        validatedEntries.push({
+                            canonicalTeam,
+                            rank: parsedRank.rank,
+                            participantIdentity
+                        });
+                    });
+
+                    [1, 2, 3].forEach(medalRank => {
+                        if (rankFrequency[medalRank] > 1) {
+                            auditWarnings.push(`Konflik seri dikesan pada ${sourceModule.toUpperCase()} Acara ${eventNo} (${gender.toUpperCase()}) bagi Kedudukan ${medalRank} (${rankFrequency[medalRank]} peserta). Pingat tidak dikira secara automatik sehingga peraturan seri disahkan.`);
+                        }
+                    });
+
+                    validatedEntries.forEach(entry => {
+                        if (entry.rank === 1 || entry.rank === 2 || entry.rank === 3) {
+                            if (rankFrequency[entry.rank] !== 1) {
+                                return;
+                            }
+                            const target = teamMap[entry.canonicalTeam];
+                            if (!target) return;
+                            if (entry.rank === 1) target.emas += 1;
+                            else if (entry.rank === 2) target.perak += 1;
+                            else if (entry.rank === 3) target.gangsa += 1;
+                            target.jumlah = target.emas + target.perak + target.gangsa;
+                        }
                     });
                 };
 
                 const collectFromStore = (sourceName, allowedNos, storeObj) => {
                     const eventsMap = (storeObj && storeObj.events) || {};
                     allowedNos.forEach(eventNo => {
+                        totalPossibleEventsCount += 1;
                         const eventKey = `${sourceName}:${eventNo}`;
                         if (seenEventKeys.has(eventKey)) return;
                         seenEventKeys.add(eventKey);
 
                         const ev = eventsMap[eventNo];
-                        if (!ev || ev.status !== 'DISAHKAN_RASMI') return;
+                        if (!ev || typeof ev !== 'object') return;
+                        if (ev.status !== 'DISAHKAN_RASMI') return;
 
-                        processRows(sourceName, eventNo, 'lelaki', ev.lelaki);
-                        processRows(sourceName, eventNo, 'perempuan', ev.perempuan);
+                        verifiedEventsCount += 1;
+                        processCategoryRows(sourceName, eventNo, 'lelaki', ev.lelaki);
+                        processCategoryRows(sourceName, eventNo, 'perempuan', ev.perempuan);
                     });
                 };
 
@@ -3243,31 +3404,97 @@
                 collectFromStore('relay', RelayModule.ALLOWED_EVENT_NOS, StorageManager.getRelayStore());
                 collectFromStore('padang', PadangModule.ALLOWED_EVENT_NOS, StorageManager.getPadangStore());
 
+                this._lastAuditMeta = {
+                    auditWarnings,
+                    verifiedEventsCount,
+                    totalPossibleEventsCount
+                };
+
                 return teamMap;
             },
 
             buildTeamMedalRanking() {
                 const teamMap = this.collectOfficialPodiumDataByTeam();
-                return Object.values(teamMap)
-                    .filter(item => item.jumlah > 0)
-                    .sort((a, b) => {
-                        if (b.emas !== a.emas) return b.emas - a.emas;
-                        if (b.perak !== a.perak) return b.perak - a.perak;
-                        if (b.gangsa !== a.gangsa) return b.gangsa - a.gangsa;
-                        if (b.jumlah !== a.jumlah) return b.jumlah - a.jumlah;
-                        return a.pasukan.localeCompare(b.pasukan, 'ms');
-                    });
+                const sorted = Object.values(teamMap).sort((a, b) => {
+                    if (b.emas !== a.emas) return b.emas - a.emas;
+                    if (b.perak !== a.perak) return b.perak - a.perak;
+                    if (b.gangsa !== a.gangsa) return b.gangsa - a.gangsa;
+                    if (b.jumlah !== a.jumlah) return b.jumlah - a.jumlah;
+                    return a.pasukan.localeCompare(b.pasukan, 'ms');
+                });
+
+                const hasAnyMedal = sorted.some(t => t.jumlah > 0);
+                let currentDisplayRank = 1;
+
+                return sorted.map((team, idx) => {
+                    if (idx > 0) {
+                        const prev = sorted[idx - 1];
+                        const isSameScore =
+                            team.emas === prev.emas &&
+                            team.perak === prev.perak &&
+                            team.gangsa === prev.gangsa &&
+                            team.jumlah === prev.jumlah;
+                        if (!isSameScore) {
+                            currentDisplayRank = idx + 1;
+                        }
+                    }
+
+                    const next = sorted[idx + 1];
+                    const prev = sorted[idx - 1];
+                    const tiedWithPrev = Boolean(
+                        prev &&
+                        team.emas === prev.emas &&
+                        team.perak === prev.perak &&
+                        team.gangsa === prev.gangsa &&
+                        team.jumlah === prev.jumlah
+                    );
+                    const tiedWithNext = Boolean(
+                        next &&
+                        team.emas === next.emas &&
+                        team.perak === next.perak &&
+                        team.gangsa === next.gangsa &&
+                        team.jumlah === next.jumlah
+                    );
+
+                    return {
+                        ...team,
+                        slotPosition: idx + 1,
+                        displayRank: currentDisplayRank,
+                        isTied: tiedWithPrev || tiedWithNext,
+                        isProvisional: !hasAnyMedal || tiedWithPrev || tiedWithNext
+                    };
+                });
             },
 
             getTopFourTeams(rankingList) {
                 const list = Array.isArray(rankingList) ? rankingList : this.buildTeamMedalRanking();
-                return list.slice(0, 4);
+                const topFour = list.slice(0, 4);
+                while (topFour.length < 4) {
+                    const slotNo = topFour.length + 1;
+                    topFour.push({
+                        teamId: `TBD-${slotNo}`,
+                        pasukan: 'Belum Ditentukan',
+                        emas: 0,
+                        perak: 0,
+                        gangsa: 0,
+                        jumlah: 0,
+                        slotPosition: slotNo,
+                        displayRank: slotNo,
+                        isTied: false,
+                        isProvisional: true,
+                        isPlaceholder: true
+                    });
+                }
+                return topFour;
             },
 
             renderPodiumSlot(team, rank) {
                 if (!team) return '';
                 const esc = SaringanModule.escapeHtml;
-                const teamColorClass = SaringanModule.getTeamDisplayColorClass(team.pasukan) || 'text-navy-primary';
+                const isPlaceholder = Boolean(team.isPlaceholder);
+                const teamColorClass = isPlaceholder
+                    ? 'text-slate-400 italic'
+                    : (SaringanModule.getTeamDisplayColorClass(team.pasukan) || 'text-navy-primary');
 
                 const styles = {
                     1: {
@@ -3276,7 +3503,7 @@
                         pedestalHeight: 'h-36 sm:h-44',
                         pedestalBg: 'bg-gradient-to-b from-gold via-gold to-gold-dark text-navy-dark border-gold-dark',
                         cardBorder: 'border-gold shadow-gold-glow',
-                        label: 'Juara Keseluruhan',
+                        label: team.isProvisional ? 'Kedudukan 1 (Sementara)' : 'Juara Keseluruhan',
                         iconHtml: '<i data-lucide="crown" class="w-5 h-5 text-navy-dark"></i>'
                     },
                     2: {
@@ -3285,7 +3512,7 @@
                         pedestalHeight: 'h-28 sm:h-36',
                         pedestalBg: 'bg-gradient-to-b from-slate-300 to-slate-400 text-navy-dark border-slate-400',
                         cardBorder: 'border-slate-300 shadow-soft',
-                        label: 'Naib Juara',
+                        label: team.isProvisional ? 'Kedudukan 2 (Sementara)' : 'Naib Juara',
                         iconHtml: '<i data-lucide="medal" class="w-4 h-4 text-slate-700"></i>'
                     },
                     3: {
@@ -3294,7 +3521,7 @@
                         pedestalHeight: 'h-20 sm:h-28',
                         pedestalBg: 'bg-gradient-to-b from-amber-600 to-amber-800 text-white border-amber-900',
                         cardBorder: 'border-amber-300 shadow-soft',
-                        label: 'Tempat Ketiga',
+                        label: team.isProvisional ? 'Kedudukan 3 (Sementara)' : 'Tempat Ketiga',
                         iconHtml: '<i data-lucide="award" class="w-4 h-4 text-amber-800"></i>'
                     },
                     4: {
@@ -3302,21 +3529,22 @@
                         badgeClass: 'bg-navy-secondary text-white',
                         pedestalHeight: 'h-14 sm:h-20',
                         pedestalBg: 'bg-gradient-to-b from-navy-primary to-navy-dark text-slate-200 border-navy-secondary',
-                        cardBorder: 'border-slate-300 shadow-soft',
-                        label: 'Tempat Keempat',
+                        cardBorder: 'border-navy-secondary/70 shadow-soft',
+                        label: team.isProvisional ? 'Tempat Keempat (Sementara)' : 'Tempat Keempat',
                         iconHtml: '<i data-lucide="shield" class="w-4 h-4 text-gold-light"></i>'
                     }
                 };
 
                 const st = styles[rank] || styles[4];
                 const isDarkHeader = rank === 4;
+                const rankBadgeLabel = team.isTied && !isPlaceholder ? `#${team.displayRank} (Seri)` : `#${rank}`;
 
                 return `
-                    <div class="flex flex-col justify-end min-w-[165px] sm:min-w-0 flex-1">
+                    <div class="flex flex-col justify-end min-w-[165px] sm:min-w-0 flex-1" data-podium-slot="${rank}">
                         <div class="rounded-t-2xl border-2 border-b-0 ${st.cardBorder} bg-white overflow-hidden">
                             <div class="${st.headerBg} px-3.5 py-3 flex items-center justify-between gap-2">
                                 <span class="inline-flex items-center px-2.5 py-0.5 rounded-lg font-display font-extrabold text-xs ${st.badgeClass}">
-                                    #${rank}
+                                    ${rankBadgeLabel}
                                 </span>
                                 ${st.iconHtml}
                             </div>
@@ -3356,15 +3584,22 @@
 
             renderFullTeamRankingTable(rankingList) {
                 const esc = SaringanModule.escapeHtml;
+                const list = Array.isArray(rankingList) ? rankingList : this.buildTeamMedalRanking();
+                const hasAnyMedal = list.some(t => t.jumlah > 0);
+
                 return `
                     <div class="space-y-3 pt-4 border-t border-slate-200">
-                        <div>
-                            <h3 class="font-display font-bold text-base sm:text-lg text-navy-primary uppercase tracking-wide">
-                                Kedudukan Keseluruhan Pasukan
-                            </h3>
-                            <p class="text-xs text-ink-muted mt-0.5">
-                                Ranking berdasarkan kutipan pingat daripada keputusan acara yang telah disahkan rasmi.
-                            </p>
+                        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                            <div>
+                                <h3 class="font-display font-bold text-base sm:text-lg text-navy-primary uppercase tracking-wide">
+                                    Kedudukan Keseluruhan Pasukan
+                                </h3>
+                                <p class="text-xs text-ink-muted mt-0.5">
+                                    ${hasAnyMedal
+                                        ? 'Ranking berdasarkan kutipan pingat daripada keputusan acara yang telah disahkan rasmi.'
+                                        : 'Kedudukan sementara — menunggu keputusan rasmi acara kejohanan.'}
+                                </p>
+                            </div>
                         </div>
 
                         <div class="rounded-xl border border-slate-200/90 overflow-hidden bg-white shadow-2xs">
@@ -3372,7 +3607,7 @@
                                 <table class="w-full min-w-[560px] text-left border-collapse">
                                     <thead>
                                         <tr class="bg-navy-primary text-white font-display text-[11px] sm:text-xs uppercase tracking-wider">
-                                            <th class="py-3 px-3.5 text-center w-16">Bil</th>
+                                            <th class="py-3 px-3.5 text-center w-20">Bil</th>
                                             <th class="py-3 px-3.5 min-w-[180px]">Pasukan</th>
                                             <th class="py-3 px-3.5 text-center w-24 text-gold-light">Emas</th>
                                             <th class="py-3 px-3.5 text-center w-24 text-slate-200">Perak</th>
@@ -3381,13 +3616,17 @@
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        ${rankingList.map((team, idx) => {
-                                            const rankNo = idx + 1;
+                                        ${list.map((team, idx) => {
+                                            const rowNo = idx + 1;
                                             const teamColorClass = SaringanModule.getTeamDisplayColorClass(team.pasukan) || 'text-ink';
+                                            const bilLabel = team.isTied ? `${team.displayRank} (Seri)` : `${rowNo}`;
                                             return `
-                                                <tr class="border-b border-slate-100 even:bg-slate-50/40 hover:bg-surface-bg/80 transition-colors">
-                                                    <td class="py-3 px-3.5 text-xs sm:text-sm font-display font-extrabold text-center text-navy-primary">${rankNo}</td>
-                                                    <td class="py-3 px-3.5 text-xs sm:text-sm font-bold ${teamColorClass}">${esc(team.pasukan)}</td>
+                                                <tr class="border-b border-slate-100 even:bg-slate-50/40 hover:bg-surface-bg/80 transition-colors" data-ranking-row="${rowNo}">
+                                                    <td class="py-3 px-3.5 text-xs sm:text-sm font-display font-extrabold text-center text-navy-primary">${bilLabel}</td>
+                                                    <td class="py-3 px-3.5 text-xs sm:text-sm font-bold ${teamColorClass}">
+                                                        <span>${esc(team.pasukan)}</span>
+                                                        ${team.isProvisional ? '<span class="ml-2 inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold bg-slate-100 text-slate-600 border border-slate-200">Sementara</span>' : ''}
+                                                    </td>
                                                     <td class="py-3 px-3.5 text-xs sm:text-sm font-display font-extrabold text-center text-amber-600">${team.emas}</td>
                                                     <td class="py-3 px-3.5 text-xs sm:text-sm font-display font-bold text-center text-slate-600">${team.perak}</td>
                                                     <td class="py-3 px-3.5 text-xs sm:text-sm font-display font-bold text-center text-amber-800">${team.gangsa}</td>
@@ -3405,29 +3644,13 @@
 
             renderTeamMedalPodium(rankingList) {
                 const topFour = this.getTopFourTeams(rankingList);
-                let orderedSlots = [];
-
-                if (topFour.length === 1) {
-                    orderedSlots = [{ team: topFour[0], rank: 1 }];
-                } else if (topFour.length === 2) {
-                    orderedSlots = [
-                        { team: topFour[1], rank: 2 },
-                        { team: topFour[0], rank: 1 }
-                    ];
-                } else if (topFour.length === 3) {
-                    orderedSlots = [
-                        { team: topFour[1], rank: 2 },
-                        { team: topFour[0], rank: 1 },
-                        { team: topFour[2], rank: 3 }
-                    ];
-                } else {
-                    orderedSlots = [
-                        { team: topFour[3], rank: 4 },
-                        { team: topFour[1], rank: 2 },
-                        { team: topFour[0], rank: 1 },
-                        { team: topFour[2], rank: 3 }
-                    ];
-                }
+                // Susunan wajib dari kiri ke kanan: 4 -> 2 -> 1 -> 3
+                const orderedSlots = [
+                    { team: topFour[3], rank: 4 },
+                    { team: topFour[1], rank: 2 },
+                    { team: topFour[0], rank: 1 },
+                    { team: topFour[2], rank: 3 }
+                ];
 
                 return `
                     <div class="space-y-4">
@@ -3437,7 +3660,7 @@
                                     Podium Pingat Pasukan
                                 </h3>
                                 <p class="text-xs text-ink-muted mt-0.5">
-                                    Kedudukan pasukan teratas berdasarkan pungutan pingat rasmi semasa.
+                                    Kedudukan empat pasukan teratas berdasarkan pungutan pingat rasmi semasa.
                                 </p>
                             </div>
                         </div>
@@ -3452,29 +3675,62 @@
             },
 
             renderPublicView() {
+                const esc = SaringanModule.escapeHtml;
                 const rankingList = this.buildTeamMedalRanking();
+                const meta = this._lastAuditMeta || { auditWarnings: [], verifiedEventsCount: 0, totalPossibleEventsCount: 0 };
+                const hasAnyMedal = rankingList.some(t => t.jumlah > 0);
+                const isPartial = meta.verifiedEventsCount > 0 && meta.verifiedEventsCount < meta.totalPossibleEventsCount;
 
-                if (rankingList.length === 0) {
-                    return `
-                        <div class="p-8 sm:p-14 text-center max-w-lg mx-auto">
-                            <div class="w-16 h-16 rounded-2xl bg-surface-bg border border-slate-200 flex items-center justify-center mx-auto mb-5 shadow-inner">
-                                <i data-lucide="trophy" class="w-8 h-8 text-gold-dark"></i>
+                const statusBannerHtml = !hasAnyMedal
+                    ? `
+                        <div class="rounded-xl bg-amber-50 border border-amber-200/90 p-4 flex items-start gap-3">
+                            <div class="w-9 h-9 rounded-xl bg-gold/20 border border-gold/40 flex items-center justify-center shrink-0">
+                                <i data-lucide="trophy" class="w-4 h-4 text-gold-dark"></i>
                             </div>
-                            <span class="inline-flex items-center px-3 py-1 rounded-full text-[11px] font-bold uppercase tracking-wider bg-gold/15 text-navy-primary border border-gold/30 mb-3">
-                                Menunggu Keputusan Rasmi
-                            </span>
-                            <h3 class="font-display font-bold text-lg sm:text-xl text-navy-primary">
-                                Podium Pingat Belum Tersedia
-                            </h3>
-                            <p class="text-xs sm:text-sm text-ink-muted mt-2 leading-relaxed">
-                                Belum ada keputusan rasmi untuk menentukan ranking pingat keseluruhan.
-                            </p>
+                            <div class="min-w-0">
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-gold/20 text-navy-primary border border-gold/40">
+                                    Menunggu Keputusan Rasmi
+                                </span>
+                                <h4 class="font-display font-bold text-sm text-navy-primary mt-1">
+                                    Podium Pingat Rasmi Belum Muktamad
+                                </h4>
+                                <p class="text-xs text-ink-muted mt-0.5 leading-relaxed">
+                                    Belum ada keputusan rasmi untuk menentukan juara kejohanan. Paparan di bawah menunjukkan kedudukan sementara bagi keempat-empat pasukan berdaftar.
+                                </p>
+                            </div>
                         </div>
-                    `;
-                }
+                    `
+                    : isPartial
+                        ? `
+                            <div class="rounded-xl bg-surface-bg border border-slate-200/90 px-4 py-3 flex flex-wrap items-center justify-between gap-2 text-xs">
+                                <span class="font-semibold text-navy-primary">
+                                    Status Pungutan: <span class="text-amber-700 font-bold">Pungutan pingat semasa (belum muktamad)</span>
+                                </span>
+                                <span class="font-mono text-[11px] font-semibold text-ink-muted">
+                                    ${meta.verifiedEventsCount} / ${meta.totalPossibleEventsCount} Acara Disahkan Rasmi
+                                </span>
+                            </div>
+                        `
+                        : '';
+
+                const warningsHtml = meta.auditWarnings.length > 0
+                    ? `
+                        <div class="rounded-xl bg-rose-50 border border-rose-200 p-3.5 text-xs text-rose-900 space-y-1.5">
+                            <div class="flex items-center gap-2 font-bold">
+                                <i data-lucide="alert-triangle" class="w-4 h-4 text-rose-600 shrink-0"></i>
+                                <span>Amaran Pengesahan Pengiraan Pingat (${meta.auditWarnings.length})</span>
+                            </div>
+                            <ul class="list-disc pl-5 space-y-1 text-[11px] text-rose-800">
+                                ${meta.auditWarnings.slice(0, 5).map(w => `<li>${esc(w)}</li>`).join('')}
+                            </ul>
+                        </div>
+                    `
+                    : '';
 
                 return `
-                    <div class="p-4 sm:p-6 lg:p-7 space-y-8">
+                    <div class="p-4 sm:p-6 lg:p-7 space-y-6">
+                        ${statusBannerHtml}
+                        ${warningsHtml}
                         ${this.renderTeamMedalPodium(rankingList)}
                         ${this.renderFullTeamRankingTable(rankingList)}
                     </div>
