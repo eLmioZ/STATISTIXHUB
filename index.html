@@ -224,6 +224,293 @@
         .podium-rank1-gold-header {
             background: linear-gradient(135deg, #AA8A24 0%, #D4AF37 55%, #F3E5AB 100%);
         }
+
+        /* ===================================================================== */
+        /* CSS KHUSUS CETAKAN RASMI (PRINT-ONLY — TIADA KESAN PADA PAPARAN SKRIN) */
+        /* ===================================================================== */
+        @media screen {
+            #official-print-area {
+                display: none !important;
+            }
+        }
+
+        @page {
+            size: A4 portrait;
+            margin: 12mm 10mm 14mm 10mm;
+        }
+
+        @page landscapePage {
+            size: A4 landscape;
+            margin: 10mm 10mm 12mm 10mm;
+        }
+
+        @media print {
+            html, body {
+                background: #FFFFFF !important;
+                color: #0B132B !important;
+                margin: 0 !important;
+                padding: 0 !important;
+                overflow: visible !important;
+                height: auto !important;
+                -webkit-print-color-adjust: exact !important;
+                print-color-adjust: exact !important;
+            }
+
+            /* Asingkan kandungan cetakan sepenuhnya daripada paparan aplikasi */
+            body > :not(#official-print-area) {
+                display: none !important;
+            }
+
+            #official-print-area {
+                display: block !important;
+                position: relative !important;
+                width: 100% !important;
+                max-width: 100% !important;
+                overflow: visible !important;
+                background: #FFFFFF !important;
+                color: #0B132B !important;
+                font-family: 'Montserrat', sans-serif !important;
+            }
+
+            #official-print-area.print-orientation-landscape {
+                page: landscapePage;
+            }
+
+            #official-print-area .print-doc-wrapper {
+                position: relative;
+                width: 100%;
+                overflow: visible !important;
+            }
+
+            /* Watermark sederhana untuk dokumen belum disahkan rasmi (tidak menghalang bacaan data) */
+            #official-print-area .print-draft-watermark {
+                position: fixed;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%) rotate(-32deg);
+                font-size: 46pt !important;
+                font-weight: 800 !important;
+                letter-spacing: 0.12em;
+                color: rgba(180, 83, 9, 0.085) !important;
+                border: 4px solid rgba(180, 83, 9, 0.09);
+                padding: 10px 26px;
+                border-radius: 12px;
+                white-space: nowrap;
+                pointer-events: none;
+                z-index: 0;
+                text-transform: uppercase;
+            }
+
+            #official-print-area .print-section-a,
+            #official-print-area .print-section-b,
+            #official-print-area .print-section-c,
+            #official-print-area .print-section-d {
+                position: relative;
+                z-index: 1;
+            }
+
+            /* BAHAGIAN A: Header Rasmi */
+            #official-print-area .print-section-a {
+                border-bottom: 2.5px solid #0B132B;
+                padding-bottom: 8px;
+                margin-bottom: 10px;
+                display: flex;
+                justify-content: space-between;
+                align-items: flex-start;
+                gap: 12px;
+            }
+
+            #official-print-area .print-tournament-name {
+                font-size: 13pt !important;
+                font-weight: 800 !important;
+                color: #0B132B !important;
+                text-transform: uppercase;
+                line-height: 1.25;
+                margin: 0 0 2px 0;
+            }
+
+            #official-print-area .print-system-brand {
+                font-size: 9.5pt !important;
+                font-weight: 700 !important;
+                color: #1C2541 !important;
+                letter-spacing: 0.04em;
+                margin: 0;
+            }
+
+            #official-print-area .print-system-sub {
+                font-size: 8pt !important;
+                font-weight: 600 !important;
+                color: #475569 !important;
+                margin: 1px 0 0 0;
+            }
+
+            #official-print-area .print-status-pill {
+                display: inline-block;
+                padding: 5px 10px;
+                border-radius: 6px;
+                font-size: 8.5pt !important;
+                font-weight: 800 !important;
+                letter-spacing: 0.04em;
+                text-transform: uppercase;
+                white-space: nowrap;
+            }
+
+            #official-print-area .print-status-official {
+                background-color: #ECFDF5 !important;
+                color: #065F46 !important;
+                border: 1.5px solid #059669 !important;
+            }
+
+            #official-print-area .print-status-unofficial {
+                background-color: #FFFBEB !important;
+                color: #92400E !important;
+                border: 1.5px solid #D97706 !important;
+            }
+
+            /* BAHAGIAN B: Maklumat Acara */
+            #official-print-area .print-section-b {
+                background-color: #F8FAFC !important;
+                border: 1px solid #CBD5E1;
+                border-left: 4px solid #D4AF37;
+                border-radius: 6px;
+                padding: 8px 10px;
+                margin-bottom: 12px;
+                break-inside: avoid;
+                page-break-inside: avoid;
+            }
+
+            #official-print-area .print-meta-grid {
+                width: 100%;
+                border-collapse: collapse;
+            }
+
+            #official-print-area .print-meta-grid td {
+                padding: 2.5px 6px;
+                vertical-align: top;
+                font-size: 8.5pt !important;
+                border: none !important;
+            }
+
+            #official-print-area .print-meta-label {
+                font-weight: 700 !important;
+                color: #475569 !important;
+                width: 18%;
+                white-space: nowrap;
+            }
+
+            #official-print-area .print-meta-value {
+                font-weight: 700 !important;
+                color: #0B132B !important;
+                width: 32%;
+            }
+
+            /* BAHAGIAN C: Jadual Keputusan & Kawalan Page Break */
+            #official-print-area .print-category-block {
+                margin-bottom: 14px;
+                overflow: visible !important;
+            }
+
+            #official-print-area .print-section-title {
+                background-color: #1C2541 !important;
+                color: #FFFFFF !important;
+                padding: 5px 9px;
+                font-size: 9pt !important;
+                font-weight: 700 !important;
+                text-transform: uppercase;
+                letter-spacing: 0.04em;
+                border-radius: 4px 4px 0 0;
+                break-after: avoid !important;
+                page-break-after: avoid !important;
+            }
+
+            #official-print-area .print-section-title.print-cat-perempuan {
+                background-color: #9D174D !important;
+                color: #FFFFFF !important;
+            }
+
+            #official-print-area table.print-result-table {
+                width: 100% !important;
+                border-collapse: collapse !important;
+                table-layout: auto;
+                margin-bottom: 4px;
+                overflow: visible !important;
+            }
+
+            #official-print-area table.print-result-table thead {
+                display: table-header-group !important;
+            }
+
+            #official-print-area table.print-result-table tfoot {
+                display: table-footer-group !important;
+            }
+
+            #official-print-area table.print-result-table tr {
+                break-inside: avoid !important;
+                page-break-inside: avoid !important;
+            }
+
+            #official-print-area table.print-result-table th {
+                background-color: #0B132B !important;
+                color: #FFFFFF !important;
+                font-size: 7.5pt !important;
+                font-weight: 700 !important;
+                text-transform: uppercase;
+                letter-spacing: 0.03em;
+                padding: 5px 6px;
+                border: 1px solid #1E293B;
+                white-space: nowrap;
+            }
+
+            #official-print-area table.print-result-table td {
+                font-size: 8pt !important;
+                font-weight: 500 !important;
+                color: #0F172A !important;
+                padding: 4.5px 6px;
+                border: 1px solid #CBD5E1;
+                vertical-align: middle;
+                word-break: break-word;
+            }
+
+            #official-print-area table.print-result-table tbody tr:nth-child(even) td {
+                background-color: #F8FAFC !important;
+            }
+
+            #official-print-area .print-cell-center {
+                text-align: center !important;
+            }
+
+            #official-print-area .print-cell-right {
+                text-align: right !important;
+            }
+
+            #official-print-area .print-cell-left {
+                text-align: left !important;
+            }
+
+            #official-print-area .print-cell-bold {
+                font-weight: 700 !important;
+            }
+
+            /* BAHAGIAN D: Footer Rasmi */
+            #official-print-area .print-section-d {
+                margin-top: 14px;
+                padding-top: 7px;
+                border-top: 1.5px solid #94A3B8;
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                gap: 8px;
+                font-size: 7.5pt !important;
+                color: #334155 !important;
+                break-inside: avoid;
+                page-break-inside: avoid;
+            }
+
+            #official-print-area .print-section-d span {
+                font-size: 7.5pt !important;
+                font-weight: 600 !important;
+            }
+        }
     </style>
 </head>
 <body class="min-h-screen flex flex-col font-sans antialiased selection:bg-gold/30 selection:text-navy-dark">
@@ -398,7 +685,7 @@
                 <!-- Kontena Kandungan Tetapan Acara -->
                 <div id="admin-content-tetapan-acara" class="space-y-6">
                     <!-- Kad Tajuk Utama Tetapan Acara -->
-                    <div class="bg-white rounded-2xl p-5 sm:p-6 shadow-card border border-slate-200/80">
+                    <div class="bg-white rounded-2xl p-5 sm:p-6 shadow-card border border-slate-200/80 space-y-4">
                         <div class="flex items-start sm:items-center gap-3.5">
                             <div class="w-11 h-11 rounded-xl bg-navy-primary/5 border border-slate-200/80 flex items-center justify-center shrink-0">
                                 <i data-lucide="settings" class="w-5 h-5 text-gold"></i>
@@ -408,7 +695,20 @@
                                     Tetapan Acara
                                 </h3>
                                 <p class="text-xs sm:text-sm text-ink-muted mt-0.5">
-                                    Pengurusan pautan Google Apps Script bagi setiap modul acara kejohanan.
+                                    Pengurusan sambungan data sumber ATHLETIX melalui pautan Google Apps Script (GAS) bagi setiap modul acara kejohanan.
+                                </p>
+                            </div>
+                        </div>
+
+                        <!-- Notis Keselamatan Akses & Endpoint Pelayan -->
+                        <div id="admin-security-status-banner" class="rounded-xl bg-amber-50 border border-amber-200/90 p-3.5 flex items-start gap-3 text-xs text-amber-950">
+                            <i data-lucide="shield-alert" class="w-4 h-4 text-amber-700 shrink-0 mt-0.5"></i>
+                            <div class="min-w-0 space-y-1">
+                                <p class="font-bold text-amber-900">
+                                    Status Pengesahan Pelayan: <span id="admin-auth-server-status">Mod Paparan Tempatan (Tiada Pengesahan IdP / Firebase Auth Aktif)</span>
+                                </p>
+                                <p class="text-[11px] text-amber-800 leading-relaxed">
+                                    Perhatian Keselamatan: Kawalan akses Panel Admin dalam pelayar serta URL Web App Google Apps Script (<span class="font-mono">/exec</span>) yang dideploy sebagai awam tidak menggantikan pengesahan identiti pihak pelayan. Pastikan hanya pentadbir kejohanan yang dibenarkan memiliki akses kepada URL deployment dan helaian Google Sheets sumber ATHLETIX.
                                 </p>
                             </div>
                         </div>
@@ -431,7 +731,7 @@
                                             </h4>
                                         </div>
                                         <p class="text-xs sm:text-sm text-ink-muted mt-0.5">
-                                            Tetapan pautan Google Apps Script untuk data acara saringan (9 Tab: 101–106, 204, 205, 300).
+                                            Tetapan pautan Google Apps Script (GAS) bagi data sumber ATHLETIX untuk modul Acara Saringan (9 Tab: 101–106, 204, 205, 300).
                                         </p>
                                     </div>
                                 </div>
@@ -450,7 +750,7 @@
                             <div class="space-y-2">
                                 <div class="flex items-center justify-between gap-2">
                                     <label for="gas-url-saringan" class="block text-xs font-semibold text-navy-primary">
-                                        URL Google Apps Script
+                                        URL Google Apps Script (GAS) — Acara Saringan
                                     </label>
                                     <span id="saringan-url-mode-badge" class="inline-flex items-center px-2 py-0.5 rounded-md text-[10px] font-bold uppercase tracking-wider bg-slate-100 text-slate-600 border border-slate-200">
                                         Sedia Diisi
@@ -503,14 +803,27 @@
                                 </button>
                             </div>
 
-                            <div id="saringan-delete-confirm-box" class="hidden p-4 rounded-xl bg-rose-50 border border-rose-200 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-                                <div class="text-xs text-rose-900">
-                                    <p class="font-bold">Adakah anda pasti mahu menghapus URL Google Apps Script dan mengosongkan paparan Acara Saringan?</p>
-                                    <p class="text-[11px] text-rose-700 mt-1">Semua data Acara Saringan yang disimpan dalam aplikasi ini akan dikosongkan. Data asal Google Sheets dan log audit tidak akan dipadam.</p>
+                            <div id="saringan-delete-confirm-box" class="hidden p-4 rounded-xl bg-rose-50 border border-rose-200 space-y-3">
+                                <div class="text-xs text-rose-900 space-y-2">
+                                    <p class="font-bold">Pilih tindakan penghapusan bagi Acara Saringan:</p>
+                                    <label class="flex items-start gap-2.5 p-2.5 rounded-lg bg-white border border-rose-200 cursor-pointer">
+                                        <input type="radio" name="saringan-delete-mode" value="url-only" checked class="mt-0.5 accent-navy-primary">
+                                        <span>
+                                            <span class="font-bold text-navy-primary block">Pilihan A — Putuskan Sambungan URL Sahaja (Disyorkan)</span>
+                                            <span class="text-[11px] text-ink-muted">Hapus URL GAS tersimpan dan hentikan sambungan, tetapi kekalkan semua data Acara Saringan yang telah diimport.</span>
+                                        </span>
+                                    </label>
+                                    <label class="flex items-start gap-2.5 p-2.5 rounded-lg bg-white border border-rose-200 cursor-pointer">
+                                        <input type="radio" name="saringan-delete-mode" value="url-and-data" class="mt-0.5 accent-rose-600">
+                                        <span>
+                                            <span class="font-bold text-rose-800 block">Pilihan B — Putuskan Sambungan URL &amp; Kosongkan Data Modul</span>
+                                            <span class="text-[11px] text-rose-700">Hapus URL GAS dan kosongkan semua rekod paparan Acara Saringan dalam aplikasi ini. Data asal Google Sheets ATHLETIX dan log audit tidak dipadam.</span>
+                                        </span>
+                                    </label>
                                 </div>
-                                <div class="flex items-center gap-2 shrink-0">
+                                <div class="flex flex-wrap items-center justify-end gap-2">
                                     <button type="button" onclick="SaringanGasController.confirmDeleteUrl()" class="min-h-[44px] px-4 py-2 rounded-xl text-xs font-bold bg-rose-600 hover:bg-rose-700 text-white cursor-pointer">
-                                        Ya, Hapus
+                                        Sahkan Tindakan
                                     </button>
                                     <button type="button" onclick="SaringanGasController.cancelDeleteUrl()" class="min-h-[44px] px-4 py-2 rounded-xl text-xs font-semibold bg-white hover:bg-slate-100 text-slate-700 border border-slate-300 cursor-pointer">
                                         Batal
@@ -534,7 +847,7 @@
                                     </div>
                                 </div>
                                 <p id="saringan-status-detail" class="text-[11px] text-ink-muted leading-relaxed">
-                                    Tampal URL Web App deployment (<span class="font-mono">/exec</span>) daripada Google Sheets dan tekan <span class="font-semibold text-navy-primary">Uji</span> sebelum menyimpan.
+                                    Tampal URL Web App deployment (<span class="font-mono">/exec</span>) daripada Google Sheets sumber ATHLETIX dan tekan <span class="font-semibold text-navy-primary">Uji</span> sebelum menyimpan.
                                 </p>
                             </div>
                         </div>
@@ -551,7 +864,7 @@
                                             Akhir Balapan
                                         </h4>
                                         <p class="text-xs sm:text-sm text-ink-muted mt-0.5">
-                                            Tetapan pautan Google Apps Script untuk data keputusan akhir balapan (9 Tab: 101–106, 204, 205, 300).
+                                            Tetapan pautan Google Apps Script (GAS) bagi data sumber ATHLETIX untuk modul Akhir Balapan (9 Tab: 101–106, 204, 205, 300).
                                         </p>
                                     </div>
                                 </div>
@@ -570,7 +883,7 @@
                             <div class="space-y-2">
                                 <div class="flex items-center justify-between gap-2">
                                     <label for="gas-url-akhir-balapan" class="block text-xs font-semibold text-navy-primary">
-                                        URL Google Apps Script
+                                        URL Google Apps Script (GAS) — Akhir Balapan
                                     </label>
                                     <span id="akhir-balapan-url-mode-badge" class="inline-flex items-center px-2 py-0.5 rounded-md text-[10px] font-bold uppercase tracking-wider bg-slate-100 text-slate-600 border border-slate-200">
                                         Sedia Diisi
@@ -623,14 +936,27 @@
                                 </button>
                             </div>
 
-                            <div id="akhir-balapan-delete-confirm-box" class="hidden p-4 rounded-xl bg-rose-50 border border-rose-200 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-                                <div class="text-xs text-rose-900">
-                                    <p class="font-bold">Adakah anda pasti mahu menghapus URL Google Apps Script dan mengosongkan paparan Akhir Balapan?</p>
-                                    <p class="text-[11px] text-rose-700 mt-1">Semua data Akhir Balapan yang disimpan dalam aplikasi ini akan dikosongkan. Data asal Google Sheets dan log audit tidak akan dipadam.</p>
+                            <div id="akhir-balapan-delete-confirm-box" class="hidden p-4 rounded-xl bg-rose-50 border border-rose-200 space-y-3">
+                                <div class="text-xs text-rose-900 space-y-2">
+                                    <p class="font-bold">Pilih tindakan penghapusan bagi Akhir Balapan:</p>
+                                    <label class="flex items-start gap-2.5 p-2.5 rounded-lg bg-white border border-rose-200 cursor-pointer">
+                                        <input type="radio" name="akhir-balapan-delete-mode" value="url-only" checked class="mt-0.5 accent-navy-primary">
+                                        <span>
+                                            <span class="font-bold text-navy-primary block">Pilihan A — Putuskan Sambungan URL Sahaja (Disyorkan)</span>
+                                            <span class="text-[11px] text-ink-muted">Hapus URL GAS tersimpan dan hentikan sambungan, tetapi kekalkan semua data Akhir Balapan yang telah diimport.</span>
+                                        </span>
+                                    </label>
+                                    <label class="flex items-start gap-2.5 p-2.5 rounded-lg bg-white border border-rose-200 cursor-pointer">
+                                        <input type="radio" name="akhir-balapan-delete-mode" value="url-and-data" class="mt-0.5 accent-rose-600">
+                                        <span>
+                                            <span class="font-bold text-rose-800 block">Pilihan B — Putuskan Sambungan URL &amp; Kosongkan Data Modul</span>
+                                            <span class="text-[11px] text-rose-700">Hapus URL GAS dan kosongkan semua rekod paparan Akhir Balapan dalam aplikasi ini. Data asal Google Sheets ATHLETIX dan log audit tidak dipadam.</span>
+                                        </span>
+                                    </label>
                                 </div>
-                                <div class="flex items-center gap-2 shrink-0">
+                                <div class="flex flex-wrap items-center justify-end gap-2">
                                     <button type="button" onclick="AkhirBalapanGasController.confirmDeleteUrl()" class="min-h-[44px] px-4 py-2 rounded-xl text-xs font-bold bg-rose-600 hover:bg-rose-700 text-white cursor-pointer">
-                                        Ya, Hapus
+                                        Sahkan Tindakan
                                     </button>
                                     <button type="button" onclick="AkhirBalapanGasController.cancelDeleteUrl()" class="min-h-[44px] px-4 py-2 rounded-xl text-xs font-semibold bg-white hover:bg-slate-100 text-slate-700 border border-slate-300 cursor-pointer">
                                         Batal
@@ -654,7 +980,7 @@
                                     </div>
                                 </div>
                                 <p id="akhir-balapan-status-detail" class="text-[11px] text-ink-muted leading-relaxed">
-                                    Tampal URL Web App deployment (<span class="font-mono">/exec</span>) daripada Google Sheets dan tekan <span class="font-semibold text-navy-primary">Uji</span> sebelum menyimpan.
+                                    Tampal URL Web App deployment (<span class="font-mono">/exec</span>) daripada Google Sheets sumber ATHLETIX dan tekan <span class="font-semibold text-navy-primary">Uji</span> sebelum menyimpan.
                                 </p>
                             </div>
                         </div>
@@ -671,7 +997,7 @@
                                             Acara Relay
                                         </h4>
                                         <p class="text-xs sm:text-sm text-ink-muted mt-0.5">
-                                            Tetapan pautan Google Apps Script untuk data acara lari berganti-ganti (7 Tab: 411–415, 424, 425).
+                                            Tetapan pautan Google Apps Script (GAS) bagi data sumber ATHLETIX untuk modul Acara Relay (7 Tab: 411–415, 424, 425).
                                         </p>
                                     </div>
                                 </div>
@@ -690,7 +1016,7 @@
                             <div class="space-y-2">
                                 <div class="flex items-center justify-between gap-2">
                                     <label for="gas-url-relay" class="block text-xs font-semibold text-navy-primary">
-                                        URL Google Apps Script
+                                        URL Google Apps Script (GAS) — Acara Relay
                                     </label>
                                     <span id="relay-url-mode-badge" class="inline-flex items-center px-2 py-0.5 rounded-md text-[10px] font-bold uppercase tracking-wider bg-slate-100 text-slate-600 border border-slate-200">
                                         Sedia Diisi
@@ -743,14 +1069,27 @@
                                 </button>
                             </div>
 
-                            <div id="relay-delete-confirm-box" class="hidden p-4 rounded-xl bg-rose-50 border border-rose-200 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-                                <div class="text-xs text-rose-900">
-                                    <p class="font-bold">Adakah anda pasti mahu menghapus URL Google Apps Script dan mengosongkan paparan Acara Relay?</p>
-                                    <p class="text-[11px] text-rose-700 mt-1">Semua data Acara Relay yang disimpan dalam aplikasi ini akan dikosongkan. Data asal Google Sheets dan log audit tidak akan dipadam.</p>
+                            <div id="relay-delete-confirm-box" class="hidden p-4 rounded-xl bg-rose-50 border border-rose-200 space-y-3">
+                                <div class="text-xs text-rose-900 space-y-2">
+                                    <p class="font-bold">Pilih tindakan penghapusan bagi Acara Relay:</p>
+                                    <label class="flex items-start gap-2.5 p-2.5 rounded-lg bg-white border border-rose-200 cursor-pointer">
+                                        <input type="radio" name="relay-delete-mode" value="url-only" checked class="mt-0.5 accent-navy-primary">
+                                        <span>
+                                            <span class="font-bold text-navy-primary block">Pilihan A — Putuskan Sambungan URL Sahaja (Disyorkan)</span>
+                                            <span class="text-[11px] text-ink-muted">Hapus URL GAS tersimpan dan hentikan sambungan, tetapi kekalkan semua data Acara Relay yang telah diimport.</span>
+                                        </span>
+                                    </label>
+                                    <label class="flex items-start gap-2.5 p-2.5 rounded-lg bg-white border border-rose-200 cursor-pointer">
+                                        <input type="radio" name="relay-delete-mode" value="url-and-data" class="mt-0.5 accent-rose-600">
+                                        <span>
+                                            <span class="font-bold text-rose-800 block">Pilihan B — Putuskan Sambungan URL &amp; Kosongkan Data Modul</span>
+                                            <span class="text-[11px] text-rose-700">Hapus URL GAS dan kosongkan semua rekod paparan Acara Relay dalam aplikasi ini. Data asal Google Sheets ATHLETIX dan log audit tidak dipadam.</span>
+                                        </span>
+                                    </label>
                                 </div>
-                                <div class="flex items-center gap-2 shrink-0">
+                                <div class="flex flex-wrap items-center justify-end gap-2">
                                     <button type="button" onclick="RelayGasController.confirmDeleteUrl()" class="min-h-[44px] px-4 py-2 rounded-xl text-xs font-bold bg-rose-600 hover:bg-rose-700 text-white cursor-pointer">
-                                        Ya, Hapus
+                                        Sahkan Tindakan
                                     </button>
                                     <button type="button" onclick="RelayGasController.cancelDeleteUrl()" class="min-h-[44px] px-4 py-2 rounded-xl text-xs font-semibold bg-white hover:bg-slate-100 text-slate-700 border border-slate-300 cursor-pointer">
                                         Batal
@@ -774,7 +1113,7 @@
                                     </div>
                                 </div>
                                 <p id="relay-status-detail" class="text-[11px] text-ink-muted leading-relaxed">
-                                    Tampal URL Web App deployment (<span class="font-mono">/exec</span>) daripada Google Sheets dan tekan <span class="font-semibold text-navy-primary">Uji</span> sebelum menyimpan.
+                                    Tampal URL Web App deployment (<span class="font-mono">/exec</span>) daripada Google Sheets sumber ATHLETIX dan tekan <span class="font-semibold text-navy-primary">Uji</span> sebelum menyimpan.
                                 </p>
                             </div>
                         </div>
@@ -791,7 +1130,7 @@
                                             Acara Padang
                                         </h4>
                                         <p class="text-xs sm:text-sm text-ink-muted mt-0.5">
-                                            Tetapan pautan Google Apps Script untuk data acara padang (3 Tab: LONGJUMP, HIGHJUMP, SHOTPUT).
+                                            Tetapan pautan Google Apps Script (GAS) bagi data sumber ATHLETIX untuk modul Acara Padang (3 Tab: LONGJUMP, HIGHJUMP, SHOTPUT).
                                         </p>
                                     </div>
                                 </div>
@@ -810,7 +1149,7 @@
                             <div class="space-y-2">
                                 <div class="flex items-center justify-between gap-2">
                                     <label for="gas-url-padang" class="block text-xs font-semibold text-navy-primary">
-                                        URL Google Apps Script
+                                        URL Google Apps Script (GAS) — Acara Padang
                                     </label>
                                     <span id="padang-url-mode-badge" class="inline-flex items-center px-2 py-0.5 rounded-md text-[10px] font-bold uppercase tracking-wider bg-slate-100 text-slate-600 border border-slate-200">
                                         Sedia Diisi
@@ -863,14 +1202,27 @@
                                 </button>
                             </div>
 
-                            <div id="padang-delete-confirm-box" class="hidden p-4 rounded-xl bg-rose-50 border border-rose-200 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-                                <div class="text-xs text-rose-900">
-                                    <p class="font-bold">Adakah anda pasti mahu menghapus URL Google Apps Script dan mengosongkan paparan Acara Padang?</p>
-                                    <p class="text-[11px] text-rose-700 mt-1">Semua data Acara Padang yang disimpan dalam aplikasi ini akan dikosongkan. Data asal Google Sheets dan log audit tidak akan dipadam.</p>
+                            <div id="padang-delete-confirm-box" class="hidden p-4 rounded-xl bg-rose-50 border border-rose-200 space-y-3">
+                                <div class="text-xs text-rose-900 space-y-2">
+                                    <p class="font-bold">Pilih tindakan penghapusan bagi Acara Padang:</p>
+                                    <label class="flex items-start gap-2.5 p-2.5 rounded-lg bg-white border border-rose-200 cursor-pointer">
+                                        <input type="radio" name="padang-delete-mode" value="url-only" checked class="mt-0.5 accent-navy-primary">
+                                        <span>
+                                            <span class="font-bold text-navy-primary block">Pilihan A — Putuskan Sambungan URL Sahaja (Disyorkan)</span>
+                                            <span class="text-[11px] text-ink-muted">Hapus URL GAS tersimpan dan hentikan sambungan, tetapi kekalkan semua data Acara Padang yang telah diimport.</span>
+                                        </span>
+                                    </label>
+                                    <label class="flex items-start gap-2.5 p-2.5 rounded-lg bg-white border border-rose-200 cursor-pointer">
+                                        <input type="radio" name="padang-delete-mode" value="url-and-data" class="mt-0.5 accent-rose-600">
+                                        <span>
+                                            <span class="font-bold text-rose-800 block">Pilihan B — Putuskan Sambungan URL &amp; Kosongkan Data Modul</span>
+                                            <span class="text-[11px] text-rose-700">Hapus URL GAS dan kosongkan semua rekod paparan Acara Padang dalam aplikasi ini. Data asal Google Sheets ATHLETIX dan log audit tidak dipadam.</span>
+                                        </span>
+                                    </label>
                                 </div>
-                                <div class="flex items-center gap-2 shrink-0">
+                                <div class="flex flex-wrap items-center justify-end gap-2">
                                     <button type="button" onclick="PadangGasController.confirmDeleteUrl()" class="min-h-[44px] px-4 py-2 rounded-xl text-xs font-bold bg-rose-600 hover:bg-rose-700 text-white cursor-pointer">
-                                        Ya, Hapus
+                                        Sahkan Tindakan
                                     </button>
                                     <button type="button" onclick="PadangGasController.cancelDeleteUrl()" class="min-h-[44px] px-4 py-2 rounded-xl text-xs font-semibold bg-white hover:bg-slate-100 text-slate-700 border border-slate-300 cursor-pointer">
                                         Batal
@@ -894,7 +1246,7 @@
                                     </div>
                                 </div>
                                 <p id="padang-status-detail" class="text-[11px] text-ink-muted leading-relaxed">
-                                    Tampal URL Web App deployment (<span class="font-mono">/exec</span>) daripada Google Sheets dan tekan <span class="font-semibold text-navy-primary">Uji</span> sebelum menyimpan.
+                                    Tampal URL Web App deployment (<span class="font-mono">/exec</span>) daripada Google Sheets sumber ATHLETIX dan tekan <span class="font-semibold text-navy-primary">Uji</span> sebelum menyimpan.
                                 </p>
                             </div>
                         </div>
@@ -1239,6 +1591,11 @@
             <p id="loading-message" class="text-xs sm:text-sm font-semibold text-navy-primary">Memproses Data...</p>
         </div>
     </div>
+
+    <!-- ===================================================================== -->
+    <!-- KONTENA KHUSUS CETAKAN RASMI (TERSEMBUNYI DI SKRIN, AKTIF KETIKA CETAK) -->
+    <!-- ===================================================================== -->
+    <div id="official-print-area" aria-hidden="true"></div>
 
     <!-- ===================================================================== -->
     <!-- TERAS SENI BINA JAVASCRIPT MODULAR STATISTIX HUB                      -->
@@ -3920,12 +4277,13 @@
             GAS_SOURCE_CODE: `/**
  * STATISTIX HUB — GOOGLE APPS SCRIPT (ACARA SARINGAN)
  * Fail: Statistix_Saringan_Code.gs
+ * Sumber Data: Google Sheets ATHLETIX
  * Julat Bacaan:
  * - Lelaki Saringan 1   : A5:G12 (8 baris)
  * - Lelaki Saringan 2   : A18:G25 (8 baris)
  * - Perempuan Saringan 1: I5:O12 (8 baris)
  * - Perempuan Saringan 2: I18:O25 (8 baris)
- * Julat Suntingan (doPost):
+ * Julat Suntingan (doPost + LockService):
  * - Lelaki Saringan 1   : F5:F12 (kedudukan sahaja)
  * - Lelaki Saringan 2   : F18:G25 (kedudukan & masa)
  * - Perempuan Saringan 1: N5:O12 (kedudukan & masa)
@@ -4008,45 +4366,57 @@ function readHeatRows_(sheet, startRow, endRow, startCol) {
 }
 
 function doPost(e) {
+  const params = (e && e.parameter) || {};
+  const action = String(params.action || 'update').trim();
+  const eventNo = String(params.eventNo || '').trim();
+  const gender = String(params.gender || '').trim().toLowerCase();
+  const heat = String(params.heat || '').trim();
+  const sheetRow = Number(params.sheetRow);
+  const noBib = String(params.noBib || '').trim();
+  const field = String(params.field || '').trim();
+  const hasExpected = Object.prototype.hasOwnProperty.call(params, 'expectedValue');
+  const expectedValue = hasExpected ? String(params.expectedValue || '').trim() : null;
+  const value = String(params.value || '').trim();
+
+  if (action !== 'update') {
+    return jsonResponse_({ success: false, message: 'Tindakan operasi tidak sah.' });
+  }
+  if (ALLOWED_TABS.indexOf(eventNo) === -1) {
+    return jsonResponse_({ success: false, message: 'Tab acara tidak sah.' });
+  }
+  if (gender !== 'lelaki' && gender !== 'perempuan') {
+    return jsonResponse_({ success: false, message: 'Kategori tidak sah.' });
+  }
+  if (heat !== 'saringan1' && heat !== 'saringan2') {
+    return jsonResponse_({ success: false, message: 'Saringan tidak sah.' });
+  }
+
+  const validRow = (heat === 'saringan1' && sheetRow >= 5 && sheetRow <= 12) ||
+                   (heat === 'saringan2' && sheetRow >= 18 && sheetRow <= 25);
+  if (!validRow) {
+    return jsonResponse_({ success: false, message: 'Baris tidak dibenarkan untuk suntingan.' });
+  }
+
+  if (gender === 'lelaki' && heat === 'saringan1') {
+    if (field !== 'kedudukan') {
+      return jsonResponse_({ success: false, message: 'Lelaki Saringan 1 hanya membenarkan suntingan Kedudukan (F5:F12).' });
+    }
+  } else {
+    if (field !== 'kedudukan' && field !== 'masa') {
+      return jsonResponse_({ success: false, message: 'Medan tidak dibenarkan untuk suntingan.' });
+    }
+  }
+
+  const lock = LockService.getScriptLock();
+  if (!lock.tryLock(10000)) {
+    return jsonResponse_({
+      success: false,
+      code: 'LOCK_BUSY',
+      message: 'Pelayan Google Sheets sedang memproses kemas kini lain. Sila cuba sebentar lagi.'
+    });
+  }
+
   try {
-    const params = (e && e.parameter) || {};
-    const eventNo = String(params.eventNo || '').trim();
-    const gender = String(params.gender || '').trim().toLowerCase();
-    const heat = String(params.heat || '').trim();
-    const sheetRow = Number(params.sheetRow);
-    const noBib = String(params.noBib || '').trim();
-    const field = String(params.field || '').trim();
-    const hasExpected = Object.prototype.hasOwnProperty.call(params, 'expectedValue');
-    const expectedValue = hasExpected ? String(params.expectedValue || '').trim() : null;
-    const value = String(params.value || '').trim();
-
-    if (ALLOWED_TABS.indexOf(eventNo) === -1) {
-      return jsonResponse_({ success: false, message: 'Tab acara tidak sah.' });
-    }
-    if (gender !== 'lelaki' && gender !== 'perempuan') {
-      return jsonResponse_({ success: false, message: 'Kategori tidak sah.' });
-    }
-    if (heat !== 'saringan1' && heat !== 'saringan2') {
-      return jsonResponse_({ success: false, message: 'Saringan tidak sah.' });
-    }
-
-    const validRow = (heat === 'saringan1' && sheetRow >= 5 && sheetRow <= 12) ||
-                     (heat === 'saringan2' && sheetRow >= 18 && sheetRow <= 25);
-    if (!validRow) {
-      return jsonResponse_({ success: false, message: 'Baris tidak dibenarkan untuk suntingan.' });
-    }
-
-    // Whitelist medan mengikut kategori & saringan
-    if (gender === 'lelaki' && heat === 'saringan1') {
-      if (field !== 'kedudukan') {
-        return jsonResponse_({ success: false, message: 'Lelaki Saringan 1 hanya membenarkan suntingan Kedudukan (F5:F12).' });
-      }
-    } else {
-      if (field !== 'kedudukan' && field !== 'masa') {
-        return jsonResponse_({ success: false, message: 'Medan tidak dibenarkan untuk suntingan.' });
-      }
-    }
-
     const ss = SpreadsheetApp.getActiveSpreadsheet();
     const sheet = ss.getSheetByName(eventNo);
     if (!sheet) {
@@ -4069,9 +4439,10 @@ function doPost(e) {
     }
 
     const currentVal = String(targetRange.getDisplayValue() || '').trim();
-    if (hasExpected && expectedValue !== currentVal) {
+    if (!hasExpected || expectedValue !== currentVal) {
       return jsonResponse_({
         success: false,
+        code: 'CONFLICT_MODIFIED',
         message: 'Konflik kemas kini serentak: Nilai sel telah berubah dalam Google Sheets. Sila muat semula data.'
       });
     }
@@ -4090,6 +4461,8 @@ function doPost(e) {
       success: false,
       message: 'Ralat menyimpan data Acara Saringan: ' + err.message
     });
+  } finally {
+    lock.releaseLock();
   }
 }
 
@@ -4155,6 +4528,9 @@ function jsonResponse_(obj) {
                 if (config.saringanAppsScriptUrl && count > 0) {
                     if (connEl) connEl.textContent = 'Tersambung & Tersimpan';
                     if (updEl) updEl.textContent = SaringanModule.formatDateTime(config.saringanLastSyncAt || config.updatedAt);
+                    if (tabsEl) tabsEl.textContent = `${count} / 9 Tab`;
+                } else if (!config.saringanAppsScriptUrl && count > 0) {
+                    if (connEl) connEl.textContent = 'Terputus (Data Dikekalkan)';
                     if (tabsEl) tabsEl.textContent = `${count} / 9 Tab`;
                 }
             },
@@ -4233,13 +4609,30 @@ function jsonResponse_(obj) {
             },
 
             confirmDeleteUrl() {
-                this.cancelDeleteUrl();
-                StorageManager.saveTournamentConfig({
+                const selectedRadio = document.querySelector('input[name="saringan-delete-mode"]:checked');
+                const deleteMode = selectedRadio ? selectedRadio.value : 'url-only';
+
+                const cfgSaved = StorageManager.saveTournamentConfig({
                     saringanAppsScriptUrl: '',
                     saringanLastSyncAt: null
                 });
-                StorageManager.saveSaringanStore({ events: {} });
-                StorageManager.appendSaringanAuditLog({ action: 'HAPUS_KONFIGURASI_GAS' });
+                if (!cfgSaved) {
+                    UIComponents.showToast('Gagal menghapus konfigurasi URL daripada storan tempatan.', 'error');
+                    return;
+                }
+
+                if (deleteMode === 'url-and-data') {
+                    const storeCleared = StorageManager.saveSaringanStore({ events: {} });
+                    if (!storeCleared) {
+                        UIComponents.showToast('URL diputuskan, tetapi gagal mengosongkan data modul.', 'error');
+                        return;
+                    }
+                }
+
+                this.cancelDeleteUrl();
+                StorageManager.appendSaringanAuditLog({
+                    action: deleteMode === 'url-and-data' ? 'HAPUS_URL_DAN_DATA_GAS' : 'PUTUS_SAMBUNGAN_URL_GAS'
+                });
 
                 const inputEl = document.getElementById('gas-url-saringan');
                 if (inputEl) {
@@ -4248,18 +4641,32 @@ function jsonResponse_(obj) {
                 }
                 this.updateModeBadge(false);
 
+                const store = StorageManager.getSaringanStore();
+                const remainingCount = SaringanModule.ALLOWED_EVENT_NOS.filter(no => Boolean(store.events && store.events[no])).length;
+
                 const connEl = document.getElementById('saringan-status-connection');
                 const updEl = document.getElementById('saringan-status-updated');
                 const tabsEl = document.getElementById('saringan-status-tabs');
-                if (connEl) connEl.textContent = 'Belum Diuji';
+                const detailEl = document.getElementById('saringan-status-detail');
+                if (connEl) connEl.textContent = deleteMode === 'url-and-data' ? 'Belum Diuji' : 'Terputus (Data Dikekalkan)';
                 if (updEl) updEl.textContent = '—';
-                if (tabsEl) tabsEl.textContent = '0 / 9 Tab';
+                if (tabsEl) tabsEl.textContent = `${remainingCount} / 9 Tab`;
+                if (detailEl) {
+                    detailEl.textContent = deleteMode === 'url-and-data'
+                        ? 'URL GAS dan rekod paparan Acara Saringan telah dikosongkan.'
+                        : 'Sambungan URL GAS telah diputuskan. Rekod import sedia ada masih dikekalkan.';
+                }
 
                 this.syncLiveIndicators();
                 if (!AppController.isAdminOpen && AppController.currentView === 'saringan') {
                     AppController.loadView('saringan');
                 }
-                UIComponents.showToast('URL dan data Acara Saringan telah dihapus.', 'warning');
+                UIComponents.showToast(
+                    deleteMode === 'url-and-data'
+                        ? 'URL GAS dan data Acara Saringan telah dikosongkan.'
+                        : 'Sambungan URL GAS Acara Saringan diputuskan (data import sedia ada dikekalkan).',
+                    'warning'
+                );
             },
 
             validateGasTestResponse(data) {
@@ -4366,6 +4773,35 @@ function jsonResponse_(obj) {
                 }
             },
 
+            hasEventResultsChanged(prevEv, nextEv) {
+                if (!prevEv) return false;
+                const serializeHeat = (rows) => (Array.isArray(rows) ? rows : []).map(r => [
+                    String(r.sheetRow || ''),
+                    String(r.lorong || '').trim(),
+                    String(r.namaAtlet || '').trim(),
+                    String(r.pasukan || '').trim().toUpperCase(),
+                    String(r.noBib || '').trim().toUpperCase(),
+                    String(r.kedudukan || '').trim(),
+                    String(r.masa || '').trim()
+                ].join('|')).join(';;');
+
+                const prevSig = [
+                    serializeHeat(prevEv.lelaki && prevEv.lelaki.saringan1),
+                    serializeHeat(prevEv.lelaki && prevEv.lelaki.saringan2),
+                    serializeHeat(prevEv.perempuan && prevEv.perempuan.saringan1),
+                    serializeHeat(prevEv.perempuan && prevEv.perempuan.saringan2)
+                ].join('###');
+
+                const nextSig = [
+                    serializeHeat(nextEv.lelaki && nextEv.lelaki.saringan1),
+                    serializeHeat(nextEv.lelaki && nextEv.lelaki.saringan2),
+                    serializeHeat(nextEv.perempuan && nextEv.perempuan.saringan1),
+                    serializeHeat(nextEv.perempuan && nextEv.perempuan.saringan2)
+                ].join('###');
+
+                return prevSig !== nextSig;
+            },
+
             async saveAndImportData() {
                 const inputEl = document.getElementById('gas-url-saringan');
                 const url = inputEl ? inputEl.value.trim() : '';
@@ -4391,18 +4827,28 @@ function jsonResponse_(obj) {
                     }
 
                     const existingStore = StorageManager.getSaringanStore();
-                    const nextEvents = {};
-                    let tabCount = 0;
+                    const prevConfigSnapshot = StorageManager.getTournamentConfig();
+                    const prevStoreSnapshot = JSON.parse(JSON.stringify(existingStore));
+
+                    // Mulakan dengan salinan tab sedia ada bagi melindungi data lama jika respons GAS separa
+                    const nextEvents = JSON.parse(JSON.stringify((existingStore && existingStore.events) || {}));
+                    const reportedMissing = Array.isArray(data.missingTabs) ? data.missingTabs.map(t => String(t).trim()) : [];
+                    const missingOrFailedTabs = [];
+                    const invalidatedVerifiedTabs = [];
+                    let importedTabCount = 0;
 
                     SaringanModule.ALLOWED_EVENT_NOS.forEach(no => {
                         const incoming = data.events[no];
-                        if (!incoming || typeof incoming !== 'object') return;
-                        tabCount++;
+                        if (!incoming || typeof incoming !== 'object' || Array.isArray(incoming) || reportedMissing.includes(no)) {
+                            missingOrFailedTabs.push(no);
+                            return;
+                        }
+                        importedTabCount++;
                         const prev = existingStore.events && existingStore.events[no];
-                        nextEvents[no] = {
+                        const candidateEvent = {
                             eventNo: no,
-                            status: prev && prev.status === 'DISAHKAN_RASMI' ? 'DISAHKAN_RASMI' : 'BELUM_SELESAI',
-                            verifiedAt: prev ? prev.verifiedAt : null,
+                            status: 'BELUM_SELESAI',
+                            verifiedAt: null,
                             updatedAt: new Date().toISOString(),
                             lelaki: {
                                 saringan1: Array.isArray(incoming.lelaki && incoming.lelaki.saringan1) ? incoming.lelaki.saringan1 : [],
@@ -4413,35 +4859,84 @@ function jsonResponse_(obj) {
                                 saringan2: Array.isArray(incoming.perempuan && incoming.perempuan.saringan2) ? incoming.perempuan.saringan2 : []
                             }
                         };
+
+                        if (prev && prev.status === 'DISAHKAN_RASMI') {
+                            if (this.hasEventResultsChanged(prev, candidateEvent)) {
+                                candidateEvent.status = 'BELUM_SELESAI';
+                                candidateEvent.verifiedAt = null;
+                                candidateEvent.requiresReverification = true;
+                                invalidatedVerifiedTabs.push(no);
+                            } else {
+                                candidateEvent.status = 'DISAHKAN_RASMI';
+                                candidateEvent.verifiedAt = prev.verifiedAt || null;
+                            }
+                        }
+
+                        nextEvents[no] = candidateEvent;
                     });
 
-                    if (tabCount === 0) {
+                    if (importedTabCount === 0) {
                         throw new Error('Tiada rekod tab acara sah ditemui dalam respons GAS.');
                     }
 
                     const nowIso = new Date().toISOString();
-                    StorageManager.saveSaringanStore({ events: nextEvents });
-                    StorageManager.saveTournamentConfig({
+                    const storeSaved = StorageManager.saveSaringanStore({ events: nextEvents });
+                    if (!storeSaved) {
+                        throw new Error('Gagal menulis rekod Acara Saringan ke storan tempatan.');
+                    }
+
+                    const cfgSaved = StorageManager.saveTournamentConfig({
                         saringanAppsScriptUrl: url,
                         saringanLastSyncAt: nowIso
                     });
+                    if (!cfgSaved) {
+                        StorageManager.saveSaringanStore(prevStoreSnapshot);
+                        throw new Error('Gagal menyimpan URL konfigurasi. Data acara dipulihkan kepada keadaan terdahulu.');
+                    }
+
+                    // Semak bacaan semula selepas simpan
+                    const verifyStore = StorageManager.getSaringanStore();
+                    const verifyCfg = StorageManager.getTournamentConfig();
+                    if (!verifyStore || !verifyStore.events || String(verifyCfg.saringanAppsScriptUrl || '').trim() !== url) {
+                        StorageManager.saveSaringanStore(prevStoreSnapshot);
+                        StorageManager.saveTournamentConfig(prevConfigSnapshot);
+                        throw new Error('Pengesahan bacaan semula storan gagal. Perubahan telah dibatalkan.');
+                    }
+
                     StorageManager.appendSaringanAuditLog({
-                        action: 'IMPORT_DATA_GAS',
-                        tabsImported: tabCount
+                        action: missingOrFailedTabs.length > 0 ? 'IMPORT_SEPARA_DATA_GAS' : 'IMPORT_DATA_GAS',
+                        tabsImported: importedTabCount,
+                        preservedMissingTabs: missingOrFailedTabs,
+                        invalidatedVerifiedTabs
                     });
 
                     if (inputEl) inputEl.disabled = true;
                     this.updateModeBadge(true);
 
+                    const totalStoredTabs = SaringanModule.ALLOWED_EVENT_NOS.filter(no => Boolean(nextEvents[no])).length;
                     const connEl = document.getElementById('saringan-status-connection');
                     const updEl = document.getElementById('saringan-status-updated');
                     const tabsEl = document.getElementById('saringan-status-tabs');
-                    if (connEl) connEl.textContent = 'Tersambung & Tersimpan';
+                    const detailEl = document.getElementById('saringan-status-detail');
+                    if (connEl) connEl.textContent = missingOrFailedTabs.length > 0 ? 'Tersambung (Import Separa)' : 'Tersambung & Tersimpan';
                     if (updEl) updEl.textContent = SaringanModule.formatDateTime(nowIso);
-                    if (tabsEl) tabsEl.textContent = `${tabCount} / 9 Tab`;
+                    if (tabsEl) tabsEl.textContent = `${totalStoredTabs} / 9 Tab`;
+                    if (detailEl) {
+                        detailEl.textContent = missingOrFailedTabs.length > 0
+                            ? `Import separa: ${importedTabCount} tab dikemas kini; tab tiada/gagal (${missingOrFailedTabs.join(', ')}) mengekalkan data sedia ada.`
+                            : `Semua ${importedTabCount} / 9 tab Acara Saringan berjaya diimport dan disahkan.`;
+                    }
 
                     this.syncLiveIndicators();
-                    UIComponents.showToast(`Berjaya menyimpan & mengimport ${tabCount} tab Acara Saringan.`, 'success');
+                    if (invalidatedVerifiedTabs.length > 0) {
+                        UIComponents.showToast(`Perhatian: Status DISAHKAN RASMI dibatalkan pada tab ${invalidatedVerifiedTabs.join(', ')} kerana keputusan berubah.`, 'warning');
+                    }
+                    UIComponents.showToast(
+                        missingOrFailedTabs.length > 0
+                            ? `Import separa berjaya (${importedTabCount}/9 tab dikemas kini; data lama tab lain dikekalkan).`
+                            : `Berjaya menyimpan & mengimport ${importedTabCount} tab Acara Saringan.`,
+                        missingOrFailedTabs.length > 0 ? 'warning' : 'success'
+                    );
                 } catch (err) {
                     UIComponents.showToast(`Gagal mengimport data: ${err.message}`, 'error');
                 } finally {
@@ -4458,10 +4953,11 @@ function jsonResponse_(obj) {
             GAS_SOURCE_CODE: `/**
  * STATISTIX HUB — GOOGLE APPS SCRIPT (AKHIR BALAPAN)
  * Fail: Statistix_Akhir_Balapan_Code.gs
+ * Sumber Data: Google Sheets ATHLETIX
  * Julat Bacaan:
  * - Lelaki   : A6:G13 (8 baris)
  * - Perempuan: A20:G27 (8 baris)
- * Julat Suntingan (doPost):
+ * Julat Suntingan (doPost + LockService):
  * - Lelaki   : F6:F13 (kedudukan sahaja)
  * - Perempuan: F20:G27 (kedudukan & masa)
  */
@@ -4536,34 +5032,47 @@ function readAkhirRows_(sheet, startRow, endRow) {
 }
 
 function doPost(e) {
+  const params = (e && e.parameter) || {};
+  const action = String(params.action || 'update').trim();
+  const eventNo = String(params.eventNo || '').trim();
+  const gender = String(params.gender || '').trim().toLowerCase();
+  const sheetRow = Number(params.sheetRow);
+  const noBib = String(params.noBib || '').trim();
+  const field = String(params.field || '').trim();
+  const hasExpected = Object.prototype.hasOwnProperty.call(params, 'expectedValue');
+  const expectedValue = hasExpected ? String(params.expectedValue || '').trim() : null;
+  const value = String(params.value || '').trim();
+
+  if (action !== 'update') {
+    return jsonResponse_({ success: false, message: 'Tindakan operasi tidak sah.' });
+  }
+  if (ALLOWED_TABS.indexOf(eventNo) === -1) {
+    return jsonResponse_({ success: false, message: 'Tab acara tidak sah.' });
+  }
+  if (gender !== 'lelaki' && gender !== 'perempuan') {
+    return jsonResponse_({ success: false, message: 'Kategori tidak sah.' });
+  }
+
+  if (gender === 'lelaki') {
+    if (sheetRow < 6 || sheetRow > 13 || field !== 'kedudukan') {
+      return jsonResponse_({ success: false, message: 'Kategori Lelaki hanya membenarkan suntingan Kedudukan pada julat F6:F13.' });
+    }
+  } else {
+    if (sheetRow < 20 || sheetRow > 27 || (field !== 'kedudukan' && field !== 'masa')) {
+      return jsonResponse_({ success: false, message: 'Kategori Perempuan hanya membenarkan suntingan pada julat F20:G27.' });
+    }
+  }
+
+  const lock = LockService.getScriptLock();
+  if (!lock.tryLock(10000)) {
+    return jsonResponse_({
+      success: false,
+      code: 'LOCK_BUSY',
+      message: 'Pelayan Google Sheets sedang memproses kemas kini lain. Sila cuba sebentar lagi.'
+    });
+  }
+
   try {
-    const params = (e && e.parameter) || {};
-    const eventNo = String(params.eventNo || '').trim();
-    const gender = String(params.gender || '').trim().toLowerCase();
-    const sheetRow = Number(params.sheetRow);
-    const noBib = String(params.noBib || '').trim();
-    const field = String(params.field || '').trim();
-    const hasExpected = Object.prototype.hasOwnProperty.call(params, 'expectedValue');
-    const expectedValue = hasExpected ? String(params.expectedValue || '').trim() : null;
-    const value = String(params.value || '').trim();
-
-    if (ALLOWED_TABS.indexOf(eventNo) === -1) {
-      return jsonResponse_({ success: false, message: 'Tab acara tidak sah.' });
-    }
-    if (gender !== 'lelaki' && gender !== 'perempuan') {
-      return jsonResponse_({ success: false, message: 'Kategori tidak sah.' });
-    }
-
-    if (gender === 'lelaki') {
-      if (sheetRow < 6 || sheetRow > 13 || field !== 'kedudukan') {
-        return jsonResponse_({ success: false, message: 'Kategori Lelaki hanya membenarkan suntingan Kedudukan pada julat F6:F13.' });
-      }
-    } else {
-      if (sheetRow < 20 || sheetRow > 27 || (field !== 'kedudukan' && field !== 'masa')) {
-        return jsonResponse_({ success: false, message: 'Kategori Perempuan hanya membenarkan suntingan pada julat F20:G27.' });
-      }
-    }
-
     const ss = SpreadsheetApp.getActiveSpreadsheet();
     const sheet = ss.getSheetByName(eventNo);
     if (!sheet) {
@@ -4584,9 +5093,10 @@ function doPost(e) {
     }
 
     const currentVal = String(targetRange.getDisplayValue() || '').trim();
-    if (hasExpected && expectedValue !== currentVal) {
+    if (!hasExpected || expectedValue !== currentVal) {
       return jsonResponse_({
         success: false,
+        code: 'CONFLICT_MODIFIED',
         message: 'Konflik kemas kini serentak: Nilai sel telah berubah dalam Google Sheets. Sila muat semula data.'
       });
     }
@@ -4605,6 +5115,8 @@ function doPost(e) {
       success: false,
       message: 'Ralat menyimpan data Akhir Balapan: ' + err.message
     });
+  } finally {
+    lock.releaseLock();
   }
 }
 
@@ -4666,6 +5178,9 @@ function jsonResponse_(obj) {
                 if (config.akhirBalapanAppsScriptUrl && count > 0) {
                     if (connEl) connEl.textContent = 'Tersambung & Tersimpan';
                     if (updEl) updEl.textContent = SaringanModule.formatDateTime(config.akhirBalapanLastSyncAt || config.updatedAt);
+                    if (tabsEl) tabsEl.textContent = `${count} / 9 Tab`;
+                } else if (!config.akhirBalapanAppsScriptUrl && count > 0) {
+                    if (connEl) connEl.textContent = 'Terputus (Data Dikekalkan)';
                     if (tabsEl) tabsEl.textContent = `${count} / 9 Tab`;
                 }
             },
@@ -4744,13 +5259,30 @@ function jsonResponse_(obj) {
             },
 
             confirmDeleteUrl() {
-                this.cancelDeleteUrl();
-                StorageManager.saveTournamentConfig({
+                const selectedRadio = document.querySelector('input[name="akhir-balapan-delete-mode"]:checked');
+                const deleteMode = selectedRadio ? selectedRadio.value : 'url-only';
+
+                const cfgSaved = StorageManager.saveTournamentConfig({
                     akhirBalapanAppsScriptUrl: '',
                     akhirBalapanLastSyncAt: null
                 });
-                StorageManager.saveAkhirBalapanStore({ events: {} });
-                StorageManager.appendAkhirBalapanAuditLog({ action: 'HAPUS_KONFIGURASI_GAS' });
+                if (!cfgSaved) {
+                    UIComponents.showToast('Gagal menghapus konfigurasi URL daripada storan tempatan.', 'error');
+                    return;
+                }
+
+                if (deleteMode === 'url-and-data') {
+                    const storeCleared = StorageManager.saveAkhirBalapanStore({ events: {} });
+                    if (!storeCleared) {
+                        UIComponents.showToast('URL diputuskan, tetapi gagal mengosongkan data modul.', 'error');
+                        return;
+                    }
+                }
+
+                this.cancelDeleteUrl();
+                StorageManager.appendAkhirBalapanAuditLog({
+                    action: deleteMode === 'url-and-data' ? 'HAPUS_URL_DAN_DATA_GAS' : 'PUTUS_SAMBUNGAN_URL_GAS'
+                });
 
                 const inputEl = document.getElementById('gas-url-akhir-balapan');
                 if (inputEl) {
@@ -4759,26 +5291,61 @@ function jsonResponse_(obj) {
                 }
                 this.updateModeBadge(false);
 
+                const store = StorageManager.getAkhirBalapanStore();
+                const remainingCount = AkhirBalapanModule.ALLOWED_EVENT_NOS.filter(no => Boolean(store.events && store.events[no])).length;
+
                 const connEl = document.getElementById('akhir-balapan-status-connection');
                 const updEl = document.getElementById('akhir-balapan-status-updated');
                 const tabsEl = document.getElementById('akhir-balapan-status-tabs');
-                if (connEl) connEl.textContent = 'Belum Diuji';
+                const detailEl = document.getElementById('akhir-balapan-status-detail');
+                if (connEl) connEl.textContent = deleteMode === 'url-and-data' ? 'Belum Diuji' : 'Terputus (Data Dikekalkan)';
                 if (updEl) updEl.textContent = '—';
-                if (tabsEl) tabsEl.textContent = '0 / 9 Tab';
+                if (tabsEl) tabsEl.textContent = `${remainingCount} / 9 Tab`;
+                if (detailEl) {
+                    detailEl.textContent = deleteMode === 'url-and-data'
+                        ? 'URL GAS dan rekod paparan Akhir Balapan telah dikosongkan.'
+                        : 'Sambungan URL GAS telah diputuskan. Rekod import sedia ada masih dikekalkan.';
+                }
 
                 GlobalLiveStatusController.updateIndicator();
                 if (!AppController.isAdminOpen && AppController.currentView === 'akhir-balapan') {
                     AppController.loadView('akhir-balapan');
                 }
-                UIComponents.showToast('URL dan data Akhir Balapan telah dihapus.', 'warning');
+                UIComponents.showToast(
+                    deleteMode === 'url-and-data'
+                        ? 'URL GAS dan data Akhir Balapan telah dikosongkan.'
+                        : 'Sambungan URL GAS Akhir Balapan diputuskan (data import sedia ada dikekalkan).',
+                    'warning'
+                );
             },
 
-            importAndNormalizeData(rawEvents, existingStore) {
+            hasEventResultsChanged(prevEv, nextEv) {
+                if (!prevEv) return false;
+                const serializeRows = (rows) => (Array.isArray(rows) ? rows : []).map(r => [
+                    String(r.sheetRow || ''),
+                    String(r.lorong || '').trim(),
+                    String(r.namaAtlet || '').trim(),
+                    String(r.pasukan || '').trim().toUpperCase(),
+                    String(r.noBib || '').trim().toUpperCase(),
+                    String(r.kedudukan || '').trim(),
+                    String(r.masa || '').trim()
+                ].join('|')).join(';;');
+
+                const prevSig = `${serializeRows(prevEv.lelaki)}###${serializeRows(prevEv.perempuan)}`;
+                const nextSig = `${serializeRows(nextEv.lelaki)}###${serializeRows(nextEv.perempuan)}`;
+                return prevSig !== nextSig;
+            },
+
+            importAndNormalizeData(rawEvents, existingStore, reportedMissingTabs = []) {
                 if (!rawEvents || typeof rawEvents !== 'object' || Array.isArray(rawEvents)) {
-                    return { nextEvents: {}, tabCount: 0, validStructureCount: 0 };
+                    return { nextEvents: {}, tabCount: 0, validStructureCount: 0, missingOrFailedTabs: [...AkhirBalapanModule.ALLOWED_EVENT_NOS], invalidatedVerifiedTabs: [] };
                 }
 
-                const nextEvents = {};
+                // Kekalkan data lama bagi tab yang tiada dalam respons separa
+                const nextEvents = JSON.parse(JSON.stringify((existingStore && existingStore.events) || {}));
+                const missingSet = new Set((Array.isArray(reportedMissingTabs) ? reportedMissingTabs : []).map(t => String(t).trim()));
+                const missingOrFailedTabs = [];
+                const invalidatedVerifiedTabs = [];
                 let tabCount = 0;
                 let validStructureCount = 0;
 
@@ -4803,25 +5370,45 @@ function jsonResponse_(obj) {
 
                 AkhirBalapanModule.ALLOWED_EVENT_NOS.forEach(no => {
                     const incoming = rawEvents[no];
-                    if (!incoming || typeof incoming !== 'object' || Array.isArray(incoming)) return;
+                    if (!incoming || typeof incoming !== 'object' || Array.isArray(incoming) || missingSet.has(no)) {
+                        missingOrFailedTabs.push(no);
+                        return;
+                    }
 
                     const hasValidCategoryArrays = Array.isArray(incoming.lelaki) || Array.isArray(incoming.perempuan);
-                    if (!hasValidCategoryArrays) return;
+                    if (!hasValidCategoryArrays) {
+                        missingOrFailedTabs.push(no);
+                        return;
+                    }
 
                     validStructureCount++;
                     tabCount++;
                     const prev = existingStore && existingStore.events && existingStore.events[no];
-                    nextEvents[no] = {
+                    const candidateEvent = {
                         eventNo: no,
-                        status: prev && prev.status === 'DISAHKAN_RASMI' ? 'DISAHKAN_RASMI' : 'BELUM_SELESAI',
-                        verifiedAt: prev ? prev.verifiedAt : null,
+                        status: 'BELUM_SELESAI',
+                        verifiedAt: null,
                         updatedAt: new Date().toISOString(),
                         lelaki: normalizeRows(incoming.lelaki, 6, 13),
                         perempuan: normalizeRows(incoming.perempuan, 20, 27)
                     };
+
+                    if (prev && prev.status === 'DISAHKAN_RASMI') {
+                        if (this.hasEventResultsChanged(prev, candidateEvent)) {
+                            candidateEvent.status = 'BELUM_SELESAI';
+                            candidateEvent.verifiedAt = null;
+                            candidateEvent.requiresReverification = true;
+                            invalidatedVerifiedTabs.push(no);
+                        } else {
+                            candidateEvent.status = 'DISAHKAN_RASMI';
+                            candidateEvent.verifiedAt = prev.verifiedAt || null;
+                        }
+                    }
+
+                    nextEvents[no] = candidateEvent;
                 });
 
-                return { nextEvents, tabCount, validStructureCount };
+                return { nextEvents, tabCount, validStructureCount, missingOrFailedTabs, invalidatedVerifiedTabs };
             },
 
             validateGasTestResponse(data) {
@@ -4942,7 +5529,6 @@ function jsonResponse_(obj) {
 
                 UIComponents.showLoading('Mengimport data Akhir Balapan...');
                 try {
-                    // LANGKAH A & B — VALIDATE URL & REQUEST EVENT DATA
                     let res;
                     try {
                         res = await fetch(url);
@@ -4953,7 +5539,6 @@ function jsonResponse_(obj) {
                         throw new Error(`Pelayan GAS mengembalikan ralat HTTP ${res.status}.`);
                     }
 
-                    // LANGKAH C — VALIDATE RESPONSE
                     let data;
                     try {
                         data = await res.json();
@@ -4991,41 +5576,74 @@ function jsonResponse_(obj) {
                         throw new Error('Endpoint GAS tidak memulangkan objek keputusan acara (events) yang sah untuk diimport.');
                     }
 
-                    // LANGKAH D — NORMALIZE DATA
                     const existingStore = StorageManager.getAkhirBalapanStore();
-                    const { nextEvents, tabCount, validStructureCount } = this.importAndNormalizeData(data.events, existingStore);
+                    const prevConfigSnapshot = StorageManager.getTournamentConfig();
+                    const prevStoreSnapshot = JSON.parse(JSON.stringify(existingStore));
+
+                    const { nextEvents, tabCount, validStructureCount, missingOrFailedTabs, invalidatedVerifiedTabs } =
+                        this.importAndNormalizeData(data.events, existingStore, data.missingTabs);
                     if (tabCount === 0 || validStructureCount === 0) {
                         throw new Error('Tiada struktur data acara Akhir Balapan (lelaki/perempuan) yang sah ditemui dalam objek events.');
                     }
 
-                    // LANGKAH E — SAVE DATA
                     const nowIso = new Date().toISOString();
-                    StorageManager.saveAkhirBalapanStore({ events: nextEvents });
-                    StorageManager.saveTournamentConfig({
+                    const storeSaved = StorageManager.saveAkhirBalapanStore({ events: nextEvents });
+                    if (!storeSaved) {
+                        throw new Error('Gagal menulis rekod Akhir Balapan ke storan tempatan.');
+                    }
+
+                    const cfgSaved = StorageManager.saveTournamentConfig({
                         akhirBalapanAppsScriptUrl: url,
                         akhirBalapanLastSyncAt: nowIso
                     });
+                    if (!cfgSaved) {
+                        StorageManager.saveAkhirBalapanStore(prevStoreSnapshot);
+                        throw new Error('Gagal menyimpan konfigurasi URL Akhir Balapan. Data terdahulu dipulihkan.');
+                    }
+
+                    // Semak bacaan semula selepas simpan
+                    const verifyStore = StorageManager.getAkhirBalapanStore();
+                    const verifyCfg = StorageManager.getTournamentConfig();
+                    if (!verifyStore || !verifyStore.events || String(verifyCfg.akhirBalapanAppsScriptUrl || '').trim() !== url) {
+                        StorageManager.saveAkhirBalapanStore(prevStoreSnapshot);
+                        StorageManager.saveTournamentConfig(prevConfigSnapshot);
+                        throw new Error('Pengesahan bacaan semula storan gagal. Perubahan telah dibatalkan.');
+                    }
+
                     StorageManager.appendAkhirBalapanAuditLog({
-                        action: 'IMPORT_DATA_GAS',
-                        tabsImported: tabCount
+                        action: missingOrFailedTabs.length > 0 ? 'IMPORT_SEPARA_DATA_GAS' : 'IMPORT_DATA_GAS',
+                        tabsImported: tabCount,
+                        preservedMissingTabs: missingOrFailedTabs,
+                        invalidatedVerifiedTabs
                     });
 
                     if (inputEl) inputEl.disabled = true;
                     this.updateModeBadge(true);
 
+                    const totalStoredTabs = AkhirBalapanModule.ALLOWED_EVENT_NOS.filter(no => Boolean(nextEvents[no])).length;
                     const connEl = document.getElementById('akhir-balapan-status-connection');
                     const updEl = document.getElementById('akhir-balapan-status-updated');
                     const tabsEl = document.getElementById('akhir-balapan-status-tabs');
                     const detailEl = document.getElementById('akhir-balapan-status-detail');
-                    if (connEl) connEl.textContent = 'Tersambung & Tersimpan';
+                    if (connEl) connEl.textContent = missingOrFailedTabs.length > 0 ? 'Tersambung (Import Separa)' : 'Tersambung & Tersimpan';
                     if (updEl) updEl.textContent = SaringanModule.formatDateTime(nowIso);
-                    if (tabsEl) tabsEl.textContent = `${tabCount} / 9 Tab`;
+                    if (tabsEl) tabsEl.textContent = `${totalStoredTabs} / 9 Tab`;
                     if (detailEl) {
-                        detailEl.textContent = `Data keputusan sebenar berjaya diimport daripada ${tabCount} / 9 tab Google Sheets.`;
+                        detailEl.textContent = missingOrFailedTabs.length > 0
+                            ? `Import separa: ${tabCount} tab dikemas kini; tab tiada/gagal (${missingOrFailedTabs.join(', ')}) mengekalkan data sedia ada.`
+                            : `Data keputusan sebenar berjaya diimport daripada ${tabCount} / 9 tab Google Sheets ATHLETIX.`;
                     }
 
                     GlobalLiveStatusController.updateIndicator();
-                    UIComponents.showToast(`Berjaya menyimpan & mengimport ${tabCount} tab Akhir Balapan.`, 'success');
+                    if (invalidatedVerifiedTabs.length > 0) {
+                        UIComponents.showToast(`Perhatian: Status DISAHKAN RASMI dibatalkan pada Akhir Balapan ${invalidatedVerifiedTabs.join(', ')} kerana keputusan berubah.`, 'warning');
+                    }
+                    UIComponents.showToast(
+                        missingOrFailedTabs.length > 0
+                            ? `Import separa berjaya (${tabCount}/9 tab dikemas kini; data lama tab lain dikekalkan).`
+                            : `Berjaya menyimpan & mengimport ${tabCount} tab Akhir Balapan.`,
+                        missingOrFailedTabs.length > 0 ? 'warning' : 'success'
+                    );
                 } catch (err) {
                     UIComponents.showToast(`Gagal mengimport data: ${err.message}`, 'error');
                 } finally {
@@ -5063,11 +5681,15 @@ function jsonResponse_(obj) {
                         throw new Error((result && result.message) || 'Kemas kini ditolak.');
                     }
 
+                    const finalSavedValue = typeof result.confirmedValue === 'string'
+                        ? result.confirmedValue.trim()
+                        : String(value || '').trim();
+
                     const store = StorageManager.getAkhirBalapanStore();
                     const ev = store.events && store.events[eventNo];
                     if (ev && Array.isArray(ev[gender])) {
                         const row = ev[gender].find(r => Number(r.sheetRow) === Number(sheetRow));
-                        if (row) row[field] = value;
+                        if (row) row[field] = finalSavedValue;
                         ev.updatedAt = result.updatedAt || new Date().toISOString();
                     }
                     StorageManager.saveAkhirBalapanStore(store);
@@ -5077,7 +5699,8 @@ function jsonResponse_(obj) {
                         gender,
                         sheetRow,
                         field,
-                        newValue: value
+                        oldValue: expectedValue,
+                        newValue: finalSavedValue
                     });
                     UIComponents.showToast('Keputusan Akhir Balapan berjaya dikemas kini!', 'success');
                     return { success: true };
@@ -5096,11 +5719,12 @@ function jsonResponse_(obj) {
             GAS_SOURCE_CODE: `/**
  * STATISTIX HUB — GOOGLE APPS SCRIPT (ACARA RELAY)
  * Fail: Statistix_Relay_Code.gs
+ * Sumber Data: Google Sheets ATHLETIX
  * Tab Dibenarkan: 411, 412, 413, 414, 415, 424, 425
  * Julat Bacaan:
  * - Lelaki   : A5:G8 (A=Lorong, B:C=Pasukan [anchor B], D:E=Masa [anchor D], F:G=Kedudukan [anchor F])
  * - Perempuan: I5:O8 (I=Lorong, J:K=Pasukan [anchor J], L:M=Masa [anchor L], N:O=Kedudukan [anchor N])
- * Julat Suntingan (doPost - menulis pada sel anchor sahaja):
+ * Julat Suntingan (doPost + LockService - menulis pada sel anchor sahaja):
  * - Lelaki   : Masa -> D5:D8 (kolum 4), Kedudukan -> F5:F8 (kolum 6)
  * - Perempuan: Masa -> L5:L8 (kolum 12), Kedudukan -> N5:N8 (kolum 14)
  */
@@ -5172,30 +5796,43 @@ function readRelayRows_(sheet, startRow, endRow, startCol) {
 }
 
 function doPost(e) {
+  const params = (e && e.parameter) || {};
+  const action = String(params.action || 'update').trim();
+  const eventNo = String(params.eventNo || '').trim();
+  const gender = String(params.gender || '').trim().toLowerCase();
+  const sheetRow = Number(params.sheetRow);
+  const pasukan = String(params.pasukan || '').trim();
+  const field = String(params.field || '').trim();
+  const hasExpected = Object.prototype.hasOwnProperty.call(params, 'expectedValue');
+  const expectedValue = hasExpected ? String(params.expectedValue || '').trim() : null;
+  const value = String(params.value || '').trim();
+
+  if (action !== 'update') {
+    return jsonResponse_({ success: false, message: 'Tindakan operasi tidak sah.' });
+  }
+  if (ALLOWED_TABS.indexOf(eventNo) === -1) {
+    return jsonResponse_({ success: false, message: 'Tab acara tidak sah.' });
+  }
+  if (gender !== 'lelaki' && gender !== 'perempuan') {
+    return jsonResponse_({ success: false, message: 'Kategori tidak sah.' });
+  }
+  if (sheetRow < 5 || sheetRow > 8) {
+    return jsonResponse_({ success: false, message: 'Baris tidak dibenarkan untuk suntingan (hanya baris 5 hingga 8).' });
+  }
+  if (field !== 'masa' && field !== 'kedudukan') {
+    return jsonResponse_({ success: false, message: 'Medan tidak dibenarkan untuk suntingan.' });
+  }
+
+  const lock = LockService.getScriptLock();
+  if (!lock.tryLock(10000)) {
+    return jsonResponse_({
+      success: false,
+      code: 'LOCK_BUSY',
+      message: 'Pelayan Google Sheets sedang memproses kemas kini lain. Sila cuba sebentar lagi.'
+    });
+  }
+
   try {
-    const params = (e && e.parameter) || {};
-    const eventNo = String(params.eventNo || '').trim();
-    const gender = String(params.gender || '').trim().toLowerCase();
-    const sheetRow = Number(params.sheetRow);
-    const pasukan = String(params.pasukan || '').trim();
-    const field = String(params.field || '').trim();
-    const hasExpected = Object.prototype.hasOwnProperty.call(params, 'expectedValue');
-    const expectedValue = hasExpected ? String(params.expectedValue || '').trim() : null;
-    const value = String(params.value || '').trim();
-
-    if (ALLOWED_TABS.indexOf(eventNo) === -1) {
-      return jsonResponse_({ success: false, message: 'Tab acara tidak sah.' });
-    }
-    if (gender !== 'lelaki' && gender !== 'perempuan') {
-      return jsonResponse_({ success: false, message: 'Kategori tidak sah.' });
-    }
-    if (sheetRow < 5 || sheetRow > 8) {
-      return jsonResponse_({ success: false, message: 'Baris tidak dibenarkan untuk suntingan (hanya baris 5 hingga 8).' });
-    }
-    if (field !== 'masa' && field !== 'kedudukan') {
-      return jsonResponse_({ success: false, message: 'Medan tidak dibenarkan untuk suntingan.' });
-    }
-
     const ss = SpreadsheetApp.getActiveSpreadsheet();
     const sheet = ss.getSheetByName(eventNo);
     if (!sheet) {
@@ -5225,9 +5862,10 @@ function doPost(e) {
     }
 
     const currentVal = String(targetRange.getDisplayValue() || '').trim();
-    if (hasExpected && expectedValue !== currentVal) {
+    if (!hasExpected || expectedValue !== currentVal) {
       return jsonResponse_({
         success: false,
+        code: 'CONFLICT_MODIFIED',
         message: 'Konflik kemas kini serentak: Nilai sel telah berubah dalam Google Sheets. Sila muat semula data.'
       });
     }
@@ -5246,6 +5884,8 @@ function doPost(e) {
       success: false,
       message: 'Ralat menyimpan data Acara Relay: ' + err.message
     });
+  } finally {
+    lock.releaseLock();
   }
 }
 
@@ -5307,6 +5947,9 @@ function jsonResponse_(obj) {
                 if (config.relayAppsScriptUrl && count > 0) {
                     if (connEl) connEl.textContent = 'Tersambung & Tersimpan';
                     if (updEl) updEl.textContent = SaringanModule.formatDateTime(config.relayLastSyncAt || config.updatedAt);
+                    if (tabsEl) tabsEl.textContent = `${count} / 7 Tab`;
+                } else if (!config.relayAppsScriptUrl && count > 0) {
+                    if (connEl) connEl.textContent = 'Terputus (Data Dikekalkan)';
                     if (tabsEl) tabsEl.textContent = `${count} / 7 Tab`;
                 }
             },
@@ -5385,13 +6028,30 @@ function jsonResponse_(obj) {
             },
 
             confirmDeleteUrl() {
-                this.cancelDeleteUrl();
-                StorageManager.saveTournamentConfig({
+                const selectedRadio = document.querySelector('input[name="relay-delete-mode"]:checked');
+                const deleteMode = selectedRadio ? selectedRadio.value : 'url-only';
+
+                const cfgSaved = StorageManager.saveTournamentConfig({
                     relayAppsScriptUrl: '',
                     relayLastSyncAt: null
                 });
-                StorageManager.saveRelayStore({ events: {} });
-                StorageManager.appendRelayAuditLog({ action: 'HAPUS_KONFIGURASI_GAS' });
+                if (!cfgSaved) {
+                    UIComponents.showToast('Gagal menghapus konfigurasi URL daripada storan tempatan.', 'error');
+                    return;
+                }
+
+                if (deleteMode === 'url-and-data') {
+                    const storeCleared = StorageManager.saveRelayStore({ events: {} });
+                    if (!storeCleared) {
+                        UIComponents.showToast('URL diputuskan, tetapi gagal mengosongkan data modul.', 'error');
+                        return;
+                    }
+                }
+
+                this.cancelDeleteUrl();
+                StorageManager.appendRelayAuditLog({
+                    action: deleteMode === 'url-and-data' ? 'HAPUS_URL_DAN_DATA_GAS' : 'PUTUS_SAMBUNGAN_URL_GAS'
+                });
 
                 const inputEl = document.getElementById('gas-url-relay');
                 if (inputEl) {
@@ -5400,18 +6060,32 @@ function jsonResponse_(obj) {
                 }
                 this.updateModeBadge(false);
 
+                const store = StorageManager.getRelayStore();
+                const remainingCount = RelayModule.ALLOWED_EVENT_NOS.filter(no => Boolean(store.events && store.events[no])).length;
+
                 const connEl = document.getElementById('relay-status-connection');
                 const updEl = document.getElementById('relay-status-updated');
                 const tabsEl = document.getElementById('relay-status-tabs');
-                if (connEl) connEl.textContent = 'Belum Diuji';
+                const detailEl = document.getElementById('relay-status-detail');
+                if (connEl) connEl.textContent = deleteMode === 'url-and-data' ? 'Belum Diuji' : 'Terputus (Data Dikekalkan)';
                 if (updEl) updEl.textContent = '—';
-                if (tabsEl) tabsEl.textContent = '0 / 7 Tab';
+                if (tabsEl) tabsEl.textContent = `${remainingCount} / 7 Tab`;
+                if (detailEl) {
+                    detailEl.textContent = deleteMode === 'url-and-data'
+                        ? 'URL GAS dan rekod paparan Acara Relay telah dikosongkan.'
+                        : 'Sambungan URL GAS telah diputuskan. Rekod import sedia ada masih dikekalkan.';
+                }
 
                 GlobalLiveStatusController.updateIndicator();
                 if (!AppController.isAdminOpen && AppController.currentView === 'relay') {
                     AppController.loadView('relay');
                 }
-                UIComponents.showToast('URL dan data Acara Relay telah dihapus.', 'warning');
+                UIComponents.showToast(
+                    deleteMode === 'url-and-data'
+                        ? 'URL GAS dan data Acara Relay telah dikosongkan.'
+                        : 'Sambungan URL GAS Acara Relay diputuskan (data import sedia ada dikekalkan).',
+                    'warning'
+                );
             },
 
             validateGasTestResponse(data) {
@@ -5518,6 +6192,21 @@ function jsonResponse_(obj) {
                 }
             },
 
+            hasEventResultsChanged(prevEv, nextEv) {
+                if (!prevEv) return false;
+                const serializeRows = (rows) => (Array.isArray(rows) ? rows : []).map(r => [
+                    String(r.sheetRow || ''),
+                    String(r.lorong || '').trim(),
+                    String(r.pasukan || '').trim().toUpperCase(),
+                    String(r.masa || '').trim(),
+                    String(r.kedudukan || '').trim()
+                ].join('|')).join(';;');
+
+                const prevSig = `${serializeRows(prevEv.lelaki)}###${serializeRows(prevEv.perempuan)}`;
+                const nextSig = `${serializeRows(nextEv.lelaki)}###${serializeRows(nextEv.perempuan)}`;
+                return prevSig !== nextSig;
+            },
+
             async saveAndImportData() {
                 const inputEl = document.getElementById('gas-url-relay');
                 const url = inputEl ? inputEl.value.trim() : '';
@@ -5543,22 +6232,46 @@ function jsonResponse_(obj) {
                     }
 
                     const existingStore = StorageManager.getRelayStore();
-                    const nextEvents = {};
+                    const prevConfigSnapshot = StorageManager.getTournamentConfig();
+                    const prevStoreSnapshot = JSON.parse(JSON.stringify(existingStore));
+
+                    // Kekalkan data lama bagi tab yang tiada dalam respons separa
+                    const nextEvents = JSON.parse(JSON.stringify((existingStore && existingStore.events) || {}));
+                    const reportedMissing = Array.isArray(data.missingTabs) ? data.missingTabs.map(t => String(t).trim()) : [];
+                    const missingOrFailedTabs = [];
+                    const invalidatedVerifiedTabs = [];
                     let tabCount = 0;
 
                     RelayModule.ALLOWED_EVENT_NOS.forEach(no => {
                         const incoming = data.events[no];
-                        if (!incoming || typeof incoming !== 'object') return;
+                        if (!incoming || typeof incoming !== 'object' || Array.isArray(incoming) || reportedMissing.includes(no)) {
+                            missingOrFailedTabs.push(no);
+                            return;
+                        }
                         tabCount++;
                         const prev = existingStore.events && existingStore.events[no];
-                        nextEvents[no] = {
+                        const candidateEvent = {
                             eventNo: no,
-                            status: prev && prev.status === 'DISAHKAN_RASMI' ? 'DISAHKAN_RASMI' : 'BELUM_SELESAI',
-                            verifiedAt: prev ? prev.verifiedAt : null,
+                            status: 'BELUM_SELESAI',
+                            verifiedAt: null,
                             updatedAt: new Date().toISOString(),
                             lelaki: Array.isArray(incoming.lelaki) ? incoming.lelaki : [],
                             perempuan: Array.isArray(incoming.perempuan) ? incoming.perempuan : []
                         };
+
+                        if (prev && prev.status === 'DISAHKAN_RASMI') {
+                            if (this.hasEventResultsChanged(prev, candidateEvent)) {
+                                candidateEvent.status = 'BELUM_SELESAI';
+                                candidateEvent.verifiedAt = null;
+                                candidateEvent.requiresReverification = true;
+                                invalidatedVerifiedTabs.push(no);
+                            } else {
+                                candidateEvent.status = 'DISAHKAN_RASMI';
+                                candidateEvent.verifiedAt = prev.verifiedAt || null;
+                            }
+                        }
+
+                        nextEvents[no] = candidateEvent;
                     });
 
                     if (tabCount === 0) {
@@ -5566,28 +6279,63 @@ function jsonResponse_(obj) {
                     }
 
                     const nowIso = new Date().toISOString();
-                    StorageManager.saveRelayStore({ events: nextEvents });
-                    StorageManager.saveTournamentConfig({
+                    const storeSaved = StorageManager.saveRelayStore({ events: nextEvents });
+                    if (!storeSaved) {
+                        throw new Error('Gagal menulis rekod Acara Relay ke storan tempatan.');
+                    }
+
+                    const cfgSaved = StorageManager.saveTournamentConfig({
                         relayAppsScriptUrl: url,
                         relayLastSyncAt: nowIso
                     });
+                    if (!cfgSaved) {
+                        StorageManager.saveRelayStore(prevStoreSnapshot);
+                        throw new Error('Gagal menyimpan konfigurasi URL Acara Relay. Data terdahulu dipulihkan.');
+                    }
+
+                    // Semak bacaan semula selepas simpan
+                    const verifyStore = StorageManager.getRelayStore();
+                    const verifyCfg = StorageManager.getTournamentConfig();
+                    if (!verifyStore || !verifyStore.events || String(verifyCfg.relayAppsScriptUrl || '').trim() !== url) {
+                        StorageManager.saveRelayStore(prevStoreSnapshot);
+                        StorageManager.saveTournamentConfig(prevConfigSnapshot);
+                        throw new Error('Pengesahan bacaan semula storan gagal. Perubahan telah dibatalkan.');
+                    }
+
                     StorageManager.appendRelayAuditLog({
-                        action: 'IMPORT_DATA_GAS',
-                        tabsImported: tabCount
+                        action: missingOrFailedTabs.length > 0 ? 'IMPORT_SEPARA_DATA_GAS' : 'IMPORT_DATA_GAS',
+                        tabsImported: tabCount,
+                        preservedMissingTabs: missingOrFailedTabs,
+                        invalidatedVerifiedTabs
                     });
 
                     if (inputEl) inputEl.disabled = true;
                     this.updateModeBadge(true);
 
+                    const totalStoredTabs = RelayModule.ALLOWED_EVENT_NOS.filter(no => Boolean(nextEvents[no])).length;
                     const connEl = document.getElementById('relay-status-connection');
                     const updEl = document.getElementById('relay-status-updated');
                     const tabsEl = document.getElementById('relay-status-tabs');
-                    if (connEl) connEl.textContent = 'Tersambung & Tersimpan';
+                    const detailEl = document.getElementById('relay-status-detail');
+                    if (connEl) connEl.textContent = missingOrFailedTabs.length > 0 ? 'Tersambung (Import Separa)' : 'Tersambung & Tersimpan';
                     if (updEl) updEl.textContent = SaringanModule.formatDateTime(nowIso);
-                    if (tabsEl) tabsEl.textContent = `${tabCount} / 7 Tab`;
+                    if (tabsEl) tabsEl.textContent = `${totalStoredTabs} / 7 Tab`;
+                    if (detailEl) {
+                        detailEl.textContent = missingOrFailedTabs.length > 0
+                            ? `Import separa: ${tabCount} tab dikemas kini; tab tiada/gagal (${missingOrFailedTabs.join(', ')}) mengekalkan data sedia ada.`
+                            : `Data keputusan sebenar berjaya diimport daripada ${tabCount} / 7 tab Google Sheets ATHLETIX.`;
+                    }
 
                     GlobalLiveStatusController.updateIndicator();
-                    UIComponents.showToast(`Berjaya menyimpan & mengimport ${tabCount} tab Acara Relay.`, 'success');
+                    if (invalidatedVerifiedTabs.length > 0) {
+                        UIComponents.showToast(`Perhatian: Status DISAHKAN RASMI dibatalkan pada Acara Relay ${invalidatedVerifiedTabs.join(', ')} kerana keputusan berubah.`, 'warning');
+                    }
+                    UIComponents.showToast(
+                        missingOrFailedTabs.length > 0
+                            ? `Import separa berjaya (${tabCount}/7 tab dikemas kini; data lama tab lain dikekalkan).`
+                            : `Berjaya menyimpan & mengimport ${tabCount} tab Acara Relay.`,
+                        missingOrFailedTabs.length > 0 ? 'warning' : 'success'
+                    );
                 } catch (err) {
                     UIComponents.showToast(`Gagal mengimport data: ${err.message}`, 'error');
                 } finally {
@@ -5663,11 +6411,12 @@ function jsonResponse_(obj) {
             GAS_SOURCE_CODE: `/**
  * STATISTIX HUB — GOOGLE APPS SCRIPT (ACARA PADANG)
  * Fail: Statistix_Padang_Code.gs
+ * Sumber Data: Google Sheets ATHLETIX
  * Tab Dibenarkan: LONGJUMP, HIGHJUMP, SHOTPUT
  * Julat Bacaan:
  * - Lelaki   : A9:N16 (14 kolum; B:C merged = Nama Atlet, M:N merged = Kedudukan)
  * - Perempuan: A26:N33 (14 kolum; B:C merged = Nama Atlet, M:N merged = Kedudukan)
- * Julat Suntingan (doPost):
+ * Julat Suntingan (doPost + LockService):
  * - Lelaki   : L9:L16 (Catatan Terbaik, kolum 12) & M9:M16 (Kedudukan anchor M:N, kolum 13)
  * - Perempuan: L26:L33 (Catatan Terbaik, kolum 12) & M26:M33 (Kedudukan anchor M:N, kolum 13)
  */
@@ -5747,32 +6496,45 @@ function readPadangRows_(sheet, startRow, endRow) {
 }
 
 function doPost(e) {
+  const params = (e && e.parameter) || {};
+  const action = String(params.action || 'update').trim();
+  const eventNo = String(params.eventNo || '').trim().toUpperCase();
+  const gender = String(params.gender || '').trim().toLowerCase();
+  const sheetRow = Number(params.sheetRow);
+  const noBib = String(params.noBib || '').trim();
+  const field = String(params.field || '').trim();
+  const hasExpected = Object.prototype.hasOwnProperty.call(params, 'expectedValue');
+  const expectedValue = hasExpected ? String(params.expectedValue || '').trim() : null;
+  const value = String(params.value || '').trim();
+
+  if (action !== 'update') {
+    return jsonResponse_({ success: false, message: 'Tindakan operasi tidak sah.' });
+  }
+  if (ALLOWED_TABS.indexOf(eventNo) === -1) {
+    return jsonResponse_({ success: false, message: 'Tab acara tidak sah.' });
+  }
+  if (gender !== 'lelaki' && gender !== 'perempuan') {
+    return jsonResponse_({ success: false, message: 'Kategori tidak sah.' });
+  }
+  const validRow = (gender === 'lelaki' && sheetRow >= 9 && sheetRow <= 16) ||
+                   (gender === 'perempuan' && sheetRow >= 26 && sheetRow <= 33);
+  if (!validRow) {
+    return jsonResponse_({ success: false, message: 'Julat baris tidak dibenarkan untuk suntingan.' });
+  }
+  if (field !== 'catatanTerbaik' && field !== 'kedudukan') {
+    return jsonResponse_({ success: false, message: 'Medan tidak dibenarkan untuk suntingan.' });
+  }
+
+  const lock = LockService.getScriptLock();
+  if (!lock.tryLock(10000)) {
+    return jsonResponse_({
+      success: false,
+      code: 'LOCK_BUSY',
+      message: 'Pelayan Google Sheets sedang memproses kemas kini lain. Sila cuba sebentar lagi.'
+    });
+  }
+
   try {
-    const params = (e && e.parameter) || {};
-    const eventNo = String(params.eventNo || '').trim().toUpperCase();
-    const gender = String(params.gender || '').trim().toLowerCase();
-    const sheetRow = Number(params.sheetRow);
-    const noBib = String(params.noBib || '').trim();
-    const field = String(params.field || '').trim();
-    const hasExpected = Object.prototype.hasOwnProperty.call(params, 'expectedValue');
-    const expectedValue = hasExpected ? String(params.expectedValue || '').trim() : null;
-    const value = String(params.value || '').trim();
-
-    if (ALLOWED_TABS.indexOf(eventNo) === -1) {
-      return jsonResponse_({ success: false, message: 'Tab acara tidak sah.' });
-    }
-    if (gender !== 'lelaki' && gender !== 'perempuan') {
-      return jsonResponse_({ success: false, message: 'Kategori tidak sah.' });
-    }
-    const validRow = (gender === 'lelaki' && sheetRow >= 9 && sheetRow <= 16) ||
-                     (gender === 'perempuan' && sheetRow >= 26 && sheetRow <= 33);
-    if (!validRow) {
-      return jsonResponse_({ success: false, message: 'Julat baris tidak dibenarkan untuk suntingan.' });
-    }
-    if (field !== 'catatanTerbaik' && field !== 'kedudukan') {
-      return jsonResponse_({ success: false, message: 'Medan tidak dibenarkan untuk suntingan.' });
-    }
-
     const ss = SpreadsheetApp.getActiveSpreadsheet();
     const sheet = ss.getSheetByName(eventNo);
     if (!sheet) {
@@ -5798,9 +6560,10 @@ function doPost(e) {
     }
 
     const currentVal = String(targetRange.getDisplayValue() || '').trim();
-    if (hasExpected && expectedValue !== currentVal) {
+    if (!hasExpected || expectedValue !== currentVal) {
       return jsonResponse_({
         success: false,
+        code: 'CONFLICT_MODIFIED',
         message: 'Konflik kemas kini serentak: Nilai sel telah berubah dalam Google Sheets. Sila muat semula data.'
       });
     }
@@ -5819,6 +6582,8 @@ function doPost(e) {
       success: false,
       message: 'Ralat menyimpan data Acara Padang: ' + err.message
     });
+  } finally {
+    lock.releaseLock();
   }
 }
 
@@ -5855,12 +6620,33 @@ function jsonResponse_(obj) {
                 }
             },
 
-            importAndNormalizeData(rawEvents, existingStore) {
+            hasEventResultsChanged(prevEv, nextEv) {
+                if (!prevEv) return false;
+                const serializeRows = (rows) => (Array.isArray(rows) ? rows : []).map(r => [
+                    String(r.sheetRow || ''),
+                    String(r.giliran || '').trim(),
+                    String(r.namaAtlet || '').trim(),
+                    String(r.pasukan || '').trim().toUpperCase(),
+                    String(r.noBib || '').trim().toUpperCase(),
+                    String(r.catatanTerbaik || '').trim(),
+                    String(r.kedudukan || '').trim()
+                ].join('|')).join(';;');
+
+                const prevSig = `${serializeRows(prevEv.lelaki)}###${serializeRows(prevEv.perempuan)}`;
+                const nextSig = `${serializeRows(nextEv.lelaki)}###${serializeRows(nextEv.perempuan)}`;
+                return prevSig !== nextSig;
+            },
+
+            importAndNormalizeData(rawEvents, existingStore, reportedMissingTabs = []) {
                 if (!rawEvents || typeof rawEvents !== 'object' || Array.isArray(rawEvents)) {
-                    return { nextEvents: {}, tabCount: 0, validStructureCount: 0 };
+                    return { nextEvents: {}, tabCount: 0, validStructureCount: 0, missingOrFailedTabs: [...PadangModule.ALLOWED_EVENT_NOS], invalidatedVerifiedTabs: [] };
                 }
 
-                const nextEvents = {};
+                // Kekalkan data lama bagi tab yang tiada dalam respons separa
+                const nextEvents = JSON.parse(JSON.stringify((existingStore && existingStore.events) || {}));
+                const missingSet = new Set((Array.isArray(reportedMissingTabs) ? reportedMissingTabs : []).map(t => String(t).trim().toUpperCase()));
+                const missingOrFailedTabs = [];
+                const invalidatedVerifiedTabs = [];
                 let tabCount = 0;
                 let validStructureCount = 0;
 
@@ -5891,25 +6677,45 @@ function jsonResponse_(obj) {
 
                 PadangModule.ALLOWED_EVENT_NOS.forEach(no => {
                     const incoming = rawEvents[no];
-                    if (!incoming || typeof incoming !== 'object' || Array.isArray(incoming)) return;
+                    if (!incoming || typeof incoming !== 'object' || Array.isArray(incoming) || missingSet.has(no)) {
+                        missingOrFailedTabs.push(no);
+                        return;
+                    }
 
                     const hasValidCategoryArrays = Array.isArray(incoming.lelaki) || Array.isArray(incoming.perempuan);
-                    if (!hasValidCategoryArrays) return;
+                    if (!hasValidCategoryArrays) {
+                        missingOrFailedTabs.push(no);
+                        return;
+                    }
 
                     validStructureCount++;
                     tabCount++;
                     const prev = existingStore && existingStore.events && existingStore.events[no];
-                    nextEvents[no] = {
+                    const candidateEvent = {
                         eventNo: no,
-                        status: prev && prev.status === 'DISAHKAN_RASMI' ? 'DISAHKAN_RASMI' : 'BELUM_SELESAI',
-                        verifiedAt: prev ? prev.verifiedAt : null,
+                        status: 'BELUM_SELESAI',
+                        verifiedAt: null,
                         updatedAt: new Date().toISOString(),
                         lelaki: normalizeRows(incoming.lelaki, 9, 16),
                         perempuan: normalizeRows(incoming.perempuan, 26, 33)
                     };
+
+                    if (prev && prev.status === 'DISAHKAN_RASMI') {
+                        if (this.hasEventResultsChanged(prev, candidateEvent)) {
+                            candidateEvent.status = 'BELUM_SELESAI';
+                            candidateEvent.verifiedAt = null;
+                            candidateEvent.requiresReverification = true;
+                            invalidatedVerifiedTabs.push(no);
+                        } else {
+                            candidateEvent.status = 'DISAHKAN_RASMI';
+                            candidateEvent.verifiedAt = prev.verifiedAt || null;
+                        }
+                    }
+
+                    nextEvents[no] = candidateEvent;
                 });
 
-                return { nextEvents, tabCount, validStructureCount };
+                return { nextEvents, tabCount, validStructureCount, missingOrFailedTabs, invalidatedVerifiedTabs };
             },
 
             updateModeBadge(isLocked) {
@@ -5937,6 +6743,9 @@ function jsonResponse_(obj) {
                 if (config.padangAppsScriptUrl && count > 0) {
                     if (connEl) connEl.textContent = 'Tersambung & Tersimpan';
                     if (updEl) updEl.textContent = SaringanModule.formatDateTime(config.padangLastSyncAt || config.updatedAt);
+                    if (tabsEl) tabsEl.textContent = `${count} / 3 Tab`;
+                } else if (!config.padangAppsScriptUrl && count > 0) {
+                    if (connEl) connEl.textContent = 'Terputus (Data Dikekalkan)';
                     if (tabsEl) tabsEl.textContent = `${count} / 3 Tab`;
                 }
             },
@@ -6013,13 +6822,30 @@ function jsonResponse_(obj) {
             },
 
             confirmDeleteUrl() {
-                this.cancelDeleteUrl();
-                StorageManager.saveTournamentConfig({
+                const selectedRadio = document.querySelector('input[name="padang-delete-mode"]:checked');
+                const deleteMode = selectedRadio ? selectedRadio.value : 'url-only';
+
+                const cfgSaved = StorageManager.saveTournamentConfig({
                     padangAppsScriptUrl: '',
                     padangLastSyncAt: null
                 });
-                StorageManager.savePadangStore({ events: {} });
-                StorageManager.appendPadangAuditLog({ action: 'HAPUS_KONFIGURASI_GAS' });
+                if (!cfgSaved) {
+                    UIComponents.showToast('Gagal menghapus konfigurasi URL daripada storan tempatan.', 'error');
+                    return;
+                }
+
+                if (deleteMode === 'url-and-data') {
+                    const storeCleared = StorageManager.savePadangStore({ events: {} });
+                    if (!storeCleared) {
+                        UIComponents.showToast('URL diputuskan, tetapi gagal mengosongkan data modul.', 'error');
+                        return;
+                    }
+                }
+
+                this.cancelDeleteUrl();
+                StorageManager.appendPadangAuditLog({
+                    action: deleteMode === 'url-and-data' ? 'HAPUS_URL_DAN_DATA_GAS' : 'PUTUS_SAMBUNGAN_URL_GAS'
+                });
 
                 const inputEl = document.getElementById('gas-url-padang');
                 if (inputEl) {
@@ -6028,18 +6854,32 @@ function jsonResponse_(obj) {
                 }
                 this.updateModeBadge(false);
 
+                const store = StorageManager.getPadangStore();
+                const remainingCount = PadangModule.ALLOWED_EVENT_NOS.filter(no => Boolean(store.events && store.events[no])).length;
+
                 const connEl = document.getElementById('padang-status-connection');
                 const updEl = document.getElementById('padang-status-updated');
                 const tabsEl = document.getElementById('padang-status-tabs');
-                if (connEl) connEl.textContent = 'Belum Diuji';
+                const detailEl = document.getElementById('padang-status-detail');
+                if (connEl) connEl.textContent = deleteMode === 'url-and-data' ? 'Belum Diuji' : 'Terputus (Data Dikekalkan)';
                 if (updEl) updEl.textContent = '—';
-                if (tabsEl) tabsEl.textContent = '0 / 3 Tab';
+                if (tabsEl) tabsEl.textContent = `${remainingCount} / 3 Tab`;
+                if (detailEl) {
+                    detailEl.textContent = deleteMode === 'url-and-data'
+                        ? 'URL GAS dan rekod paparan Acara Padang telah dikosongkan.'
+                        : 'Sambungan URL GAS telah diputuskan. Rekod import sedia ada masih dikekalkan.';
+                }
 
                 GlobalLiveStatusController.updateIndicator();
                 if (!AppController.isAdminOpen && AppController.currentView === 'padang') {
                     AppController.loadView('padang');
                 }
-                UIComponents.showToast('URL dan data Acara Padang telah dihapus.', 'warning');
+                UIComponents.showToast(
+                    deleteMode === 'url-and-data'
+                        ? 'URL GAS dan data Acara Padang telah dikosongkan.'
+                        : 'Sambungan URL GAS Acara Padang diputuskan (data import sedia ada dikekalkan).',
+                    'warning'
+                );
             },
 
             validateGasTestResponse(data) {
@@ -6210,42 +7050,77 @@ function jsonResponse_(obj) {
                     }
 
                     const existingStore = StorageManager.getPadangStore();
-                    const { nextEvents, tabCount, validStructureCount } = this.importAndNormalizeData(data.events, existingStore);
+                    const prevConfigSnapshot = StorageManager.getTournamentConfig();
+                    const prevStoreSnapshot = JSON.parse(JSON.stringify(existingStore));
+
+                    const { nextEvents, tabCount, validStructureCount, missingOrFailedTabs, invalidatedVerifiedTabs } =
+                        this.importAndNormalizeData(data.events, existingStore, data.missingTabs);
 
                     if (tabCount === 0 || validStructureCount === 0) {
                         throw new Error('Tiada rekod tab acara padang sah ditemui dalam respons GAS.');
                     }
 
                     const nowIso = new Date().toISOString();
-                    StorageManager.savePadangStore({ events: nextEvents });
-                    StorageManager.saveTournamentConfig({
+                    const storeSaved = StorageManager.savePadangStore({ events: nextEvents });
+                    if (!storeSaved) {
+                        throw new Error('Gagal menulis rekod Acara Padang ke storan tempatan.');
+                    }
+
+                    const cfgSaved = StorageManager.saveTournamentConfig({
                         padangAppsScriptUrl: url,
                         padangLastSyncAt: nowIso
                     });
+                    if (!cfgSaved) {
+                        StorageManager.savePadangStore(prevStoreSnapshot);
+                        throw new Error('Gagal menyimpan konfigurasi URL Acara Padang. Data terdahulu dipulihkan.');
+                    }
+
+                    // Semak bacaan semula selepas simpan
+                    const verifyStore = StorageManager.getPadangStore();
+                    const verifyCfg = StorageManager.getTournamentConfig();
+                    if (!verifyStore || !verifyStore.events || String(verifyCfg.padangAppsScriptUrl || '').trim() !== url) {
+                        StorageManager.savePadangStore(prevStoreSnapshot);
+                        StorageManager.saveTournamentConfig(prevConfigSnapshot);
+                        throw new Error('Pengesahan bacaan semula storan gagal. Perubahan telah dibatalkan.');
+                    }
+
                     StorageManager.appendPadangAuditLog({
-                        action: 'IMPORT_DATA_GAS',
-                        tabsImported: tabCount
+                        action: missingOrFailedTabs.length > 0 ? 'IMPORT_SEPARA_DATA_GAS' : 'IMPORT_DATA_GAS',
+                        tabsImported: tabCount,
+                        preservedMissingTabs: missingOrFailedTabs,
+                        invalidatedVerifiedTabs
                     });
 
                     if (inputEl) inputEl.disabled = true;
                     this.updateModeBadge(true);
 
+                    const totalStoredTabs = PadangModule.ALLOWED_EVENT_NOS.filter(no => Boolean(nextEvents[no])).length;
                     const connEl = document.getElementById('padang-status-connection');
                     const updEl = document.getElementById('padang-status-updated');
                     const tabsEl = document.getElementById('padang-status-tabs');
                     const detailEl = document.getElementById('padang-status-detail');
-                    if (connEl) connEl.textContent = 'Tersambung & Tersimpan';
+                    if (connEl) connEl.textContent = missingOrFailedTabs.length > 0 ? 'Tersambung (Import Separa)' : 'Tersambung & Tersimpan';
                     if (updEl) updEl.textContent = SaringanModule.formatDateTime(nowIso);
-                    if (tabsEl) tabsEl.textContent = `${tabCount} / 3 Tab`;
+                    if (tabsEl) tabsEl.textContent = `${totalStoredTabs} / 3 Tab`;
                     if (detailEl) {
-                        detailEl.textContent = `Data keputusan sebenar berjaya diimport daripada ${tabCount} / 3 tab Google Sheets (LONGJUMP, HIGHJUMP, SHOTPUT).`;
+                        detailEl.textContent = missingOrFailedTabs.length > 0
+                            ? `Import separa: ${tabCount} tab dikemas kini; tab tiada/gagal (${missingOrFailedTabs.join(', ')}) mengekalkan data sedia ada.`
+                            : `Data keputusan sebenar berjaya diimport daripada ${tabCount} / 3 tab Google Sheets ATHLETIX (LONGJUMP, HIGHJUMP, SHOTPUT).`;
                     }
 
                     GlobalLiveStatusController.updateIndicator();
                     if (!AppController.isAdminOpen && AppController.currentView === 'padang') {
                         AppController.loadView('padang');
                     }
-                    UIComponents.showToast(`Berjaya menyimpan & mengimport ${tabCount} tab Acara Padang.`, 'success');
+                    if (invalidatedVerifiedTabs.length > 0) {
+                        UIComponents.showToast(`Perhatian: Status DISAHKAN RASMI dibatalkan pada Acara Padang ${invalidatedVerifiedTabs.join(', ')} kerana keputusan berubah.`, 'warning');
+                    }
+                    UIComponents.showToast(
+                        missingOrFailedTabs.length > 0
+                            ? `Import separa berjaya (${tabCount}/3 tab dikemas kini; data lama tab lain dikekalkan).`
+                            : `Berjaya menyimpan & mengimport ${tabCount} tab Acara Padang.`,
+                        missingOrFailedTabs.length > 0 ? 'warning' : 'success'
+                    );
                 } catch (err) {
                     UIComponents.showToast(`Gagal mengimport data: ${err.message}`, 'error');
                 } finally {
@@ -6315,8 +7190,39 @@ function jsonResponse_(obj) {
 
         /**
          * 4M. PENGAWAL CETAKAN KEPUTUSAN (ResultPrintController)
+         * Operasi READ-ONLY sepenuhnya: tidak mengubah storan, status acara, atau GAS.
          */
         const ResultPrintController = {
+            PRINT_CONTAINER_ID: 'official-print-area',
+            _cleanupBound: false,
+
+            MODULE_SPECS: {
+                'saringan': {
+                    label: 'Acara Saringan',
+                    orientation: 'portrait',
+                    allowedEventNos: ['101', '102', '103', '104', '105', '106', '204', '205', '300'],
+                    getStore: () => StorageManager.getSaringanStore()
+                },
+                'akhir-balapan': {
+                    label: 'Akhir Balapan',
+                    orientation: 'portrait',
+                    allowedEventNos: ['101', '102', '103', '104', '105', '106', '204', '205', '300'],
+                    getStore: () => StorageManager.getAkhirBalapanStore()
+                },
+                'relay': {
+                    label: 'Acara Relay',
+                    orientation: 'portrait',
+                    allowedEventNos: ['411', '412', '413', '414', '415', '424', '425'],
+                    getStore: () => StorageManager.getRelayStore()
+                },
+                'padang': {
+                    label: 'Acara Padang',
+                    orientation: 'landscape',
+                    allowedEventNos: ['LONGJUMP', 'HIGHJUMP', 'SHOTPUT'],
+                    getStore: () => StorageManager.getPadangStore()
+                }
+            },
+
             renderPrintButton(moduleId, eventNo) {
                 const safeMod = SaringanModule.escapeHtml(moduleId);
                 const safeNo = SaringanModule.escapeHtml(eventNo);
@@ -6330,18 +7236,390 @@ function jsonResponse_(obj) {
                 `;
             },
 
-            printEvent(moduleId, eventNo) {
-                let store = null;
-                if (moduleId === 'saringan') store = StorageManager.getSaringanStore();
-                else if (moduleId === 'akhir-balapan') store = StorageManager.getAkhirBalapanStore();
-                else if (moduleId === 'relay') store = StorageManager.getRelayStore();
-                else if (moduleId === 'padang') store = StorageManager.getPadangStore();
+            ensurePrintContainer() {
+                // Pastikan tiada kontena pendua wujud dalam DOM
+                const existingNodes = document.querySelectorAll('#' + this.PRINT_CONTAINER_ID);
+                if (existingNodes.length > 1) {
+                    for (let i = 1; i < existingNodes.length; i++) {
+                        existingNodes[i].remove();
+                    }
+                }
+                let container = document.getElementById(this.PRINT_CONTAINER_ID);
+                if (!container) {
+                    container = document.createElement('div');
+                    container.id = this.PRINT_CONTAINER_ID;
+                    container.setAttribute('aria-hidden', 'true');
+                    document.body.appendChild(container);
+                }
 
-                const ev = store && store.events && store.events[eventNo];
-                if (!ev) {
+                if (!this._cleanupBound) {
+                    this._cleanupBound = true;
+                    window.addEventListener('afterprint', () => {
+                        this.clearPrintContainer();
+                    });
+                }
+                return container;
+            },
+
+            clearPrintContainer() {
+                const container = document.getElementById(this.PRINT_CONTAINER_ID);
+                if (container) {
+                    container.innerHTML = '';
+                    container.className = '';
+                    container.setAttribute('aria-hidden', 'true');
+                }
+            },
+
+            resolveEventName(ev, config, normalizedEventNo) {
+                if (ev && typeof ev.eventName === 'string' && ev.eventName.trim()) {
+                    return ev.eventName.trim();
+                }
+                if (ev && typeof ev.namaAcara === 'string' && ev.namaAcara.trim()) {
+                    return ev.namaAcara.trim();
+                }
+                if (config && config.eventNames && typeof config.eventNames === 'object') {
+                    const mapped = config.eventNames[normalizedEventNo];
+                    if (typeof mapped === 'string' && mapped.trim()) {
+                        return mapped.trim();
+                    }
+                }
+                return null;
+            },
+
+            validateAndExtractSections(moduleId, ev) {
+                if (!ev || typeof ev !== 'object') return null;
+
+                if (moduleId === 'saringan') {
+                    const l1 = Array.isArray(ev.lelaki && ev.lelaki.saringan1) ? ev.lelaki.saringan1 : [];
+                    const l2 = Array.isArray(ev.lelaki && ev.lelaki.saringan2) ? ev.lelaki.saringan2 : [];
+                    const p1 = Array.isArray(ev.perempuan && ev.perempuan.saringan1) ? ev.perempuan.saringan1 : [];
+                    const p2 = Array.isArray(ev.perempuan && ev.perempuan.saringan2) ? ev.perempuan.saringan2 : [];
+
+                    const sections = [];
+                    if (l1.length > 0) sections.push({ gender: 'lelaki', categoryLabel: 'Lelaki', title: 'Lelaki • Saringan 1', rows: l1 });
+                    if (l2.length > 0) sections.push({ gender: 'lelaki', categoryLabel: 'Lelaki', title: 'Lelaki • Saringan 2', rows: l2 });
+                    if (p1.length > 0) sections.push({ gender: 'perempuan', categoryLabel: 'Perempuan', title: 'Perempuan • Saringan 1', rows: p1 });
+                    if (p2.length > 0) sections.push({ gender: 'perempuan', categoryLabel: 'Perempuan', title: 'Perempuan • Saringan 2', rows: p2 });
+
+                    return sections.length > 0 ? sections : null;
+                }
+
+                if (moduleId === 'akhir-balapan') {
+                    const l = Array.isArray(ev.lelaki) ? ev.lelaki : [];
+                    const p = Array.isArray(ev.perempuan) ? ev.perempuan : [];
+                    const sections = [];
+                    if (l.length > 0) sections.push({ gender: 'lelaki', categoryLabel: 'Lelaki', title: 'Lelaki Akhir', rows: l });
+                    if (p.length > 0) sections.push({ gender: 'perempuan', categoryLabel: 'Perempuan', title: 'Perempuan Akhir', rows: p });
+                    return sections.length > 0 ? sections : null;
+                }
+
+                if (moduleId === 'relay') {
+                    const l = Array.isArray(ev.lelaki) ? ev.lelaki : [];
+                    const p = Array.isArray(ev.perempuan) ? ev.perempuan : [];
+                    const sections = [];
+                    if (l.length > 0) sections.push({ gender: 'lelaki', categoryLabel: 'Lelaki', title: 'Pasukan Lelaki', rows: l });
+                    if (p.length > 0) sections.push({ gender: 'perempuan', categoryLabel: 'Perempuan', title: 'Pasukan Perempuan', rows: p });
+                    return sections.length > 0 ? sections : null;
+                }
+
+                if (moduleId === 'padang') {
+                    const l = Array.isArray(ev.lelaki) ? ev.lelaki : [];
+                    const p = Array.isArray(ev.perempuan) ? ev.perempuan : [];
+                    const sections = [];
+                    if (l.length > 0) sections.push({ gender: 'lelaki', categoryLabel: 'Lelaki', title: 'Acara Padang Lelaki', rows: l });
+                    if (p.length > 0) sections.push({ gender: 'perempuan', categoryLabel: 'Perempuan', title: 'Acara Padang Perempuan', rows: p });
+                    return sections.length > 0 ? sections : null;
+                }
+
+                return null;
+            },
+
+            getTableSchema(moduleId) {
+                if (moduleId === 'saringan') {
+                    return [
+                        { key: 'lorong', label: 'Lorong', align: 'center', bold: true },
+                        { key: 'namaAtlet', label: 'Nama Atlet', align: 'left', bold: true },
+                        { key: 'pasukan', label: 'Pasukan', align: 'left', bold: false },
+                        { key: 'noBib', label: 'No Bib', align: 'center', bold: false },
+                        { key: 'kedudukan', label: 'Kedudukan', align: 'center', bold: true },
+                        { key: 'masa', label: 'Masa', align: 'right', bold: true }
+                    ];
+                }
+                if (moduleId === 'akhir-balapan') {
+                    return [
+                        { key: 'lorong', label: 'Lorong', align: 'center', bold: true },
+                        { key: 'namaAtlet', label: 'Nama Atlet', align: 'left', bold: true },
+                        { key: 'pasukan', label: 'Pasukan', align: 'left', bold: false },
+                        { key: 'noBib', label: 'No Bib', align: 'center', bold: false },
+                        { key: 'kedudukan', label: 'Kedudukan', align: 'center', bold: true },
+                        { key: 'masa', label: 'Masa', align: 'right', bold: true }
+                    ];
+                }
+                if (moduleId === 'relay') {
+                    return [
+                        { key: 'lorong', label: 'Lorong', align: 'center', bold: true },
+                        { key: 'pasukan', label: 'Pasukan', align: 'left', bold: true },
+                        { key: 'masa', label: 'Masa', align: 'right', bold: true },
+                        { key: 'kedudukan', label: 'Kedudukan', align: 'center', bold: true }
+                    ];
+                }
+                if (moduleId === 'padang') {
+                    return [
+                        { key: 'giliran', label: 'Giliran', align: 'center', bold: true },
+                        { key: 'namaAtlet', label: 'Nama Atlet', align: 'left', bold: true },
+                        { key: 'pasukan', label: 'Pasukan', align: 'left', bold: false },
+                        { key: 'noBib', label: 'No Bib', align: 'center', bold: false },
+                        { key: 'p1', label: 'P1', align: 'center', bold: false },
+                        { key: 'p2', label: 'P2', align: 'center', bold: false },
+                        { key: 'p3', label: 'P3', align: 'center', bold: false },
+                        { key: 'p4', label: 'P4', align: 'center', bold: false },
+                        { key: 'p5', label: 'P5', align: 'center', bold: false },
+                        { key: 'p6', label: 'P6', align: 'center', bold: false },
+                        { key: 'catatanTerbaik', label: 'Catatan Terbaik', align: 'right', bold: true },
+                        { key: 'kedudukan', label: 'Kedudukan', align: 'center', bold: true }
+                    ];
+                }
+                return [];
+            },
+
+            buildPrintDocumentDOM(container, payload) {
+                container.innerHTML = '';
+                container.className = payload.orientation === 'landscape' ? 'print-orientation-landscape' : '';
+                container.setAttribute('aria-hidden', 'false');
+
+                const wrapper = document.createElement('div');
+                wrapper.className = 'print-doc-wrapper';
+
+                // Watermark jika belum disahkan rasmi
+                if (!payload.isOfficial) {
+                    const watermark = document.createElement('div');
+                    watermark.className = 'print-draft-watermark';
+                    watermark.textContent = 'BELUM DISAHKAN';
+                    wrapper.appendChild(watermark);
+                }
+
+                // BAHAGIAN A — HEADER
+                const secA = document.createElement('header');
+                secA.className = 'print-section-a';
+
+                const headerLeft = document.createElement('div');
+                if (payload.tournamentName) {
+                    const tName = document.createElement('div');
+                    tName.className = 'print-tournament-name';
+                    tName.textContent = payload.tournamentName;
+                    headerLeft.appendChild(tName);
+                }
+                const brand = document.createElement('div');
+                brand.className = 'print-system-brand';
+                brand.textContent = 'STATISTIX HUB';
+                headerLeft.appendChild(brand);
+
+                const subBrand = document.createElement('div');
+                subBrand.className = 'print-system-sub';
+                subBrand.textContent = 'SISTEM STATISTIK & KEPUTUSAN RASMI';
+                headerLeft.appendChild(subBrand);
+
+                const headerRight = document.createElement('div');
+                const statusBadge = document.createElement('span');
+                statusBadge.className = 'print-status-pill ' + (payload.isOfficial ? 'print-status-official' : 'print-status-unofficial');
+                statusBadge.textContent = payload.statusText;
+                headerRight.appendChild(statusBadge);
+
+                secA.appendChild(headerLeft);
+                secA.appendChild(headerRight);
+                wrapper.appendChild(secA);
+
+                // BAHAGIAN B — MAKLUMAT ACARA
+                const secB = document.createElement('section');
+                secB.className = 'print-section-b';
+
+                const metaTable = document.createElement('table');
+                metaTable.className = 'print-meta-grid';
+                const metaTbody = document.createElement('tbody');
+
+                const addMetaRow = (pairs) => {
+                    const tr = document.createElement('tr');
+                    pairs.forEach(pair => {
+                        const tdLabel = document.createElement('td');
+                        tdLabel.className = 'print-meta-label';
+                        tdLabel.textContent = pair.label + ':';
+
+                        const tdVal = document.createElement('td');
+                        tdVal.className = 'print-meta-value';
+                        if (pair.colSpan) tdVal.colSpan = pair.colSpan;
+                        tdVal.textContent = pair.value;
+
+                        tr.appendChild(tdLabel);
+                        tr.appendChild(tdVal);
+                    });
+                    metaTbody.appendChild(tr);
+                };
+
+                addMetaRow([
+                    { label: 'Modul', value: payload.moduleLabel },
+                    { label: 'Nombor Acara', value: payload.eventNo }
+                ]);
+
+                if (payload.eventName) {
+                    addMetaRow([
+                        { label: 'Nama Acara', value: payload.eventName },
+                        { label: 'Kategori', value: payload.categoriesSummary }
+                    ]);
+                } else {
+                    addMetaRow([
+                        { label: 'Kategori', value: payload.categoriesSummary },
+                        { label: 'Format Kertas', value: payload.orientation === 'landscape' ? 'A4 Landscape' : 'A4 Portrait' }
+                    ]);
+                }
+
+                addMetaRow([
+                    { label: 'Status Rasmi', value: payload.statusText, colSpan: 3 }
+                ]);
+
+                metaTable.appendChild(metaTbody);
+                secB.appendChild(metaTable);
+                wrapper.appendChild(secB);
+
+                // BAHAGIAN C — KEPUTUSAN
+                const secC = document.createElement('section');
+                secC.className = 'print-section-c';
+
+                const columns = this.getTableSchema(payload.moduleId);
+
+                payload.sections.forEach(section => {
+                    const block = document.createElement('div');
+                    block.className = 'print-category-block';
+
+                    const titleBar = document.createElement('div');
+                    titleBar.className = 'print-section-title' + (section.gender === 'perempuan' ? ' print-cat-perempuan' : '');
+                    titleBar.textContent = `${section.title} (${section.rows.length} Rekod)`;
+                    block.appendChild(titleBar);
+
+                    const table = document.createElement('table');
+                    table.className = 'print-result-table';
+
+                    const thead = document.createElement('thead');
+                    const headRow = document.createElement('tr');
+                    columns.forEach(col => {
+                        const th = document.createElement('th');
+                        th.className = `print-cell-${col.align}`;
+                        th.textContent = col.label;
+                        headRow.appendChild(th);
+                    });
+                    thead.appendChild(headRow);
+                    table.appendChild(thead);
+
+                    const tbody = document.createElement('tbody');
+                    section.rows.forEach(rowObj => {
+                        const tr = document.createElement('tr');
+                        columns.forEach(col => {
+                            const td = document.createElement('td');
+                            td.className = `print-cell-${col.align}` + (col.bold ? ' print-cell-bold' : '');
+                            const rawVal = rowObj && rowObj[col.key] !== undefined && rowObj[col.key] !== null
+                                ? String(rowObj[col.key]).trim()
+                                : '';
+                            td.textContent = rawVal || '—';
+                            tr.appendChild(td);
+                        });
+                        tbody.appendChild(tr);
+                    });
+                    table.appendChild(tbody);
+
+                    block.appendChild(table);
+                    secC.appendChild(block);
+                });
+
+                wrapper.appendChild(secC);
+
+                // BAHAGIAN D — FOOTER
+                const secD = document.createElement('footer');
+                secD.className = 'print-section-d';
+
+                const fLeft = document.createElement('span');
+                fLeft.textContent = 'STATISTIX HUB — SISTEM STATISTIK & KEPUTUSAN RASMI';
+
+                const fMid = document.createElement('span');
+                fMid.textContent = `Tarikh & Masa Cetakan: ${payload.printedAt}`;
+
+                const fRight = document.createElement('span');
+                fRight.textContent = `Status: ${payload.statusText}`;
+
+                secD.appendChild(fLeft);
+                secD.appendChild(fMid);
+                secD.appendChild(fRight);
+                wrapper.appendChild(secD);
+
+                container.appendChild(wrapper);
+            },
+
+            printEvent(moduleId, eventNo) {
+                const normalizedModule = String(moduleId || '').trim().toLowerCase();
+                const spec = this.MODULE_SPECS[normalizedModule];
+                if (!spec) {
                     UIComponents.showToast('Data acara tidak ditemui untuk cetakan.', 'warning');
                     return;
                 }
+
+                const normalizedEventNo = normalizedModule === 'padang'
+                    ? String(eventNo || '').trim().toUpperCase()
+                    : String(eventNo || '').trim();
+
+                if (!normalizedEventNo || !spec.allowedEventNos.includes(normalizedEventNo)) {
+                    UIComponents.showToast('Data acara tidak ditemui untuk cetakan.', 'warning');
+                    return;
+                }
+
+                // Baca terus daripada stor modul yang tepat (READ-ONLY)
+                const store = spec.getStore();
+                const ev = store && store.events && store.events[normalizedEventNo];
+                if (!ev || typeof ev !== 'object') {
+                    UIComponents.showToast('Data acara tidak ditemui untuk cetakan.', 'warning');
+                    return;
+                }
+
+                // Sahkan jadual keputusan wujud dan tidak kosong
+                const sections = this.validateAndExtractSections(normalizedModule, ev);
+                if (!sections || sections.length === 0) {
+                    UIComponents.showToast('Data acara tidak ditemui untuk cetakan.', 'warning');
+                    return;
+                }
+
+                const config = StorageManager.getTournamentConfig() || {};
+                const tournamentName = String(config.tournamentName || config.namaKejohanan || '').trim();
+                const eventName = this.resolveEventName(ev, config, normalizedEventNo);
+
+                // Semakan status rasmi tanpa sebarang pengubahsuaian
+                const isOfficial = ev.status === 'DISAHKAN_RASMI';
+                const statusText = isOfficial ? 'KEPUTUSAN RASMI' : 'KEPUTUSAN BELUM DISAHKAN RASMI';
+
+                const uniqueCategories = Array.from(new Set(sections.map(s => s.categoryLabel)));
+                const categoriesSummary = uniqueCategories.join(' & ');
+
+                const now = new Date();
+                const printedAt = now.toLocaleString('ms-MY', {
+                    day: '2-digit',
+                    month: '2-digit',
+                    year: 'numeric',
+                    hour: '2-digit',
+                    minute: '2-digit',
+                    second: '2-digit'
+                });
+
+                const container = this.ensurePrintContainer();
+                this.buildPrintDocumentDOM(container, {
+                    moduleId: normalizedModule,
+                    moduleLabel: spec.label,
+                    orientation: spec.orientation,
+                    eventNo: normalizedEventNo,
+                    eventName,
+                    tournamentName,
+                    categoriesSummary,
+                    isOfficial,
+                    statusText,
+                    sections,
+                    printedAt
+                });
+
                 window.print();
             }
         };
