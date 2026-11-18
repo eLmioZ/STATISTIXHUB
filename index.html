@@ -1687,6 +1687,29 @@
                 }
             },
 
+            isEditableCell(gender, heat, sheetRow, field) {
+                const rowNum = Number(sheetRow);
+                if (gender === 'lelaki') {
+                    if (heat === 'saringan1') {
+                        return rowNum >= 5 && rowNum <= 12 && field === 'kedudukan';
+                    }
+                    if (heat === 'saringan2') {
+                        return rowNum >= 18 && rowNum <= 25 && (field === 'kedudukan' || field === 'masa');
+                    }
+                    return false;
+                }
+                if (gender === 'perempuan') {
+                    if (heat === 'saringan1') {
+                        return rowNum >= 5 && rowNum <= 12 && (field === 'kedudukan' || field === 'masa');
+                    }
+                    if (heat === 'saringan2') {
+                        return rowNum >= 18 && rowNum <= 25 && (field === 'kedudukan' || field === 'masa');
+                    }
+                    return false;
+                }
+                return false;
+            },
+
             selectEvent(eventNo) {
                 if (!this.ALLOWED_EVENT_NOS.includes(String(eventNo))) return;
                 this.selectedEventNo = String(eventNo);
@@ -1731,13 +1754,11 @@
                     return;
                 }
 
-                if (gender !== 'lelaki' && gender !== 'perempuan') return;
-                if (heat !== 'saringan1' && heat !== 'saringan2') return;
                 const rowNum = Number(sheetRow);
-                const validRow = (heat === 'saringan1' && rowNum >= 5 && rowNum <= 12) ||
-                                 (heat === 'saringan2' && rowNum >= 18 && rowNum <= 25);
-                if (!validRow) return;
-                if (field !== 'kedudukan' && field !== 'masa') return;
+                if (!this.isEditableCell(gender, heat, rowNum, field)) {
+                    UIComponents.showToast('Sel ini dikunci (read-only) mengikut julat suntingan yang dibenarkan.', 'warning');
+                    return;
+                }
 
                 this.editingCell = {
                     eventNo: String(eventNo),
@@ -1858,10 +1879,14 @@
                         throw new Error((result && result.message) ? result.message : 'Kemas kini ditolak oleh Google Sheets.');
                     }
 
+                    const confirmedValue = typeof result.confirmedValue === 'string'
+                        ? result.confirmedValue.trim()
+                        : newValue;
+
                     const rows = (ev[this.editingCell.gender] && ev[this.editingCell.gender][this.editingCell.heat]) || [];
                     const targetAthlete = rows.find(r => Number(r.sheetRow) === Number(this.editingCell.sheetRow));
                     if (targetAthlete) {
-                        targetAthlete[this.editingCell.field] = newValue;
+                        targetAthlete[this.editingCell.field] = confirmedValue;
                     }
                     ev.updatedAt = result.updatedAt || new Date().toISOString();
 
@@ -1874,7 +1899,7 @@
                         sheetRow: this.editingCell.sheetRow,
                         field: this.editingCell.field,
                         oldValue: this.editingCell.expectedValue,
-                        newValue
+                        newValue: confirmedValue
                     });
 
                     this.isSavingCell = false;
@@ -1897,6 +1922,7 @@
             renderEditableCell(eventNo, gender, heat, athlete, field, isVerified) {
                 const rawVal = String(athlete[field] || '').trim();
                 const displayVal = rawVal || '—';
+                const canEdit = !isVerified && Boolean(athlete.sheetRow) && this.isEditableCell(gender, heat, athlete.sheetRow, field);
                 const isEditingThis = this.editingCell &&
                     this.editingCell.eventNo === String(eventNo) &&
                     this.editingCell.gender === gender &&
@@ -1927,7 +1953,7 @@
                     `;
                 }
 
-                if (isVerified || !athlete.sheetRow) {
+                if (!canEdit) {
                     return `<span class="block px-2.5 py-1.5 ${alignClass} text-navy-primary">${this.escapeHtml(displayVal)}</span>`;
                 }
 
@@ -2133,9 +2159,12 @@
 
             isEditableCell(gender, sheetRow, field) {
                 const rowNum = Number(sheetRow);
-                if (field !== 'kedudukan' && field !== 'masa') return false;
-                if (gender === 'lelaki') return rowNum >= 6 && rowNum <= 13;
-                if (gender === 'perempuan') return rowNum >= 20 && rowNum <= 27;
+                if (gender === 'lelaki') {
+                    return rowNum >= 6 && rowNum <= 13 && field === 'kedudukan';
+                }
+                if (gender === 'perempuan') {
+                    return rowNum >= 20 && rowNum <= 27 && (field === 'kedudukan' || field === 'masa');
+                }
                 return false;
             },
 
@@ -2184,7 +2213,7 @@
                 }
 
                 if (!this.isEditableCell(gender, sheetRow, field)) {
-                    UIComponents.showToast('Sel ini dikunci (read-only). Hanya julat F6:G13 (Lelaki) dan F20:G27 (Perempuan) dibenarkan.', 'warning');
+                    UIComponents.showToast('Sel ini dikunci (read-only). Hanya F6:F13 (Lelaki) dan F20:G27 (Perempuan) dibenarkan.', 'warning');
                     return;
                 }
 
@@ -2510,7 +2539,7 @@
                 );
             },
 
-            startInlineEdit(eventNo, gender, sheetRow, field, currentValue) {
+            startInlineEdit(eventNo, gender, sheetRow, pasukan, field, currentValue) {
                 if (this.isSavingCell) return;
                 const store = StorageManager.getRelayStore();
                 const ev = store.events && store.events[eventNo];
@@ -2530,6 +2559,7 @@
                     eventNo: String(eventNo),
                     gender: String(gender),
                     sheetRow: Number(sheetRow),
+                    pasukan: String(pasukan || ''),
                     field: String(field),
                     expectedValue: String(currentValue || '').trim(),
                     draftValue: String(currentValue || '').trim()
@@ -2598,6 +2628,7 @@
                     eventNo: this.editingCell.eventNo,
                     gender: this.editingCell.gender,
                     sheetRow: this.editingCell.sheetRow,
+                    pasukan: this.editingCell.pasukan,
                     field: this.editingCell.field,
                     expectedValue: this.editingCell.expectedValue,
                     value: newValue
@@ -2659,7 +2690,7 @@
                     <button
                         type="button"
                         title="Klik untuk sunting ${field === 'kedudukan' ? 'Kedudukan' : 'Masa'} (Baris ${teamRow.sheetRow})"
-                        onclick="RelayModule.startInlineEdit('${SaringanModule.escapeHtml(eventNo)}', '${gender}', ${Number(teamRow.sheetRow)}, '${field}', '${SaringanModule.escapeHtml(rawVal)}')"
+                        onclick="RelayModule.startInlineEdit('${SaringanModule.escapeHtml(eventNo)}', '${gender}', ${Number(teamRow.sheetRow)}, '${SaringanModule.escapeHtml(teamRow.pasukan || '')}', '${field}', '${SaringanModule.escapeHtml(rawVal)}')"
                         class="w-full min-h-[38px] block px-2.5 py-1.5 rounded-lg hover:bg-gold/15 border border-transparent hover:border-gold/40 transition-colors cursor-pointer ${alignClass} text-navy-primary"
                     >${SaringanModule.escapeHtml(displayVal)}</button>
                 `;
@@ -3603,42 +3634,48 @@
             EXPECTED_MODULE: 'saringan',
             GAS_SOURCE_CODE: `/**
  * STATISTIX HUB — GOOGLE APPS SCRIPT (ACARA SARINGAN)
+ * Fail: Statistix_Saringan_Code.gs
  * Julat Bacaan:
  * - Lelaki Saringan 1   : A5:G12 (8 baris)
  * - Lelaki Saringan 2   : A18:G25 (8 baris)
  * - Perempuan Saringan 1: I5:O12 (8 baris)
  * - Perempuan Saringan 2: I18:O25 (8 baris)
+ * Julat Suntingan (doPost):
+ * - Lelaki Saringan 1   : F5:F12 (kedudukan sahaja)
+ * - Lelaki Saringan 2   : F18:G25 (kedudukan & masa)
+ * - Perempuan Saringan 1: N5:O12 (kedudukan & masa)
+ * - Perempuan Saringan 2: N18:O25 (kedudukan & masa)
  */
 const ALLOWED_TABS = ['101', '102', '103', '104', '105', '106', '204', '205', '300'];
 
 function doGet(e) {
-  const ss = SpreadsheetApp.getActiveSpreadsheet();
-  const events = {};
-  const foundTabs = [];
-  const missingTabs = [];
+  try {
+    const ss = SpreadsheetApp.getActiveSpreadsheet();
+    const events = {};
+    const foundTabs = [];
+    const missingTabs = [];
 
-  ALLOWED_TABS.forEach(function(tabName) {
-    const sheet = ss.getSheetByName(tabName);
-    if (!sheet) {
-      missingTabs.push(tabName);
-      return;
-    }
-    foundTabs.push(tabName);
-    events[tabName] = {
-      eventNo: tabName,
-      lelaki: {
-        saringan1: readHeatRows_(sheet, 5, 12, 1),
-        saringan2: readHeatRows_(sheet, 18, 25, 1)
-      },
-      perempuan: {
-        saringan1: readHeatRows_(sheet, 5, 12, 9),
-        saringan2: readHeatRows_(sheet, 18, 25, 9)
+    ALLOWED_TABS.forEach(function(tabName) {
+      const sheet = ss.getSheetByName(tabName);
+      if (!sheet) {
+        missingTabs.push(tabName);
+        return;
       }
-    };
-  });
+      foundTabs.push(tabName);
+      events[tabName] = {
+        eventNo: tabName,
+        lelaki: {
+          saringan1: readHeatRows_(sheet, 5, 12, 1),
+          saringan2: readHeatRows_(sheet, 18, 25, 1)
+        },
+        perempuan: {
+          saringan1: readHeatRows_(sheet, 5, 12, 9),
+          saringan2: readHeatRows_(sheet, 18, 25, 9)
+        }
+      };
+    });
 
-  return ContentService
-    .createTextOutput(JSON.stringify({
+    return jsonResponse_({
       success: true,
       module: 'saringan',
       spreadsheetName: ss.getName(),
@@ -3649,8 +3686,14 @@ function doGet(e) {
       totalTabs: ALLOWED_TABS.length,
       events: events,
       updatedAt: new Date().toISOString()
-    }))
-    .setMimeType(ContentService.MimeType.JSON);
+    });
+  } catch (err) {
+    return jsonResponse_({
+      success: false,
+      module: 'saringan',
+      message: 'Ralat membaca data Acara Saringan: ' + err.message
+    });
+  }
 }
 
 function readHeatRows_(sheet, startRow, endRow, startCol) {
@@ -3660,7 +3703,7 @@ function readHeatRows_(sheet, startRow, endRow, startCol) {
   for (var i = 0; i < values.length; i++) {
     var r = values[i];
     var lorong = String(r[0] || '').trim();
-    var namaAtlet = String(r[1] || r[2] || '').trim();
+    var namaAtlet = String(r[1] || '').trim(); // Sel anchor B atau J (merged B:C / J:K)
     var pasukan = String(r[3] || '').trim();
     var noBib = String(r[4] || '').trim();
     var kedudukan = String(r[5] || '').trim();
@@ -3680,43 +3723,89 @@ function readHeatRows_(sheet, startRow, endRow, startCol) {
 }
 
 function doPost(e) {
-  const params = (e && e.parameter) || {};
-  const eventNo = String(params.eventNo || '').trim();
-  const gender = String(params.gender || '').trim();
-  const heat = String(params.heat || '').trim();
-  const sheetRow = Number(params.sheetRow);
-  const field = String(params.field || '').trim();
-  const value = String(params.value || '').trim();
+  try {
+    const params = (e && e.parameter) || {};
+    const eventNo = String(params.eventNo || '').trim();
+    const gender = String(params.gender || '').trim().toLowerCase();
+    const heat = String(params.heat || '').trim();
+    const sheetRow = Number(params.sheetRow);
+    const noBib = String(params.noBib || '').trim();
+    const field = String(params.field || '').trim();
+    const hasExpected = Object.prototype.hasOwnProperty.call(params, 'expectedValue');
+    const expectedValue = hasExpected ? String(params.expectedValue || '').trim() : null;
+    const value = String(params.value || '').trim();
 
-  if (ALLOWED_TABS.indexOf(eventNo) === -1) {
-    return jsonResponse_({ success: false, message: 'Tab acara tidak sah.' });
-  }
-  if (gender !== 'lelaki' && gender !== 'perempuan') {
-    return jsonResponse_({ success: false, message: 'Kategori tidak sah.' });
-  }
-  const validRow = (heat === 'saringan1' && sheetRow >= 5 && sheetRow <= 12) ||
-                   (heat === 'saringan2' && sheetRow >= 18 && sheetRow <= 25);
-  if (!validRow) {
-    return jsonResponse_({ success: false, message: 'Baris tidak dibenarkan untuk suntingan.' });
-  }
-  if (field !== 'kedudukan' && field !== 'masa') {
-    return jsonResponse_({ success: false, message: 'Medan tidak dibenarkan.' });
-  }
+    if (ALLOWED_TABS.indexOf(eventNo) === -1) {
+      return jsonResponse_({ success: false, message: 'Tab acara tidak sah.' });
+    }
+    if (gender !== 'lelaki' && gender !== 'perempuan') {
+      return jsonResponse_({ success: false, message: 'Kategori tidak sah.' });
+    }
+    if (heat !== 'saringan1' && heat !== 'saringan2') {
+      return jsonResponse_({ success: false, message: 'Saringan tidak sah.' });
+    }
 
-  const ss = SpreadsheetApp.getActiveSpreadsheet();
-  const sheet = ss.getSheetByName(eventNo);
-  if (!sheet) {
-    return jsonResponse_({ success: false, message: 'Helaian tidak ditemui.' });
+    const validRow = (heat === 'saringan1' && sheetRow >= 5 && sheetRow <= 12) ||
+                     (heat === 'saringan2' && sheetRow >= 18 && sheetRow <= 25);
+    if (!validRow) {
+      return jsonResponse_({ success: false, message: 'Baris tidak dibenarkan untuk suntingan.' });
+    }
+
+    // Whitelist medan mengikut kategori & saringan
+    if (gender === 'lelaki' && heat === 'saringan1') {
+      if (field !== 'kedudukan') {
+        return jsonResponse_({ success: false, message: 'Lelaki Saringan 1 hanya membenarkan suntingan Kedudukan (F5:F12).' });
+      }
+    } else {
+      if (field !== 'kedudukan' && field !== 'masa') {
+        return jsonResponse_({ success: false, message: 'Medan tidak dibenarkan untuk suntingan.' });
+      }
+    }
+
+    const ss = SpreadsheetApp.getActiveSpreadsheet();
+    const sheet = ss.getSheetByName(eventNo);
+    if (!sheet) {
+      return jsonResponse_({ success: false, message: 'Helaian tidak ditemui.' });
+    }
+
+    // Sahkan identiti baris melalui No Bib (Lelaki: E=5, Perempuan: M=13)
+    const bibCol = gender === 'lelaki' ? 5 : 13;
+    const currentBib = String(sheet.getRange(sheetRow, bibCol).getDisplayValue() || '').trim();
+    if (noBib && currentBib && noBib !== currentBib) {
+      return jsonResponse_({ success: false, message: 'Konflik rekod: No Bib pada baris Google Sheets tidak sepadan.' });
+    }
+
+    const baseCol = gender === 'lelaki' ? 6 : 14; // F/G (6,7) atau N/O (14,15)
+    const targetCol = field === 'kedudukan' ? baseCol : baseCol + 1;
+    const targetRange = sheet.getRange(sheetRow, targetCol);
+
+    if (targetRange.getFormula()) {
+      return jsonResponse_({ success: false, message: 'Sel sasaran mengandungi formula dan dilindungi daripada suntingan terus.' });
+    }
+
+    const currentVal = String(targetRange.getDisplayValue() || '').trim();
+    if (hasExpected && expectedValue !== currentVal) {
+      return jsonResponse_({
+        success: false,
+        message: 'Konflik kemas kini serentak: Nilai sel telah berubah dalam Google Sheets. Sila muat semula data.'
+      });
+    }
+
+    targetRange.setValue(value);
+    SpreadsheetApp.flush();
+    const confirmedValue = String(targetRange.getDisplayValue() || '').trim();
+
+    return jsonResponse_({
+      success: true,
+      confirmedValue: confirmedValue,
+      updatedAt: new Date().toISOString()
+    });
+  } catch (err) {
+    return jsonResponse_({
+      success: false,
+      message: 'Ralat menyimpan data Acara Saringan: ' + err.message
+    });
   }
-
-  const baseCol = gender === 'lelaki' ? 6 : 14; // F/G (6,7) atau N/O (14,15)
-  const targetCol = field === 'kedudukan' ? baseCol : baseCol + 1;
-  sheet.getRange(sheetRow, targetCol).setValue(value);
-
-  return jsonResponse_({
-    success: true,
-    updatedAt: new Date().toISOString()
-  });
 }
 
 function jsonResponse_(obj) {
@@ -3739,6 +3828,17 @@ function jsonResponse_(obj) {
                 }
                 this.updateModeBadge(Boolean(savedUrl));
                 this.restoreSavedStatus();
+            },
+
+            isValidGasExecUrl(url) {
+                try {
+                    const parsed = new URL(String(url || '').trim());
+                    return parsed.protocol === 'https:' &&
+                        parsed.hostname === 'script.google.com' &&
+                        /\/exec\/?$/.test(parsed.pathname);
+                } catch (e) {
+                    return false;
+                }
             },
 
             syncLiveIndicators() {
@@ -3933,6 +4033,10 @@ function jsonResponse_(obj) {
                     UIComponents.showToast('Sila masukkan URL Google Apps Script terlebih dahulu.', 'warning');
                     return;
                 }
+                if (!this.isValidGasExecUrl(url)) {
+                    UIComponents.showToast('URL GAS mesti menggunakan pautan Web App rasmi Google Apps Script yang berakhir dengan /exec.', 'error');
+                    return;
+                }
 
                 UIComponents.showLoading('Menguji sambungan Acara Saringan...');
                 try {
@@ -3982,6 +4086,10 @@ function jsonResponse_(obj) {
                 const url = inputEl ? inputEl.value.trim() : '';
                 if (!url) {
                     UIComponents.showToast('Sila masukkan URL Google Apps Script.', 'warning');
+                    return;
+                }
+                if (!this.isValidGasExecUrl(url)) {
+                    UIComponents.showToast('URL GAS mesti menggunakan pautan Web App rasmi Google Apps Script yang berakhir dengan /exec.', 'error');
                     return;
                 }
 
@@ -4064,38 +4172,38 @@ function jsonResponse_(obj) {
             EXPECTED_MODULE: 'akhir-balapan',
             GAS_SOURCE_CODE: `/**
  * STATISTIX HUB — GOOGLE APPS SCRIPT (AKHIR BALAPAN)
- * Fail: Code.gs (Bound Script pada Google Sheets "2. Acara Akhir")
+ * Fail: Statistix_Akhir_Balapan_Code.gs
  * Julat Bacaan:
  * - Lelaki   : A6:G13 (8 baris)
  * - Perempuan: A20:G27 (8 baris)
  * Julat Suntingan (doPost):
- * - Lelaki   : F6:G13
- * - Perempuan: F20:G27
+ * - Lelaki   : F6:F13 (kedudukan sahaja)
+ * - Perempuan: F20:G27 (kedudukan & masa)
  */
 const ALLOWED_TABS = ['101', '102', '103', '104', '105', '106', '204', '205', '300'];
 
 function doGet(e) {
-  const ss = SpreadsheetApp.getActiveSpreadsheet();
-  const events = {};
-  const foundTabs = [];
-  const missingTabs = [];
+  try {
+    const ss = SpreadsheetApp.getActiveSpreadsheet();
+    const events = {};
+    const foundTabs = [];
+    const missingTabs = [];
 
-  ALLOWED_TABS.forEach(function(tabName) {
-    const sheet = ss.getSheetByName(tabName);
-    if (!sheet) {
-      missingTabs.push(tabName);
-      return;
-    }
-    foundTabs.push(tabName);
-    events[tabName] = {
-      eventNo: tabName,
-      lelaki: readAkhirRows_(sheet, 6, 13),
-      perempuan: readAkhirRows_(sheet, 20, 27)
-    };
-  });
+    ALLOWED_TABS.forEach(function(tabName) {
+      const sheet = ss.getSheetByName(tabName);
+      if (!sheet) {
+        missingTabs.push(tabName);
+        return;
+      }
+      foundTabs.push(tabName);
+      events[tabName] = {
+        eventNo: tabName,
+        lelaki: readAkhirRows_(sheet, 6, 13),
+        perempuan: readAkhirRows_(sheet, 20, 27)
+      };
+    });
 
-  return ContentService
-    .createTextOutput(JSON.stringify({
+    return jsonResponse_({
       success: true,
       module: 'akhir-balapan',
       spreadsheetName: ss.getName(),
@@ -4106,8 +4214,14 @@ function doGet(e) {
       totalTabs: ALLOWED_TABS.length,
       events: events,
       updatedAt: new Date().toISOString()
-    }))
-    .setMimeType(ContentService.MimeType.JSON);
+    });
+  } catch (err) {
+    return jsonResponse_({
+      success: false,
+      module: 'akhir-balapan',
+      message: 'Ralat membaca data Akhir Balapan: ' + err.message
+    });
+  }
 }
 
 function readAkhirRows_(sheet, startRow, endRow) {
@@ -4117,7 +4231,7 @@ function readAkhirRows_(sheet, startRow, endRow) {
   for (var i = 0; i < values.length; i++) {
     var r = values[i];
     var lorong = String(r[0] || '').trim();
-    var namaAtlet = String(r[1] || r[2] || '').trim();
+    var namaAtlet = String(r[1] || '').trim(); // Sel anchor B (merged B:C)
     var pasukan = String(r[3] || '').trim();
     var noBib = String(r[4] || '').trim();
     var kedudukan = String(r[5] || '').trim();
@@ -4137,38 +4251,76 @@ function readAkhirRows_(sheet, startRow, endRow) {
 }
 
 function doPost(e) {
-  const params = (e && e.parameter) || {};
-  const eventNo = String(params.eventNo || '').trim();
-  const gender = String(params.gender || '').trim();
-  const sheetRow = Number(params.sheetRow);
-  const field = String(params.field || '').trim();
-  const value = String(params.value || '').trim();
+  try {
+    const params = (e && e.parameter) || {};
+    const eventNo = String(params.eventNo || '').trim();
+    const gender = String(params.gender || '').trim().toLowerCase();
+    const sheetRow = Number(params.sheetRow);
+    const noBib = String(params.noBib || '').trim();
+    const field = String(params.field || '').trim();
+    const hasExpected = Object.prototype.hasOwnProperty.call(params, 'expectedValue');
+    const expectedValue = hasExpected ? String(params.expectedValue || '').trim() : null;
+    const value = String(params.value || '').trim();
 
-  if (ALLOWED_TABS.indexOf(eventNo) === -1) {
-    return jsonResponse_({ success: false, message: 'Tab acara tidak sah.' });
-  }
-  const validRow = (gender === 'lelaki' && sheetRow >= 6 && sheetRow <= 13) ||
-                   (gender === 'perempuan' && sheetRow >= 20 && sheetRow <= 27);
-  if (!validRow) {
-    return jsonResponse_({ success: false, message: 'Julat suntingan tidak sah.' });
-  }
-  if (field !== 'kedudukan' && field !== 'masa') {
-    return jsonResponse_({ success: false, message: 'Medan tidak dibenarkan.' });
-  }
+    if (ALLOWED_TABS.indexOf(eventNo) === -1) {
+      return jsonResponse_({ success: false, message: 'Tab acara tidak sah.' });
+    }
+    if (gender !== 'lelaki' && gender !== 'perempuan') {
+      return jsonResponse_({ success: false, message: 'Kategori tidak sah.' });
+    }
 
-  const ss = SpreadsheetApp.getActiveSpreadsheet();
-  const sheet = ss.getSheetByName(eventNo);
-  if (!sheet) {
-    return jsonResponse_({ success: false, message: 'Helaian tidak ditemui.' });
+    if (gender === 'lelaki') {
+      if (sheetRow < 6 || sheetRow > 13 || field !== 'kedudukan') {
+        return jsonResponse_({ success: false, message: 'Kategori Lelaki hanya membenarkan suntingan Kedudukan pada julat F6:F13.' });
+      }
+    } else {
+      if (sheetRow < 20 || sheetRow > 27 || (field !== 'kedudukan' && field !== 'masa')) {
+        return jsonResponse_({ success: false, message: 'Kategori Perempuan hanya membenarkan suntingan pada julat F20:G27.' });
+      }
+    }
+
+    const ss = SpreadsheetApp.getActiveSpreadsheet();
+    const sheet = ss.getSheetByName(eventNo);
+    if (!sheet) {
+      return jsonResponse_({ success: false, message: 'Helaian tidak ditemui.' });
+    }
+
+    // Sahkan identiti baris menggunakan No Bib (Kolum E = 5)
+    const currentBib = String(sheet.getRange(sheetRow, 5).getDisplayValue() || '').trim();
+    if (noBib && currentBib && noBib !== currentBib) {
+      return jsonResponse_({ success: false, message: 'Konflik rekod: No Bib pada baris Google Sheets tidak sepadan.' });
+    }
+
+    const targetCol = field === 'kedudukan' ? 6 : 7; // F=6, G=7
+    const targetRange = sheet.getRange(sheetRow, targetCol);
+
+    if (targetRange.getFormula()) {
+      return jsonResponse_({ success: false, message: 'Sel sasaran mengandungi formula dan dilindungi daripada suntingan terus.' });
+    }
+
+    const currentVal = String(targetRange.getDisplayValue() || '').trim();
+    if (hasExpected && expectedValue !== currentVal) {
+      return jsonResponse_({
+        success: false,
+        message: 'Konflik kemas kini serentak: Nilai sel telah berubah dalam Google Sheets. Sila muat semula data.'
+      });
+    }
+
+    targetRange.setValue(value);
+    SpreadsheetApp.flush();
+    const confirmedValue = String(targetRange.getDisplayValue() || '').trim();
+
+    return jsonResponse_({
+      success: true,
+      confirmedValue: confirmedValue,
+      updatedAt: new Date().toISOString()
+    });
+  } catch (err) {
+    return jsonResponse_({
+      success: false,
+      message: 'Ralat menyimpan data Akhir Balapan: ' + err.message
+    });
   }
-
-  const targetCol = field === 'kedudukan' ? 6 : 7; // F=6, G=7
-  sheet.getRange(sheetRow, targetCol).setValue(value);
-
-  return jsonResponse_({
-    success: true,
-    updatedAt: new Date().toISOString()
-  });
 }
 
 function jsonResponse_(obj) {
@@ -4191,6 +4343,17 @@ function jsonResponse_(obj) {
                 }
                 this.updateModeBadge(Boolean(savedUrl));
                 this.restoreSavedStatus();
+            },
+
+            isValidGasExecUrl(url) {
+                try {
+                    const parsed = new URL(String(url || '').trim());
+                    return parsed.protocol === 'https:' &&
+                        parsed.hostname === 'script.google.com' &&
+                        /\/exec\/?$/.test(parsed.pathname);
+                } catch (e) {
+                    return false;
+                }
             },
 
             updateModeBadge(isLocked) {
@@ -4432,6 +4595,10 @@ function jsonResponse_(obj) {
                     UIComponents.showToast('Sila masukkan URL Google Apps Script terlebih dahulu.', 'warning');
                     return;
                 }
+                if (!this.isValidGasExecUrl(url)) {
+                    UIComponents.showToast('URL GAS mesti menggunakan pautan Web App rasmi Google Apps Script yang berakhir dengan /exec.', 'error');
+                    return;
+                }
 
                 UIComponents.showLoading('Menguji sambungan Akhir Balapan...');
                 try {
@@ -4481,6 +4648,10 @@ function jsonResponse_(obj) {
                 const url = inputEl ? inputEl.value.trim() : '';
                 if (!url) {
                     UIComponents.showToast('Sila masukkan URL Google Apps Script.', 'warning');
+                    return;
+                }
+                if (!this.isValidGasExecUrl(url)) {
+                    UIComponents.showToast('URL GAS mesti menggunakan pautan Web App rasmi Google Apps Script yang berakhir dengan /exec.', 'error');
                     return;
                 }
 
@@ -4639,32 +4810,39 @@ function jsonResponse_(obj) {
             EXPECTED_MODULE: 'relay',
             GAS_SOURCE_CODE: `/**
  * STATISTIX HUB — GOOGLE APPS SCRIPT (ACARA RELAY)
+ * Fail: Statistix_Relay_Code.gs
  * Tab Dibenarkan: 411, 412, 413, 414, 415, 424, 425
+ * Julat Bacaan:
+ * - Lelaki   : A5:G8 (A=Lorong, B:C=Pasukan [anchor B], D:E=Masa [anchor D], F:G=Kedudukan [anchor F])
+ * - Perempuan: I5:O8 (I=Lorong, J:K=Pasukan [anchor J], L:M=Masa [anchor L], N:O=Kedudukan [anchor N])
+ * Julat Suntingan (doPost - menulis pada sel anchor sahaja):
+ * - Lelaki   : Masa -> D5:D8 (kolum 4), Kedudukan -> F5:F8 (kolum 6)
+ * - Perempuan: Masa -> L5:L8 (kolum 12), Kedudukan -> N5:N8 (kolum 14)
  */
 const ALLOWED_TABS = ['411', '412', '413', '414', '415', '424', '425'];
 
 function doGet(e) {
-  const ss = SpreadsheetApp.getActiveSpreadsheet();
-  const events = {};
-  const foundTabs = [];
-  const missingTabs = [];
+  try {
+    const ss = SpreadsheetApp.getActiveSpreadsheet();
+    const events = {};
+    const foundTabs = [];
+    const missingTabs = [];
 
-  ALLOWED_TABS.forEach(function(tabName) {
-    const sheet = ss.getSheetByName(tabName);
-    if (!sheet) {
-      missingTabs.push(tabName);
-      return;
-    }
-    foundTabs.push(tabName);
-    events[tabName] = {
-      eventNo: tabName,
-      lelaki: readRelayRows_(sheet, 5, 8, 1),
-      perempuan: readRelayRows_(sheet, 5, 8, 6)
-    };
-  });
+    ALLOWED_TABS.forEach(function(tabName) {
+      const sheet = ss.getSheetByName(tabName);
+      if (!sheet) {
+        missingTabs.push(tabName);
+        return;
+      }
+      foundTabs.push(tabName);
+      events[tabName] = {
+        eventNo: tabName,
+        lelaki: readRelayRows_(sheet, 5, 8, 1),    // A5:G8 (7 kolum)
+        perempuan: readRelayRows_(sheet, 5, 8, 9)  // I5:O8 (7 kolum)
+      };
+    });
 
-  return ContentService
-    .createTextOutput(JSON.stringify({
+    return jsonResponse_({
       success: true,
       module: 'relay',
       spreadsheetName: ss.getName(),
@@ -4675,21 +4853,28 @@ function doGet(e) {
       totalTabs: ALLOWED_TABS.length,
       events: events,
       updatedAt: new Date().toISOString()
-    }))
-    .setMimeType(ContentService.MimeType.JSON);
+    });
+  } catch (err) {
+    return jsonResponse_({
+      success: false,
+      module: 'relay',
+      message: 'Ralat membaca data Acara Relay: ' + err.message
+    });
+  }
 }
 
 function readRelayRows_(sheet, startRow, endRow, startCol) {
   const numRows = endRow - startRow + 1;
-  const values = sheet.getRange(startRow, startCol, numRows, 4).getDisplayValues();
+  // Baca 7 kolum penuh (A:G atau I:O) bagi mengekalkan indeks sel anchor merged
+  const values = sheet.getRange(startRow, startCol, numRows, 7).getDisplayValues();
   const rows = [];
   for (var i = 0; i < values.length; i++) {
     var r = values[i];
-    var lorong = String(r[0] || '').trim();
-    var pasukan = String(r[1] || '').trim();
-    var masa = String(r[2] || '').trim();
-    var kedudukan = String(r[3] || '').trim();
-    if (!pasukan) continue;
+    var lorong = String(r[0] || '').trim();     // A (1) atau I (9)
+    var pasukan = String(r[1] || '').trim();    // Anchor B (2) atau J (10) bagi merged B:C / J:K
+    var masa = String(r[3] || '').trim();       // Anchor D (4) atau L (12) bagi merged D:E / L:M
+    var kedudukan = String(r[5] || '').trim();  // Anchor F (6) atau N (14) bagi merged F:G / N:O
+    if (!pasukan && !lorong) continue;
     rows.push({
       sheetRow: startRow + i,
       lorong: lorong,
@@ -4702,25 +4887,81 @@ function readRelayRows_(sheet, startRow, endRow, startCol) {
 }
 
 function doPost(e) {
-  const params = (e && e.parameter) || {};
-  const eventNo = String(params.eventNo || '').trim();
-  const gender = String(params.gender || '').trim();
-  const sheetRow = Number(params.sheetRow);
-  const field = String(params.field || '').trim();
-  const value = String(params.value || '').trim();
+  try {
+    const params = (e && e.parameter) || {};
+    const eventNo = String(params.eventNo || '').trim();
+    const gender = String(params.gender || '').trim().toLowerCase();
+    const sheetRow = Number(params.sheetRow);
+    const pasukan = String(params.pasukan || '').trim();
+    const field = String(params.field || '').trim();
+    const hasExpected = Object.prototype.hasOwnProperty.call(params, 'expectedValue');
+    const expectedValue = hasExpected ? String(params.expectedValue || '').trim() : null;
+    const value = String(params.value || '').trim();
 
-  if (ALLOWED_TABS.indexOf(eventNo) === -1 || sheetRow < 5 || sheetRow > 8) {
-    return jsonResponse_({ success: false, message: 'Parameter suntingan tidak sah.' });
+    if (ALLOWED_TABS.indexOf(eventNo) === -1) {
+      return jsonResponse_({ success: false, message: 'Tab acara tidak sah.' });
+    }
+    if (gender !== 'lelaki' && gender !== 'perempuan') {
+      return jsonResponse_({ success: false, message: 'Kategori tidak sah.' });
+    }
+    if (sheetRow < 5 || sheetRow > 8) {
+      return jsonResponse_({ success: false, message: 'Baris tidak dibenarkan untuk suntingan (hanya baris 5 hingga 8).' });
+    }
+    if (field !== 'masa' && field !== 'kedudukan') {
+      return jsonResponse_({ success: false, message: 'Medan tidak dibenarkan untuk suntingan.' });
+    }
+
+    const ss = SpreadsheetApp.getActiveSpreadsheet();
+    const sheet = ss.getSheetByName(eventNo);
+    if (!sheet) {
+      return jsonResponse_({ success: false, message: 'Helaian tidak ditemui.' });
+    }
+
+    // Sahkan identiti pasukan pada sel anchor (Lelaki: B=2, Perempuan: J=10)
+    const teamCol = gender === 'lelaki' ? 2 : 10;
+    const currentTeam = String(sheet.getRange(sheetRow, teamCol).getDisplayValue() || '').trim();
+    if (pasukan && currentTeam && pasukan.toUpperCase() !== currentTeam.toUpperCase()) {
+      return jsonResponse_({ success: false, message: 'Konflik rekod: Nama pasukan pada baris Google Sheets tidak sepadan.' });
+    }
+
+    // Pemetaan sel anchor merged yang tepat:
+    // Lelaki: Masa -> D (4), Kedudukan -> F (6)
+    // Perempuan: Masa -> L (12), Kedudukan -> N (14)
+    var targetCol;
+    if (gender === 'lelaki') {
+      targetCol = field === 'masa' ? 4 : 6;
+    } else {
+      targetCol = field === 'masa' ? 12 : 14;
+    }
+
+    const targetRange = sheet.getRange(sheetRow, targetCol);
+    if (targetRange.getFormula()) {
+      return jsonResponse_({ success: false, message: 'Sel sasaran mengandungi formula dan dilindungi daripada suntingan terus.' });
+    }
+
+    const currentVal = String(targetRange.getDisplayValue() || '').trim();
+    if (hasExpected && expectedValue !== currentVal) {
+      return jsonResponse_({
+        success: false,
+        message: 'Konflik kemas kini serentak: Nilai sel telah berubah dalam Google Sheets. Sila muat semula data.'
+      });
+    }
+
+    targetRange.setValue(value);
+    SpreadsheetApp.flush();
+    const confirmedValue = String(targetRange.getDisplayValue() || '').trim();
+
+    return jsonResponse_({
+      success: true,
+      confirmedValue: confirmedValue,
+      updatedAt: new Date().toISOString()
+    });
+  } catch (err) {
+    return jsonResponse_({
+      success: false,
+      message: 'Ralat menyimpan data Acara Relay: ' + err.message
+    });
   }
-  const ss = SpreadsheetApp.getActiveSpreadsheet();
-  const sheet = ss.getSheetByName(eventNo);
-  if (!sheet) return jsonResponse_({ success: false, message: 'Helaian tidak ditemui.' });
-
-  const baseCol = gender === 'lelaki' ? 3 : 8; // C/D (3,4) atau H/I (8,9)
-  const targetCol = field === 'masa' ? baseCol : baseCol + 1;
-  sheet.getRange(sheetRow, targetCol).setValue(value);
-
-  return jsonResponse_({ success: true, updatedAt: new Date().toISOString() });
 }
 
 function jsonResponse_(obj) {
@@ -4743,6 +4984,17 @@ function jsonResponse_(obj) {
                 }
                 this.updateModeBadge(Boolean(savedUrl));
                 this.restoreSavedStatus();
+            },
+
+            isValidGasExecUrl(url) {
+                try {
+                    const parsed = new URL(String(url || '').trim());
+                    return parsed.protocol === 'https:' &&
+                        parsed.hostname === 'script.google.com' &&
+                        /\/exec\/?$/.test(parsed.pathname);
+                } catch (e) {
+                    return false;
+                }
             },
 
             updateModeBadge(isLocked) {
@@ -4933,6 +5185,10 @@ function jsonResponse_(obj) {
                     UIComponents.showToast('Sila masukkan URL Google Apps Script terlebih dahulu.', 'warning');
                     return;
                 }
+                if (!this.isValidGasExecUrl(url)) {
+                    UIComponents.showToast('URL GAS mesti menggunakan pautan Web App rasmi Google Apps Script yang berakhir dengan /exec.', 'error');
+                    return;
+                }
 
                 UIComponents.showLoading('Menguji sambungan Acara Relay...');
                 try {
@@ -4982,6 +5238,10 @@ function jsonResponse_(obj) {
                 const url = inputEl ? inputEl.value.trim() : '';
                 if (!url) {
                     UIComponents.showToast('Sila masukkan URL Google Apps Script.', 'warning');
+                    return;
+                }
+                if (!this.isValidGasExecUrl(url)) {
+                    UIComponents.showToast('URL GAS mesti menggunakan pautan Web App rasmi Google Apps Script yang berakhir dengan /exec.', 'error');
                     return;
                 }
 
@@ -5050,7 +5310,7 @@ function jsonResponse_(obj) {
                 }
             },
 
-            async updateCell({ eventNo, gender, sheetRow, field, expectedValue, value }) {
+            async updateCell({ eventNo, gender, sheetRow, pasukan, field, expectedValue, value }) {
                 const config = StorageManager.getTournamentConfig();
                 const gasUrl = String(config.relayAppsScriptUrl || '').trim();
                 if (!gasUrl) {
@@ -5064,6 +5324,7 @@ function jsonResponse_(obj) {
                     bodyParams.set('eventNo', String(eventNo));
                     bodyParams.set('gender', String(gender));
                     bodyParams.set('sheetRow', String(sheetRow));
+                    bodyParams.set('pasukan', String(pasukan || ''));
                     bodyParams.set('field', String(field));
                     bodyParams.set('expectedValue', String(expectedValue || ''));
                     bodyParams.set('value', String(value || ''));
@@ -5079,11 +5340,15 @@ function jsonResponse_(obj) {
                         throw new Error((result && result.message) || 'Kemas kini ditolak.');
                     }
 
+                    const finalSavedValue = typeof result.confirmedValue === 'string'
+                        ? result.confirmedValue.trim()
+                        : String(value || '').trim();
+
                     const store = StorageManager.getRelayStore();
                     const ev = store.events && store.events[eventNo];
                     if (ev && Array.isArray(ev[gender])) {
                         const row = ev[gender].find(r => Number(r.sheetRow) === Number(sheetRow));
-                        if (row) row[field] = value;
+                        if (row) row[field] = finalSavedValue;
                         ev.updatedAt = result.updatedAt || new Date().toISOString();
                     }
                     StorageManager.saveRelayStore(store);
@@ -5093,7 +5358,8 @@ function jsonResponse_(obj) {
                         gender,
                         sheetRow,
                         field,
-                        newValue: value
+                        oldValue: expectedValue,
+                        newValue: finalSavedValue
                     });
                     UIComponents.showToast('Keputusan Acara Relay berjaya dikemas kini!', 'success');
                     return { success: true };
@@ -5111,38 +5377,39 @@ function jsonResponse_(obj) {
             EXPECTED_MODULE: 'padang',
             GAS_SOURCE_CODE: `/**
  * STATISTIX HUB — GOOGLE APPS SCRIPT (ACARA PADANG)
+ * Fail: Statistix_Padang_Code.gs
  * Tab Dibenarkan: LONGJUMP, HIGHJUMP, SHOTPUT
  * Julat Bacaan:
  * - Lelaki   : A9:N16 (14 kolum; B:C merged = Nama Atlet, M:N merged = Kedudukan)
  * - Perempuan: A26:N33 (14 kolum; B:C merged = Nama Atlet, M:N merged = Kedudukan)
  * Julat Suntingan (doPost):
- * - Lelaki   : L9:L16 (Catatan Terbaik, kolum 12) & M9:M16 (Kedudukan, kolum 13)
- * - Perempuan: L26:L33 (Catatan Terbaik, kolum 12) & M26:M33 (Kedudukan, kolum 13)
+ * - Lelaki   : L9:L16 (Catatan Terbaik, kolum 12) & M9:M16 (Kedudukan anchor M:N, kolum 13)
+ * - Perempuan: L26:L33 (Catatan Terbaik, kolum 12) & M26:M33 (Kedudukan anchor M:N, kolum 13)
  */
 const ALLOWED_TABS = ['LONGJUMP', 'HIGHJUMP', 'SHOTPUT'];
 
 function doGet(e) {
-  const ss = SpreadsheetApp.getActiveSpreadsheet();
-  const events = {};
-  const foundTabs = [];
-  const missingTabs = [];
+  try {
+    const ss = SpreadsheetApp.getActiveSpreadsheet();
+    const events = {};
+    const foundTabs = [];
+    const missingTabs = [];
 
-  ALLOWED_TABS.forEach(function(tabName) {
-    const sheet = ss.getSheetByName(tabName);
-    if (!sheet) {
-      missingTabs.push(tabName);
-      return;
-    }
-    foundTabs.push(tabName);
-    events[tabName] = {
-      eventNo: tabName,
-      lelaki: readPadangRows_(sheet, 9, 16),
-      perempuan: readPadangRows_(sheet, 26, 33)
-    };
-  });
+    ALLOWED_TABS.forEach(function(tabName) {
+      const sheet = ss.getSheetByName(tabName);
+      if (!sheet) {
+        missingTabs.push(tabName);
+        return;
+      }
+      foundTabs.push(tabName);
+      events[tabName] = {
+        eventNo: tabName,
+        lelaki: readPadangRows_(sheet, 9, 16),
+        perempuan: readPadangRows_(sheet, 26, 33)
+      };
+    });
 
-  return ContentService
-    .createTextOutput(JSON.stringify({
+    return jsonResponse_({
       success: true,
       module: 'padang',
       spreadsheetName: ss.getName(),
@@ -5153,8 +5420,14 @@ function doGet(e) {
       totalTabs: ALLOWED_TABS.length,
       events: events,
       updatedAt: new Date().toISOString()
-    }))
-    .setMimeType(ContentService.MimeType.JSON);
+    });
+  } catch (err) {
+    return jsonResponse_({
+      success: false,
+      module: 'padang',
+      message: 'Ralat membaca data Acara Padang: ' + err.message
+    });
+  }
 }
 
 function readPadangRows_(sheet, startRow, endRow) {
@@ -5165,7 +5438,7 @@ function readPadangRows_(sheet, startRow, endRow) {
   for (var i = 0; i < values.length; i++) {
     var r = values[i];
     var giliran = String(r[0] || '').trim();          // Kolum A (1)
-    var namaAtlet = String(r[1] || '').trim();        // Kolum B:C merged -> baca B (2)
+    var namaAtlet = String(r[1] || '').trim();        // Kolum B:C merged -> anchor B (2)
     var pasukan = String(r[3] || '').trim();          // Kolum D (4)
     var noBib = String(r[4] || '').trim();            // Kolum E (5)
     if (!namaAtlet && !pasukan && !noBib) continue;
@@ -5182,71 +5455,86 @@ function readPadangRows_(sheet, startRow, endRow) {
       p5: String(r[9] || '').trim(),                  // Kolum J (10)
       p6: String(r[10] || '').trim(),                 // Kolum K (11)
       catatanTerbaik: String(r[11] || '').trim(),     // Kolum L (12)
-      kedudukan: String(r[12] || '').trim()           // Kolum M:N merged -> baca M (13)
+      kedudukan: String(r[12] || '').trim()           // Kolum M:N merged -> anchor M (13)
     });
   }
   return rows;
 }
 
 function doPost(e) {
-  const params = (e && e.parameter) || {};
-  const eventNo = String(params.eventNo || '').trim().toUpperCase();
-  const gender = String(params.gender || '').trim().toLowerCase();
-  const sheetRow = Number(params.sheetRow);
-  const noBib = String(params.noBib || '').trim();
-  const field = String(params.field || '').trim();
-  const hasExpected = Object.prototype.hasOwnProperty.call(params, 'expectedValue');
-  const expectedValue = hasExpected ? String(params.expectedValue || '').trim() : null;
-  const value = String(params.value || '').trim();
+  try {
+    const params = (e && e.parameter) || {};
+    const eventNo = String(params.eventNo || '').trim().toUpperCase();
+    const gender = String(params.gender || '').trim().toLowerCase();
+    const sheetRow = Number(params.sheetRow);
+    const noBib = String(params.noBib || '').trim();
+    const field = String(params.field || '').trim();
+    const hasExpected = Object.prototype.hasOwnProperty.call(params, 'expectedValue');
+    const expectedValue = hasExpected ? String(params.expectedValue || '').trim() : null;
+    const value = String(params.value || '').trim();
 
-  if (ALLOWED_TABS.indexOf(eventNo) === -1) {
-    return jsonResponse_({ success: false, message: 'Tab acara tidak sah.' });
-  }
-  if (gender !== 'lelaki' && gender !== 'perempuan') {
-    return jsonResponse_({ success: false, message: 'Kategori tidak sah.' });
-  }
-  const validRow = (gender === 'lelaki' && sheetRow >= 9 && sheetRow <= 16) ||
-                   (gender === 'perempuan' && sheetRow >= 26 && sheetRow <= 33);
-  if (!validRow) {
-    return jsonResponse_({ success: false, message: 'Julat baris tidak dibenarkan untuk suntingan.' });
-  }
-  if (field !== 'catatanTerbaik' && field !== 'kedudukan') {
-    return jsonResponse_({ success: false, message: 'Medan tidak dibenarkan untuk suntingan.' });
-  }
+    if (ALLOWED_TABS.indexOf(eventNo) === -1) {
+      return jsonResponse_({ success: false, message: 'Tab acara tidak sah.' });
+    }
+    if (gender !== 'lelaki' && gender !== 'perempuan') {
+      return jsonResponse_({ success: false, message: 'Kategori tidak sah.' });
+    }
+    const validRow = (gender === 'lelaki' && sheetRow >= 9 && sheetRow <= 16) ||
+                     (gender === 'perempuan' && sheetRow >= 26 && sheetRow <= 33);
+    if (!validRow) {
+      return jsonResponse_({ success: false, message: 'Julat baris tidak dibenarkan untuk suntingan.' });
+    }
+    if (field !== 'catatanTerbaik' && field !== 'kedudukan') {
+      return jsonResponse_({ success: false, message: 'Medan tidak dibenarkan untuk suntingan.' });
+    }
 
-  const ss = SpreadsheetApp.getActiveSpreadsheet();
-  const sheet = ss.getSheetByName(eventNo);
-  if (!sheet) {
-    return jsonResponse_({ success: false, message: 'Helaian tidak ditemui.' });
-  }
+    const ss = SpreadsheetApp.getActiveSpreadsheet();
+    const sheet = ss.getSheetByName(eventNo);
+    if (!sheet) {
+      return jsonResponse_({ success: false, message: 'Helaian tidak ditemui.' });
+    }
 
-  // Sahkan identiti baris menggunakan No Bib (kolum E = 5)
-  const currentBib = String(sheet.getRange(sheetRow, 5).getDisplayValue() || '').trim();
-  if (noBib && currentBib && noBib !== currentBib) {
-    return jsonResponse_({ success: false, message: 'Konflik rekod: No Bib pada baris Google Sheets tidak sepadan.' });
-  }
+    // Sahkan identiti baris menggunakan No Bib (kolum E = 5)
+    const currentBib = String(sheet.getRange(sheetRow, 5).getDisplayValue() || '').trim();
+    if (noBib && currentBib && noBib !== currentBib) {
+      return jsonResponse_({ success: false, message: 'Konflik rekod: No Bib pada baris Google Sheets tidak sepadan.' });
+    }
 
-  // Pemetaan kolum wajib: catatanTerbaik -> L (12), kedudukan -> M (13, sel kiri atas M:N)
-  const targetCol = field === 'catatanTerbaik' ? 12 : 13;
-  const targetRange = sheet.getRange(sheetRow, targetCol);
-  const currentVal = String(targetRange.getDisplayValue() || '').trim();
+    // Pemetaan kolum wajib: catatanTerbaik -> L (12), kedudukan -> M (13, sel anchor M:N)
+    const targetCol = field === 'catatanTerbaik' ? 12 : 13;
+    const targetRange = sheet.getRange(sheetRow, targetCol);
 
-  if (hasExpected && expectedValue !== currentVal) {
+    // Lindungi formula sedia ada pada L atau M
+    if (targetRange.getFormula()) {
+      return jsonResponse_({
+        success: false,
+        message: 'Sel sasaran mengandungi formula pengiraan automatik dan dilindungi daripada penulisan terus.'
+      });
+    }
+
+    const currentVal = String(targetRange.getDisplayValue() || '').trim();
+    if (hasExpected && expectedValue !== currentVal) {
+      return jsonResponse_({
+        success: false,
+        message: 'Konflik kemas kini serentak: Nilai sel telah berubah dalam Google Sheets. Sila muat semula data.'
+      });
+    }
+
+    targetRange.setValue(value);
+    SpreadsheetApp.flush();
+    const confirmedValue = String(targetRange.getDisplayValue() || '').trim();
+
+    return jsonResponse_({
+      success: true,
+      confirmedValue: confirmedValue,
+      updatedAt: new Date().toISOString()
+    });
+  } catch (err) {
     return jsonResponse_({
       success: false,
-      message: 'Konflik kemas kini serentak: Nilai sel telah berubah dalam Google Sheets. Sila muat semula data.'
+      message: 'Ralat menyimpan data Acara Padang: ' + err.message
     });
   }
-
-  targetRange.setValue(value);
-  SpreadsheetApp.flush();
-  const confirmedValue = String(targetRange.getDisplayValue() || '').trim();
-
-  return jsonResponse_({
-    success: true,
-    confirmedValue: confirmedValue,
-    updatedAt: new Date().toISOString()
-  });
 }
 
 function jsonResponse_(obj) {
@@ -5388,9 +5676,7 @@ function jsonResponse_(obj) {
                         this.showCopyFeedback();
                         return;
                     }
-                } catch (e) {
-                    // Fallback to execCommand
-                }
+                } catch (e) {}
 
                 try {
                     const ta = document.createElement('textarea');
@@ -5743,552 +6029,35 @@ function jsonResponse_(obj) {
         };
 
         /**
-         * 4M. PENGAWAL CETAKAN DOKUMEN KEPUTUSAN RASMI (ResultPrintController)
+         * 4M. PENGAWAL CETAKAN KEPUTUSAN (ResultPrintController)
          */
         const ResultPrintController = {
             renderPrintButton(moduleId, eventNo) {
-                if (!moduleId || !eventNo) return '';
-                const safeModule = SaringanModule.escapeHtml(moduleId);
-                const safeEventNo = SaringanModule.escapeHtml(eventNo);
+                const safeMod = SaringanModule.escapeHtml(moduleId);
+                const safeNo = SaringanModule.escapeHtml(eventNo);
                 return `
-                    <button
-                        type="button"
-                        onclick="ResultPrintController.printEvent('${safeModule}', '${safeEventNo}')"
-                        aria-label="Cetak Keputusan Acara ${safeEventNo}"
-                        class="inline-flex items-center gap-1.5 min-h-[44px] px-3.5 py-2 rounded-xl text-xs font-sans font-bold bg-gold hover:bg-gold-light text-navy-dark shadow-2xs transition-colors cursor-pointer"
-                    >
-                        <i data-lucide="printer" class="w-3.5 h-3.5"></i>
+                    <button type="button"
+                        onclick="ResultPrintController.printEvent('${safeMod}', '${safeNo}')"
+                        class="inline-flex items-center gap-1.5 min-h-[44px] px-3.5 py-2 rounded-xl text-xs font-bold bg-navy-primary hover:bg-navy-dark text-gold-light border border-gold/40 transition-colors cursor-pointer">
+                        <i data-lucide="printer" class="w-3.5 h-3.5 text-gold"></i>
                         <span>Cetak</span>
                     </button>
                 `;
             },
 
-            getEventSnapshot(moduleId, eventNo) {
-                const key = String(eventNo || '').trim();
-                if (!key) return null;
-
-                if (moduleId === 'saringan') {
-                    const store = StorageManager.getSaringanStore();
-                    return (store && store.events && store.events[key]) || null;
-                }
-                if (moduleId === 'akhir-balapan') {
-                    const store = StorageManager.getAkhirBalapanStore();
-                    return (store && store.events && store.events[key]) || null;
-                }
-                if (moduleId === 'relay') {
-                    const store = StorageManager.getRelayStore();
-                    return (store && store.events && store.events[key]) || null;
-                }
-                if (moduleId === 'padang') {
-                    const store = StorageManager.getPadangStore();
-                    return (store && store.events && store.events[key]) || null;
-                }
-                return null;
-            },
-
-            getTeamPrintColorHex(teamName) {
-                const normalized = String(teamName || '').trim().toUpperCase();
-                if (normalized === 'HELANG') return '#15803D';
-                if (normalized === 'GARUDA') return '#DC2626';
-                if (normalized === 'KENYALANG') return '#CA8A04';
-                if (normalized === 'RAJAWALI') return '#2563EB';
-                return '#1E293B';
-            },
-
-            buildTableHtml(headers, rowsHtml, emptyColspan) {
-                const theadCells = headers.map(h =>
-                    `<th style="text-align:${h.align || 'left'};${h.width ? 'width:' + h.width + ';' : ''}">${SaringanModule.escapeHtml(h.label)}</th>`
-                ).join('');
-
-                const tbodyContent = rowsHtml
-                    ? rowsHtml
-                    : `<tr><td colspan="${emptyColspan}" class="empty-cell">Tiada rekod peserta</td></tr>`;
-
-                return `
-                    <table class="result-table">
-                        <thead>
-                            <tr>${theadCells}</tr>
-                        </thead>
-                        <tbody>
-                            ${tbodyContent}
-                        </tbody>
-                    </table>
-                `;
-            },
-
-            buildModuleSectionsHtml(moduleId, ev) {
-                const esc = (val) => SaringanModule.escapeHtml(val);
-                const teamCell = (team) => {
-                    const raw = String(team || '').trim();
-                    if (!raw) return '<td>—</td>';
-                    const colorHex = this.getTeamPrintColorHex(raw);
-                    return `<td style="color:${colorHex};font-weight:700;">${esc(raw)}</td>`;
-                };
-
-                if (moduleId === 'saringan') {
-                    const headers = [
-                        { label: 'Lorong', align: 'center', width: '56px' },
-                        { label: 'Nama Atlet', align: 'left' },
-                        { label: 'Pasukan', align: 'left', width: '130px' },
-                        { label: 'No Bib', align: 'center', width: '74px' },
-                        { label: 'Kedudukan', align: 'center', width: '82px' },
-                        { label: 'Masa', align: 'right', width: '88px' }
-                    ];
-
-                    const renderHeatBlock = (heatLabel, rows) => {
-                        const list = Array.isArray(rows) ? rows : [];
-                        const body = list.map(r => `
-                            <tr>
-                                <td style="text-align:center;">${esc(r.lorong || '—')}</td>
-                                <td style="font-weight:600;">${esc(r.namaAtlet || '—')}</td>
-                                ${teamCell(r.pasukan)}
-                                <td style="text-align:center;font-family:monospace;">${esc(r.noBib || '—')}</td>
-                                <td style="text-align:center;font-weight:700;">${esc(r.kedudukan || '—')}</td>
-                                <td style="text-align:right;font-family:monospace;font-weight:600;">${esc(r.masa || '—')}</td>
-                            </tr>
-                        `).join('');
-                        return `
-                            <div class="subtable-block">
-                                <div class="subtable-title">${esc(heatLabel)} (${list.length} Peserta)</div>
-                                ${this.buildTableHtml(headers, body, 6)}
-                            </div>
-                        `;
-                    };
-
-                    const l1 = (ev.lelaki && ev.lelaki.saringan1) || [];
-                    const l2 = (ev.lelaki && ev.lelaki.saringan2) || [];
-                    const p1 = (ev.perempuan && ev.perempuan.saringan1) || [];
-                    const p2 = (ev.perempuan && ev.perempuan.saringan2) || [];
-
-                    return `
-                        <section class="category-section">
-                            <div class="category-banner male-banner">KATEGORI LELAKI</div>
-                            ${renderHeatBlock('Lelaki • Saringan 1', l1)}
-                            ${renderHeatBlock('Lelaki • Saringan 2', l2)}
-                        </section>
-                        <section class="category-section">
-                            <div class="category-banner female-banner">KATEGORI PEREMPUAN</div>
-                            ${renderHeatBlock('Perempuan • Saringan 1', p1)}
-                            ${renderHeatBlock('Perempuan • Saringan 2', p2)}
-                        </section>
-                    `;
-                }
-
-                if (moduleId === 'akhir-balapan') {
-                    const headers = [
-                        { label: 'Lorong', align: 'center', width: '60px' },
-                        { label: 'Nama Atlet', align: 'left' },
-                        { label: 'Pasukan', align: 'left', width: '140px' },
-                        { label: 'No Bib', align: 'center', width: '76px' },
-                        { label: 'Kedudukan', align: 'center', width: '86px' },
-                        { label: 'Masa', align: 'right', width: '92px' }
-                    ];
-
-                    const renderCategory = (bannerClass, bannerText, rows) => {
-                        const list = Array.isArray(rows) ? rows : [];
-                        const body = list.map(r => `
-                            <tr>
-                                <td style="text-align:center;">${esc(r.lorong || '—')}</td>
-                                <td style="font-weight:600;">${esc(r.namaAtlet || '—')}</td>
-                                ${teamCell(r.pasukan)}
-                                <td style="text-align:center;font-family:monospace;">${esc(r.noBib || '—')}</td>
-                                <td style="text-align:center;font-weight:700;">${esc(r.kedudukan || '—')}</td>
-                                <td style="text-align:right;font-family:monospace;font-weight:600;">${esc(r.masa || '—')}</td>
-                            </tr>
-                        `).join('');
-                        return `
-                            <section class="category-section">
-                                <div class="category-banner ${bannerClass}">${esc(bannerText)} (${list.length} Atlet)</div>
-                                ${this.buildTableHtml(headers, body, 6)}
-                            </section>
-                        `;
-                    };
-
-                    return `
-                        ${renderCategory('male-banner', 'LELAKI AKHIR', ev.lelaki)}
-                        ${renderCategory('female-banner', 'PEREMPUAN AKHIR', ev.perempuan)}
-                    `;
-                }
-
-                if (moduleId === 'relay') {
-                    const headers = [
-                        { label: 'Lorong', align: 'center', width: '70px' },
-                        { label: 'Pasukan', align: 'left' },
-                        { label: 'Masa', align: 'right', width: '110px' },
-                        { label: 'Kedudukan', align: 'center', width: '96px' }
-                    ];
-
-                    const renderCategory = (bannerClass, bannerText, rows) => {
-                        const list = Array.isArray(rows) ? rows : [];
-                        const body = list.map(r => `
-                            <tr>
-                                <td style="text-align:center;">${esc(r.lorong || '—')}</td>
-                                ${teamCell(r.pasukan)}
-                                <td style="text-align:right;font-family:monospace;font-weight:600;">${esc(r.masa || '—')}</td>
-                                <td style="text-align:center;font-weight:700;">${esc(r.kedudukan || '—')}</td>
-                            </tr>
-                        `).join('');
-                        return `
-                            <section class="category-section">
-                                <div class="category-banner ${bannerClass}">${esc(bannerText)} (${list.length} Pasukan)</div>
-                                ${this.buildTableHtml(headers, body, 4)}
-                            </section>
-                        `;
-                    };
-
-                    return `
-                        ${renderCategory('male-banner', 'PASUKAN LELAKI', ev.lelaki)}
-                        ${renderCategory('female-banner', 'PASUKAN PEREMPUAN', ev.perempuan)}
-                    `;
-                }
-
-                if (moduleId === 'padang') {
-                    const headers = [
-                        { label: 'Giliran', align: 'center', width: '48px' },
-                        { label: 'Nama Atlet', align: 'left' },
-                        { label: 'Pasukan', align: 'left', width: '105px' },
-                        { label: 'No Bib', align: 'center', width: '62px' },
-                        { label: 'P1', align: 'center', width: '46px' },
-                        { label: 'P2', align: 'center', width: '46px' },
-                        { label: 'P3', align: 'center', width: '46px' },
-                        { label: 'P4', align: 'center', width: '46px' },
-                        { label: 'P5', align: 'center', width: '46px' },
-                        { label: 'P6', align: 'center', width: '46px' },
-                        { label: 'Catatan Terbaik', align: 'right', width: '88px' },
-                        { label: 'Kedudukan', align: 'center', width: '74px' }
-                    ];
-
-                    const renderCategory = (bannerClass, bannerText, rows) => {
-                        const list = Array.isArray(rows) ? rows : [];
-                        const body = list.map(r => `
-                            <tr>
-                                <td style="text-align:center;">${esc(r.giliran || '—')}</td>
-                                <td style="font-weight:600;">${esc(r.namaAtlet || '—')}</td>
-                                ${teamCell(r.pasukan)}
-                                <td style="text-align:center;font-family:monospace;">${esc(r.noBib || '—')}</td>
-                                <td style="text-align:center;font-family:monospace;">${esc(r.p1 || '—')}</td>
-                                <td style="text-align:center;font-family:monospace;">${esc(r.p2 || '—')}</td>
-                                <td style="text-align:center;font-family:monospace;">${esc(r.p3 || '—')}</td>
-                                <td style="text-align:center;font-family:monospace;">${esc(r.p4 || '—')}</td>
-                                <td style="text-align:center;font-family:monospace;">${esc(r.p5 || '—')}</td>
-                                <td style="text-align:center;font-family:monospace;">${esc(r.p6 || '—')}</td>
-                                <td style="text-align:right;font-family:monospace;font-weight:700;">${esc(r.catatanTerbaik || '—')}</td>
-                                <td style="text-align:center;font-weight:700;">${esc(r.kedudukan || '—')}</td>
-                            </tr>
-                        `).join('');
-                        return `
-                            <section class="category-section">
-                                <div class="category-banner ${bannerClass}">${esc(bannerText)} (${list.length} Atlet)</div>
-                                ${this.buildTableHtml(headers, body, 12)}
-                            </section>
-                        `;
-                    };
-
-                    return `
-                        ${renderCategory('male-banner', 'ACARA PADANG LELAKI', ev.lelaki)}
-                        ${renderCategory('female-banner', 'ACARA PADANG PEREMPUAN', ev.perempuan)}
-                    `;
-                }
-
-                return '';
-            },
-
-            buildPrintDocumentHtml(moduleId, ev) {
-                const moduleNames = {
-                    'saringan': 'KEPUTUSAN ACARA SARINGAN',
-                    'akhir-balapan': 'KEPUTUSAN AKHIR BALAPAN',
-                    'relay': 'KEPUTUSAN ACARA RELAY',
-                    'padang': 'KEPUTUSAN ACARA PADANG'
-                };
-
-                const moduleHeading = moduleNames[moduleId] || 'KEPUTUSAN ACARA';
-                const eventNo = String(ev.eventNo || '').trim();
-                const isVerified = ev.status === 'DISAHKAN_RASMI';
-                const statusText = isVerified ? 'STATUS: DISAHKAN RASMI' : 'STATUS: BELUM DISAHKAN RASMI';
-                const statusBadgeStyle = isVerified
-                    ? 'background:#ECFDF5;color:#065F46;border:1px solid #6EE7B7;'
-                    : 'background:#FFFBEB;color:#92400E;border:1px solid #FCD34D;';
-                const pageOrientation = moduleId === 'padang' ? 'A4 landscape' : 'A4 portrait';
-                const sectionsHtml = this.buildModuleSectionsHtml(moduleId, ev);
-
-                return `<!DOCTYPE html>
-<html lang="ms">
-<head>
-    <meta charset="UTF-8">
-    <title>STATISTIX HUB — ${SaringanModule.escapeHtml(moduleHeading)} (${SaringanModule.escapeHtml(eventNo)})</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Montserrat:wght@700;800&display=swap" rel="stylesheet">
-    <style>
-        @page {
-            size: ${pageOrientation};
-            margin: 14mm 12mm 16mm 12mm;
-        }
-        * {
-            box-sizing: border-box;
-            -webkit-print-color-adjust: exact !important;
-            print-color-adjust: exact !important;
-        }
-        body {
-            margin: 0;
-            padding: 0;
-            font-family: 'Inter', Arial, sans-serif;
-            color: #1E293B;
-            background: #FFFFFF;
-            font-size: 11px;
-            line-height: 1.35;
-        }
-        .doc-wrapper {
-            width: 100%;
-            display: flex;
-            flex-direction: column;
-            min-height: 95vh;
-        }
-        .doc-header {
-            border-bottom: 3px solid #D4AF37;
-            padding-bottom: 10px;
-            margin-bottom: 14px;
-            display: flex;
-            align-items: flex-end;
-            justify-content: space-between;
-            gap: 12px;
-        }
-        .brand-title {
-            font-family: 'Montserrat', Arial, sans-serif;
-            font-weight: 800;
-            font-size: 20px;
-            letter-spacing: 0.03em;
-            color: #0B132B;
-            margin: 0;
-            line-height: 1.1;
-        }
-        .brand-title .gold {
-            color: #AA8A24;
-        }
-        .brand-subtitle {
-            font-family: 'Montserrat', Arial, sans-serif;
-            font-weight: 700;
-            font-size: 10px;
-            letter-spacing: 0.08em;
-            color: #3A506B;
-            margin: 4px 0 0 0;
-            text-transform: uppercase;
-        }
-        .event-meta {
-            text-align: right;
-        }
-        .event-title {
-            font-family: 'Montserrat', Arial, sans-serif;
-            font-weight: 800;
-            font-size: 13px;
-            color: #0B132B;
-            margin: 0 0 5px 0;
-        }
-        .status-pill {
-            display: inline-block;
-            padding: 3px 9px;
-            border-radius: 6px;
-            font-family: 'Montserrat', Arial, sans-serif;
-            font-weight: 700;
-            font-size: 9.5px;
-            letter-spacing: 0.04em;
-            ${statusBadgeStyle}
-        }
-        .doc-body {
-            flex: 1;
-        }
-        .category-section {
-            margin-bottom: 14px;
-        }
-        .category-banner {
-            font-family: 'Montserrat', Arial, sans-serif;
-            font-weight: 700;
-            font-size: 11px;
-            letter-spacing: 0.06em;
-            padding: 6px 10px;
-            border-radius: 5px 5px 0 0;
-            color: #FFFFFF;
-            text-transform: uppercase;
-            break-after: avoid;
-            page-break-after: avoid;
-        }
-        .male-banner {
-            background-color: #1C2541;
-        }
-        .female-banner {
-            background-color: #DB2777;
-        }
-        .subtable-block {
-            margin-top: 8px;
-        }
-        .subtable-title {
-            font-family: 'Montserrat', Arial, sans-serif;
-            font-weight: 700;
-            font-size: 10px;
-            color: #0B132B;
-            background: #F1F5F9;
-            border: 1px solid #CBD5E1;
-            border-bottom: none;
-            padding: 5px 9px;
-            text-transform: uppercase;
-            break-after: avoid;
-            page-break-after: avoid;
-        }
-        .result-table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-bottom: 6px;
-        }
-        .result-table thead {
-            display: table-header-group;
-        }
-        .result-table tr {
-            break-inside: avoid;
-            page-break-inside: avoid;
-        }
-        .result-table th {
-            background-color: #0B132B;
-            color: #FFFFFF;
-            font-family: 'Montserrat', Arial, sans-serif;
-            font-weight: 700;
-            font-size: 9.5px;
-            text-transform: uppercase;
-            letter-spacing: 0.04em;
-            padding: 6px 7px;
-            border: 1px solid #334155;
-        }
-        .result-table td {
-            padding: 5px 7px;
-            border: 1px solid #CBD5E1;
-            font-size: 10px;
-            color: #0F172A;
-            word-break: break-word;
-        }
-        .result-table tbody tr:nth-child(even) {
-            background-color: #F8FAFC;
-        }
-        .empty-cell {
-            text-align: center;
-            color: #64748B;
-            font-style: italic;
-            padding: 12px !important;
-        }
-        .doc-footer {
-            margin-top: 16px;
-            padding-top: 8px;
-            border-top: 1px solid #CBD5E1;
-            text-align: center;
-            font-size: 9.5px;
-            color: #475569;
-            font-weight: 600;
-            break-inside: avoid;
-            page-break-inside: avoid;
-        }
-    </style>
-</head>
-<body>
-    <div class="doc-wrapper">
-        <header class="doc-header">
-            <div>
-                <h1 class="brand-title">STATISTIX <span class="gold">HUB</span></h1>
-                <p class="brand-subtitle">SISTEM STATISTIK &amp; KEPUTUSAN RASMI</p>
-            </div>
-            <div class="event-meta">
-                <p class="event-title">${SaringanModule.escapeHtml(moduleHeading)} — ${SaringanModule.escapeHtml(eventNo)}</p>
-                <span class="status-pill">${SaringanModule.escapeHtml(statusText)}</span>
-            </div>
-        </header>
-
-        <main class="doc-body">
-            ${sectionsHtml}
-        </main>
-
-        <footer class="doc-footer">
-            Hak Cipta Terpelihara &copy; 2026 eL_mioZ
-        </footer>
-    </div>
-</body>
-</html>`;
-            },
-
             printEvent(moduleId, eventNo) {
-                const snapshot = this.getEventSnapshot(moduleId, eventNo);
-                if (!snapshot) {
-                    UIComponents.showToast('Tiada data acara tersimpan untuk dicetak.', 'warning');
+                let store = null;
+                if (moduleId === 'saringan') store = StorageManager.getSaringanStore();
+                else if (moduleId === 'akhir-balapan') store = StorageManager.getAkhirBalapanStore();
+                else if (moduleId === 'relay') store = StorageManager.getRelayStore();
+                else if (moduleId === 'padang') store = StorageManager.getPadangStore();
+
+                const ev = store && store.events && store.events[eventNo];
+                if (!ev) {
+                    UIComponents.showToast('Data acara tidak ditemui untuk cetakan.', 'warning');
                     return;
                 }
-
-                const htmlDoc = this.buildPrintDocumentHtml(moduleId, snapshot);
-
-                let printWindow = null;
-                try {
-                    printWindow = window.open('', '_blank', 'width=980,height=760');
-                } catch (err) {
-                    printWindow = null;
-                }
-
-                if (printWindow && printWindow.document) {
-                    printWindow.document.open();
-                    printWindow.document.write(htmlDoc);
-                    printWindow.document.close();
-
-                    let printed = false;
-                    const triggerPrint = () => {
-                        if (printed) return;
-                        printed = true;
-                        try {
-                            printWindow.focus();
-                            printWindow.print();
-                        } catch (e) {
-                            UIComponents.showToast('Gagal membuka dialog cetakan pelayar.', 'error');
-                        }
-                    };
-
-                    printWindow.onafterprint = () => {
-                        try { printWindow.close(); } catch (e) {}
-                    };
-
-                    setTimeout(triggerPrint, 350);
-                    return;
-                }
-
-                const existingFrame = document.getElementById('statistix-hidden-print-frame');
-                if (existingFrame) existingFrame.remove();
-
-                const iframe = document.createElement('iframe');
-                iframe.id = 'statistix-hidden-print-frame';
-                iframe.style.position = 'fixed';
-                iframe.style.right = '0';
-                iframe.style.bottom = '0';
-                iframe.style.width = '0';
-                iframe.style.height = '0';
-                iframe.style.border = '0';
-                iframe.setAttribute('aria-hidden', 'true');
-                document.body.appendChild(iframe);
-
-                const frameDoc = iframe.contentWindow && iframe.contentWindow.document;
-                if (!frameDoc) {
-                    iframe.remove();
-                    UIComponents.showToast('Pelayar menyekat paparan cetakan. Sila benarkan popup untuk mencetak.', 'error');
-                    return;
-                }
-
-                frameDoc.open();
-                frameDoc.write(htmlDoc);
-                frameDoc.close();
-
-                setTimeout(() => {
-                    try {
-                        iframe.contentWindow.focus();
-                        iframe.contentWindow.print();
-                    } catch (err) {
-                        UIComponents.showToast('Gagal membuka dialog cetakan pelayar.', 'error');
-                    } finally {
-                        setTimeout(() => {
-                            if (iframe.parentNode) iframe.remove();
-                        }, 1500);
-                    }
-                }, 350);
+                window.print();
             }
         };
 
