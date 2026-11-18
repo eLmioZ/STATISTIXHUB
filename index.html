@@ -5,10 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
     <title>STATISTIX HUB — Sistem Statistik & Keputusan Rasmi</title>
 
-    <!-- Google Fonts: Inter & Montserrat -->
+    <!-- Google Fonts: Montserrat -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Montserrat:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -22,8 +22,9 @@
             theme: {
                 extend: {
                     fontFamily: {
-                        sans: ['Inter', 'system-ui', 'sans-serif'],
-                        display: ['Montserrat', 'Inter', 'system-ui', 'sans-serif'],
+                        sans: ['Montserrat', 'sans-serif'],
+                        display: ['Montserrat', 'sans-serif'],
+                        mono: ['Montserrat', 'sans-serif'],
                     },
                     colors: {
                         navy: {
@@ -56,11 +57,39 @@
     </script>
 
     <style>
+        /* Pemboleh ubah saiz fon standard mengikut breakpoint (Mobile & Tablet: 10px | Desktop >= 1024px: 12px) */
+        :root {
+            --app-font-size: 10px;
+        }
+
+        @media (min-width: 1024px) {
+            :root {
+                --app-font-size: 12px;
+            }
+        }
+
         /* Gubahan asas & bar skrol kemas */
+        html, body {
+            font-family: 'Montserrat', sans-serif;
+        }
+
         body {
             background-color: #F4F6F9;
             color: #1E293B;
+            font-family: 'Montserrat', sans-serif;
+            font-size: var(--app-font-size);
             -webkit-tap-highlight-color: transparent;
+        }
+
+        /* Penyeragaman saiz fon & keluarga fon Montserrat menyeluruh tanpa menjejaskan dimensi SVG/ikon */
+        body :is(
+            h1, h2, h3, h4, h5, h6,
+            p, span, a, label, button, input, select, textarea,
+            th, td, li, pre, code,
+            [class*="text-"], .font-mono
+        ):not(svg):not(path) {
+            font-family: 'Montserrat', sans-serif !important;
+            font-size: var(--app-font-size) !important;
         }
 
         /* Sembunyikan bar skrol mendatar pada tab mudah alih sambil mengekalkan fungsi skrol */
@@ -114,7 +143,7 @@
             gap: 0.375rem;
             padding: 0.35rem 0.625rem;
             border-radius: 9999px;
-            font-size: 0.6875rem;
+            font-size: var(--app-font-size);
             font-weight: 700;
             letter-spacing: 0.02em;
             line-height: 1;
@@ -126,7 +155,7 @@
             .global-status-pill {
                 gap: 0.45rem;
                 padding: 0.45rem 0.8rem;
-                font-size: 0.75rem;
+                font-size: var(--app-font-size);
             }
         }
 
