@@ -276,6 +276,19 @@
                 page: landscapePage;
             }
 
+            #official-print-area .print-orientation-hint {
+                font-size: 7.5pt !important;
+                font-weight: 600 !important;
+                color: #475569 !important;
+                background-color: #F1F5F9 !important;
+                border: 1px dashed #94A3B8;
+                border-radius: 4px;
+                padding: 4px 8px;
+                margin-bottom: 8px;
+                break-inside: avoid;
+                page-break-inside: avoid;
+            }
+
             #official-print-area .print-doc-wrapper {
                 position: relative;
                 width: 100%;
@@ -563,7 +576,7 @@
                     <!-- Butang Akses Panel Admin Berasingan -->
                     <button id="btn-toggle-admin" type="button" onclick="AppController.toggleAdminView()" class="flex items-center gap-1.5 sm:gap-2 min-h-[40px] sm:min-h-[44px] px-2.5 py-2 sm:px-4 sm:py-2.5 rounded-xl text-[11px] sm:text-sm font-semibold bg-gold text-navy-dark hover:bg-gold-light transition-all shadow-gold-glow cursor-pointer">
                         <i id="admin-btn-icon" data-lucide="shield-check" class="w-3.5 h-3.5 sm:w-4 sm:h-4 shrink-0"></i>
-                        <span id="admin-btn-label" class="whitespace-nowrap">Panel Admin</span>
+                        <span id="admin-btn-label" class="whitespace-nowrap">Admin</span>
                     </button>
                 </div>
             </div>
@@ -620,7 +633,7 @@
                                 <span id="view-breadcrumb-category">Modul Statistik Kejohanan</span>
                             </div>
                             <h2 id="view-main-title" class="font-display font-bold text-xl sm:text-2xl xl:text-[26px] text-navy-primary mt-1 leading-tight">
-                                Acara Saringan
+                                ACARA SARINGAN
                             </h2>
                             <p id="view-main-subtitle" class="text-xs sm:text-sm text-ink-muted mt-1 leading-relaxed">
                                 Paparan keputusan saringan mengikut kategori acara dan laluan kelayakan ke peringkat akhir.
@@ -668,23 +681,23 @@
                 <div class="bg-white rounded-2xl p-2 shadow-card border border-slate-200/80">
                     <nav class="grid grid-cols-2 sm:flex sm:flex-row gap-2" aria-label="Navigasi Panel Admin">
                         <button type="button"
-                            id="admin-tab-tetapan-acara"
-                            onclick="AdminNavigation.switchTab('tetapan-acara')"
+                            id="admin-tab-pengurusan-data"
+                            onclick="AdminNavigation.switchTab('pengurusan-data')"
                             class="min-h-[44px] px-4 py-3 rounded-xl text-xs sm:text-sm font-bold transition-all cursor-pointer text-center bg-navy-primary text-gold border-b-2 border-gold shadow-xs">
-                            Tetapan Acara
+                            PENGURUSAN DATA
                         </button>
                         <button type="button"
                             id="admin-tab-pengurusan-pengguna"
                             onclick="AdminNavigation.switchTab('pengurusan-pengguna')"
                             class="min-h-[44px] px-4 py-3 rounded-xl text-xs sm:text-sm font-bold transition-all cursor-pointer text-center bg-surface-bg text-navy-primary hover:bg-slate-200/70">
-                            Pengurusan Pengguna
+                            PENGURUSAN PENGGUNA
                         </button>
                     </nav>
                 </div>
 
-                <!-- Kontena Kandungan Tetapan Acara -->
-                <div id="admin-content-tetapan-acara" class="space-y-6">
-                    <!-- Kad Tajuk Utama Tetapan Acara -->
+                <!-- Kontena Kandungan Pengurusan Data -->
+                <div id="admin-content-pengurusan-data" class="space-y-6">
+                    <!-- Kad Tajuk Utama Pengurusan Data -->
                     <div class="bg-white rounded-2xl p-5 sm:p-6 shadow-card border border-slate-200/80 space-y-4">
                         <div class="flex items-start sm:items-center gap-3.5">
                             <div class="w-11 h-11 rounded-xl bg-navy-primary/5 border border-slate-200/80 flex items-center justify-center shrink-0">
@@ -692,10 +705,10 @@
                             </div>
                             <div class="min-w-0">
                                 <h3 class="font-display font-bold text-lg sm:text-xl text-navy-primary">
-                                    Tetapan Acara
+                                    PENGURUSAN DATA
                                 </h3>
                                 <p class="text-xs sm:text-sm text-ink-muted mt-0.5">
-                                    Pengurusan sambungan data sumber ATHLETIX melalui pautan Google Apps Script (GAS) bagi setiap modul acara kejohanan.
+                                    Pengurusan DATA ATHLETIX melalui pautan bagi setiap modul acara kejohanan.
                                 </p>
                             </div>
                         </div>
@@ -727,11 +740,11 @@
                                     <div class="min-w-0">
                                         <div class="flex flex-wrap items-center gap-2">
                                             <h4 class="font-display font-bold text-base sm:text-lg text-navy-primary">
-                                                Acara Saringan
+                                                ACARA SARINGAN
                                             </h4>
                                         </div>
                                         <p class="text-xs sm:text-sm text-ink-muted mt-0.5">
-                                            Tetapan pautan Google Apps Script (GAS) bagi data sumber ATHLETIX untuk modul Acara Saringan (9 Tab: 101–106, 204, 205, 300).
+                                            Tetapan pautan DATA ATHLETIX untuk modul Acara Saringan.
                                         </p>
                                     </div>
                                 </div>
@@ -861,10 +874,10 @@
                                     </div>
                                     <div class="min-w-0">
                                         <h4 class="font-display font-bold text-base sm:text-lg text-navy-primary">
-                                            Akhir Balapan
+                                            AKHIR BALAPAN
                                         </h4>
                                         <p class="text-xs sm:text-sm text-ink-muted mt-0.5">
-                                            Tetapan pautan Google Apps Script (GAS) bagi data sumber ATHLETIX untuk modul Akhir Balapan (9 Tab: 101–106, 204, 205, 300).
+                                            Tetapan pautan DATA ATHLETIX untuk modul Akhir Balapan.
                                         </p>
                                     </div>
                                 </div>
@@ -994,10 +1007,10 @@
                                     </div>
                                     <div class="min-w-0">
                                         <h4 class="font-display font-bold text-base sm:text-lg text-navy-primary">
-                                            Acara Relay
+                                            ACARA RELAY
                                         </h4>
                                         <p class="text-xs sm:text-sm text-ink-muted mt-0.5">
-                                            Tetapan pautan Google Apps Script (GAS) bagi data sumber ATHLETIX untuk modul Acara Relay (7 Tab: 411–415, 424, 425).
+                                            Tetapan pautan DATA ATHLETIX untuk modul Acara Relay.
                                         </p>
                                     </div>
                                 </div>
@@ -1127,10 +1140,10 @@
                                     </div>
                                     <div class="min-w-0">
                                         <h4 class="font-display font-bold text-base sm:text-lg text-navy-primary">
-                                            Acara Padang
+                                            ACARA PADANG
                                         </h4>
                                         <p class="text-xs sm:text-sm text-ink-muted mt-0.5">
-                                            Tetapan pautan Google Apps Script (GAS) bagi data sumber ATHLETIX untuk modul Acara Padang (3 Tab: LONGJUMP, HIGHJUMP, SHOTPUT).
+                                            Tetapan pautan DATA ATHLETIX untuk modul Acara Padang.
                                         </p>
                                     </div>
                                 </div>
@@ -1607,40 +1620,40 @@
         const SYSTEM_VIEWS = [
             {
                 id: 'saringan',
-                label: 'Acara Saringan',
-                shortLabel: 'Saringan',
+                label: 'ACARA SARINGAN',
+                shortLabel: 'SARINGAN',
                 icon: 'list-ordered',
                 category: 'Peringkat Kelayakan',
                 subtitle: 'Keputusan saringan mengikut Kategori dan Atlet yang layak ke peringkat akhir.'
             },
             {
                 id: 'akhir-balapan',
-                label: 'Akhir Balapan',
-                shortLabel: 'Akhir',
+                label: 'AKHIR BALAPAN',
+                shortLabel: 'AKHIR',
                 icon: 'flag',
                 category: 'Acara Balapan',
                 subtitle: 'Keputusan rasmi acara akhir balapan beserta catatan masa dan kedudukan pingat.'
             },
             {
                 id: 'relay',
-                label: 'Acara Relay',
-                shortLabel: 'Relay',
+                label: 'ACARA RELAY',
+                shortLabel: 'RELAY',
                 icon: 'users',
                 category: 'Acara Berpasukan',
-                subtitle: 'Keputusan rasmi acara lari berganti-ganti (Relay) mengikut pasukan.'
+                subtitle: 'Keputusan rasmi acara lari berganti-ganti (Relay).'
             },
             {
                 id: 'padang',
-                label: 'Acara Padang',
-                shortLabel: 'Padang',
+                label: 'ACARA PADANG',
+                shortLabel: 'PADANG',
                 icon: 'compass',
                 category: 'Lompatan & Lontaran',
                 subtitle: 'Rekod jarak dan ketinggian terbaik bagi setiap Atlet acara padang.'
             },
             {
                 id: 'podium',
-                label: 'Podium Pingat',
-                shortLabel: 'Podium',
+                label: 'PODIUM PINGAT',
+                shortLabel: 'PODIUM',
                 icon: 'trophy',
                 category: 'Ringkasan Pingat',
                 subtitle: 'Kedudukan pingat Emas, Perak dan Gangsa bagi setiap acara yang telah selesai.'
@@ -2015,13 +2028,13 @@
                             <i data-lucide="folder-open" class="w-8 h-8 text-navy-secondary"></i>
                         </div>
                         <span class="inline-flex items-center px-3 py-1 rounded-full text-[11px] font-bold uppercase tracking-wider bg-gold/15 text-navy-primary border border-gold/30 mb-3">
-                            Tiada Rekod
+                            Tiada Data
                         </span>
                         <h3 class="font-display font-bold text-lg sm:text-xl text-navy-primary">
-                            Belum Ada Rekod ${moduleTitle}
+                            Belum Ada Data ${moduleTitle}
                         </h3>
                         <p class="text-xs sm:text-sm text-ink-muted mt-2 leading-relaxed">
-                            Tiada data keputusan direkodkan bagi modul <span class="font-semibold text-navy-primary">${moduleTitle}</span> buat masa ini.
+                            Tiada data direkodkan bagi modul <span class="font-semibold text-navy-primary">${moduleTitle}</span> buat masa ini.
                         </p>
                     </div>
                 `;
@@ -3982,7 +3995,7 @@
                                 </h3>
                                 <p class="text-xs text-ink-muted mt-0.5">
                                     ${hasAnyMedal
-                                        ? 'Ranking berdasarkan kutipan pingat daripada keputusan acara yang telah disahkan rasmi.'
+                                        ? 'KEDUDUKAN PASUKAN BERDASARKAN KUTIPAN PINGAT DARIPADA ACARA YANG TELAH DISAHKAN RASMI.'
                                         : 'Kedudukan sementara — menunggu keputusan rasmi acara kejohanan.'}
                                 </p>
                             </div>
@@ -4046,7 +4059,7 @@
                                     Podium Pingat Pasukan
                                 </h3>
                                 <p class="text-xs text-ink-muted mt-0.5">
-                                    Kedudukan empat pasukan teratas berdasarkan pungutan pingat rasmi semasa.
+                                    KEDUDUKAN PASUKAN BERDASARKAN PUNGUTAN PINGAT RASMI SEMASA.
                                 </p>
                             </div>
                         </div>
@@ -4090,7 +4103,7 @@
                         ? `
                             <div class="rounded-xl bg-surface-bg border border-slate-200/90 px-4 py-3 flex flex-wrap items-center justify-between gap-2 text-xs">
                                 <span class="font-semibold text-navy-primary">
-                                    Status Pungutan: <span class="text-amber-700 font-bold">Pungutan pingat semasa (belum muktamad)</span>
+                                    STATUS PINGAT: <span class="text-amber-700 font-bold">Pungutan pingat semasa (belum muktamad)</span>
                                 </span>
                                 <span class="font-mono text-[11px] font-semibold text-ink-muted">
                                     ${meta.verifiedEventsCount} / ${meta.totalPossibleEventsCount} Acara Disahkan Rasmi
@@ -4228,9 +4241,9 @@
 
             switchTab(tabId) {
                 this.activeTab = tabId;
-                const tabTetapan = document.getElementById('admin-tab-tetapan-acara');
+                const tabTetapan = document.getElementById('admin-tab-pengurusan-data');
                 const tabPengguna = document.getElementById('admin-tab-pengurusan-pengguna');
-                const contentTetapan = document.getElementById('admin-content-tetapan-acara');
+                const contentTetapan = document.getElementById('admin-content-pengurusan-data');
                 const contentPengguna = document.getElementById('admin-content-pengurusan-pengguna');
 
                 const activeClass = 'min-h-[44px] px-4 py-3 rounded-xl text-xs sm:text-sm font-bold transition-all cursor-pointer text-center bg-navy-primary text-gold border-b-2 border-gold shadow-xs';
@@ -4814,7 +4827,7 @@ function jsonResponse_(obj) {
                     return;
                 }
 
-                UIComponents.showLoading('Mengimport data Acara Saringan...');
+                UIComponents.showLoading('Menyimpan data Acara Saringan...');
                 try {
                     const res = await fetch(url);
                     if (!res.ok) throw new Error(`HTTP ${res.status}`);
@@ -5527,7 +5540,7 @@ function jsonResponse_(obj) {
                     return;
                 }
 
-                UIComponents.showLoading('Mengimport data Akhir Balapan...');
+                UIComponents.showLoading('Menyimpan data Akhir Balapan...');
                 try {
                     let res;
                     try {
@@ -6219,7 +6232,7 @@ function jsonResponse_(obj) {
                     return;
                 }
 
-                UIComponents.showLoading('Mengimport data Acara Relay...');
+                UIComponents.showLoading('Menyimpan data Acara Relay...');
                 try {
                     const res = await fetch(url);
                     if (!res.ok) throw new Error(`HTTP ${res.status}`);
@@ -7001,7 +7014,7 @@ function jsonResponse_(obj) {
                     return;
                 }
 
-                UIComponents.showLoading('Mengimport data Acara Padang...');
+                UIComponents.showLoading('Menyimpan data Acara Padang...');
                 try {
                     let res;
                     try {
@@ -7194,30 +7207,30 @@ function jsonResponse_(obj) {
          */
         const ResultPrintController = {
             PRINT_CONTAINER_ID: 'official-print-area',
-            _cleanupBound: false,
+            DYNAMIC_PAGE_STYLE_ID: 'statistix-dynamic-page-style',
+            isPrinting: false,
+            _activePrintButton: null,
+            _afterPrintHandler: null,
+            _fallbackTimer: null,
 
             MODULE_SPECS: {
                 'saringan': {
                     label: 'Acara Saringan',
-                    orientation: 'portrait',
                     allowedEventNos: ['101', '102', '103', '104', '105', '106', '204', '205', '300'],
                     getStore: () => StorageManager.getSaringanStore()
                 },
                 'akhir-balapan': {
                     label: 'Akhir Balapan',
-                    orientation: 'portrait',
                     allowedEventNos: ['101', '102', '103', '104', '105', '106', '204', '205', '300'],
                     getStore: () => StorageManager.getAkhirBalapanStore()
                 },
                 'relay': {
                     label: 'Acara Relay',
-                    orientation: 'portrait',
                     allowedEventNos: ['411', '412', '413', '414', '415', '424', '425'],
                     getStore: () => StorageManager.getRelayStore()
                 },
                 'padang': {
                     label: 'Acara Padang',
-                    orientation: 'landscape',
                     allowedEventNos: ['LONGJUMP', 'HIGHJUMP', 'SHOTPUT'],
                     getStore: () => StorageManager.getPadangStore()
                 }
@@ -7228,12 +7241,60 @@ function jsonResponse_(obj) {
                 const safeNo = SaringanModule.escapeHtml(eventNo);
                 return `
                     <button type="button"
-                        onclick="ResultPrintController.printEvent('${safeMod}', '${safeNo}')"
-                        class="inline-flex items-center gap-1.5 min-h-[44px] px-3.5 py-2 rounded-xl text-xs font-bold bg-navy-primary hover:bg-navy-dark text-gold-light border border-gold/40 transition-colors cursor-pointer">
+                        data-print-trigger="true"
+                        onclick="ResultPrintController.printEvent('${safeMod}', '${safeNo}', this)"
+                        class="inline-flex items-center gap-1.5 min-h-[44px] px-3.5 py-2 rounded-xl text-xs font-bold bg-navy-primary hover:bg-navy-dark text-gold-light border border-gold/40 transition-colors cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed">
                         <i data-lucide="printer" class="w-3.5 h-3.5 text-gold"></i>
                         <span>Cetak</span>
                     </button>
                 `;
+            },
+
+            determineOrientation(columns) {
+                const colCount = Array.isArray(columns) ? columns.length : 0;
+                return colCount > 6 ? 'landscape' : 'portrait';
+            },
+
+            applyDynamicPageOrientation(orientation) {
+                let styleEl = document.getElementById(this.DYNAMIC_PAGE_STYLE_ID);
+                if (!styleEl) {
+                    styleEl = document.createElement('style');
+                    styleEl.id = this.DYNAMIC_PAGE_STYLE_ID;
+                    styleEl.setAttribute('media', 'print');
+                    document.head.appendChild(styleEl);
+                }
+                if (orientation === 'landscape') {
+                    styleEl.textContent = '@page { size: A4 landscape; margin: 10mm 10mm 12mm 10mm; }';
+                } else {
+                    styleEl.textContent = '@page { size: A4 portrait; margin: 12mm 10mm 14mm 10mm; }';
+                }
+            },
+
+            clearDynamicPageOrientation() {
+                const styleEl = document.getElementById(this.DYNAMIC_PAGE_STYLE_ID);
+                if (styleEl) {
+                    styleEl.remove();
+                }
+            },
+
+            setTriggerButtonLocked(btnEl, locked) {
+                if (locked) {
+                    this._activePrintButton = btnEl && btnEl.tagName === 'BUTTON' ? btnEl : null;
+                    if (this._activePrintButton) {
+                        this._activePrintButton.disabled = true;
+                        this._activePrintButton.setAttribute('aria-busy', 'true');
+                    }
+                } else {
+                    if (this._activePrintButton) {
+                        this._activePrintButton.disabled = false;
+                        this._activePrintButton.removeAttribute('aria-busy');
+                        this._activePrintButton = null;
+                    }
+                    document.querySelectorAll('button[data-print-trigger="true"]').forEach(btn => {
+                        btn.disabled = false;
+                        btn.removeAttribute('aria-busy');
+                    });
+                }
             },
 
             ensurePrintContainer() {
@@ -7251,14 +7312,34 @@ function jsonResponse_(obj) {
                     container.setAttribute('aria-hidden', 'true');
                     document.body.appendChild(container);
                 }
-
-                if (!this._cleanupBound) {
-                    this._cleanupBound = true;
-                    window.addEventListener('afterprint', () => {
-                        this.clearPrintContainer();
-                    });
-                }
                 return container;
+            },
+
+            bindSingleAfterPrintCleanup() {
+                this.unbindAfterPrintCleanup();
+                this._afterPrintHandler = () => {
+                    this.finalizePrintCleanup();
+                };
+                window.addEventListener('afterprint', this._afterPrintHandler, { once: true });
+            },
+
+            unbindAfterPrintCleanup() {
+                if (this._afterPrintHandler) {
+                    window.removeEventListener('afterprint', this._afterPrintHandler);
+                    this._afterPrintHandler = null;
+                }
+                if (this._fallbackTimer) {
+                    clearTimeout(this._fallbackTimer);
+                    this._fallbackTimer = null;
+                }
+            },
+
+            finalizePrintCleanup() {
+                this.unbindAfterPrintCleanup();
+                this.clearPrintContainer();
+                this.clearDynamicPageOrientation();
+                this.setTriggerButtonLocked(null, false);
+                this.isPrinting = false;
             },
 
             clearPrintContainer() {
@@ -7480,11 +7561,18 @@ function jsonResponse_(obj) {
                 secB.appendChild(metaTable);
                 wrapper.appendChild(secB);
 
+                if (payload.orientation === 'landscape') {
+                    const hintBox = document.createElement('div');
+                    hintBox.className = 'print-orientation-hint';
+                    hintBox.textContent = 'Sila pilih A4 Landscape dalam tetapan cetakan jika jadual terlalu lebar.';
+                    wrapper.appendChild(hintBox);
+                }
+
                 // BAHAGIAN C — KEPUTUSAN
                 const secC = document.createElement('section');
                 secC.className = 'print-section-c';
 
-                const columns = this.getTableSchema(payload.moduleId);
+                const columns = Array.isArray(payload.columns) ? payload.columns : this.getTableSchema(payload.moduleId);
 
                 payload.sections.forEach(section => {
                     const block = document.createElement('div');
@@ -7552,7 +7640,11 @@ function jsonResponse_(obj) {
                 container.appendChild(wrapper);
             },
 
-            printEvent(moduleId, eventNo) {
+            printEvent(moduleId, eventNo, triggerBtnEl = null) {
+                if (this.isPrinting) {
+                    return;
+                }
+
                 const normalizedModule = String(moduleId || '').trim().toLowerCase();
                 const spec = this.MODULE_SPECS[normalizedModule];
                 if (!spec) {
@@ -7584,43 +7676,64 @@ function jsonResponse_(obj) {
                     return;
                 }
 
-                const config = StorageManager.getTournamentConfig() || {};
-                const tournamentName = String(config.tournamentName || config.namaKejohanan || '').trim();
-                const eventName = this.resolveEventName(ev, config, normalizedEventNo);
+                this.isPrinting = true;
+                this.setTriggerButtonLocked(triggerBtnEl, true);
 
-                // Semakan status rasmi tanpa sebarang pengubahsuaian
-                const isOfficial = ev.status === 'DISAHKAN_RASMI';
-                const statusText = isOfficial ? 'KEPUTUSAN RASMI' : 'KEPUTUSAN BELUM DISAHKAN RASMI';
+                try {
+                    const config = StorageManager.getTournamentConfig() || {};
+                    const tournamentName = String(config.tournamentName || config.namaKejohanan || '').trim();
+                    const eventName = this.resolveEventName(ev, config, normalizedEventNo);
 
-                const uniqueCategories = Array.from(new Set(sections.map(s => s.categoryLabel)));
-                const categoriesSummary = uniqueCategories.join(' & ');
+                    // Semakan status rasmi tanpa sebarang pengubahsuaian
+                    const isOfficial = ev.status === 'DISAHKAN_RASMI';
+                    const statusText = isOfficial ? 'KEPUTUSAN RASMI' : 'KEPUTUSAN BELUM DISAHKAN RASMI';
 
-                const now = new Date();
-                const printedAt = now.toLocaleString('ms-MY', {
-                    day: '2-digit',
-                    month: '2-digit',
-                    year: 'numeric',
-                    hour: '2-digit',
-                    minute: '2-digit',
-                    second: '2-digit'
-                });
+                    const uniqueCategories = Array.from(new Set(sections.map(s => s.categoryLabel)));
+                    const categoriesSummary = uniqueCategories.join(' & ');
 
-                const container = this.ensurePrintContainer();
-                this.buildPrintDocumentDOM(container, {
-                    moduleId: normalizedModule,
-                    moduleLabel: spec.label,
-                    orientation: spec.orientation,
-                    eventNo: normalizedEventNo,
-                    eventName,
-                    tournamentName,
-                    categoriesSummary,
-                    isOfficial,
-                    statusText,
-                    sections,
-                    printedAt
-                });
+                    const columns = this.getTableSchema(normalizedModule);
+                    const orientation = this.determineOrientation(columns);
 
-                window.print();
+                    const now = new Date();
+                    const printedAt = now.toLocaleString('ms-MY', {
+                        day: '2-digit',
+                        month: '2-digit',
+                        year: 'numeric',
+                        hour: '2-digit',
+                        minute: '2-digit',
+                        second: '2-digit'
+                    });
+
+                    this.applyDynamicPageOrientation(orientation);
+                    const container = this.ensurePrintContainer();
+                    this.buildPrintDocumentDOM(container, {
+                        moduleId: normalizedModule,
+                        moduleLabel: spec.label,
+                        orientation,
+                        columns,
+                        eventNo: normalizedEventNo,
+                        eventName,
+                        tournamentName,
+                        categoriesSummary,
+                        isOfficial,
+                        statusText,
+                        sections,
+                        printedAt
+                    });
+
+                    this.bindSingleAfterPrintCleanup();
+                    window.print();
+
+                    // Fallback terkawal untuk browser yang tidak menghantar afterprint selepas dialog ditutup
+                    this._fallbackTimer = setTimeout(() => {
+                        if (this.isPrinting) {
+                            this.finalizePrintCleanup();
+                        }
+                    }, 1500);
+                } catch (err) {
+                    this.finalizePrintCleanup();
+                    UIComponents.showToast('Ralat semasa menyediakan dokumen cetakan. Sila cuba lagi.', 'error');
+                }
             }
         };
 
@@ -7695,7 +7808,7 @@ function jsonResponse_(obj) {
                     const adminLabel = document.getElementById('admin-btn-label');
                     if (publicWs) publicWs.classList.remove('hidden');
                     if (adminWs) adminWs.classList.add('hidden');
-                    if (adminLabel) adminLabel.textContent = 'Panel Admin';
+                    if (adminLabel) adminLabel.textContent = 'Admin';
                 }
                 this.renderNavigation();
                 this.loadView(viewId);
@@ -7710,11 +7823,11 @@ function jsonResponse_(obj) {
                 if (this.isAdminOpen) {
                     if (publicWs) publicWs.classList.add('hidden');
                     if (adminWs) adminWs.classList.remove('hidden');
-                    if (adminLabel) adminLabel.textContent = 'Paparan Awam';
+                    if (adminLabel) adminLabel.textContent = 'Keluar';
                 } else {
                     if (adminWs) adminWs.classList.add('hidden');
                     if (publicWs) publicWs.classList.remove('hidden');
-                    if (adminLabel) adminLabel.textContent = 'Panel Admin';
+                    if (adminLabel) adminLabel.textContent = 'Admin';
                     this.loadView(this.currentView);
                 }
 
