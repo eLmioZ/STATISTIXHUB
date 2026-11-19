@@ -618,7 +618,7 @@
         </aside>
 
         <!-- KAWASAN KANDUNGAN UTAMA -->
-        <main class="flex-1 w-full min-w-0 p-4 sm:p-6 lg:p-7 xl:p-8 pb-[calc(7.5rem+env(safe-area-inset-bottom,0px))] lg:pb-10">
+        <main class="flex-1 w-full min-w-0 p-4 sm:p-6 lg:p-7 xl:p-8 pb-[calc(6.5rem+env(safe-area-inset-bottom,0px))] lg:pb-10">
 
             <!-- =============================================================== -->
             <!-- PAPARAN AWAM UTAMA (5 MODUL STATISTIK KEJOHANAN)                -->
@@ -1597,18 +1597,12 @@
         <div id="mobile-nav-list" class="grid grid-cols-5 h-16">
             <!-- Dijana secara dinamik oleh AppController.renderNavigation() -->
         </div>
-        <!-- Hak cipta mobile: di luar senarai navigasi dinamik supaya tidak dipadam ketika render semula -->
-        <div id="mobile-copyright" class="text-center px-2 pb-1.5 leading-tight border-t border-navy-secondary/30" aria-label="Maklumat hak cipta STATISTIX HUB">
-            <p class="text-slate-400 font-semibold">
-                Hak Cipta Terpelihara &copy; 2026 <span class="text-gold-light font-semibold">eL_mioZ v 1.9.8.8</span>
-            </p>
-        </div>
     </nav>
 
     <!-- ===================================================================== -->
     <!-- KONTENA TOAST NOTIFIKASI & OVERLAY PEMUATAN                           -->
     <!-- ===================================================================== -->
-    <div id="toast-container" class="fixed bottom-[calc(5.75rem+env(safe-area-inset-bottom,0px))] lg:bottom-6 right-4 z-50 flex flex-col gap-2.5 max-w-sm w-[calc(100vw-2rem)] pointer-events-none"></div>
+    <div id="toast-container" class="fixed bottom-[calc(4.75rem+env(safe-area-inset-bottom,0px))] lg:bottom-6 right-4 z-50 flex flex-col gap-2.5 max-w-sm w-[calc(100vw-2rem)] pointer-events-none"></div>
 
     <div id="loading-overlay" class="fixed inset-0 z-50 hidden items-center justify-center bg-navy-dark/60 backdrop-blur-xs p-4">
         <div class="bg-white rounded-2xl px-6 py-5 shadow-2xl border border-slate-200 flex items-center gap-3.5 max-w-xs w-full">
@@ -7223,7 +7217,13 @@ function jsonResponse_(obj) {
             isPrinting: false,
             _activePrintButton: null,
             _afterPrintHandler: null,
-            _fallbackTimer: null,
+            _beforePrintHandler: null,
+            _printMediaQuery: null,
+            _printMediaHandler: null,
+            _visibilityHandler: null,
+            _focusHandler: null,
+            _hasEnteredPrintPreview: false,
+            _safetyUnlockTimer: null,
 
             MODULE_SPECS: {
                 'saringan': {
@@ -7327,30 +7327,120 @@ function jsonResponse_(obj) {
                 return container;
             },
 
-            bindSingleAfterPrintCleanup() {
-                this.unbindAfterPrintCleanup();
+            bindPrintLifecycleListeners() {
+                this.unbindPrintLifecycleListeners();
+                this._hasEnteredPrintPreview = false;
+
+                // 1. Isyarat kemasukan mod cetakan (Desktop & Mobile)
+                this._beforePrintHandler = () => {
+                    this._hasEnteredPrintPreview = true;
+                };
+                window.addEventListener('beforeprint', this._beforePrintHandler);
+
+                // 2. Isyarat utama keluar daripada dialog cetakan (Desktop, Android Chrome, Safari moden)
                 this._afterPrintHandler = () => {
                     this.finalizePrintCleanup();
                 };
                 window.addEventListener('afterprint', this._afterPrintHandler, { once: true });
+
+                // 3. Isyarat tambahan peralihan media CSS 'print' -> 'screen' (WebKit / iOS Safari / Android WebView)
+                if (typeof window.matchMedia === 'function') {
+                    try {
+                        this._printMediaQuery = window.matchMedia('print');
+                        this._printMediaHandler = (e) => {
+                            if (e && e.matches) {
+                                this._hasEnteredPrintPreview = true;
+                            } else if (this.isPrinting && this._hasEnteredPrintPreview) {
+                                this.finalizePrintCleanup();
+                            }
+                        };
+                        if (typeof this._printMediaQuery.addEventListener === 'function') {
+                            this._printMediaQuery.addEventListener('change', this._printMediaHandler);
+                        } else if (typeof this._printMediaQuery.addListener === 'function') {
+                            this._printMediaQuery.addListener(this._printMediaHandler);
+                        }
+                    } catch (mqErr) {
+                        this._printMediaQuery = null;
+                        this._printMediaHandler = null;
+                    }
+                }
+
+                // 4. Pemulihan apabila aplikasi kembali aktif selepas skrin sistem cetakan Android/iOS ditutup
+                this._visibilityHandler = () => {
+                    if (document.visibilityState === 'hidden') {
+                        this._hasEnteredPrintPreview = true;
+                    } else if (document.visibilityState === 'visible' && this.isPrinting && this._hasEnteredPrintPreview) {
+                        this.finalizePrintCleanup();
+                    }
+                };
+                document.addEventListener('visibilitychange', this._visibilityHandler);
+
+                this._focusHandler = () => {
+                    if (this.isPrinting && this._hasEnteredPrintPreview) {
+                        this.finalizePrintCleanup();
+                    }
+                };
+                window.addEventListener('focus', this._focusHandler);
+
+                // 5. Perlindungan anti-deadlock: hanya membuka kunci butang jika pelayar menyekat dialog tanpa event,
+                // TANPA memadam kandungan DOM cetakan (#official-print-area kekal tersembunyi pada @media screen)
+                this._safetyUnlockTimer = setTimeout(() => {
+                    if (this.isPrinting) {
+                        this.releasePrintLockOnly();
+                    }
+                }, 4000);
             },
 
-            unbindAfterPrintCleanup() {
+            unbindPrintLifecycleListeners() {
+                if (this._beforePrintHandler) {
+                    window.removeEventListener('beforeprint', this._beforePrintHandler);
+                    this._beforePrintHandler = null;
+                }
                 if (this._afterPrintHandler) {
                     window.removeEventListener('afterprint', this._afterPrintHandler);
                     this._afterPrintHandler = null;
                 }
-                if (this._fallbackTimer) {
-                    clearTimeout(this._fallbackTimer);
-                    this._fallbackTimer = null;
+                if (this._printMediaQuery && this._printMediaHandler) {
+                    try {
+                        if (typeof this._printMediaQuery.removeEventListener === 'function') {
+                            this._printMediaQuery.removeEventListener('change', this._printMediaHandler);
+                        } else if (typeof this._printMediaQuery.removeListener === 'function') {
+                            this._printMediaQuery.removeListener(this._printMediaHandler);
+                        }
+                    } catch (e) {}
+                    this._printMediaQuery = null;
+                    this._printMediaHandler = null;
+                }
+                if (this._visibilityHandler) {
+                    document.removeEventListener('visibilitychange', this._visibilityHandler);
+                    this._visibilityHandler = null;
+                }
+                if (this._focusHandler) {
+                    window.removeEventListener('focus', this._focusHandler);
+                    this._focusHandler = null;
+                }
+                if (this._safetyUnlockTimer) {
+                    clearTimeout(this._safetyUnlockTimer);
+                    this._safetyUnlockTimer = null;
                 }
             },
 
+            releasePrintLockOnly() {
+                // Membuka kunci UI tanpa memadam kontena cetakan sekiranya pratonton mobile masih terbuka
+                if (this._safetyUnlockTimer) {
+                    clearTimeout(this._safetyUnlockTimer);
+                    this._safetyUnlockTimer = null;
+                }
+                this.setTriggerButtonLocked(null, false);
+                this.isPrinting = false;
+            },
+
             finalizePrintCleanup() {
-                this.unbindAfterPrintCleanup();
+                this.unbindPrintLifecycleListeners();
                 this.clearPrintContainer();
                 this.clearDynamicPageOrientation();
                 this.setTriggerButtonLocked(null, false);
+                this._hasEnteredPrintPreview = false;
                 this.isPrinting = false;
             },
 
@@ -7657,6 +7747,11 @@ function jsonResponse_(obj) {
                     return;
                 }
 
+                if (typeof window.print !== 'function') {
+                    UIComponents.showToast('Fungsi cetakan tidak disokong oleh pelayar ini.', 'warning');
+                    return;
+                }
+
                 const normalizedModule = String(moduleId || '').trim().toLowerCase();
                 const spec = this.MODULE_SPECS[normalizedModule];
                 if (!spec) {
@@ -7716,6 +7811,10 @@ function jsonResponse_(obj) {
                         second: '2-digit'
                     });
 
+                    // Bersihkan sebarang dokumen atau listener terdahulu sebelum menjana dokumen baharu
+                    this.unbindPrintLifecycleListeners();
+                    this.clearPrintContainer();
+
                     this.applyDynamicPageOrientation(orientation);
                     const container = this.ensurePrintContainer();
                     this.buildPrintDocumentDOM(container, {
@@ -7733,18 +7832,11 @@ function jsonResponse_(obj) {
                         printedAt
                     });
 
-                    this.bindSingleAfterPrintCleanup();
+                    this.bindPrintLifecycleListeners();
                     window.print();
-
-                    // Fallback terkawal untuk browser yang tidak menghantar afterprint selepas dialog ditutup
-                    this._fallbackTimer = setTimeout(() => {
-                        if (this.isPrinting) {
-                            this.finalizePrintCleanup();
-                        }
-                    }, 1500);
                 } catch (err) {
                     this.finalizePrintCleanup();
-                    UIComponents.showToast('Ralat semasa menyediakan dokumen cetakan. Sila cuba lagi.', 'error');
+                    UIComponents.showToast('Ralat semasa menyediakan dokumen cetakan atau dialog cetakan disekat pelayar.', 'error');
                 }
             }
         };
