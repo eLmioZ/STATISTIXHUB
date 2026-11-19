@@ -524,6 +524,83 @@
                 font-weight: 600 !important;
             }
         }
+
+/* =========================================================
+   STATISTIX HUB — MOBILE ICON-ONLY SURGICAL FIX
+   Scope: Mobile viewport below 640px only
+   Preserve all original HTML, JS, layout and functionality
+   ========================================================= */
+
+@media screen and (max-width: 639px) {
+
+    /* Global LIVE / On Progress label */
+    #global-live-status-text,
+
+    /* Admin / Keluar label */
+    #admin-btn-label,
+
+    /* GAS action button labels — all four modules */
+    :is(
+        #btn-saringan-gas-test,
+        #btn-saringan-gas-save,
+        #btn-saringan-gas-edit,
+        #btn-saringan-gas-delete,
+
+        #btn-akhir-balapan-gas-test,
+        #btn-akhir-balapan-gas-save,
+        #btn-akhir-balapan-gas-edit,
+        #btn-akhir-balapan-gas-delete,
+
+        #btn-relay-gas-test,
+        #btn-relay-gas-save,
+        #btn-relay-gas-edit,
+        #btn-relay-gas-delete,
+
+        #btn-padang-gas-test,
+        #btn-padang-gas-save,
+        #btn-padang-gas-edit,
+        #btn-padang-gas-delete
+    ) > span {
+
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        padding: 0;
+        margin: -1px;
+        overflow: hidden;
+        clip: rect(0, 0, 0, 0);
+        clip-path: inset(50%);
+        white-space: nowrap;
+        border: 0;
+    }
+}
+
+/* =====================================================
+   MOBILE ICON-ONLY: CETAK & PENGESAHAN RASMI
+   Only below 640px
+   Preserve original HTML, JavaScript and layout
+   ===================================================== */
+
+@media screen and (max-width: 639px) {
+
+    /* Butang Cetak */
+    button[data-print-trigger="true"] > span,
+
+    /* Butang Sahkan Rasmi / Batal Pengesahan */
+    button[onclick*=".toggleOfficialVerification("] > span {
+
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        padding: 0;
+        margin: -1px;
+        overflow: hidden;
+        clip: rect(0, 0, 0, 0);
+        clip-path: inset(50%);
+        white-space: nowrap;
+        border: 0;
+    }
+}
     </style>
 </head>
 <body class="min-h-screen flex flex-col font-sans antialiased selection:bg-gold/30 selection:text-navy-dark">
