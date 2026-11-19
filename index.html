@@ -618,7 +618,7 @@
         </aside>
 
         <!-- KAWASAN KANDUNGAN UTAMA -->
-        <main class="flex-1 w-full min-w-0 p-4 sm:p-6 lg:p-7 xl:p-8 pb-[calc(6.5rem+env(safe-area-inset-bottom,0px))] lg:pb-10">
+        <main class="flex-1 w-full min-w-0 p-4 sm:p-6 lg:p-7 xl:p-8 pb-[calc(7.5rem+env(safe-area-inset-bottom,0px))] lg:pb-10">
 
             <!-- =============================================================== -->
             <!-- PAPARAN AWAM UTAMA (5 MODUL STATISTIK KEJOHANAN)                -->
@@ -1597,12 +1597,18 @@
         <div id="mobile-nav-list" class="grid grid-cols-5 h-16">
             <!-- Dijana secara dinamik oleh AppController.renderNavigation() -->
         </div>
+        <!-- Hak cipta mobile: di luar senarai navigasi dinamik supaya tidak dipadam ketika render semula -->
+        <div id="mobile-copyright" class="text-center px-2 pb-1.5 leading-tight border-t border-navy-secondary/30" aria-label="Maklumat hak cipta STATISTIX HUB">
+            <p class="text-slate-400 font-semibold">
+                Hak Cipta Terpelihara &copy; 2026 <span class="text-gold-light font-semibold">eL_mioZ v 1.9.8.8</span>
+            </p>
+        </div>
     </nav>
 
     <!-- ===================================================================== -->
     <!-- KONTENA TOAST NOTIFIKASI & OVERLAY PEMUATAN                           -->
     <!-- ===================================================================== -->
-    <div id="toast-container" class="fixed bottom-[calc(4.75rem+env(safe-area-inset-bottom,0px))] lg:bottom-6 right-4 z-50 flex flex-col gap-2.5 max-w-sm w-[calc(100vw-2rem)] pointer-events-none"></div>
+    <div id="toast-container" class="fixed bottom-[calc(5.75rem+env(safe-area-inset-bottom,0px))] lg:bottom-6 right-4 z-50 flex flex-col gap-2.5 max-w-sm w-[calc(100vw-2rem)] pointer-events-none"></div>
 
     <div id="loading-overlay" class="fixed inset-0 z-50 hidden items-center justify-center bg-navy-dark/60 backdrop-blur-xs p-4">
         <div class="bg-white rounded-2xl px-6 py-5 shadow-2xl border border-slate-200 flex items-center gap-3.5 max-w-xs w-full">
