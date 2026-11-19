@@ -3914,7 +3914,8 @@
                     1: {
                         headerBg: 'podium-rank1-gold-header',
                         badgeClass: 'bg-navy-dark text-gold border border-gold/50',
-                        pedestalHeight: 'h-36 sm:h-44',
+                        orderClass: 'order-1 sm:order-3',
+                        pedestalHeight: 'h-16 sm:h-44',
                         pedestalBg: 'bg-gradient-to-b from-gold via-gold to-gold-dark text-navy-dark border-gold-dark',
                         cardBorder: 'border-gold shadow-gold-glow',
                         label: team.isProvisional ? 'Kedudukan 1 (Sementara)' : 'Tempat Pertama',
@@ -3923,7 +3924,8 @@
                     2: {
                         headerBg: 'bg-gradient-to-br from-slate-200 via-slate-100 to-slate-200',
                         badgeClass: 'bg-slate-700 text-white',
-                        pedestalHeight: 'h-28 sm:h-36',
+                        orderClass: 'order-2 sm:order-2',
+                        pedestalHeight: 'h-14 sm:h-36',
                         pedestalBg: 'bg-gradient-to-b from-slate-300 to-slate-400 text-navy-dark border-slate-400',
                         cardBorder: 'border-slate-300 shadow-soft',
                         label: team.isProvisional ? 'Kedudukan 2 (Sementara)' : 'Tempat Kedua',
@@ -3932,7 +3934,8 @@
                     3: {
                         headerBg: 'bg-gradient-to-br from-amber-100 via-orange-50 to-amber-100',
                         badgeClass: 'bg-amber-800 text-amber-50',
-                        pedestalHeight: 'h-20 sm:h-28',
+                        orderClass: 'order-3 sm:order-4',
+                        pedestalHeight: 'h-12 sm:h-28',
                         pedestalBg: 'bg-gradient-to-b from-amber-600 to-amber-800 text-white border-amber-900',
                         cardBorder: 'border-amber-300 shadow-soft',
                         label: team.isProvisional ? 'Kedudukan 3 (Sementara)' : 'Tempat Ketiga',
@@ -3941,7 +3944,8 @@
                     4: {
                         headerBg: 'bg-gradient-to-br from-navy-primary via-navy-dark to-navy-primary',
                         badgeClass: 'bg-navy-secondary text-white',
-                        pedestalHeight: 'h-14 sm:h-20',
+                        orderClass: 'order-4 sm:order-1',
+                        pedestalHeight: 'h-10 sm:h-20',
                         pedestalBg: 'bg-gradient-to-b from-navy-primary to-navy-dark text-slate-200 border-navy-secondary',
                         cardBorder: 'border-navy-secondary/70 shadow-soft',
                         label: team.isProvisional ? 'Tempat Keempat (Sementara)' : 'Tempat Keempat',
@@ -3954,7 +3958,7 @@
                 const rankBadgeLabel = team.isTied && !isPlaceholder ? `#${team.displayRank} (Seri)` : `#${rank}`;
 
                 return `
-                    <div class="flex flex-col justify-end min-w-[168px] w-[168px] sm:w-auto sm:min-w-0 flex-none sm:flex-1 snap-start" data-podium-slot="${rank}">
+                    <div class="flex flex-col justify-end w-full sm:w-auto min-w-0 flex-1 ${st.orderClass}" data-podium-slot="${rank}">
                         <div class="rounded-t-2xl border-2 border-b-0 ${st.cardBorder} bg-white overflow-hidden">
                             <div class="${st.headerBg} px-3.5 py-3 flex items-center justify-between gap-2">
                                 <span class="inline-flex items-center px-2.5 py-0.5 rounded-lg font-display font-extrabold text-xs ${st.badgeClass}">
@@ -4058,12 +4062,12 @@
 
             renderTeamMedalPodium(rankingList) {
                 const topFour = this.getTopFourTeams(rankingList);
-                // Susunan wajib dari kiri ke kanan: 4 -> 2 -> 1 -> 3
+                // Susunan DOM semantik: 1 -> 2 -> 3 -> 4 (Mobile menegak 1-2-3-4; Desktop/Tablet >= 640px visual 4-2-1-3 melalui sm:order-*)
                 const orderedSlots = [
-                    { team: topFour[3], rank: 4 },
-                    { team: topFour[1], rank: 2 },
                     { team: topFour[0], rank: 1 },
-                    { team: topFour[2], rank: 3 }
+                    { team: topFour[1], rank: 2 },
+                    { team: topFour[2], rank: 3 },
+                    { team: topFour[3], rank: 4 }
                 ];
 
                 return `
@@ -4079,16 +4083,8 @@
                             </div>
                         </div>
 
-                        <!-- Petunjuk skrol mendatar khusus mobile (< 640px) -->
-                        <div class="sm:hidden flex items-center justify-between gap-2 px-3 py-2 rounded-xl bg-navy-primary/5 border border-gold/40 text-navy-primary">
-                            <span class="inline-flex items-center gap-1.5 text-[10px] font-semibold">
-                                <i data-lucide="move-horizontal" class="w-3.5 h-3.5 text-gold-dark shrink-0"></i>
-                                <span>Geser ke kiri atau kanan untuk melihat semua pasukan</span>
-                            </span>
-                        </div>
-
-                        <div class="overflow-x-auto pb-2 px-1 sm:px-0 snap-x snap-mandatory touch-pan-x overscroll-x-contain">
-                            <div class="flex items-end justify-start sm:justify-center gap-3 sm:gap-4 w-max sm:w-full min-w-max sm:min-w-0 pt-2 pr-2 sm:pr-0">
+                        <div class="w-full overflow-x-visible">
+                            <div class="flex flex-col sm:flex-row items-stretch sm:items-end justify-start sm:justify-center gap-4 w-full pt-2">
                                 ${orderedSlots.map(slot => this.renderPodiumSlot(slot.team, slot.rank)).join('')}
                             </div>
                         </div>
