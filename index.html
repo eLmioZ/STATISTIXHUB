@@ -92,6 +92,24 @@
             font-size: var(--app-font-size) !important;
         }
 
+        /* POD-001: Identiti emas hanya untuk header podium kedudukan pertama. */
+        .podium-rank1-gold-header {
+            background: linear-gradient(135deg, #AA8A24 0%, #D4AF37 55%, #F3E5AB 100%);
+        }
+
+        /* POD-002: Pulihkan saiz Tailwind asal bagi kad podium sahaja. */
+        [data-podium-slot] .text-\[9px\] { font-size: 9px !important; }
+        [data-podium-slot] .text-\[10px\] { font-size: 10px !important; }
+        [data-podium-slot] .text-xs,
+        [data-podium-slot] .text-xs > span { font-size: 0.75rem !important; }
+        [data-podium-slot] .text-sm { font-size: 0.875rem !important; }
+        [data-podium-slot] .text-2xl { font-size: 1.5rem !important; }
+        @media (min-width: 640px) {
+            [data-podium-slot] .sm\:text-sm { font-size: 0.875rem !important; }
+            [data-podium-slot] .sm\:text-base { font-size: 1rem !important; }
+            [data-podium-slot] .sm\:text-3xl { font-size: 1.875rem !important; }
+        }
+
         /* Sembunyikan bar skrol mendatar pada tab mudah alih sambil mengekalkan fungsi skrol */
         .no-scrollbar::-webkit-scrollbar {
             display: none;
@@ -821,7 +839,7 @@
                 <div>
                     <div class="px-3 mb-3">
                         <p class="text-[11px] font-bold uppercase tracking-widest text-slate-400">
-                            Paparan Utama
+                            Paparan Utama Statistix
                         </p>
                     </div>
                     <nav id="desktop-nav-list" class="space-y-1.5" aria-label="Menu Utama Kejohanan">
@@ -2068,8 +2086,8 @@
             },
             {
                 id: 'admin',
-                label: 'TETAPAN ADMIN',
-                shortLabel: 'TETAPAN',
+                label: 'PANEL ADMIN',
+                shortLabel: 'ADMIN',
                 icon: 'shield-check',
                 category: 'Pentadbiran',
                 subtitle: 'Pengurusan Data dan Pengurusan Pengguna.'
@@ -4356,7 +4374,9 @@
 
                 const st = styles[rank] || styles[4];
                 const isDarkHeader = rank === 4;
-                const rankBadgeLabel = team.isTied && !isPlaceholder ? `#${team.displayRank} (Seri)` : `#${rank}`;
+                const officialRank = !isPlaceholder && Number.isInteger(team.displayRank) ? team.displayRank : rank;
+                const rankBadgeLabel = team.isTied && !isPlaceholder ? `#${officialRank} (Seri)` : `#${officialRank}`;
+                const rankDescription = team.isTied && !isPlaceholder ? `Kedudukan Rasmi #${officialRank} (Seri)` : st.label;
 
                 return `
                     <div class="flex flex-col justify-end w-full sm:w-auto min-w-0 flex-1 ${st.orderClass}" data-podium-slot="${rank}">
@@ -4369,7 +4389,7 @@
                             </div>
                             <div class="p-3.5 sm:p-4 text-center space-y-2.5">
                                 <p class="text-[10px] font-bold uppercase tracking-wider ${isDarkHeader ? 'text-navy-secondary' : 'text-ink-muted'}">
-                                    ${st.label}
+                                    ${rankDescription}
                                 </p>
                                 <h4 class="font-display font-extrabold text-sm sm:text-base uppercase tracking-tight break-words ${teamColorClass}">
                                     ${esc(team.pasukan)}
@@ -4395,7 +4415,7 @@
                             </div>
                         </div>
                         <div class="${st.pedestalHeight} ${st.pedestalBg} border-2 border-t-0 rounded-b-xl flex flex-col items-center justify-center shadow-inner">
-                            <span class="font-display font-extrabold text-2xl sm:text-3xl leading-none">${rank}</span>
+                            <span class="font-display font-extrabold text-2xl sm:text-3xl leading-none">${officialRank}</span>
                         </div>
                     </div>
                 `;
@@ -4639,12 +4659,12 @@
                     pill.classList.remove('global-status-progress');
                     pill.classList.add('global-status-live');
                     pill.title = 'Data Google Apps Script telah diimport dan disimpan. Status ini bukan pengesahan sambungan masa nyata.';
-                    textEl.textContent = 'Live';
+                    textEl.textContent = 'Live Data';
                 } else {
                     pill.classList.remove('global-status-live');
                     pill.classList.add('global-status-progress');
                     pill.title = 'Belum ada data acara daripada Google Apps Script yang berjaya disimpan.';
-                    textEl.textContent = 'Loading...';
+                    textEl.textContent = 'No Data';
                 }
             }
         };
