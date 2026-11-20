@@ -220,14 +220,7 @@
             color: #FFFFFF;
         }
 
-        /* Latar Belakang Championship Gold Gradient untuk Kad Atas Podium Kedudukan 1 */
-        .podium-rank1-gold-header {
-            background: linear-gradient(135deg, #AA8A24 0%, #D4AF37 55%, #F3E5AB 100%);
-        }
-
-        /* ===================================================================== */
-        /* CSS KHUSUS CETAKAN RASMI (PRINT-ONLY — TIADA KESAN PADA PAPARAN SKRIN) */
-        /* ===================================================================== */
+        
         @media screen {
             #official-print-area {
                 display: none !important;
@@ -256,7 +249,7 @@
                 print-color-adjust: exact !important;
             }
 
-            /* Asingkan kandungan cetakan sepenuhnya daripada paparan aplikasi */
+    
             body > :not(#official-print-area) {
                 display: none !important;
             }
@@ -295,7 +288,7 @@
                 overflow: visible !important;
             }
 
-            /* Watermark sederhana untuk dokumen belum disahkan rasmi (tidak menghalang bacaan data) */
+            
             #official-print-area .print-draft-watermark {
                 position: fixed;
                 top: 50%;
@@ -322,7 +315,7 @@
                 z-index: 1;
             }
 
-            /* BAHAGIAN A: Header Rasmi */
+            
             #official-print-area .print-section-a {
                 border-bottom: 2.5px solid #0B132B;
                 padding-bottom: 8px;
@@ -417,7 +410,7 @@
                 width: 32%;
             }
 
-            /* BAHAGIAN C: Jadual Keputusan & Kawalan Page Break */
+          
             #official-print-area .print-category-block {
                 margin-bottom: 14px;
                 overflow: visible !important;
@@ -525,11 +518,7 @@
             }
         }
 
-/* =========================================================
-   STATISTIX HUB — MOBILE ICON-ONLY SURGICAL FIX
-   Scope: Mobile viewport below 640px only
-   Preserve all original HTML, JS, layout and functionality
-   ========================================================= */
+
 
 @media screen and (max-width: 639px) {
 
@@ -575,11 +564,7 @@
     }
 }
 
-/* =====================================================
-   MOBILE ICON-ONLY: CETAK & PENGESAHAN RASMI
-   Only below 640px
-   Preserve original HTML, JavaScript and layout
-   ===================================================== */
+
 
 @media screen and (max-width: 639px) {
 
@@ -605,10 +590,7 @@
     }
 }
 
-/* =====================================================
-   SURGICAL UI FIX: ADMIN & LOG KELUAR PILL DESIGN
-   Match .global-status-pill (#global-live-status) geometry
-   ===================================================== */
+
 #btn-toggle-admin,
 #btn-static-logout {
     display: inline-flex;
@@ -635,9 +617,7 @@
 </head>
 <body class="min-h-screen flex flex-col font-sans antialiased selection:bg-gold/30 selection:text-navy-dark">
 
-    <!-- ===================================================================== -->
-    <!-- LAPISAN PAPARAN LOGIN STATIK (PINTU MASUK SEBELUM DASHBOARD)          -->
-    <!-- ===================================================================== -->
+
     <section id="static-login-screen" aria-labelledby="static-login-title" class="min-h-screen w-full flex items-center justify-center bg-gradient-to-br from-navy-dark via-navy-primary to-navy-dark p-4 sm:p-6">
         <div class="w-full max-w-md bg-white rounded-2xl shadow-2xl border border-slate-200/90 overflow-hidden animate-view-enter">
             <!-- Bahagian Atas Kad Login -->
@@ -737,14 +717,7 @@
         </div>
     </section>
 
-    <!-- ===================================================================== -->
-    <!-- PEMBUNGKUS DASHBOARD UTAMA (DIPAPARKAN SELEPAS LOGIN BERJAYA)         -->
-    <!-- ===================================================================== -->
-    <div id="dashboard-shell" class="hidden flex-1 flex flex-col">
 
-    <!-- ===================================================================== -->
-    <!-- HEADER UTAMA (STICKY TOP)                                             -->
-    <!-- ===================================================================== -->
     <header id="app-header" class="sticky top-0 z-40 bg-navy-dark text-white border-b border-navy-secondary/50 shadow-md">
         <div class="max-w-[1600px] mx-auto px-3.5 sm:px-6 lg:px-8">
             <div class="flex items-center justify-between h-16 sm:h-20 gap-2 sm:gap-3">
@@ -803,9 +776,7 @@
         </div>
     </header>
 
-    <!-- ===================================================================== -->
-    <!-- KONTENA UTAMA (SIDEBAR DESKTOP + RUANG KANDUNGAN MODULAR)             -->
-    <!-- ===================================================================== -->
+
     <div class="flex-1 flex max-w-[1600px] w-full mx-auto">
 
         <!-- SIDEBAR NAVIGASI DESKTOP (LG KE ATAS) -->
@@ -840,9 +811,7 @@
         <!-- KAWASAN KANDUNGAN UTAMA -->
         <main class="flex-1 w-full min-w-0 p-4 sm:p-6 lg:p-7 xl:p-8 pb-[calc(8.75rem+env(safe-area-inset-bottom,0px))] lg:pb-10">
 
-            <!-- =============================================================== -->
-            <!-- PAPARAN AWAM UTAMA (5 MODUL STATISTIK KEJOHANAN)                -->
-            <!-- =============================================================== -->
+
             <section id="public-workspace" class="space-y-5 sm:space-y-6">
                 <!-- Bar Tajuk Modul -->
                 <div class="bg-white rounded-2xl p-5 sm:p-6 shadow-card border border-slate-200/80">
@@ -873,9 +842,7 @@
                 </div>
             </section>
 
-            <!-- =============================================================== -->
-            <!-- PANEL ADMIN (TERPISAH DARIPADA PAPARAN AWAM)                     -->
-            <!-- =============================================================== -->
+
             <section id="admin-workspace" class="hidden space-y-6 animate-view-enter">
                 <!-- Header Panel Admin -->
                 <div class="bg-navy-primary text-white rounded-2xl p-5 sm:p-6 shadow-card border border-navy-secondary/60">
@@ -1498,9 +1465,6 @@
         </main>
     </div>
 
-    <!-- ===================================================================== -->
-    <!-- MODAL KOD GOOGLE APPS SCRIPT — ACARA SARINGAN (STATISTIX_SARINGAN)    -->
-    <!-- ===================================================================== -->
     <div
         id="modal-saringan-gas-code"
         role="dialog"
@@ -1576,9 +1540,7 @@
         </div>
     </div>
 
-    <!-- ===================================================================== -->
-    <!-- MODAL KOD GOOGLE APPS SCRIPT — AKHIR BALAPAN (STATISTIX_AKHIR_BALAPAN) -->
-    <!-- ===================================================================== -->
+
     <div
         id="modal-akhir-balapan-gas-code"
         role="dialog"
@@ -1654,9 +1616,7 @@
         </div>
     </div>
 
-    <!-- ===================================================================== -->
-    <!-- MODAL KOD GOOGLE APPS SCRIPT — ACARA RELAY (STATISTIX_RELAY_CODE)     -->
-    <!-- ===================================================================== -->
+
     <div
         id="modal-relay-gas-code"
         role="dialog"
@@ -1732,9 +1692,7 @@
         </div>
     </div>
 
-    <!-- ===================================================================== -->
-    <!-- MODAL KOD GOOGLE APPS SCRIPT — ACARA PADANG (STATISTIX_PADANG_CODE)   -->
-    <!-- ===================================================================== -->
+
     <div
         id="modal-padang-gas-code"
         role="dialog"
@@ -1810,9 +1768,7 @@
         </div>
     </div>
 
-    <!-- ===================================================================== -->
-    <!-- NAVIGASI BAWAH MUDAH ALIH (MOBILE & TABLET BAWAH LG)                   -->
-    <!-- ===================================================================== -->
+
     <nav id="mobile-bottom-nav" aria-label="Menu Navigasi Mudah Alih" class="lg:hidden fixed bottom-0 inset-x-0 z-40 bg-navy-dark text-white border-t border-navy-secondary/60 shadow-lg pb-[env(safe-area-inset-bottom,0px)]">
         <div id="mobile-nav-list" class="grid grid-cols-5 h-16">
             <!-- Dijana secara dinamik oleh AppController.renderNavigation() -->
@@ -1828,9 +1784,7 @@
         </div>
     </nav>
 
-    <!-- ===================================================================== -->
-    <!-- KONTENA TOAST NOTIFIKASI & OVERLAY PEMUATAN                           -->
-    <!-- ===================================================================== -->
+
     <div id="toast-container" class="fixed bottom-[calc(7.25rem+env(safe-area-inset-bottom,0px))] lg:bottom-6 right-4 z-50 flex flex-col gap-2.5 max-w-sm w-[calc(100vw-2rem)] pointer-events-none"></div>
 
     <div id="loading-overlay" class="fixed inset-0 z-50 hidden items-center justify-center bg-navy-dark/60 backdrop-blur-xs p-4">
