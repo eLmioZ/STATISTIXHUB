@@ -123,7 +123,7 @@
             animation: fadeSlideUp 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards;
         }
 
-        /* Indikator Status Global (Live Sync / On Progress) */
+        /* Indikator Status Global (LIVE DATA / ) */
         @keyframes globalLivePulse {
             0%, 100% {
                 opacity: 1;
@@ -796,7 +796,7 @@
                     <!-- Butang LOG KELUAR -->
                     <button id="btn-static-logout" type="button" onclick="StaticLoginController.logout()" title="Log Keluar daripada Dashboard" class="bg-rose-600/90 hover:bg-rose-600 text-white border border-rose-400/30 transition-all cursor-pointer">
                         <i data-lucide="log-out" class="w-3.5 h-3.5 sm:w-4 sm:h-4 shrink-0"></i>
-                        <span class="whitespace-nowrap">LOG KELUAR</span>
+                        <span class="whitespace-nowrap">KELUAR</span>
                     </button>
                 </div>
             </div>
@@ -1857,7 +1857,7 @@
          */
         const StaticLoginController = {
             SESSION_KEY: 'statistix_static_login_session',
-            VALID_USER_ID: 'wba@1003',
+            VALID_USER_ID: 'admin',
             VALID_PASSWORD: 'wba1003',
             isPasswordVisible: false,
 
@@ -4625,12 +4625,12 @@
                     pill.classList.remove('global-status-progress');
                     pill.classList.add('global-status-live');
                     pill.title = 'Data Google Apps Script telah diimport dan disimpan. Status ini bukan pengesahan sambungan masa nyata.';
-                    textEl.textContent = 'Live Sync';
+                    textEl.textContent = 'Live Data';
                 } else {
                     pill.classList.remove('global-status-live');
                     pill.classList.add('global-status-progress');
                     pill.title = 'Belum ada data acara daripada Google Apps Script yang berjaya disimpan.';
-                    textEl.textContent = 'On Progress';
+                    textEl.textContent = 'No Data';
                 }
             }
         };
@@ -8178,7 +8178,7 @@ function jsonResponse_(obj) {
                     const adminLabel = document.getElementById('admin-btn-label');
                     if (publicWs) publicWs.classList.remove('hidden');
                     if (adminWs) adminWs.classList.add('hidden');
-                    if (adminLabel) adminLabel.textContent = 'Admin';
+                    if (adminLabel) adminLabel.textContent = 'ADMIN';
                 }
                 this.renderNavigation();
                 this.loadView(viewId);
@@ -8193,11 +8193,11 @@ function jsonResponse_(obj) {
                 if (this.isAdminOpen) {
                     if (publicWs) publicWs.classList.add('hidden');
                     if (adminWs) adminWs.classList.remove('hidden');
-                    if (adminLabel) adminLabel.textContent = 'Keluar';
+                    if (adminLabel) adminLabel.textContent = 'UTAMA';
                 } else {
                     if (adminWs) adminWs.classList.add('hidden');
                     if (publicWs) publicWs.classList.remove('hidden');
-                    if (adminLabel) adminLabel.textContent = 'Admin';
+                    if (adminLabel) adminLabel.textContent = 'ADMIN';
                     this.loadView(this.currentView);
                 }
 
