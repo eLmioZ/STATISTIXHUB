@@ -821,7 +821,7 @@
                 <div>
                     <div class="px-3 mb-3">
                         <p class="text-[11px] font-bold uppercase tracking-widest text-slate-400">
-                            Paparan Utama Statistix
+                            Paparan Utama
                         </p>
                     </div>
                     <nav id="desktop-nav-list" class="space-y-1.5" aria-label="Menu Utama Kejohanan">
@@ -2068,8 +2068,8 @@
             },
             {
                 id: 'admin',
-                label: 'PANEL ADMIN',
-                shortLabel: 'ADMIN',
+                label: 'TETAPAN ADMIN',
+                shortLabel: 'TETAPAN',
                 icon: 'shield-check',
                 category: 'Pentadbiran',
                 subtitle: 'Pengurusan Data dan Pengurusan Pengguna.'
@@ -4639,12 +4639,12 @@
                     pill.classList.remove('global-status-progress');
                     pill.classList.add('global-status-live');
                     pill.title = 'Data Google Apps Script telah diimport dan disimpan. Status ini bukan pengesahan sambungan masa nyata.';
-                    textEl.textContent = 'Live Data';
+                    textEl.textContent = 'Live';
                 } else {
                     pill.classList.remove('global-status-live');
                     pill.classList.add('global-status-progress');
                     pill.title = 'Belum ada data acara daripada Google Apps Script yang berjaya disimpan.';
-                    textEl.textContent = 'No Data';
+                    textEl.textContent = 'Loading...';
                 }
             }
         };
