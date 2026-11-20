@@ -718,6 +718,7 @@
     </section>
 
 
+    <div id="dashboard-shell" class="hidden flex-1 flex flex-col">
     <header id="app-header" class="sticky top-0 z-40 bg-navy-dark text-white border-b border-navy-secondary/50 shadow-md">
         <div class="max-w-[1600px] mx-auto px-3.5 sm:px-6 lg:px-8">
             <div class="flex items-center justify-between h-16 sm:h-20 gap-2 sm:gap-3">
@@ -1809,164 +1810,128 @@
          * 0. PENGAWAL LOGIN STATIK (StaticLoginController)
          * Menggunakan HTML, CSS & JavaScript tulen dengan sessionStorage (tanpa backend/Firebase).
          */
-        const StaticLoginController = {
-            SESSION_KEY: 'statistix_static_login_session',
-            VALID_USER_ID: 'admin',
-            VALID_PASSWORD: 'wba1003',
-            isPasswordVisible: false,
-
-            init() {
-                const form = document.getElementById('static-login-form');
-                if (form) {
-                    form.addEventListener('submit', (e) => {
-                        e.preventDefault();
-                        this.handleLoginSubmit();
-                    });
-                }
-
-                // Kekalkan paparan dashboard sekiranya sesi tab masih sah
-                if (this.hasActiveSession()) {
-                    this.showDashboard();
-                } else {
-                    this.showLoginScreen();
-                }
-            },
-
-            hasActiveSession() {
+        // Sistem pengguna setempat: hanya untuk kemudahan penggunaan, BUKAN kawalan pelayan.
+        const UserStore = {
+            KEY: 'statistix_hub_users_v1',
+            SUPER_ID: 'statistix-super-admin',
+            DEFAULT_ID: 'admin',
+            DEFAULT_PASSWORD: 'wba1003',
+            getAll() {
                 try {
-                    return window.sessionStorage.getItem(this.SESSION_KEY) === 'authenticated';
-                } catch (e) {
-                    return false;
-                }
-            },
-
-            setSessionActive() {
-                try {
-                    window.sessionStorage.setItem(this.SESSION_KEY, 'authenticated');
-                } catch (e) {
-                    console.warn('sessionStorage tidak tersedia dalam pelayar ini.');
-                }
-            },
-
-            clearSession() {
-                try {
-                    window.sessionStorage.removeItem(this.SESSION_KEY);
-                } catch (e) {}
-            },
-
-            togglePasswordVisibility() {
-                const pwdInput = document.getElementById('static-login-password');
-                const eyeShow = document.getElementById('icon-eye-show');
-                const eyeHide = document.getElementById('icon-eye-hide');
-                const toggleBtn = document.getElementById('btn-toggle-static-password');
-                if (!pwdInput) return;
-
-                this.isPasswordVisible = !this.isPasswordVisible;
-                pwdInput.type = this.isPasswordVisible ? 'text' : 'password';
-
-                if (eyeShow) eyeShow.classList.toggle('hidden', this.isPasswordVisible);
-                if (eyeHide) eyeHide.classList.toggle('hidden', !this.isPasswordVisible);
-                if (toggleBtn) toggleBtn.setAttribute('aria-pressed', String(this.isPasswordVisible));
-            },
-
-            setFeedback(message, type) {
-                const box = document.getElementById('static-login-feedback');
-                const textEl = document.getElementById('static-login-feedback-text');
-                const iconEl = document.getElementById('static-login-feedback-icon');
-                if (!box || !textEl) return;
-
-                if (!message) {
-                    box.classList.add('hidden');
-                    textEl.textContent = '';
-                    return;
-                }
-
-                textEl.textContent = message;
-                box.classList.remove('hidden', 'bg-rose-50', 'border-rose-200', 'text-rose-800', 'bg-emerald-50', 'border-emerald-200', 'text-emerald-800', 'border');
-                box.classList.add('border');
-
-                if (type === 'success') {
-                    box.classList.add('bg-emerald-50', 'border-emerald-200', 'text-emerald-800');
-                    if (iconEl) iconEl.setAttribute('data-lucide', 'check-circle-2');
-                } else {
-                    box.classList.add('bg-rose-50', 'border-rose-200', 'text-rose-800');
-                    if (iconEl) iconEl.setAttribute('data-lucide', 'alert-circle');
-                }
-
-                if (typeof lucide !== 'undefined') {
-                    lucide.createIcons();
-                }
-            },
-
-            handleLoginSubmit() {
-                const idInput = document.getElementById('static-login-id');
-                const pwdInput = document.getElementById('static-login-password');
-                const enteredId = idInput ? idInput.value.trim() : '';
-                const enteredPwd = pwdInput ? pwdInput.value : '';
-
-                // Padanan tepat (case-sensitive)
-                if (enteredId === this.VALID_USER_ID && enteredPwd === this.VALID_PASSWORD) {
-                    this.setFeedback('Login berjaya. Membuka dashboard utama...', 'success');
-                    this.setSessionActive();
-
-                    setTimeout(() => {
-                        if (pwdInput) pwdInput.value = '';
-                        this.setFeedback('', '');
-                        this.showDashboard();
-                    }, 350);
-                } else {
-                    this.clearSession();
-                    this.setFeedback('ID atau Kata Laluan Tidak Sah', 'error');
-                    if (pwdInput) {
-                        pwdInput.value = '';
-                        pwdInput.focus();
+                    const data = JSON.parse(localStorage.getItem(this.KEY) || 'null');
+                    if (Array.isArray(data)) {
+                        const clean = data.filter(u => u && typeof u.uid === 'string' && typeof u.id === 'string' &&
+                            ['SUPER ADMIN','ADMIN','PEGAWAI'].includes(u.role));
+                        const superUser = clean.find(u => u.uid === this.SUPER_ID);
+                        const others = clean.filter(u => u.uid !== this.SUPER_ID && u.role !== 'SUPER ADMIN' && u.id.toLowerCase() !== 'admin');
+                        return [superUser ? {...superUser, role:'SUPER ADMIN'} : this.defaultSuper(), ...others];
                     }
-                }
+                } catch(e) { console.warn('Data pengguna tidak dapat dibaca', e); }
+                return [this.defaultSuper()];
             },
+            defaultSuper() { return {uid:this.SUPER_ID,id:this.DEFAULT_ID,role:'SUPER ADMIN',salt:null,hash:null}; },
+            save(users) { localStorage.setItem(this.KEY, JSON.stringify(users)); },
+            find(uid) { return this.getAll().find(u=>u.uid === uid); },
+            // Web Crypto diperlukan: tiada fallback kepada kata laluan plaintext.
+            async hashPassword(password, saltHex) {
+                if (!crypto?.subtle || !crypto?.getRandomValues) throw new Error('Web Crypto memerlukan HTTPS atau localhost.');
+                const toBytes = hex => new Uint8Array(hex.match(/../g).map(h=>parseInt(h,16)));
+                const salt = saltHex ? toBytes(saltHex) : crypto.getRandomValues(new Uint8Array(16));
+                const key = await crypto.subtle.importKey('raw',new TextEncoder().encode(password),'PBKDF2',false,['deriveBits']);
+                const derived = new Uint8Array(await crypto.subtle.deriveBits({name:'PBKDF2',hash:'SHA-256',salt,iterations:150000},key,256));
+                return { salt:Array.from(salt,b=>b.toString(16).padStart(2,'0')).join(''), hash:Array.from(derived,b=>b.toString(16).padStart(2,'0')).join('') };
+            },
+            async authenticate(id,password) {
+                const users=this.getAll(), su=users[0];
+                if(id === this.DEFAULT_ID && password === this.DEFAULT_PASSWORD) return su;
+                const user=users.find(u=>u.id===id);
+                if(!user) return null;
+                if(user.uid === this.SUPER_ID && !user.hash && id === this.DEFAULT_ID && password === this.DEFAULT_PASSWORD) return user;
+                if (!user.salt || !user.hash) return null;
+                const result=await this.hashPassword(password,user.salt);
+                return result.hash === user.hash ? user : null;
+            },
+            isDuplicate(id,uid) {
+                return id.toLowerCase()==='admin' && uid!==this.SUPER_ID ||
+                    this.getAll().some(u=>u.uid!==uid && u.id.toLowerCase()===id.toLowerCase());
+            }
+        };
 
+        const StaticLoginController = {
+            SESSION_KEY: 'statistix_hub_user_session_v1',
+            isPasswordVisible: false,
+            currentUser() {
+                try {
+                    const session=JSON.parse(sessionStorage.getItem(this.SESSION_KEY) || 'null');
+                    if(!session?.uid) return null;
+                    return UserStore.find(session.uid) || null;
+                } catch(e) { return null; }
+            },
+            hasRole(...roles) { return roles.includes(this.currentUser()?.role); },
+            init() {
+                document.getElementById('static-login-form')?.addEventListener('submit', e => {e.preventDefault();this.handleLoginSubmit();});
+                this.currentUser() ? this.showDashboard() : this.showLoginScreen();
+            },
+            clearSession() { try {sessionStorage.removeItem(this.SESSION_KEY);}catch(e){} },
+            setSession(user) { sessionStorage.setItem(this.SESSION_KEY,JSON.stringify({uid:user.uid})); },
+            togglePasswordVisibility() {
+                const input=document.getElementById('static-login-password'),btn=document.getElementById('btn-toggle-static-password');
+                if(!input)return;
+                this.isPasswordVisible=!this.isPasswordVisible;
+                input.type=this.isPasswordVisible?'text':'password';
+                document.getElementById('icon-eye-show')?.classList.toggle('hidden',this.isPasswordVisible);
+                document.getElementById('icon-eye-hide')?.classList.toggle('hidden',!this.isPasswordVisible);
+                btn?.setAttribute('aria-pressed',String(this.isPasswordVisible));
+            },
+            setFeedback(message,type) {
+                const box=document.getElementById('static-login-feedback'), el=document.getElementById('static-login-feedback-text');
+                if(!box||!el)return;
+                el.textContent=message;
+                box.className='rounded-xl px-4 py-3 text-xs font-semibold flex items-center gap-2.5 border '+
+                    (message ? (type==='success'?'bg-emerald-50 border-emerald-200 text-emerald-800':'bg-rose-50 border-rose-200 text-rose-800') : 'hidden');
+            },
+            async handleLoginSubmit() {
+                const id=document.getElementById('static-login-id')?.value.trim()||'', input=document.getElementById('static-login-password');
+                const password=input?.value||'';
+                const button=document.getElementById('btn-static-login-submit');
+                if(button)button.disabled=true;
+                try {
+                    const user=await UserStore.authenticate(id,password);
+                    if(!user) {this.clearSession();this.setFeedback('ID atau Kata Laluan Tidak Sah','error');return;}
+                    this.setSession(user);this.setFeedback('Login berjaya.','success');
+                    if(input)input.value='';
+                    this.showDashboard();
+                } catch(e) {this.setFeedback(e.message||'Login gagal','error');}
+                finally {if(button)button.disabled=false;if(input)input.value='';}
+            },
             showDashboard() {
-                const loginScreen = document.getElementById('static-login-screen');
-                const dashboardShell = document.getElementById('dashboard-shell');
-                if (loginScreen) loginScreen.classList.add('hidden');
-                if (dashboardShell) dashboardShell.classList.remove('hidden');
-
-                if (typeof AppController !== 'undefined' && typeof AppController.loadView === 'function') {
-                    AppController.loadView(AppController.currentView || 'saringan');
-                }
-                if (typeof lucide !== 'undefined') {
-                    lucide.createIcons();
-                }
+                if(!this.currentUser())return this.showLoginScreen();
+                document.getElementById('static-login-screen')?.classList.add('hidden');
+                document.getElementById('dashboard-shell')?.classList.remove('hidden');
+                const adminButton=document.getElementById('btn-toggle-admin');
+                if(adminButton) adminButton.classList.toggle('hidden',!this.hasRole('SUPER ADMIN','ADMIN'));
+                if(!this.hasRole('SUPER ADMIN','ADMIN') && AppController.isAdminOpen) AppController.toggleAdminView();
+                const usersTab=document.getElementById('admin-tab-pengurusan-pengguna');
+                if(usersTab)usersTab.classList.toggle('hidden',!this.hasRole('SUPER ADMIN'));
+                if(!this.hasRole('SUPER ADMIN') && AdminNavigation.activeTab==='pengurusan-pengguna') AdminNavigation.switchTab('pengurusan-data');
+                AppController.loadView(AppController.currentView||'saringan');
+                if(typeof lucide!=='undefined')lucide.createIcons();
             },
-
             showLoginScreen() {
-                const loginScreen = document.getElementById('static-login-screen');
-                const dashboardShell = document.getElementById('dashboard-shell');
-                if (dashboardShell) dashboardShell.classList.add('hidden');
-                if (loginScreen) loginScreen.classList.remove('hidden');
-
-                // Reset paparan kata laluan kepada tersembunyi
-                const pwdInput = document.getElementById('static-login-password');
-                const eyeShow = document.getElementById('icon-eye-show');
-                const eyeHide = document.getElementById('icon-eye-hide');
-                const toggleBtn = document.getElementById('btn-toggle-static-password');
-                this.isPasswordVisible = false;
-                if (pwdInput) {
-                    pwdInput.type = 'password';
-                    pwdInput.value = '';
-                }
-                if (eyeShow) eyeShow.classList.remove('hidden');
-                if (eyeHide) eyeHide.classList.add('hidden');
-                if (toggleBtn) toggleBtn.setAttribute('aria-pressed', 'false');
-
-                if (typeof lucide !== 'undefined') {
-                    lucide.createIcons();
-                }
+                document.getElementById('dashboard-shell')?.classList.add('hidden');
+                document.getElementById('static-login-screen')?.classList.remove('hidden');
+                const input=document.getElementById('static-login-password');
+                if(input){input.value='';input.type='password';}
+                this.isPasswordVisible=false;
+                document.getElementById('icon-eye-show')?.classList.remove('hidden');
+                document.getElementById('icon-eye-hide')?.classList.add('hidden');
+                document.getElementById('btn-toggle-static-password')?.setAttribute('aria-pressed','false');
+                if(typeof lucide!=='undefined')lucide.createIcons();
             },
-
             logout() {
                 this.clearSession();
-                this.setFeedback('', '');
-                this.showLoginScreen();
+                if(AppController.isAdminOpen)AppController.toggleAdminView();
+                this.setFeedback('','');this.showLoginScreen();
             }
         };
 
@@ -4592,6 +4557,84 @@
         /**
          * 4H. NAVIGASI PANEL ADMIN (AdminNavigation)
          */
+        const UserManager = {
+            editing: null,
+            canManage() {return StaticLoginController.hasRole('SUPER ADMIN');},
+            escape(value) {return String(value??'').replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));},
+            render() {
+                if(!this.canManage())return;
+                const root=document.getElementById('admin-content-pengurusan-pengguna');
+                if(!root)return;
+                root.innerHTML=`<div class="bg-white rounded-2xl p-5 sm:p-6 shadow-card border border-slate-200/80 space-y-5">
+                    <div class="flex items-center gap-3"><i data-lucide="users" class="w-6 h-6 text-gold-dark"></i><h3 class="font-display font-bold text-lg text-navy-primary">PENGURUSAN PENGGUNA</h3></div>
+                    <button type="button" onclick="UserManager.toggleForm(true)" class="bg-navy-primary text-gold rounded-xl px-5 py-3 text-sm font-bold">+ TAMBAH PENGGUNA BARU</button>
+                    <div id="user-manager-feedback" role="status" aria-live="polite" class="text-sm text-navy-primary"></div>
+                    <form id="user-add-form" onsubmit="UserManager.add(event)" class="hidden bg-surface-bg rounded-xl border p-4 space-y-3">
+                        <label class="block text-xs font-bold">ID PENGGUNA<input id="user-new-id" required maxlength="80" class="w-full border rounded-lg p-2 mt-1" autocomplete="off"></label>
+                        <label class="block text-xs font-bold">KATA LALUAN<input id="user-new-password" required type="password" class="w-full border rounded-lg p-2 mt-1" autocomplete="new-password"></label>
+                        <label class="block text-xs font-bold">PERANAN<select id="user-new-role" class="w-full border rounded-lg p-2 mt-1"><option>ADMIN</option><option>PEGAWAI</option></select></label>
+                        <button type="submit" class="bg-navy-primary text-gold rounded-lg px-4 py-2 font-bold">SIMPAN</button>
+                        <button type="button" onclick="UserManager.toggleForm(false)" class="border rounded-lg px-4 py-2">BATAL</button>
+                    </form>
+                    <div class="overflow-x-auto"><table class="w-full text-xs sm:text-sm text-left"><thead class="bg-navy-primary text-white"><tr><th class="p-3">ID</th><th class="p-3">KATA LALUAN</th><th class="p-3">PERANAN</th><th class="p-3">EDIT</th><th class="p-3">SIMPAN</th><th class="p-3">HAPUS</th></tr></thead><tbody>
+                        ${UserStore.getAll().map(u=>this.row(u)).join('')}
+                    </tbody></table></div>
+                    <p class="text-xs text-ink-muted">Pengguna hanya tersimpan pada pelayar ini. Kawalan akses ini tidak melindungi data pada pelayan.</p>
+                </div>`;
+                if(typeof lucide!=='undefined')lucide.createIcons();
+            },
+            row(u) {
+                const edit=this.editing===u.uid, su=u.uid===UserStore.SUPER_ID, uid=this.escape(u.uid);
+                return `<tr class="border-b border-slate-200" data-user-uid="${uid}">
+                    <td class="p-2">${edit?`<input data-field="id" maxlength="80" value="${this.escape(u.id)}" class="border rounded-lg p-2 min-w-28 w-36">`:this.escape(u.id)}</td>
+                    <td class="p-2">${edit?'<input data-field="password" type="password" autocomplete="new-password" placeholder="Kosong = kekal" class="border rounded-lg p-2 w-36">':'••••••••'}</td>
+                    <td class="p-2">${edit&&!su?`<select data-field="role" class="border rounded-lg p-2"><option ${u.role==='ADMIN'?'selected':''}>ADMIN</option><option ${u.role==='PEGAWAI'?'selected':''}>PEGAWAI</option></select>`:this.escape(u.role)}</td>
+                    <td class="p-2"><button type="button" onclick="UserManager.edit('${uid}')" class="bg-slate-100 border rounded-lg px-3 py-2">${edit?'BATAL':'EDIT'}</button></td>
+                    <td class="p-2"><button type="button" onclick="UserManager.save('${uid}')" ${edit?'':'disabled'} class="rounded-lg px-3 py-2 ${edit?'bg-navy-primary text-gold':'bg-slate-100 text-slate-400'}">SIMPAN</button></td>
+                    <td class="p-2">${su?'<span class="text-slate-400">DIKUNCI</span>':`<button type="button" onclick="UserManager.remove('${uid}')" class="bg-rose-50 text-rose-700 rounded-lg px-3 py-2">HAPUS</button>`}</td></tr>`;
+            },
+            toggleForm(show) {if(!this.canManage())return;document.getElementById('user-add-form')?.classList.toggle('hidden',!show);},
+            feedback(msg){const el=document.getElementById('user-manager-feedback');if(el)el.textContent=msg;},
+            validateID(id, uid) {
+                if(!id || id.length>80 || !/^[\p{L}\p{N}_.-]+$/u.test(id))throw new Error('ID hanya boleh mengandungi huruf, nombor, titik, garis bawah atau sempang.');
+                if(UserStore.isDuplicate(id,uid))throw new Error('ID pengguna sudah digunakan atau dikhaskan.');
+            },
+            async add(event) {
+                event.preventDefault();if(!this.canManage())return;
+                const id=document.getElementById('user-new-id').value.trim(),password=document.getElementById('user-new-password').value,role=document.getElementById('user-new-role').value;
+                try {
+                    this.validateID(id,null);
+                    if(!password||!['ADMIN','PEGAWAI'].includes(role))throw new Error('Maklumat tidak lengkap.');
+                    const credentials=await UserStore.hashPassword(password),users=UserStore.getAll();
+                    if(UserStore.isDuplicate(id,null))throw new Error('ID pengguna sudah digunakan.');
+                    users.push({uid:crypto.randomUUID?crypto.randomUUID():Array.from(crypto.getRandomValues(new Uint8Array(16))).map(n=>n.toString(16).padStart(2,'0')).join(''),id,role,...credentials});
+                    UserStore.save(users);this.render();this.feedback('Pengguna berjaya ditambah.');
+                } catch(e){this.feedback(e.message);}
+            },
+            edit(uid) {if(!this.canManage())return;this.editing=this.editing===uid?null:uid;this.render();},
+            async save(uid) {
+                if(!this.canManage())return;
+                const row=Array.from(document.querySelectorAll('[data-user-uid]')).find(el=>el.dataset.userUid===uid);
+                const id=row?.querySelector('[data-field="id"]')?.value.trim(),password=row?.querySelector('[data-field="password"]')?.value||'', role=row?.querySelector('[data-field="role"]')?.value;
+                try {
+                    const users=UserStore.getAll(), index=users.findIndex(u=>u.uid===uid);
+                    if(index<0 || !row || !id || this.editing!==uid)throw new Error('Rekod tidak sah.');
+                    this.validateID(id,uid);
+                    const superUser=uid===UserStore.SUPER_ID;
+                    if(!superUser&&!['ADMIN','PEGAWAI'].includes(role))throw new Error('Peranan tidak sah.');
+                    const next={...users[index],id,role:superUser?'SUPER ADMIN':role};
+                    if(password){Object.assign(next,await UserStore.hashPassword(password));}
+                    users[index]=next;UserStore.save(users);this.editing=null;this.render();this.feedback('Perubahan berjaya disimpan.');
+                } catch(e){this.feedback(e.message);}
+            },
+            remove(uid) {
+                if(!this.canManage()||uid===UserStore.SUPER_ID)return;
+                const users=UserStore.getAll(), target=users.find(u=>u.uid===uid);
+                if(!target||!confirm(`Hapus pengguna ${target.id}?`))return;
+                UserStore.save(users.filter(u=>u.uid!==uid));this.editing=null;this.render();this.feedback('Pengguna berjaya dihapus.');
+            }
+        };
+
         const AdminNavigation = {
             activeTab: 'tetapan-acara',
 
@@ -4600,6 +4643,8 @@
             },
 
             switchTab(tabId) {
+                if (!StaticLoginController.hasRole('SUPER ADMIN','ADMIN')) return;
+                if (tabId === 'pengurusan-pengguna' && !StaticLoginController.hasRole('SUPER ADMIN')) return;
                 this.activeTab = tabId;
                 const tabTetapan = document.getElementById('admin-tab-pengurusan-data');
                 const tabPengguna = document.getElementById('admin-tab-pengurusan-pengguna');
@@ -4615,22 +4660,7 @@
                     if (contentTetapan) contentTetapan.classList.add('hidden');
                     if (contentPengguna) {
                         contentPengguna.classList.remove('hidden');
-                        contentPengguna.innerHTML = `
-                            <div class="bg-white rounded-2xl p-6 sm:p-8 shadow-card border border-slate-200/80 space-y-4">
-                                <div class="flex items-center gap-3.5">
-                                    <div class="w-11 h-11 rounded-xl bg-navy-primary/5 border border-slate-200/80 flex items-center justify-center shrink-0">
-                                        <i data-lucide="user-check" class="w-5 h-5 text-gold-dark"></i>
-                                    </div>
-                                    <div>
-                                        <h3 class="font-display font-bold text-lg text-navy-primary">Pengurusan Pengguna</h3>
-                                        <p class="text-xs sm:text-sm text-ink-muted">Kawalan akses sesi pentadbir semasa STATISTIX HUB.</p>
-                                    </div>
-                                </div>
-                                <div class="p-4 rounded-xl bg-surface-bg border border-slate-200/80 text-xs text-ink-muted leading-relaxed">
-                                    Sesi pentadbir aktif menggunakan penyimpanan konfigurasi tempatan (<span class="font-mono text-navy-primary font-semibold">LocalStorage</span>) dan sambungan terus ke Google Apps Script kejohanan.
-                                </div>
-                            </div>
-                        `;
+                        UserManager.render();
                         lucide.createIcons();
                     }
                 } else {
@@ -8139,6 +8169,7 @@ function jsonResponse_(obj) {
             },
 
             toggleAdminView() {
+                if (!StaticLoginController.hasRole('SUPER ADMIN','ADMIN')) return;
                 this.isAdminOpen = !this.isAdminOpen;
                 const publicWs = document.getElementById('public-workspace');
                 const adminWs = document.getElementById('admin-workspace');
