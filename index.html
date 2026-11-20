@@ -2501,7 +2501,7 @@
                 const rowNum = Number(sheetRow);
                 if (gender === 'lelaki') {
                     if (heat === 'saringan1') {
-                        return rowNum >= 5 && rowNum <= 12 && field === 'kedudukan';
+                        return rowNum >= 5 && rowNum <= 12 && (field === 'kedudukan' || field === 'masa');
                     }
                     if (heat === 'saringan2') {
                         return rowNum >= 18 && rowNum <= 25 && (field === 'kedudukan' || field === 'masa');
@@ -2970,7 +2970,7 @@
             isEditableCell(gender, sheetRow, field) {
                 const rowNum = Number(sheetRow);
                 if (gender === 'lelaki') {
-                    return rowNum >= 6 && rowNum <= 13 && field === 'kedudukan';
+                    return rowNum >= 6 && rowNum <= 13 && (field === 'kedudukan' || field === 'masa');
                 }
                 if (gender === 'perempuan') {
                     return rowNum >= 20 && rowNum <= 27 && (field === 'kedudukan' || field === 'masa');
@@ -3023,7 +3023,7 @@
                 }
 
                 if (!this.isEditableCell(gender, sheetRow, field)) {
-                    UIComponents.showToast('Sel ini dikunci (read-only). Hanya F6:F13 (Lelaki) dan F20:G27 (Perempuan) dibenarkan.', 'warning');
+                    UIComponents.showToast('Sel ini dikunci (read-only). Hanya F6:G13 (Lelaki) dan F20:G27 (Perempuan) dibenarkan.', 'warning');
                     return;
                 }
 
@@ -4703,7 +4703,7 @@
  * - Perempuan Saringan 1: I5:O12 (8 baris)
  * - Perempuan Saringan 2: I18:O25 (8 baris)
  * Julat Suntingan (doPost + LockService):
- * - Lelaki Saringan 1   : F5:F12 (kedudukan sahaja)
+ * - Lelaki Saringan 1   : F5:G12 (kedudukan & masa)
  * - Lelaki Saringan 2   : F18:G25 (kedudukan & masa)
  * - Perempuan Saringan 1: N5:O12 (kedudukan & masa)
  * - Perempuan Saringan 2: N18:O25 (kedudukan & masa)
@@ -4817,8 +4817,8 @@ function doPost(e) {
   }
 
   if (gender === 'lelaki' && heat === 'saringan1') {
-    if (field !== 'kedudukan') {
-      return jsonResponse_({ success: false, message: 'Lelaki Saringan 1 hanya membenarkan suntingan Kedudukan (F5:F12).' });
+    if (field !== 'kedudukan' && field !== 'masa') {
+      return jsonResponse_({ success: false, message: 'Lelaki Saringan 1 hanya membenarkan suntingan Kedudukan dan Masa (F5:G12).' });
     }
   } else {
     if (field !== 'kedudukan' && field !== 'masa') {
@@ -4842,17 +4842,24 @@ function doPost(e) {
       return jsonResponse_({ success: false, message: 'Helaian tidak ditemui.' });
     }
 
-    // Sahkan identiti baris melalui No Bib (Lelaki: E=5, Perempuan: M=13)
+    // Sahkan identiti peserta menggunakan No Bib (Lelaki: E=5, Perempuan: M=13)
     const bibCol = gender === 'lelaki' ? 5 : 13;
     const currentBib = String(sheet.getRange(sheetRow, bibCol).getDisplayValue() || '').trim();
     if (noBib && currentBib && noBib !== currentBib) {
       return jsonResponse_({ success: false, message: 'Konflik rekod: No Bib pada baris Google Sheets tidak sepadan.' });
     }
 
-    const baseCol = gender === 'lelaki' ? 6 : 14; // F/G (6,7) atau N/O (14,15)
-    const targetCol = field === 'kedudukan' ? baseCol : baseCol + 1;
-    const targetRange = sheet.getRange(sheetRow, targetCol);
+    // Pemetaan kolum:
+    // Lelaki: Kedudukan -> F (6), Masa -> G (7)
+    // Perempuan: Kedudukan -> N (14), Masa -> O (15)
+    var targetCol;
+    if (gender === 'lelaki') {
+      targetCol = field === 'kedudukan' ? 6 : 7;
+    } else {
+      targetCol = field === 'kedudukan' ? 14 : 15;
+    }
 
+    const targetRange = sheet.getRange(sheetRow, targetCol);
     if (targetRange.getFormula()) {
       return jsonResponse_({ success: false, message: 'Sel sasaran mengandungi formula dan dilindungi daripada suntingan terus.' });
     }
@@ -4918,10 +4925,6 @@ function jsonResponse_(obj) {
                 }
             },
 
-            syncLiveIndicators() {
-                GlobalLiveStatusController.updateIndicator();
-            },
-
             updateModeBadge(isLocked) {
                 const badge = document.getElementById('saringan-url-mode-badge');
                 if (!badge) return;
@@ -4958,14 +4961,12 @@ function jsonResponse_(obj) {
                 const codeDisplay = document.getElementById('saringan-gas-code-display');
                 if (codeDisplay) codeDisplay.textContent = this.GAS_SOURCE_CODE;
                 const modal = document.getElementById('modal-saringan-gas-code');
-                if (modal) modal.classList.add('flex');
                 if (modal) modal.classList.remove('hidden');
             },
 
             closeGasModal() {
                 const modal = document.getElementById('modal-saringan-gas-code');
                 if (modal) modal.classList.add('hidden');
-                if (modal) modal.classList.remove('flex');
             },
 
             async copyGasCode() {
@@ -5076,7 +5077,7 @@ function jsonResponse_(obj) {
                         : 'Sambungan URL GAS telah diputuskan. Rekod import sedia ada masih dikekalkan.';
                 }
 
-                this.syncLiveIndicators();
+                GlobalLiveStatusController.updateIndicator();
                 if (!AppController.isAdminOpen && AppController.currentView === 'saringan') {
                     AppController.loadView('saringan');
                 }
@@ -5192,35 +5193,6 @@ function jsonResponse_(obj) {
                 }
             },
 
-            hasEventResultsChanged(prevEv, nextEv) {
-                if (!prevEv) return false;
-                const serializeHeat = (rows) => (Array.isArray(rows) ? rows : []).map(r => [
-                    String(r.sheetRow || ''),
-                    String(r.lorong || '').trim(),
-                    String(r.namaAtlet || '').trim(),
-                    String(r.pasukan || '').trim().toUpperCase(),
-                    String(r.noBib || '').trim().toUpperCase(),
-                    String(r.kedudukan || '').trim(),
-                    String(r.masa || '').trim()
-                ].join('|')).join(';;');
-
-                const prevSig = [
-                    serializeHeat(prevEv.lelaki && prevEv.lelaki.saringan1),
-                    serializeHeat(prevEv.lelaki && prevEv.lelaki.saringan2),
-                    serializeHeat(prevEv.perempuan && prevEv.perempuan.saringan1),
-                    serializeHeat(prevEv.perempuan && prevEv.perempuan.saringan2)
-                ].join('###');
-
-                const nextSig = [
-                    serializeHeat(nextEv.lelaki && nextEv.lelaki.saringan1),
-                    serializeHeat(nextEv.lelaki && nextEv.lelaki.saringan2),
-                    serializeHeat(nextEv.perempuan && nextEv.perempuan.saringan1),
-                    serializeHeat(nextEv.perempuan && nextEv.perempuan.saringan2)
-                ].join('###');
-
-                return prevSig !== nextSig;
-            },
-
             async saveAndImportData() {
                 const inputEl = document.getElementById('gas-url-saringan');
                 const url = inputEl ? inputEl.value.trim() : '';
@@ -5249,12 +5221,10 @@ function jsonResponse_(obj) {
                     const prevConfigSnapshot = StorageManager.getTournamentConfig();
                     const prevStoreSnapshot = JSON.parse(JSON.stringify(existingStore));
 
-                    // Mulakan dengan salinan tab sedia ada bagi melindungi data lama jika respons GAS separa
                     const nextEvents = JSON.parse(JSON.stringify((existingStore && existingStore.events) || {}));
                     const reportedMissing = Array.isArray(data.missingTabs) ? data.missingTabs.map(t => String(t).trim()) : [];
                     const missingOrFailedTabs = [];
-                    const invalidatedVerifiedTabs = [];
-                    let importedTabCount = 0;
+                    let tabCount = 0;
 
                     SaringanModule.ALLOWED_EVENT_NOS.forEach(no => {
                         const incoming = data.events[no];
@@ -5262,12 +5232,12 @@ function jsonResponse_(obj) {
                             missingOrFailedTabs.push(no);
                             return;
                         }
-                        importedTabCount++;
+                        tabCount++;
                         const prev = existingStore.events && existingStore.events[no];
-                        const candidateEvent = {
+                        nextEvents[no] = {
                             eventNo: no,
-                            status: 'BELUM_SELESAI',
-                            verifiedAt: null,
+                            status: prev && prev.status === 'DISAHKAN_RASMI' ? 'DISAHKAN_RASMI' : 'BELUM_SELESAI',
+                            verifiedAt: prev && prev.status === 'DISAHKAN_RASMI' ? (prev.verifiedAt || null) : null,
                             updatedAt: new Date().toISOString(),
                             lelaki: {
                                 saringan1: Array.isArray(incoming.lelaki && incoming.lelaki.saringan1) ? incoming.lelaki.saringan1 : [],
@@ -5278,23 +5248,9 @@ function jsonResponse_(obj) {
                                 saringan2: Array.isArray(incoming.perempuan && incoming.perempuan.saringan2) ? incoming.perempuan.saringan2 : []
                             }
                         };
-
-                        if (prev && prev.status === 'DISAHKAN_RASMI') {
-                            if (this.hasEventResultsChanged(prev, candidateEvent)) {
-                                candidateEvent.status = 'BELUM_SELESAI';
-                                candidateEvent.verifiedAt = null;
-                                candidateEvent.requiresReverification = true;
-                                invalidatedVerifiedTabs.push(no);
-                            } else {
-                                candidateEvent.status = 'DISAHKAN_RASMI';
-                                candidateEvent.verifiedAt = prev.verifiedAt || null;
-                            }
-                        }
-
-                        nextEvents[no] = candidateEvent;
                     });
 
-                    if (importedTabCount === 0) {
+                    if (tabCount === 0) {
                         throw new Error('Tiada rekod tab acara sah ditemui dalam respons GAS.');
                     }
 
@@ -5310,10 +5266,9 @@ function jsonResponse_(obj) {
                     });
                     if (!cfgSaved) {
                         StorageManager.saveSaringanStore(prevStoreSnapshot);
-                        throw new Error('Gagal menyimpan URL konfigurasi. Data acara dipulihkan kepada keadaan terdahulu.');
+                        throw new Error('Gagal menyimpan konfigurasi URL Acara Saringan. Data terdahulu dipulihkan.');
                     }
 
-                    // Semak bacaan semula selepas simpan
                     const verifyStore = StorageManager.getSaringanStore();
                     const verifyCfg = StorageManager.getTournamentConfig();
                     if (!verifyStore || !verifyStore.events || String(verifyCfg.saringanAppsScriptUrl || '').trim() !== url) {
@@ -5324,9 +5279,8 @@ function jsonResponse_(obj) {
 
                     StorageManager.appendSaringanAuditLog({
                         action: missingOrFailedTabs.length > 0 ? 'IMPORT_SEPARA_DATA_GAS' : 'IMPORT_DATA_GAS',
-                        tabsImported: importedTabCount,
-                        preservedMissingTabs: missingOrFailedTabs,
-                        invalidatedVerifiedTabs
+                        tabsImported: tabCount,
+                        preservedMissingTabs: missingOrFailedTabs
                     });
 
                     if (inputEl) inputEl.disabled = true;
@@ -5342,18 +5296,18 @@ function jsonResponse_(obj) {
                     if (tabsEl) tabsEl.textContent = `${totalStoredTabs} / 9 Tab`;
                     if (detailEl) {
                         detailEl.textContent = missingOrFailedTabs.length > 0
-                            ? `Import separa: ${importedTabCount} tab dikemas kini; tab tiada/gagal (${missingOrFailedTabs.join(', ')}) mengekalkan data sedia ada.`
-                            : `Semua ${importedTabCount} / 9 tab Acara Saringan berjaya diimport dan disahkan.`;
+                            ? `Import separa: ${tabCount} tab dikemas kini; tab tiada/gagal (${missingOrFailedTabs.join(', ')}) mengekalkan data sedia ada.`
+                            : `Data keputusan sebenar berjaya diimport daripada ${tabCount} / 9 tab Google Sheets ATHLETIX.`;
                     }
 
-                    this.syncLiveIndicators();
-                    if (invalidatedVerifiedTabs.length > 0) {
-                        UIComponents.showToast(`Perhatian: Status DISAHKAN RASMI dibatalkan pada tab ${invalidatedVerifiedTabs.join(', ')} kerana keputusan berubah.`, 'warning');
+                    GlobalLiveStatusController.updateIndicator();
+                    if (!AppController.isAdminOpen && AppController.currentView === 'saringan') {
+                        AppController.loadView('saringan');
                     }
                     UIComponents.showToast(
                         missingOrFailedTabs.length > 0
-                            ? `Import separa berjaya (${importedTabCount}/9 tab dikemas kini; data lama tab lain dikekalkan).`
-                            : `Berjaya menyimpan & mengimport ${importedTabCount} tab Acara Saringan.`,
+                            ? `Import separa berjaya (${tabCount}/9 tab dikemas kini; data lama tab lain dikekalkan).`
+                            : `Berjaya menyimpan & mengimport ${tabCount} tab Acara Saringan.`,
                         missingOrFailedTabs.length > 0 ? 'warning' : 'success'
                     );
                 } catch (err) {
@@ -5377,7 +5331,7 @@ function jsonResponse_(obj) {
  * - Lelaki   : A6:G13 (8 baris)
  * - Perempuan: A20:G27 (8 baris)
  * Julat Suntingan (doPost + LockService):
- * - Lelaki   : F6:F13 (kedudukan sahaja)
+ * - Lelaki   : F6:G13 (kedudukan & masa)
  * - Perempuan: F20:G27 (kedudukan & masa)
  */
 const ALLOWED_TABS = ['101', '102', '103', '104', '105', '106', '204', '205', '300'];
@@ -5398,8 +5352,8 @@ function doGet(e) {
       foundTabs.push(tabName);
       events[tabName] = {
         eventNo: tabName,
-        lelaki: readAkhirRows_(sheet, 6, 13),
-        perempuan: readAkhirRows_(sheet, 20, 27)
+        lelaki: readFinalRows_(sheet, 6, 13),
+        perempuan: readFinalRows_(sheet, 20, 27)
       };
     });
 
@@ -5424,14 +5378,14 @@ function doGet(e) {
   }
 }
 
-function readAkhirRows_(sheet, startRow, endRow) {
+function readFinalRows_(sheet, startRow, endRow) {
   const numRows = endRow - startRow + 1;
   const values = sheet.getRange(startRow, 1, numRows, 7).getDisplayValues();
   const rows = [];
   for (var i = 0; i < values.length; i++) {
     var r = values[i];
     var lorong = String(r[0] || '').trim();
-    var namaAtlet = String(r[1] || '').trim(); // Sel anchor B (merged B:C)
+    var namaAtlet = String(r[1] || '').trim();
     var pasukan = String(r[3] || '').trim();
     var noBib = String(r[4] || '').trim();
     var kedudukan = String(r[5] || '').trim();
@@ -5473,12 +5427,12 @@ function doPost(e) {
   }
 
   if (gender === 'lelaki') {
-    if (sheetRow < 6 || sheetRow > 13 || field !== 'kedudukan') {
-      return jsonResponse_({ success: false, message: 'Kategori Lelaki hanya membenarkan suntingan Kedudukan pada julat F6:F13.' });
+    if (sheetRow < 6 || sheetRow > 13 || (field !== 'kedudukan' && field !== 'masa')) {
+      return jsonResponse_({ success: false, message: 'Kategori Lelaki hanya membenarkan suntingan Kedudukan dan Masa pada julat F6:G13.' });
     }
   } else {
     if (sheetRow < 20 || sheetRow > 27 || (field !== 'kedudukan' && field !== 'masa')) {
-      return jsonResponse_({ success: false, message: 'Kategori Perempuan hanya membenarkan suntingan pada julat F20:G27.' });
+      return jsonResponse_({ success: false, message: 'Kategori Perempuan hanya membenarkan suntingan Kedudukan dan Masa pada julat F20:G27.' });
     }
   }
 
@@ -5498,15 +5452,13 @@ function doPost(e) {
       return jsonResponse_({ success: false, message: 'Helaian tidak ditemui.' });
     }
 
-    // Sahkan identiti baris menggunakan No Bib (Kolum E = 5)
     const currentBib = String(sheet.getRange(sheetRow, 5).getDisplayValue() || '').trim();
     if (noBib && currentBib && noBib !== currentBib) {
       return jsonResponse_({ success: false, message: 'Konflik rekod: No Bib pada baris Google Sheets tidak sepadan.' });
     }
 
-    const targetCol = field === 'kedudukan' ? 6 : 7; // F=6, G=7
+    const targetCol = field === 'kedudukan' ? 6 : 7;
     const targetRange = sheet.getRange(sheetRow, targetCol);
-
     if (targetRange.getFormula()) {
       return jsonResponse_({ success: false, message: 'Sel sasaran mengandungi formula dan dilindungi daripada suntingan terus.' });
     }
@@ -5608,14 +5560,12 @@ function jsonResponse_(obj) {
                 const codeDisplay = document.getElementById('akhir-balapan-gas-code-display');
                 if (codeDisplay) codeDisplay.textContent = this.GAS_SOURCE_CODE;
                 const modal = document.getElementById('modal-akhir-balapan-gas-code');
-                if (modal) modal.classList.add('flex');
                 if (modal) modal.classList.remove('hidden');
             },
 
             closeGasModal() {
                 const modal = document.getElementById('modal-akhir-balapan-gas-code');
                 if (modal) modal.classList.add('hidden');
-                if (modal) modal.classList.remove('flex');
             },
 
             async copyGasCode() {
@@ -5738,98 +5688,6 @@ function jsonResponse_(obj) {
                 );
             },
 
-            hasEventResultsChanged(prevEv, nextEv) {
-                if (!prevEv) return false;
-                const serializeRows = (rows) => (Array.isArray(rows) ? rows : []).map(r => [
-                    String(r.sheetRow || ''),
-                    String(r.lorong || '').trim(),
-                    String(r.namaAtlet || '').trim(),
-                    String(r.pasukan || '').trim().toUpperCase(),
-                    String(r.noBib || '').trim().toUpperCase(),
-                    String(r.kedudukan || '').trim(),
-                    String(r.masa || '').trim()
-                ].join('|')).join(';;');
-
-                const prevSig = `${serializeRows(prevEv.lelaki)}###${serializeRows(prevEv.perempuan)}`;
-                const nextSig = `${serializeRows(nextEv.lelaki)}###${serializeRows(nextEv.perempuan)}`;
-                return prevSig !== nextSig;
-            },
-
-            importAndNormalizeData(rawEvents, existingStore, reportedMissingTabs = []) {
-                if (!rawEvents || typeof rawEvents !== 'object' || Array.isArray(rawEvents)) {
-                    return { nextEvents: {}, tabCount: 0, validStructureCount: 0, missingOrFailedTabs: [...AkhirBalapanModule.ALLOWED_EVENT_NOS], invalidatedVerifiedTabs: [] };
-                }
-
-                // Kekalkan data lama bagi tab yang tiada dalam respons separa
-                const nextEvents = JSON.parse(JSON.stringify((existingStore && existingStore.events) || {}));
-                const missingSet = new Set((Array.isArray(reportedMissingTabs) ? reportedMissingTabs : []).map(t => String(t).trim()));
-                const missingOrFailedTabs = [];
-                const invalidatedVerifiedTabs = [];
-                let tabCount = 0;
-                let validStructureCount = 0;
-
-                const normalizeRows = (rows, minRow, maxRow) => {
-                    if (!Array.isArray(rows)) return [];
-                    return rows
-                        .filter(r => r && typeof r === 'object')
-                        .filter(r => {
-                            const sr = Number(r.sheetRow);
-                            return Number.isNaN(sr) || (sr >= minRow && sr <= maxRow);
-                        })
-                        .map((r, idx) => ({
-                            sheetRow: Number.isFinite(Number(r.sheetRow)) ? Number(r.sheetRow) : (minRow + idx),
-                            lorong: String(r.lorong || '').trim(),
-                            namaAtlet: String(r.namaAtlet || '').trim(),
-                            pasukan: String(r.pasukan || '').trim(),
-                            noBib: String(r.noBib || '').trim(),
-                            kedudukan: String(r.kedudukan || '').trim(),
-                            masa: String(r.masa || '').trim()
-                        }));
-                };
-
-                AkhirBalapanModule.ALLOWED_EVENT_NOS.forEach(no => {
-                    const incoming = rawEvents[no];
-                    if (!incoming || typeof incoming !== 'object' || Array.isArray(incoming) || missingSet.has(no)) {
-                        missingOrFailedTabs.push(no);
-                        return;
-                    }
-
-                    const hasValidCategoryArrays = Array.isArray(incoming.lelaki) || Array.isArray(incoming.perempuan);
-                    if (!hasValidCategoryArrays) {
-                        missingOrFailedTabs.push(no);
-                        return;
-                    }
-
-                    validStructureCount++;
-                    tabCount++;
-                    const prev = existingStore && existingStore.events && existingStore.events[no];
-                    const candidateEvent = {
-                        eventNo: no,
-                        status: 'BELUM_SELESAI',
-                        verifiedAt: null,
-                        updatedAt: new Date().toISOString(),
-                        lelaki: normalizeRows(incoming.lelaki, 6, 13),
-                        perempuan: normalizeRows(incoming.perempuan, 20, 27)
-                    };
-
-                    if (prev && prev.status === 'DISAHKAN_RASMI') {
-                        if (this.hasEventResultsChanged(prev, candidateEvent)) {
-                            candidateEvent.status = 'BELUM_SELESAI';
-                            candidateEvent.verifiedAt = null;
-                            candidateEvent.requiresReverification = true;
-                            invalidatedVerifiedTabs.push(no);
-                        } else {
-                            candidateEvent.status = 'DISAHKAN_RASMI';
-                            candidateEvent.verifiedAt = prev.verifiedAt || null;
-                        }
-                    }
-
-                    nextEvents[no] = candidateEvent;
-                });
-
-                return { nextEvents, tabCount, validStructureCount, missingOrFailedTabs, invalidatedVerifiedTabs };
-            },
-
             validateGasTestResponse(data) {
                 if (!data || typeof data !== 'object' || Array.isArray(data)) {
                     return { ok: false, message: 'Ujian sambungan gagal: Struktur respons GAS tidak disokong.' };
@@ -5934,6 +5792,23 @@ function jsonResponse_(obj) {
                 }
             },
 
+            hasEventResultsChanged(prevEv, nextEv) {
+                if (!prevEv) return false;
+                const serializeRows = (rows) => (Array.isArray(rows) ? rows : []).map(r => [
+                    String(r.sheetRow || ''),
+                    String(r.lorong || '').trim(),
+                    String(r.namaAtlet || '').trim(),
+                    String(r.pasukan || '').trim().toUpperCase(),
+                    String(r.noBib || '').trim().toUpperCase(),
+                    String(r.kedudukan || '').trim(),
+                    String(r.masa || '').trim()
+                ].join('|')).join(';;');
+
+                const prevSig = `${serializeRows(prevEv.lelaki)}###${serializeRows(prevEv.perempuan)}`;
+                const nextSig = `${serializeRows(nextEv.lelaki)}###${serializeRows(nextEv.perempuan)}`;
+                return prevSig !== nextSig;
+            },
+
             async saveAndImportData() {
                 const inputEl = document.getElementById('gas-url-akhir-balapan');
                 const url = inputEl ? inputEl.value.trim() : '';
@@ -5948,48 +5823,11 @@ function jsonResponse_(obj) {
 
                 UIComponents.showLoading('Menyimpan data Akhir Balapan...');
                 try {
-                    let res;
-                    try {
-                        res = await fetch(url);
-                    } catch (netErr) {
-                        throw new Error('URL GAS tidak dapat diakses.');
-                    }
-                    if (!res.ok) {
-                        throw new Error(`Pelayan GAS mengembalikan ralat HTTP ${res.status}.`);
-                    }
-
-                    let data;
-                    try {
-                        data = await res.json();
-                    } catch (parseErr) {
-                        throw new Error('Respons daripada GAS bukan format JSON yang sah.');
-                    }
-
-                    if (!data || typeof data !== 'object' || Array.isArray(data)) {
-                        throw new Error('Struktur respons JSON daripada GAS tidak sah.');
-                    }
-                    if (data.success === false) {
-                        const rawMsg = typeof data.message === 'string' && data.message.trim()
-                            ? data.message.trim().slice(0, 140)
-                            : 'GAS melaporkan ralat semasa membaca data.';
-                        throw new Error(rawMsg);
-                    }
-                    if (data.success !== true) {
-                        throw new Error('Respons GAS tidak mengesahkan kejayaan operasi.');
-                    }
-
-                    const respModule = String(data.module || '').trim();
-                    if (!respModule || respModule !== this.EXPECTED_MODULE) {
-                        throw new Error('URL GAS tidak sepadan dengan modul Akhir Balapan.');
-                    }
-
-                    const hasEventsObj = data.events && typeof data.events === 'object' && !Array.isArray(data.events);
-                    if (!hasEventsObj) {
-                        if (Array.isArray(data.foundTabs)) {
-                            const detailEl = document.getElementById('akhir-balapan-status-detail');
-                            if (detailEl) {
-                                detailEl.textContent = 'Sambungan GAS berjaya, tetapi endpoint data keputusan belum tersedia. Sila kemas kini deployment GAS menggunakan KOD GOOGLE APP SCRIPT / GAS.';
-                            }
+                    const res = await fetch(url);
+                    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+                    const data = await res.json();
+                    if (!data || data.success !== true || String(data.module || '').trim() !== this.EXPECTED_MODULE || !data.events || typeof data.events !== 'object' || Array.isArray(data.events)) {
+                        if (data && Array.isArray(data.foundTabs)) {
                             throw new Error('Sambungan GAS berjaya, tetapi endpoint data keputusan belum tersedia.');
                         }
                         throw new Error('Endpoint GAS tidak memulangkan objek keputusan acara (events) yang sah untuk diimport.');
@@ -5999,10 +5837,46 @@ function jsonResponse_(obj) {
                     const prevConfigSnapshot = StorageManager.getTournamentConfig();
                     const prevStoreSnapshot = JSON.parse(JSON.stringify(existingStore));
 
-                    const { nextEvents, tabCount, validStructureCount, missingOrFailedTabs, invalidatedVerifiedTabs } =
-                        this.importAndNormalizeData(data.events, existingStore, data.missingTabs);
-                    if (tabCount === 0 || validStructureCount === 0) {
-                        throw new Error('Tiada struktur data acara Akhir Balapan (lelaki/perempuan) yang sah ditemui dalam objek events.');
+                    const nextEvents = JSON.parse(JSON.stringify((existingStore && existingStore.events) || {}));
+                    const reportedMissing = Array.isArray(data.missingTabs) ? data.missingTabs.map(t => String(t).trim()) : [];
+                    const missingOrFailedTabs = [];
+                    const invalidatedVerifiedTabs = [];
+                    let tabCount = 0;
+
+                    AkhirBalapanModule.ALLOWED_EVENT_NOS.forEach(no => {
+                        const incoming = data.events[no];
+                        if (!incoming || typeof incoming !== 'object' || Array.isArray(incoming) || reportedMissing.includes(no)) {
+                            missingOrFailedTabs.push(no);
+                            return;
+                        }
+                        tabCount++;
+                        const prev = existingStore.events && existingStore.events[no];
+                        const candidateEvent = {
+                            eventNo: no,
+                            status: 'BELUM_SELESAI',
+                            verifiedAt: null,
+                            updatedAt: new Date().toISOString(),
+                            lelaki: Array.isArray(incoming.lelaki) ? incoming.lelaki : [],
+                            perempuan: Array.isArray(incoming.perempuan) ? incoming.perempuan : []
+                        };
+
+                        if (prev && prev.status === 'DISAHKAN_RASMI') {
+                            if (this.hasEventResultsChanged(prev, candidateEvent)) {
+                                candidateEvent.status = 'BELUM_SELESAI';
+                                candidateEvent.verifiedAt = null;
+                                candidateEvent.requiresReverification = true;
+                                invalidatedVerifiedTabs.push(no);
+                            } else {
+                                candidateEvent.status = 'DISAHKAN_RASMI';
+                                candidateEvent.verifiedAt = prev.verifiedAt || null;
+                            }
+                        }
+
+                        nextEvents[no] = candidateEvent;
+                    });
+
+                    if (tabCount === 0) {
+                        throw new Error('Tiada rekod tab acara sah ditemui dalam respons GAS.');
                     }
 
                     const nowIso = new Date().toISOString();
@@ -6020,7 +5894,6 @@ function jsonResponse_(obj) {
                         throw new Error('Gagal menyimpan konfigurasi URL Akhir Balapan. Data terdahulu dipulihkan.');
                     }
 
-                    // Semak bacaan semula selepas simpan
                     const verifyStore = StorageManager.getAkhirBalapanStore();
                     const verifyCfg = StorageManager.getTournamentConfig();
                     if (!verifyStore || !verifyStore.events || String(verifyCfg.akhirBalapanAppsScriptUrl || '').trim() !== url) {
@@ -6141,11 +6014,11 @@ function jsonResponse_(obj) {
  * Sumber Data: Google Sheets ATHLETIX
  * Tab Dibenarkan: 411, 412, 413, 414, 415, 424, 425
  * Julat Bacaan:
- * - Lelaki   : A5:G8 (A=Lorong, B:C=Pasukan [anchor B], D:E=Masa [anchor D], F:G=Kedudukan [anchor F])
- * - Perempuan: I5:O8 (I=Lorong, J:K=Pasukan [anchor J], L:M=Masa [anchor L], N:O=Kedudukan [anchor N])
- * Julat Suntingan (doPost + LockService - menulis pada sel anchor sahaja):
- * - Lelaki   : Masa -> D5:D8 (kolum 4), Kedudukan -> F5:F8 (kolum 6)
- * - Perempuan: Masa -> L5:L8 (kolum 12), Kedudukan -> N5:N8 (kolum 14)
+ * - Lelaki   : A5:G8 (4 baris)
+ * - Perempuan: I5:O8 (4 baris)
+ * Julat Suntingan (doPost + LockService):
+ * - Lelaki   : D5:D8 (masa), F5:F8 (kedudukan)
+ * - Perempuan: L5:L8 (masa), N5:N8 (kedudukan)
  */
 const ALLOWED_TABS = ['411', '412', '413', '414', '415', '424', '425'];
 
@@ -6165,8 +6038,8 @@ function doGet(e) {
       foundTabs.push(tabName);
       events[tabName] = {
         eventNo: tabName,
-        lelaki: readRelayRows_(sheet, 5, 8, 1),    // A5:G8 (7 kolum)
-        perempuan: readRelayRows_(sheet, 5, 8, 9)  // I5:O8 (7 kolum)
+        lelaki: readRelayRows_(sheet, 5, 8, 1),
+        perempuan: readRelayRows_(sheet, 5, 8, 9)
       };
     });
 
@@ -6193,15 +6066,14 @@ function doGet(e) {
 
 function readRelayRows_(sheet, startRow, endRow, startCol) {
   const numRows = endRow - startRow + 1;
-  // Baca 7 kolum penuh (A:G atau I:O) bagi mengekalkan indeks sel anchor merged
   const values = sheet.getRange(startRow, startCol, numRows, 7).getDisplayValues();
   const rows = [];
   for (var i = 0; i < values.length; i++) {
     var r = values[i];
-    var lorong = String(r[0] || '').trim();     // A (1) atau I (9)
-    var pasukan = String(r[1] || '').trim();    // Anchor B (2) atau J (10) bagi merged B:C / J:K
-    var masa = String(r[3] || '').trim();       // Anchor D (4) atau L (12) bagi merged D:E / L:M
-    var kedudukan = String(r[5] || '').trim();  // Anchor F (6) atau N (14) bagi merged F:G / N:O
+    var lorong = String(r[0] || '').trim();
+    var pasukan = String(r[1] || '').trim();
+    var masa = String(r[3] || '').trim();
+    var kedudukan = String(r[5] || '').trim();
     if (!pasukan && !lorong) continue;
     rows.push({
       sheetRow: startRow + i,
@@ -6236,7 +6108,7 @@ function doPost(e) {
     return jsonResponse_({ success: false, message: 'Kategori tidak sah.' });
   }
   if (sheetRow < 5 || sheetRow > 8) {
-    return jsonResponse_({ success: false, message: 'Baris tidak dibenarkan untuk suntingan (hanya baris 5 hingga 8).' });
+    return jsonResponse_({ success: false, message: 'Julat baris tidak dibenarkan untuk suntingan.' });
   }
   if (field !== 'masa' && field !== 'kedudukan') {
     return jsonResponse_({ success: false, message: 'Medan tidak dibenarkan untuk suntingan.' });
@@ -6258,16 +6130,12 @@ function doPost(e) {
       return jsonResponse_({ success: false, message: 'Helaian tidak ditemui.' });
     }
 
-    // Sahkan identiti pasukan pada sel anchor (Lelaki: B=2, Perempuan: J=10)
     const teamCol = gender === 'lelaki' ? 2 : 10;
     const currentTeam = String(sheet.getRange(sheetRow, teamCol).getDisplayValue() || '').trim();
     if (pasukan && currentTeam && pasukan.toUpperCase() !== currentTeam.toUpperCase()) {
       return jsonResponse_({ success: false, message: 'Konflik rekod: Nama pasukan pada baris Google Sheets tidak sepadan.' });
     }
 
-    // Pemetaan sel anchor merged yang tepat:
-    // Lelaki: Masa -> D (4), Kedudukan -> F (6)
-    // Perempuan: Masa -> L (12), Kedudukan -> N (14)
     var targetCol;
     if (gender === 'lelaki') {
       targetCol = field === 'masa' ? 4 : 6;
@@ -6654,7 +6522,6 @@ function jsonResponse_(obj) {
                     const prevConfigSnapshot = StorageManager.getTournamentConfig();
                     const prevStoreSnapshot = JSON.parse(JSON.stringify(existingStore));
 
-                    // Kekalkan data lama bagi tab yang tiada dalam respons separa
                     const nextEvents = JSON.parse(JSON.stringify((existingStore && existingStore.events) || {}));
                     const reportedMissing = Array.isArray(data.missingTabs) ? data.missingTabs.map(t => String(t).trim()) : [];
                     const missingOrFailedTabs = [];
@@ -6712,7 +6579,6 @@ function jsonResponse_(obj) {
                         throw new Error('Gagal menyimpan konfigurasi URL Acara Relay. Data terdahulu dipulihkan.');
                     }
 
-                    // Semak bacaan semula selepas simpan
                     const verifyStore = StorageManager.getRelayStore();
                     const verifyCfg = StorageManager.getTournamentConfig();
                     if (!verifyStore || !verifyStore.events || String(verifyCfg.relayAppsScriptUrl || '').trim() !== url) {
@@ -6836,8 +6702,8 @@ function jsonResponse_(obj) {
  * - Lelaki   : A9:N16 (14 kolum; B:C merged = Nama Atlet, M:N merged = Kedudukan)
  * - Perempuan: A26:N33 (14 kolum; B:C merged = Nama Atlet, M:N merged = Kedudukan)
  * Julat Suntingan (doPost + LockService):
- * - Lelaki   : L9:L16 (Catatan Terbaik, kolum 12) & M9:M16 (Kedudukan anchor M:N, kolum 13)
- * - Perempuan: L26:L33 (Catatan Terbaik, kolum 12) & M26:M33 (Kedudukan anchor M:N, kolum 13)
+ * - Lelaki   : L9:L16 (catatanTerbaik), M9:M16 (kedudukan)
+ * - Perempuan: L26:L33 (catatanTerbaik), M26:M33 (kedudukan)
  */
 const ALLOWED_TABS = ['LONGJUMP', 'HIGHJUMP', 'SHOTPUT'];
 
@@ -8327,7 +8193,7 @@ function jsonResponse_(obj) {
                 if (this.isAdminOpen) {
                     if (publicWs) publicWs.classList.add('hidden');
                     if (adminWs) adminWs.classList.remove('hidden');
-                    if (adminLabel) adminLabel.textContent = 'Utama';
+                    if (adminLabel) adminLabel.textContent = 'Keluar';
                 } else {
                     if (adminWs) adminWs.classList.add('hidden');
                     if (publicWs) publicWs.classList.remove('hidden');
