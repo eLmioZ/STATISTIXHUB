@@ -617,6 +617,31 @@
         padding: 0.45rem 0.8rem;
     }
 }
+
+/* Nama Pegawai: sembunyikan sebelum sesi disahkan, walaupun kelas inline-flex digunakan. */
+#header-officer-name[hidden], #officer-welcome-modal.hidden { display: none !important; }
+
+/* LOGOUT ICON-ONLY: latar lutsinar, bucu 2px, saiz visual lebih kompak. */
+#btn-static-logout {
+    border-radius: 2px;
+    background-color: transparent;
+    box-shadow: none;
+    justify-content: center;
+    gap: 0;
+    min-width: 34px;
+    min-height: 34px;
+    padding: 4px 7px;
+    position: relative;
+}
+#btn-static-logout:hover {
+    background-color: transparent;
+}
+/* Kawasan interaksi 44x44px tanpa membesarkan butang visual. */
+#btn-static-logout::after {
+    content: "";
+    position: absolute;
+    inset: -5px;
+}
     </style>
 </head>
 <body class="min-h-screen flex flex-col font-sans antialiased selection:bg-gold/30 selection:text-navy-dark">
@@ -771,10 +796,16 @@
                         <span id="admin-btn-label" class="whitespace-nowrap">Admin</span>
                     </button>
 
+                    <!-- Identiti Nama Pegawai (paparan sahaja) -->
+                    <button id="header-officer-name" hidden type="button" disabled aria-label="Nama Pegawai" class="inline-flex items-center justify-center min-w-0 max-w-[100px] sm:max-w-[220px] md:max-w-[280px] rounded-full bg-white/10 text-white border border-white/20 px-2.5 sm:px-3 py-2 font-display font-semibold text-[10px] sm:text-xs cursor-default">
+                        <i data-lucide="user-round" aria-hidden="true" class="w-3.5 h-3.5 shrink-0 mr-1.5"></i>
+                        <span id="header-officer-name-text" class="block min-w-0 truncate"></span>
+                    </button>
+
                     <!-- Butang LOG KELUAR -->
-                    <button id="btn-static-logout" type="button" onclick="StaticLoginController.logout()" title="Log Keluar daripada Dashboard" class="bg-rose-600/90 hover:bg-rose-600 text-white border border-rose-400/30 transition-all cursor-pointer">
+                    <button id="btn-static-logout" type="button" onclick="StaticLoginController.logout()" title="Log Keluar daripada Dashboard" aria-label="Log Keluar" class="bg-rose-600/90 hover:bg-rose-600 text-white border border-rose-400/30 transition-all cursor-pointer">
                         <i data-lucide="log-out" class="w-3.5 h-3.5 sm:w-4 sm:h-4 shrink-0"></i>
-                        <span class="whitespace-nowrap">KELUAR</span>
+                        <span class="sr-only">KELUAR</span>
                     </button>
                 </div>
             </div>
@@ -1809,6 +1840,15 @@
     <!-- ===================================================================== -->
     <!-- TERAS SENI BINA JAVASCRIPT MODULAR STATISTIX HUB                      -->
     <!-- ===================================================================== -->
+    <!-- Popup ringkas untuk kejayaan login, bukan untuk pemulihan sesi. -->
+    <div id="officer-welcome-modal" role="dialog" aria-modal="true" aria-labelledby="officer-welcome-message" class="fixed inset-0 z-[100] hidden bg-navy-dark/70 p-4 flex items-center justify-center">
+        <div class="w-full max-w-sm bg-white rounded-2xl border border-slate-200 shadow-2xl p-6 text-center">
+            <i data-lucide="user-round-check" aria-hidden="true" class="mx-auto w-10 h-10 text-gold-dark mb-3"></i>
+            <h2 id="officer-welcome-message" class="font-display text-xl font-extrabold text-navy-primary break-words"></h2>
+            <button id="officer-welcome-close" type="button" onclick="StaticLoginController.closeWelcome()" class="mt-5 min-w-24 rounded-xl bg-navy-primary text-gold px-5 py-3 font-bold">OK</button>
+        </div>
+    </div>
+
     <script>
         /**
          * 0. PENGAWAL LOGIN STATIK (StaticLoginController)
@@ -1828,12 +1868,23 @@
                             ['SUPER ADMIN','ADMIN','PEGAWAI'].includes(u.role));
                         const superUser = clean.find(u => u.uid === this.SUPER_ID);
                         const others = clean.filter(u => u.uid !== this.SUPER_ID && u.role !== 'SUPER ADMIN' && u.id.toLowerCase() !== 'admin');
-                        return [superUser ? {...superUser, role:'SUPER ADMIN'} : this.defaultSuper(), ...others];
+                        return [superUser ? {...superUser, role:'SUPER ADMIN', namaPegawai:superUser.namaPegawai?.trim() || 'eL_mioZ'} : this.defaultSuper(), ...others];
                     }
                 } catch(e) { console.warn('Data pengguna tidak dapat dibaca', e); }
                 return [this.defaultSuper()];
             },
-            defaultSuper() { return {uid:this.SUPER_ID,id:this.DEFAULT_ID,role:'SUPER ADMIN',salt:null,hash:null}; },
+            defaultSuper() { return {uid:this.SUPER_ID,id:this.DEFAULT_ID,namaPegawai:'eL_mioZ',role:'SUPER ADMIN',salt:null,hash:null}; },
+            migrateDisplayNames() {
+                try {
+                    const saved = JSON.parse(localStorage.getItem(this.KEY) || 'null');
+                    if (!Array.isArray(saved)) return;
+                    const superUser = saved.find(u => u?.uid === this.SUPER_ID);
+                    if (superUser && (typeof superUser.namaPegawai !== 'string' || !superUser.namaPegawai.trim())) {
+                        superUser.namaPegawai = 'eL_mioZ';
+                        localStorage.setItem(this.KEY, JSON.stringify(saved));
+                    }
+                } catch(e) { console.warn('Migrasi Nama Pegawai gagal', e); }
+            },
             save(users) { localStorage.setItem(this.KEY, JSON.stringify(users)); },
             find(uid) { return this.getAll().find(u=>u.uid === uid); },
             // Web Crypto diperlukan: tiada fallback kepada kata laluan plaintext.
@@ -1874,9 +1925,10 @@
             hasRole(...roles) { return roles.includes(this.currentUser()?.role); },
             syncAdminButtonVisibility() {
                 const button = document.getElementById('btn-toggle-admin');
-                if (button) button.hidden = !this.hasRole('SUPER ADMIN', 'ADMIN');
+                if (button) button.hidden = true;
             },
             init() {
+                UserStore.migrateDisplayNames();
                 document.getElementById('static-login-form')?.addEventListener('submit', e => {e.preventDefault();this.handleLoginSubmit();});
                 this.currentUser() ? this.showDashboard() : this.showLoginScreen();
             },
@@ -1909,15 +1961,38 @@
                     this.setSession(user);this.setFeedback('Login berjaya.','success');
                     if(input)input.value='';
                     this.showDashboard();
+                    this.showWelcome(user);
                 } catch(e) {this.setFeedback(e.message||'Login gagal','error');}
                 finally {if(button)button.disabled=false;if(input)input.value='';}
             },
+            displayName(user) { return user?.namaPegawai?.trim() || user?.id || ''; },
+            syncOfficerName() {
+                const button=document.getElementById('header-officer-name');
+                const label=document.getElementById('header-officer-name-text');
+                const user=this.currentUser();
+                if (!button || !label) return;
+                const name=this.displayName(user);
+                button.hidden=!user;
+                label.textContent=name;
+                button.title=name;
+            },
+            showWelcome(user) {
+                const modal=document.getElementById('officer-welcome-modal');
+                const label=document.getElementById('officer-welcome-message');
+                if(!modal || !label || !this.currentUser())return;
+                label.textContent='Selamat Datang '+this.displayName(this.currentUser());
+                modal.classList.remove('hidden');
+                document.getElementById('officer-welcome-close')?.focus();
+            },
+            closeWelcome() { document.getElementById('officer-welcome-modal')?.classList.add('hidden'); },
             showDashboard() {
                 if(!this.currentUser())return this.showLoginScreen();
+                this.syncOfficerName();
                 document.getElementById('static-login-screen')?.classList.add('hidden');
                 document.getElementById('dashboard-shell')?.classList.remove('hidden');
                 this.syncAdminButtonVisibility();
                 if(!this.hasRole('SUPER ADMIN','ADMIN') && AppController.isAdminOpen) AppController.toggleAdminView();
+                AppController.renderNavigation();
                 const usersTab=document.getElementById('admin-tab-pengurusan-pengguna');
                 if(usersTab)usersTab.classList.toggle('hidden',!this.hasRole('SUPER ADMIN'));
                 if(!this.hasRole('SUPER ADMIN') && AdminNavigation.activeTab==='pengurusan-pengguna') AdminNavigation.switchTab('pengurusan-data');
@@ -1925,7 +2000,10 @@
                 if(typeof lucide!=='undefined')lucide.createIcons();
             },
             showLoginScreen() {
+                this.closeWelcome();
+                this.syncOfficerName();
                 this.syncAdminButtonVisibility();
+                AppController.renderNavigation();
                 document.getElementById('dashboard-shell')?.classList.add('hidden');
                 document.getElementById('static-login-screen')?.classList.remove('hidden');
                 const input=document.getElementById('static-login-password');
@@ -1987,6 +2065,14 @@
                 icon: 'trophy',
                 category: 'Ringkasan Pingat',
                 subtitle: 'Kedudukan pingat Emas, Perak dan Gangsa bagi setiap acara yang telah selesai.'
+            },
+            {
+                id: 'admin',
+                label: 'PANEL ADMIN',
+                shortLabel: 'ADMIN',
+                icon: 'shield-check',
+                category: 'Pentadbiran',
+                subtitle: 'Pengurusan Data dan Pengurusan Pengguna.'
             }
         ];
 
@@ -4579,13 +4665,14 @@
                     <button type="button" onclick="UserManager.toggleForm(true)" class="bg-navy-primary text-gold rounded-xl px-5 py-3 text-sm font-bold">+ TAMBAH PENGGUNA BARU</button>
                     <div id="user-manager-feedback" role="status" aria-live="polite" class="text-sm text-navy-primary"></div>
                     <form id="user-add-form" onsubmit="UserManager.add(event)" class="hidden bg-surface-bg rounded-xl border p-4 space-y-3">
+                        <label class="block text-xs font-bold">NAMA PEGAWAI<input id="user-new-name" required maxlength="120" class="w-full border rounded-lg p-2 mt-1" autocomplete="name"></label>
                         <label class="block text-xs font-bold">ID PENGGUNA<input id="user-new-id" required maxlength="80" class="w-full border rounded-lg p-2 mt-1" autocomplete="off"></label>
                         <label class="block text-xs font-bold">KATA LALUAN<input id="user-new-password" required type="password" class="w-full border rounded-lg p-2 mt-1" autocomplete="new-password"></label>
                         <label class="block text-xs font-bold">PERANAN<select id="user-new-role" class="w-full border rounded-lg p-2 mt-1"><option>ADMIN</option><option>PEGAWAI</option></select></label>
                         <button type="submit" class="bg-navy-primary text-gold rounded-lg px-4 py-2 font-bold">SIMPAN</button>
                         <button type="button" onclick="UserManager.toggleForm(false)" class="border rounded-lg px-4 py-2">BATAL</button>
                     </form>
-                    <div class="overflow-x-auto"><table class="w-full text-xs sm:text-sm text-left"><thead class="bg-navy-primary text-white"><tr><th class="p-3">ID</th><th class="p-3">KATA LALUAN</th><th class="p-3">PERANAN</th><th class="p-3">EDIT</th><th class="p-3">SIMPAN</th><th class="p-3">HAPUS</th></tr></thead><tbody>
+                    <div class="overflow-x-auto"><table class="w-full text-xs sm:text-sm text-left"><thead class="bg-navy-primary text-white"><tr><th class="p-3">NAMA PEGAWAI</th><th class="p-3">ID</th><th class="p-3">KATA LALUAN</th><th class="p-3">PERANAN</th><th class="p-3">EDIT</th><th class="p-3">SIMPAN</th><th class="p-3">HAPUS</th></tr></thead><tbody>
                         ${UserStore.getAll().map(u=>this.row(u)).join('')}
                     </tbody></table></div>
                     <p class="text-xs text-ink-muted">Pengguna hanya tersimpan pada pelayar ini. Kawalan akses ini tidak melindungi data pada pelayan.</p>
@@ -4595,6 +4682,7 @@
             row(u) {
                 const edit=this.editing===u.uid, su=u.uid===UserStore.SUPER_ID, uid=this.escape(u.uid);
                 return `<tr class="border-b border-slate-200" data-user-uid="${uid}">
+                    <td class="p-2">${edit?`<input data-field="namaPegawai" maxlength="120" value="${this.escape(u.namaPegawai||'')}" class="border rounded-lg p-2 min-w-32 w-44">`:this.escape(u.namaPegawai||'Belum ditetapkan')}</td>
                     <td class="p-2">${edit?`<input data-field="id" maxlength="80" value="${this.escape(u.id)}" class="border rounded-lg p-2 min-w-28 w-36">`:this.escape(u.id)}</td>
                     <td class="p-2">${edit?'<input data-field="password" type="password" autocomplete="new-password" placeholder="Kosong = kekal" class="border rounded-lg p-2 w-36">':'••••••••'}</td>
                     <td class="p-2">${edit&&!su?`<select data-field="role" class="border rounded-lg p-2"><option ${u.role==='ADMIN'?'selected':''}>ADMIN</option><option ${u.role==='PEGAWAI'?'selected':''}>PEGAWAI</option></select>`:this.escape(u.role)}</td>
@@ -4610,13 +4698,14 @@
             },
             async add(event) {
                 event.preventDefault();if(!this.canManage())return;
-                const id=document.getElementById('user-new-id').value.trim(),password=document.getElementById('user-new-password').value,role=document.getElementById('user-new-role').value;
+                const namaPegawai=document.getElementById('user-new-name').value.trim(),id=document.getElementById('user-new-id').value.trim(),password=document.getElementById('user-new-password').value,role=document.getElementById('user-new-role').value;
                 try {
                     this.validateID(id,null);
+                    if(!namaPegawai || namaPegawai.length>120)throw new Error('Nama Pegawai wajib diisi (maksimum 120 aksara).');
                     if(!password||!['ADMIN','PEGAWAI'].includes(role))throw new Error('Maklumat tidak lengkap.');
                     const credentials=await UserStore.hashPassword(password),users=UserStore.getAll();
                     if(UserStore.isDuplicate(id,null))throw new Error('ID pengguna sudah digunakan.');
-                    users.push({uid:crypto.randomUUID?crypto.randomUUID():Array.from(crypto.getRandomValues(new Uint8Array(16))).map(n=>n.toString(16).padStart(2,'0')).join(''),id,role,...credentials});
+                    users.push({uid:crypto.randomUUID?crypto.randomUUID():Array.from(crypto.getRandomValues(new Uint8Array(16))).map(n=>n.toString(16).padStart(2,'0')).join(''),id,namaPegawai,role,...credentials});
                     UserStore.save(users);this.render();this.feedback('Pengguna berjaya ditambah.');
                 } catch(e){this.feedback(e.message);}
             },
@@ -4624,16 +4713,17 @@
             async save(uid) {
                 if(!this.canManage())return;
                 const row=Array.from(document.querySelectorAll('[data-user-uid]')).find(el=>el.dataset.userUid===uid);
-                const id=row?.querySelector('[data-field="id"]')?.value.trim(),password=row?.querySelector('[data-field="password"]')?.value||'', role=row?.querySelector('[data-field="role"]')?.value;
+                const namaPegawai=row?.querySelector('[data-field="namaPegawai"]')?.value.trim(),id=row?.querySelector('[data-field="id"]')?.value.trim(),password=row?.querySelector('[data-field="password"]')?.value||'', role=row?.querySelector('[data-field="role"]')?.value;
                 try {
                     const users=UserStore.getAll(), index=users.findIndex(u=>u.uid===uid);
                     if(index<0 || !row || !id || this.editing!==uid)throw new Error('Rekod tidak sah.');
                     this.validateID(id,uid);
+                    if(!namaPegawai || namaPegawai.length>120)throw new Error('Nama Pegawai wajib diisi (maksimum 120 aksara).');
                     const superUser=uid===UserStore.SUPER_ID;
                     if(!superUser&&!['ADMIN','PEGAWAI'].includes(role))throw new Error('Peranan tidak sah.');
-                    const next={...users[index],id,role:superUser?'SUPER ADMIN':role};
+                    const next={...users[index],id,namaPegawai,role:superUser?'SUPER ADMIN':role};
                     if(password){Object.assign(next,await UserStore.hashPassword(password));}
-                    users[index]=next;UserStore.save(users);this.editing=null;this.render();this.feedback('Perubahan berjaya disimpan.');
+                    users[index]=next;UserStore.save(users);StaticLoginController.syncOfficerName();this.editing=null;this.render();this.feedback('Perubahan berjaya disimpan.');
                 } catch(e){this.feedback(e.message);}
             },
             remove(uid) {
@@ -8124,8 +8214,8 @@ function jsonResponse_(obj) {
                 const mobileNav = document.getElementById('mobile-nav-list');
 
                 if (desktopNav) {
-                    desktopNav.innerHTML = SYSTEM_VIEWS.map(view => {
-                        const isActive = this.currentView === view.id && !this.isAdminOpen;
+                    desktopNav.innerHTML = SYSTEM_VIEWS.filter(view => view.id !== 'admin' || StaticLoginController.hasRole('SUPER ADMIN', 'ADMIN')).map(view => {
+                        const isActive = view.id === 'admin' ? this.isAdminOpen : (this.currentView === view.id && !this.isAdminOpen);
                         return `
                             <button
                                 type="button"
@@ -8144,8 +8234,8 @@ function jsonResponse_(obj) {
                 }
 
                 if (mobileNav) {
-                    mobileNav.innerHTML = SYSTEM_VIEWS.map(view => {
-                        const isActive = this.currentView === view.id && !this.isAdminOpen;
+                    mobileNav.innerHTML = SYSTEM_VIEWS.filter(view => view.id !== 'admin' || StaticLoginController.hasRole('SUPER ADMIN', 'ADMIN')).map(view => {
+                        const isActive = view.id === 'admin' ? this.isAdminOpen : (this.currentView === view.id && !this.isAdminOpen);
                         return `
                             <button
                                 type="button"
@@ -8163,6 +8253,14 @@ function jsonResponse_(obj) {
             },
 
             switchView(viewId) {
+                if (viewId === 'admin') {
+                    if (!StaticLoginController.hasRole('SUPER ADMIN', 'ADMIN')) {
+                        if (this.isAdminOpen) this.toggleAdminView();
+                        return;
+                    }
+                    if (!this.isAdminOpen) this.toggleAdminView();
+                    return;
+                }
                 this.currentView = viewId;
                 if (this.isAdminOpen) {
                     this.isAdminOpen = false;
@@ -8195,6 +8293,7 @@ function jsonResponse_(obj) {
                 const adminLabel = document.getElementById('admin-btn-label');
 
                 if (this.isAdminOpen) {
+                    AdminNavigation.switchTab('pengurusan-data');
                     if (publicWs) publicWs.classList.add('hidden');
                     if (adminWs) adminWs.classList.remove('hidden');
                     if (adminLabel) adminLabel.textContent = 'UTAMA';
