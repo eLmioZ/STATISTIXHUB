@@ -587,7 +587,10 @@
     button[data-print-trigger="true"] > span,
 
     /* Butang Sahkan Rasmi / Batal Pengesahan */
-    button[onclick*=".toggleOfficialVerification("] > span {
+    button[onclick*=".toggleOfficialVerification("] > span,
+
+    /* Butang Log Keluar */
+    #btn-static-logout > span {
 
         position: absolute;
         width: 1px;
@@ -601,9 +604,143 @@
         border: 0;
     }
 }
+
+/* =====================================================
+   SURGICAL UI FIX: ADMIN & LOG KELUAR PILL DESIGN
+   Match .global-status-pill (#global-live-status) geometry
+   ===================================================== */
+#btn-toggle-admin,
+#btn-static-logout {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.375rem;
+    padding: 0.35rem 0.625rem;
+    border-radius: 9999px;
+    font-family: 'Montserrat', sans-serif;
+    font-size: var(--app-font-size);
+    font-weight: 700;
+    letter-spacing: 0.02em;
+    line-height: 1;
+    white-space: nowrap;
+}
+
+@media (min-width: 640px) {
+    #btn-toggle-admin,
+    #btn-static-logout {
+        gap: 0.45rem;
+        padding: 0.45rem 0.8rem;
+    }
+}
     </style>
 </head>
 <body class="min-h-screen flex flex-col font-sans antialiased selection:bg-gold/30 selection:text-navy-dark">
+
+    <!-- ===================================================================== -->
+    <!-- LAPISAN PAPARAN LOGIN STATIK (PINTU MASUK SEBELUM DASHBOARD)          -->
+    <!-- ===================================================================== -->
+    <section id="static-login-screen" aria-labelledby="static-login-title" class="min-h-screen w-full flex items-center justify-center bg-gradient-to-br from-navy-dark via-navy-primary to-navy-dark p-4 sm:p-6">
+        <div class="w-full max-w-md bg-white rounded-2xl shadow-2xl border border-slate-200/90 overflow-hidden animate-view-enter">
+            <!-- Bahagian Atas Kad Login -->
+            <div class="bg-navy-dark px-6 py-7 text-center border-b border-navy-secondary/50">
+                <div class="w-12 h-12 rounded-2xl bg-navy-primary border border-gold/40 flex items-center justify-center mx-auto mb-3 shadow-inner">
+                    <i data-lucide="trophy" class="w-6 h-6 text-gold"></i>
+                </div>
+                <p class="text-[10px] font-bold uppercase tracking-widest text-gold-light">
+                    STATISTIX HUB
+                </p>
+                <h1 id="static-login-title" class="font-display font-extrabold text-lg sm:text-xl tracking-wide text-white mt-1">
+                    LOGIN DASHBOARD
+                </h1>
+                <p class="text-xs text-slate-300 mt-1">
+                    Sila masukkan ID Pengguna dan Kata Laluan untuk meneruskan.
+                </p>
+            </div>
+
+            <!-- Borang Login Statik -->
+            <form id="static-login-form" novalidate class="p-6 sm:p-7 space-y-5">
+                <!-- Mesej Ralat / Status Login -->
+                <div id="static-login-feedback" role="alert" aria-live="polite" class="hidden rounded-xl px-4 py-3 text-xs font-semibold flex items-center gap-2.5">
+                    <i id="static-login-feedback-icon" data-lucide="alert-circle" class="w-4 h-4 shrink-0"></i>
+                    <span id="static-login-feedback-text"></span>
+                </div>
+
+                <!-- Input ID Pengguna -->
+                <div class="space-y-1.5">
+                    <label for="static-login-id" class="block text-xs font-bold uppercase tracking-wider text-navy-primary">
+                        ID Pengguna
+                    </label>
+                    <div class="relative">
+                        <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
+                            <i data-lucide="user" class="w-4 h-4"></i>
+                        </span>
+                        <input
+                            id="static-login-id"
+                            name="userId"
+                            type="text"
+                            autocomplete="username"
+                            placeholder="Masukkan ID Pengguna"
+                            required
+                            class="w-full min-h-[44px] pl-10 pr-3.5 py-2.5 rounded-xl border border-slate-300 bg-surface-bg/70 text-ink placeholder:text-slate-400 focus:outline-none focus:bg-white focus:border-navy-primary focus:ring-2 focus:ring-gold/40 transition-all"
+                        >
+                    </div>
+                </div>
+
+                <!-- Input Kata Laluan -->
+                <div class="space-y-1.5">
+                    <label for="static-login-password" class="block text-xs font-bold uppercase tracking-wider text-navy-primary">
+                        Kata Laluan
+                    </label>
+                    <div class="relative">
+                        <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
+                            <i data-lucide="lock" class="w-4 h-4"></i>
+                        </span>
+                        <input
+                            id="static-login-password"
+                            name="password"
+                            type="password"
+                            autocomplete="current-password"
+                            placeholder="Masukkan Kata Laluan"
+                            required
+                            class="w-full min-h-[44px] pl-10 pr-11 py-2.5 rounded-xl border border-slate-300 bg-surface-bg/70 text-ink placeholder:text-slate-400 focus:outline-none focus:bg-white focus:border-navy-primary focus:ring-2 focus:ring-gold/40 transition-all"
+                        >
+                        <button
+                            type="button"
+                            id="btn-toggle-static-password"
+                            aria-label="Tunjuk atau sembunyi kata laluan"
+                            aria-pressed="false"
+                            onclick="StaticLoginController.togglePasswordVisibility()"
+                            class="absolute inset-y-0 right-0 px-3.5 flex items-center justify-center text-slate-500 hover:text-navy-primary focus:outline-none cursor-pointer"
+                        >
+                            <i id="icon-eye-show" data-lucide="eye" class="w-4 h-4"></i>
+                            <i id="icon-eye-hide" data-lucide="eye-off" class="w-4 h-4 hidden"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Butang LOG MASUK -->
+                <button
+                    type="submit"
+                    id="btn-static-login-submit"
+                    class="w-full min-h-[46px] px-4 py-3 rounded-xl font-display font-bold tracking-wider uppercase bg-gold hover:bg-gold-light text-navy-dark shadow-gold-glow transition-all flex items-center justify-center gap-2 cursor-pointer"
+                >
+                    <i data-lucide="log-in" class="w-4 h-4"></i>
+                    <span>LOG MASUK</span>
+                </button>
+            </form>
+
+            <!-- Footer Kad Login -->
+            <div class="px-6 py-3.5 bg-surface-bg border-t border-slate-200/80 text-center">
+                <p class="text-[11px] text-ink-muted">
+                    STATISTIX HUB &bull; Sistem Statistik &amp; Keputusan Rasmi
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <!-- ===================================================================== -->
+    <!-- PEMBUNGKUS DASHBOARD UTAMA (DIPAPARKAN SELEPAS LOGIN BERJAYA)         -->
+    <!-- ===================================================================== -->
+    <div id="dashboard-shell" class="hidden flex-1 flex flex-col">
 
     <!-- ===================================================================== -->
     <!-- HEADER UTAMA (STICKY TOP)                                             -->
@@ -636,7 +773,7 @@
                     </div>
                 </div>
 
-                <!-- Kawalan Kanan: Indikator Global + Akses Panel Admin -->
+                <!-- Kawalan Kanan: Indikator Global + Akses Panel Admin + Log Keluar -->
                 <div class="flex items-center gap-1.5 sm:gap-3 shrink-0">
                     <!-- Indikator Status Global Tunggal (Live Sync / On Progress) -->
                     <div
@@ -651,9 +788,15 @@
                     </div>
 
                     <!-- Butang Akses Panel Admin Berasingan -->
-                    <button id="btn-toggle-admin" type="button" onclick="AppController.toggleAdminView()" class="flex items-center gap-1.5 sm:gap-2 min-h-[40px] sm:min-h-[44px] px-2.5 py-2 sm:px-4 sm:py-2.5 rounded-xl text-[11px] sm:text-sm font-semibold bg-gold text-navy-dark hover:bg-gold-light transition-all shadow-gold-glow cursor-pointer">
+                    <button id="btn-toggle-admin" type="button" onclick="AppController.toggleAdminView()" class="bg-gold text-navy-dark hover:bg-gold-light transition-all shadow-gold-glow cursor-pointer">
                         <i id="admin-btn-icon" data-lucide="shield-check" class="w-3.5 h-3.5 sm:w-4 sm:h-4 shrink-0"></i>
                         <span id="admin-btn-label" class="whitespace-nowrap">Admin</span>
+                    </button>
+
+                    <!-- Butang LOG KELUAR -->
+                    <button id="btn-static-logout" type="button" onclick="StaticLoginController.logout()" title="Log Keluar daripada Dashboard" class="bg-rose-600/90 hover:bg-rose-600 text-white border border-rose-400/30 transition-all cursor-pointer">
+                        <i data-lucide="log-out" class="w-3.5 h-3.5 sm:w-4 sm:h-4 shrink-0"></i>
+                        <span class="whitespace-nowrap">LOG KELUAR</span>
                     </button>
                 </div>
             </div>
@@ -1697,6 +1840,8 @@
         </div>
     </div>
 
+    </div><!-- Tamat #dashboard-shell -->
+
     <!-- ===================================================================== -->
     <!-- KONTENA KHUSUS CETAKAN RASMI (TERSEMBUNYI DI SKRIN, AKTIF KETIKA CETAK) -->
     <!-- ===================================================================== -->
@@ -1706,6 +1851,171 @@
     <!-- TERAS SENI BINA JAVASCRIPT MODULAR STATISTIX HUB                      -->
     <!-- ===================================================================== -->
     <script>
+        /**
+         * 0. PENGAWAL LOGIN STATIK (StaticLoginController)
+         * Menggunakan HTML, CSS & JavaScript tulen dengan sessionStorage (tanpa backend/Firebase).
+         */
+        const StaticLoginController = {
+            SESSION_KEY: 'statistix_static_login_session',
+            VALID_USER_ID: 'wba@1003',
+            VALID_PASSWORD: 'wba1003',
+            isPasswordVisible: false,
+
+            init() {
+                const form = document.getElementById('static-login-form');
+                if (form) {
+                    form.addEventListener('submit', (e) => {
+                        e.preventDefault();
+                        this.handleLoginSubmit();
+                    });
+                }
+
+                // Kekalkan paparan dashboard sekiranya sesi tab masih sah
+                if (this.hasActiveSession()) {
+                    this.showDashboard();
+                } else {
+                    this.showLoginScreen();
+                }
+            },
+
+            hasActiveSession() {
+                try {
+                    return window.sessionStorage.getItem(this.SESSION_KEY) === 'authenticated';
+                } catch (e) {
+                    return false;
+                }
+            },
+
+            setSessionActive() {
+                try {
+                    window.sessionStorage.setItem(this.SESSION_KEY, 'authenticated');
+                } catch (e) {
+                    console.warn('sessionStorage tidak tersedia dalam pelayar ini.');
+                }
+            },
+
+            clearSession() {
+                try {
+                    window.sessionStorage.removeItem(this.SESSION_KEY);
+                } catch (e) {}
+            },
+
+            togglePasswordVisibility() {
+                const pwdInput = document.getElementById('static-login-password');
+                const eyeShow = document.getElementById('icon-eye-show');
+                const eyeHide = document.getElementById('icon-eye-hide');
+                const toggleBtn = document.getElementById('btn-toggle-static-password');
+                if (!pwdInput) return;
+
+                this.isPasswordVisible = !this.isPasswordVisible;
+                pwdInput.type = this.isPasswordVisible ? 'text' : 'password';
+
+                if (eyeShow) eyeShow.classList.toggle('hidden', this.isPasswordVisible);
+                if (eyeHide) eyeHide.classList.toggle('hidden', !this.isPasswordVisible);
+                if (toggleBtn) toggleBtn.setAttribute('aria-pressed', String(this.isPasswordVisible));
+            },
+
+            setFeedback(message, type) {
+                const box = document.getElementById('static-login-feedback');
+                const textEl = document.getElementById('static-login-feedback-text');
+                const iconEl = document.getElementById('static-login-feedback-icon');
+                if (!box || !textEl) return;
+
+                if (!message) {
+                    box.classList.add('hidden');
+                    textEl.textContent = '';
+                    return;
+                }
+
+                textEl.textContent = message;
+                box.classList.remove('hidden', 'bg-rose-50', 'border-rose-200', 'text-rose-800', 'bg-emerald-50', 'border-emerald-200', 'text-emerald-800', 'border');
+                box.classList.add('border');
+
+                if (type === 'success') {
+                    box.classList.add('bg-emerald-50', 'border-emerald-200', 'text-emerald-800');
+                    if (iconEl) iconEl.setAttribute('data-lucide', 'check-circle-2');
+                } else {
+                    box.classList.add('bg-rose-50', 'border-rose-200', 'text-rose-800');
+                    if (iconEl) iconEl.setAttribute('data-lucide', 'alert-circle');
+                }
+
+                if (typeof lucide !== 'undefined') {
+                    lucide.createIcons();
+                }
+            },
+
+            handleLoginSubmit() {
+                const idInput = document.getElementById('static-login-id');
+                const pwdInput = document.getElementById('static-login-password');
+                const enteredId = idInput ? idInput.value.trim() : '';
+                const enteredPwd = pwdInput ? pwdInput.value : '';
+
+                // Padanan tepat (case-sensitive)
+                if (enteredId === this.VALID_USER_ID && enteredPwd === this.VALID_PASSWORD) {
+                    this.setFeedback('Login berjaya. Membuka dashboard utama...', 'success');
+                    this.setSessionActive();
+
+                    setTimeout(() => {
+                        if (pwdInput) pwdInput.value = '';
+                        this.setFeedback('', '');
+                        this.showDashboard();
+                    }, 350);
+                } else {
+                    this.clearSession();
+                    this.setFeedback('ID atau Kata Laluan Tidak Sah', 'error');
+                    if (pwdInput) {
+                        pwdInput.value = '';
+                        pwdInput.focus();
+                    }
+                }
+            },
+
+            showDashboard() {
+                const loginScreen = document.getElementById('static-login-screen');
+                const dashboardShell = document.getElementById('dashboard-shell');
+                if (loginScreen) loginScreen.classList.add('hidden');
+                if (dashboardShell) dashboardShell.classList.remove('hidden');
+
+                if (typeof AppController !== 'undefined' && typeof AppController.loadView === 'function') {
+                    AppController.loadView(AppController.currentView || 'saringan');
+                }
+                if (typeof lucide !== 'undefined') {
+                    lucide.createIcons();
+                }
+            },
+
+            showLoginScreen() {
+                const loginScreen = document.getElementById('static-login-screen');
+                const dashboardShell = document.getElementById('dashboard-shell');
+                if (dashboardShell) dashboardShell.classList.add('hidden');
+                if (loginScreen) loginScreen.classList.remove('hidden');
+
+                // Reset paparan kata laluan kepada tersembunyi
+                const pwdInput = document.getElementById('static-login-password');
+                const eyeShow = document.getElementById('icon-eye-show');
+                const eyeHide = document.getElementById('icon-eye-hide');
+                const toggleBtn = document.getElementById('btn-toggle-static-password');
+                this.isPasswordVisible = false;
+                if (pwdInput) {
+                    pwdInput.type = 'password';
+                    pwdInput.value = '';
+                }
+                if (eyeShow) eyeShow.classList.remove('hidden');
+                if (eyeHide) eyeHide.classList.add('hidden');
+                if (toggleBtn) toggleBtn.setAttribute('aria-pressed', 'false');
+
+                if (typeof lucide !== 'undefined') {
+                    lucide.createIcons();
+                }
+            },
+
+            logout() {
+                this.clearSession();
+                this.setFeedback('', '');
+                this.showLoginScreen();
+            }
+        };
+
         /**
          * 1. KONFIGURASI MODUL & STRUKTUR NAVIGASI SISTEM
          */
@@ -8017,7 +8327,7 @@ function jsonResponse_(obj) {
                 if (this.isAdminOpen) {
                     if (publicWs) publicWs.classList.add('hidden');
                     if (adminWs) adminWs.classList.remove('hidden');
-                    if (adminLabel) adminLabel.textContent = 'Keluar';
+                    if (adminLabel) adminLabel.textContent = 'Utama';
                 } else {
                     if (adminWs) adminWs.classList.add('hidden');
                     if (publicWs) publicWs.classList.remove('hidden');
@@ -8172,6 +8482,7 @@ function jsonResponse_(obj) {
 
         window.addEventListener('DOMContentLoaded', () => {
             AppController.init();
+            StaticLoginController.init();
         });
     </script>
 </body>
