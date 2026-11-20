@@ -591,6 +591,10 @@
 }
 
 
+#btn-toggle-admin[hidden] {
+    display: none !important;
+}
+
 #btn-toggle-admin,
 #btn-static-logout {
     display: inline-flex;
@@ -762,7 +766,7 @@
                     </div>
 
                     <!-- Butang Akses Panel Admin Berasingan -->
-                    <button id="btn-toggle-admin" type="button" onclick="AppController.toggleAdminView()" class="bg-gold text-navy-dark hover:bg-gold-light transition-all shadow-gold-glow cursor-pointer">
+                    <button id="btn-toggle-admin" hidden type="button" onclick="AppController.toggleAdminView()" class="bg-gold text-navy-dark hover:bg-gold-light transition-all shadow-gold-glow cursor-pointer">
                         <i id="admin-btn-icon" data-lucide="shield-check" class="w-3.5 h-3.5 sm:w-4 sm:h-4 shrink-0"></i>
                         <span id="admin-btn-label" class="whitespace-nowrap">Admin</span>
                     </button>
@@ -1868,6 +1872,10 @@
                 } catch(e) { return null; }
             },
             hasRole(...roles) { return roles.includes(this.currentUser()?.role); },
+            syncAdminButtonVisibility() {
+                const button = document.getElementById('btn-toggle-admin');
+                if (button) button.hidden = !this.hasRole('SUPER ADMIN', 'ADMIN');
+            },
             init() {
                 document.getElementById('static-login-form')?.addEventListener('submit', e => {e.preventDefault();this.handleLoginSubmit();});
                 this.currentUser() ? this.showDashboard() : this.showLoginScreen();
@@ -1908,8 +1916,7 @@
                 if(!this.currentUser())return this.showLoginScreen();
                 document.getElementById('static-login-screen')?.classList.add('hidden');
                 document.getElementById('dashboard-shell')?.classList.remove('hidden');
-                const adminButton=document.getElementById('btn-toggle-admin');
-                if(adminButton) adminButton.classList.toggle('hidden',!this.hasRole('SUPER ADMIN','ADMIN'));
+                this.syncAdminButtonVisibility();
                 if(!this.hasRole('SUPER ADMIN','ADMIN') && AppController.isAdminOpen) AppController.toggleAdminView();
                 const usersTab=document.getElementById('admin-tab-pengurusan-pengguna');
                 if(usersTab)usersTab.classList.toggle('hidden',!this.hasRole('SUPER ADMIN'));
@@ -1918,6 +1925,7 @@
                 if(typeof lucide!=='undefined')lucide.createIcons();
             },
             showLoginScreen() {
+                this.syncAdminButtonVisibility();
                 document.getElementById('dashboard-shell')?.classList.add('hidden');
                 document.getElementById('static-login-screen')?.classList.remove('hidden');
                 const input=document.getElementById('static-login-password');
@@ -1930,6 +1938,7 @@
             },
             logout() {
                 this.clearSession();
+                this.syncAdminButtonVisibility();
                 if(AppController.isAdminOpen)AppController.toggleAdminView();
                 this.setFeedback('','');this.showLoginScreen();
             }
@@ -8169,7 +8178,17 @@ function jsonResponse_(obj) {
             },
 
             toggleAdminView() {
-                if (!StaticLoginController.hasRole('SUPER ADMIN','ADMIN')) return;
+                if (!StaticLoginController.hasRole('SUPER ADMIN','ADMIN')) {
+                    this.isAdminOpen = false;
+                    const adminWs = document.getElementById('admin-workspace');
+                    const publicWs = document.getElementById('public-workspace');
+                    const adminLabel = document.getElementById('admin-btn-label');
+                    if (adminWs) adminWs.classList.add('hidden');
+                    if (publicWs) publicWs.classList.remove('hidden');
+                    if (adminLabel) adminLabel.textContent = 'ADMIN';
+                    StaticLoginController.syncAdminButtonVisibility();
+                    return;
+                }
                 this.isAdminOpen = !this.isAdminOpen;
                 const publicWs = document.getElementById('public-workspace');
                 const adminWs = document.getElementById('admin-workspace');
