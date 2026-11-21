@@ -7785,12 +7785,15 @@ function jsonResponse_(obj) {
                 };
                 window.addEventListener('focus', this._focusHandler);
 
-                // 5. Perlindungan anti-deadlock: hanya membuka kunci butang jika pelayar menyekat dialog tanpa event,
-                // TANPA memadam kandungan DOM cetakan (#official-print-area kekal tersembunyi pada @media screen)
+                // 5. Fallback hanya apabila TIADA bukti pelayar telah memasuki mod cetakan.
+                // Timer bukan bukti dialog sudah ditutup; jangan buka kunci semasa preview yang dapat dikesan.
                 this._safetyUnlockTimer = setTimeout(() => {
-                    if (this.isPrinting) {
-                        this.releasePrintLockOnly();
-                    }
+                    if (!this.isPrinting || this._hasEnteredPrintPreview || document.visibilityState !== 'visible') return;
+                    let printMediaActive = false;
+                    try {
+                        printMediaActive = !!(this._printMediaQuery && this._printMediaQuery.matches);
+                    } catch (e) {}
+                    if (!printMediaActive) this.releasePrintLockOnly();
                 }, 4000);
             },
 
