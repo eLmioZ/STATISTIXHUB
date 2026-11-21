@@ -2724,30 +2724,32 @@
                 AppController.loadView('saringan');
             },
 
-            toggleOfficialVerification(eventNo) {
-                const store = StorageManager.getSaringanStore();
-                const ev = store.events && store.events[eventNo];
-                if (!ev) return;
-
-                const isCurrentlyVerified = ev.status === 'DISAHKAN_RASMI';
-                ev.status = isCurrentlyVerified ? 'BELUM_SELESAI' : 'DISAHKAN_RASMI';
-                ev.verifiedAt = isCurrentlyVerified ? null : new Date().toISOString();
-                ev.updatedAt = new Date().toISOString();
-
-                StorageManager.saveSaringanStore(store);
-                StorageManager.appendSaringanAuditLog({
-                    action: isCurrentlyVerified ? 'BATAL_PENGESAHAN' : 'SAHKAN_RASMI',
-                    eventNo
-                });
-
-                this.editingCell = null;
-                AppController.loadView('saringan');
-                UIComponents.showToast(
-                    isCurrentlyVerified
-                        ? `Pengesahan rasmi Acara ${eventNo} telah dibatalkan.`
-                        : `Acara ${eventNo} telah disahkan secara rasmi.`,
-                    isCurrentlyVerified ? 'warning' : 'success'
-                );
+            async toggleOfficialVerification(eventNo) {
+                try {
+                    const commit = await StatistixStorageFlow.commitDatasetMutation('saringan',
+                        async (testStore) => {
+                            const store = testStore || StorageManager.getSaringanStore();
+                            const ev = store.events && store.events[eventNo];
+                            if (!ev) return false;
+                            const verified = ev.status === 'DISAHKAN_RASMI';
+                            ev.status = verified ? 'BELUM_SELESAI' : 'DISAHKAN_RASMI';
+                            ev.verifiedAt = verified ? null : new Date().toISOString();
+                            ev.updatedAt = new Date().toISOString();
+                            return store;
+                        },
+                        store => StorageManager.saveSaringanStore(store));
+                    if (commit.mode === 'LEGACY_LOCAL') {
+                        StorageManager.appendSaringanAuditLog({
+                            action: StorageManager.getSaringanStore().events[eventNo].status === 'DISAHKAN_RASMI'
+                                ? 'SAHKAN_RASMI' : 'BATAL_PENGESAHAN', eventNo
+                        });
+                    }
+                    this.editingCell = null;
+                    AppController.loadView('saringan');
+                    UIComponents.showToast(`Status pengesahan rasmi Acara ${eventNo} berjaya disimpan.`, 'success');
+                } catch (error) {
+                    UIComponents.showToast('Pengesahan rasmi tidak disimpan: ' + error.message, 'error');
+                }
             },
 
             startInlineEdit(eventNo, gender, heat, sheetRow, noBib, field, currentValue) {
@@ -2817,6 +2819,10 @@
             },
 
             async saveInlineEdit() {
+                if (StatistixStorageFlow.mode === 'FIRESTORE_TEST') {
+                    UIComponents.showToast('Suntingan GAS belum selamat untuk Firestore TEST; tiada perubahan dibuat.', 'warning');
+                    return;
+                }
                 if (!this.editingCell || this.isSavingCell) return;
 
                 const inputEl = document.getElementById('saringan-inline-edit-input');
@@ -2897,7 +2903,7 @@
                     }
                     ev.updatedAt = result.updatedAt || new Date().toISOString();
 
-                    StorageManager.saveSaringanStore(store);
+                    if (!StorageManager.saveSaringanStore(store)) throw new Error('Simpanan tempatan gagal selepas kemas kini GAS; semak semula data sumber.');
                     StorageManager.appendSaringanAuditLog({
                         action: 'KEMASKINI_KEPUTUSAN_GS',
                         eventNo: this.editingCell.eventNo,
@@ -3182,30 +3188,32 @@
                 AppController.loadView('akhir-balapan');
             },
 
-            toggleOfficialVerification(eventNo) {
-                const store = StorageManager.getAkhirBalapanStore();
-                const ev = store.events && store.events[eventNo];
-                if (!ev) return;
-
-                const isCurrentlyVerified = ev.status === 'DISAHKAN_RASMI';
-                ev.status = isCurrentlyVerified ? 'BELUM_SELESAI' : 'DISAHKAN_RASMI';
-                ev.verifiedAt = isCurrentlyVerified ? null : new Date().toISOString();
-                ev.updatedAt = new Date().toISOString();
-
-                StorageManager.saveAkhirBalapanStore(store);
-                StorageManager.appendAkhirBalapanAuditLog({
-                    action: isCurrentlyVerified ? 'BATAL_PENGESAHAN' : 'SAHKAN_RASMI',
-                    eventNo
-                });
-
-                this.editingCell = null;
-                AppController.loadView('akhir-balapan');
-                UIComponents.showToast(
-                    isCurrentlyVerified
-                        ? `Pengesahan rasmi Akhir Balapan ${eventNo} telah dibatalkan.`
-                        : `Akhir Balapan ${eventNo} telah disahkan secara rasmi.`,
-                    isCurrentlyVerified ? 'warning' : 'success'
-                );
+            async toggleOfficialVerification(eventNo) {
+                try {
+                    const commit = await StatistixStorageFlow.commitDatasetMutation('akhir-balapan',
+                        async (testStore) => {
+                            const store = testStore || StorageManager.getAkhirBalapanStore();
+                            const ev = store.events && store.events[eventNo];
+                            if (!ev) return false;
+                            const verified = ev.status === 'DISAHKAN_RASMI';
+                            ev.status = verified ? 'BELUM_SELESAI' : 'DISAHKAN_RASMI';
+                            ev.verifiedAt = verified ? null : new Date().toISOString();
+                            ev.updatedAt = new Date().toISOString();
+                            return store;
+                        },
+                        store => StorageManager.saveAkhirBalapanStore(store));
+                    if (commit.mode === 'LEGACY_LOCAL') {
+                        StorageManager.appendAkhirBalapanAuditLog({
+                            action: StorageManager.getAkhirBalapanStore().events[eventNo].status === 'DISAHKAN_RASMI'
+                                ? 'SAHKAN_RASMI' : 'BATAL_PENGESAHAN', eventNo
+                        });
+                    }
+                    this.editingCell = null;
+                    AppController.loadView('akhir-balapan');
+                    UIComponents.showToast(`Status pengesahan rasmi Akhir Balapan ${eventNo} berjaya disimpan.`, 'success');
+                } catch (error) {
+                    UIComponents.showToast('Pengesahan rasmi tidak disimpan: ' + error.message, 'error');
+                }
             },
 
             startInlineEdit(eventNo, gender, sheetRow, noBib, field, currentValue) {
@@ -3520,30 +3528,32 @@
                 AppController.loadView('relay');
             },
 
-            toggleOfficialVerification(eventNo) {
-                const store = StorageManager.getRelayStore();
-                const ev = store.events && store.events[eventNo];
-                if (!ev) return;
-
-                const isCurrentlyVerified = ev.status === 'DISAHKAN_RASMI';
-                ev.status = isCurrentlyVerified ? 'BELUM_SELESAI' : 'DISAHKAN_RASMI';
-                ev.verifiedAt = isCurrentlyVerified ? null : new Date().toISOString();
-                ev.updatedAt = new Date().toISOString();
-
-                StorageManager.saveRelayStore(store);
-                StorageManager.appendRelayAuditLog({
-                    action: isCurrentlyVerified ? 'BATAL_PENGESAHAN' : 'SAHKAN_RASMI',
-                    eventNo
-                });
-
-                this.editingCell = null;
-                AppController.loadView('relay');
-                UIComponents.showToast(
-                    isCurrentlyVerified
-                        ? `Pengesahan rasmi Acara Relay ${eventNo} telah dibatalkan.`
-                        : `Acara Relay ${eventNo} telah disahkan secara rasmi.`,
-                    isCurrentlyVerified ? 'warning' : 'success'
-                );
+            async toggleOfficialVerification(eventNo) {
+                try {
+                    const commit = await StatistixStorageFlow.commitDatasetMutation('relay',
+                        async (testStore) => {
+                            const store = testStore || StorageManager.getRelayStore();
+                            const ev = store.events && store.events[eventNo];
+                            if (!ev) return false;
+                            const verified = ev.status === 'DISAHKAN_RASMI';
+                            ev.status = verified ? 'BELUM_SELESAI' : 'DISAHKAN_RASMI';
+                            ev.verifiedAt = verified ? null : new Date().toISOString();
+                            ev.updatedAt = new Date().toISOString();
+                            return store;
+                        },
+                        store => StorageManager.saveRelayStore(store));
+                    if (commit.mode === 'LEGACY_LOCAL') {
+                        StorageManager.appendRelayAuditLog({
+                            action: StorageManager.getRelayStore().events[eventNo].status === 'DISAHKAN_RASMI'
+                                ? 'SAHKAN_RASMI' : 'BATAL_PENGESAHAN', eventNo
+                        });
+                    }
+                    this.editingCell = null;
+                    AppController.loadView('relay');
+                    UIComponents.showToast(`Status pengesahan rasmi Acara Relay ${eventNo} berjaya disimpan.`, 'success');
+                } catch (error) {
+                    UIComponents.showToast('Pengesahan rasmi tidak disimpan: ' + error.message, 'error');
+                }
             },
 
             startInlineEdit(eventNo, gender, sheetRow, pasukan, field, currentValue) {
@@ -3858,30 +3868,32 @@
                 AppController.loadView('padang');
             },
 
-            toggleOfficialVerification(eventNo) {
-                const store = StorageManager.getPadangStore();
-                const ev = store.events && store.events[eventNo];
-                if (!ev) return;
-
-                const isCurrentlyVerified = ev.status === 'DISAHKAN_RASMI';
-                ev.status = isCurrentlyVerified ? 'BELUM_SELESAI' : 'DISAHKAN_RASMI';
-                ev.verifiedAt = isCurrentlyVerified ? null : new Date().toISOString();
-                ev.updatedAt = new Date().toISOString();
-
-                StorageManager.savePadangStore(store);
-                StorageManager.appendPadangAuditLog({
-                    action: isCurrentlyVerified ? 'BATAL_PENGESAHAN' : 'SAHKAN_RASMI',
-                    eventNo
-                });
-
-                this.editingCell = null;
-                AppController.loadView('padang');
-                UIComponents.showToast(
-                    isCurrentlyVerified
-                        ? `Pengesahan rasmi Acara Padang ${eventNo} telah dibatalkan.`
-                        : `Acara Padang ${eventNo} telah disahkan secara rasmi.`,
-                    isCurrentlyVerified ? 'warning' : 'success'
-                );
+            async toggleOfficialVerification(eventNo) {
+                try {
+                    const commit = await StatistixStorageFlow.commitDatasetMutation('padang',
+                        async (testStore) => {
+                            const store = testStore || StorageManager.getPadangStore();
+                            const ev = store.events && store.events[eventNo];
+                            if (!ev) return false;
+                            const verified = ev.status === 'DISAHKAN_RASMI';
+                            ev.status = verified ? 'BELUM_SELESAI' : 'DISAHKAN_RASMI';
+                            ev.verifiedAt = verified ? null : new Date().toISOString();
+                            ev.updatedAt = new Date().toISOString();
+                            return store;
+                        },
+                        store => StorageManager.savePadangStore(store));
+                    if (commit.mode === 'LEGACY_LOCAL') {
+                        StorageManager.appendPadangAuditLog({
+                            action: StorageManager.getPadangStore().events[eventNo].status === 'DISAHKAN_RASMI'
+                                ? 'SAHKAN_RASMI' : 'BATAL_PENGESAHAN', eventNo
+                        });
+                    }
+                    this.editingCell = null;
+                    AppController.loadView('padang');
+                    UIComponents.showToast(`Status pengesahan rasmi Acara Padang ${eventNo} berjaya disimpan.`, 'success');
+                } catch (error) {
+                    UIComponents.showToast('Pengesahan rasmi tidak disimpan: ' + error.message, 'error');
+                }
             },
 
             startInlineEdit(eventNo, gender, sheetRow, noBib, field, currentValue) {
@@ -4984,16 +4996,19 @@
                     const result = await window.StatistixAsyncStorage.getData(name);
                     if (generation !== this.testGeneration) throw new Error('Bacaan ujian telah dibatalkan.');
                     if (!result.serverConfirmed) throw new Error('Bacaan pelayan belum disahkan.');
-                    if (result.exists && (!result.data || typeof result.data !== 'object')) throw new Error('Dataset ujian tidak sah.');
+                    if (result.exists && ((name==='events_data' && !Array.isArray(result.data)) ||
+                        (name!=='events_data' && (!result.data || typeof result.data!=='object' || Array.isArray(result.data))))) throw new Error('Dataset ujian tidak sah.');
                     next.set(name, {data:result.exists ? structuredClone(result.data) :
                         (name === 'events_data' ? [] : {events:{}}), revision:result.revision, exists:result.exists});
                 }
+                if (generation !== this.testGeneration) throw new Error('Bacaan ujian tidak lagi aktif.');
                 this.testSnapshots = next;
                 this.mode = 'FIRESTORE_TEST';
                 AppController.loadView(AppController.currentView);
                 return {mode:this.mode, datasets:next.size, source:'FIRESTORE_SERVER_CONFIRMED'};
             },
             disableFirestoreTest() {
+                if (this.busyModules.size || AutoSyncManager.isSyncing) throw new Error('Operasi masih berjalan; pertukaran mod disekat.');
                 this.testGeneration++;
                 this.mode='LEGACY_LOCAL';
                 this.testSnapshots.clear();
@@ -5014,8 +5029,13 @@
                     const row=await window.StatistixAsyncStorage.getData(name);
                     if (generation !== this.testGeneration) throw new Error('Bacaan lapuk diabaikan.');
                     if (!row.serverConfirmed) throw new Error('Bacaan bukan daripada pelayan.');
+                    if (row.exists && ((name==='events_data' && !Array.isArray(row.data)) ||
+                        (name!=='events_data' && (!row.data || typeof row.data!=='object' || Array.isArray(row.data)))))
+                        throw new Error('Skema dataset ujian tidak sah: '+name);
                     next.set(name,{data:row.exists ? structuredClone(row.data) : (name==='events_data'?[]:{events:{}}), revision:row.revision,exists:row.exists});
                 }
+                if (generation !== this.testGeneration || this.busyModules.size)
+                    throw new Error('Muat semula dibatalkan: mutasi atau permintaan baharu telah berlaku.');
                 this.testSnapshots=next;
                 AppController.loadView(AppController.currentView);
                 return {ok:true};
@@ -5050,6 +5070,50 @@
                 });
                 if (!result.ok || !result.serverConfirmed) throw new Error('Staging belum disahkan oleh pelayan.');
                 return {staged:true, ...result};
+            },
+            // Phase 4: one authoritative revision per committed TEST dataset.
+            // Legacy writes retain the existing synchronous implementation.
+            async commitDatasetMutation(moduleName, mutate, legacySave) {
+                const dataset = this.moduleDatasets[moduleName];
+                if (!dataset || typeof mutate !== 'function' || typeof legacySave !== 'function')
+                    throw new Error('Kontrak mutasi data tidak sah.');
+                if (this.busyModules.has(moduleName)) throw new Error('Operasi modul sedang berjalan.');
+                if (!StaticLoginController.currentUser()) throw new Error('Sesi pengguna tidak aktif.');
+                this.busyModules.add(moduleName);
+                try {
+                    if (this.mode === 'FIRESTORE_TEST') {
+                        const info = window.StatistixFirestoreMigration?.connectionInfo?.();
+                        if (!info?.isolatedTest || !info?.authenticated) throw new Error('Sesi Firebase ujian tidak sah.');
+                        const cached = this.testSnapshots.get(dataset);
+                        if (!cached) throw new Error('Snapshot Firestore belum tersedia.');
+                        const adapter = window.StatistixAsyncStorage;
+                        // Re-read the authoritative revision before a mutation. A missing document is distinct from failure.
+                        const current = await adapter.getData(dataset);
+                        if (!current.serverConfirmed) throw new Error('Bacaan tidak disahkan pelayan.');
+                        if (current.revision !== cached.revision)
+                            throw new Error('CONFLICT: rekod berubah pada pelayan. Muat semula data.');
+                        const next = structuredClone(current.exists ? current.data : {events:{}});
+                        const result = await mutate(next);
+                        if (result === false) throw new Error('Rekod tidak lagi tersedia untuk dikemas kini.');
+                        const saved = await adapter.saveData(dataset,next,{
+                            confirmation:'WRITE_ASYNC_STAGING_ONLY',expectedRevision:current.revision
+                        });
+                        if (!saved.serverConfirmed) throw new Error('Penulisan Firestore belum disahkan.');
+                        const verified = await adapter.getData(dataset);
+                        if (!verified.exists || !verified.serverConfirmed || verified.revision !== saved.revision ||
+                            JSON.stringify(verified.data) !== JSON.stringify(next))
+                            throw new Error('RECOVERY_REQUIRED: status commit tidak dapat dipastikan; semak pelayan sebelum mengulang.');
+                        this.testSnapshots.set(dataset,{
+                            data:structuredClone(verified.data),revision:verified.revision,exists:true
+                        });
+                        this.testGeneration++;
+                        return {ok:true,mode:'FIRESTORE_TEST',serverConfirmed:true,revision:verified.revision};
+                    }
+                    const next = await mutate();
+                    if (next === false) throw new Error('Rekod tidak tersedia.');
+                    if (!await Promise.resolve(legacySave(next))) throw new Error('LocalStorage gagal menyimpan.');
+                    return {ok:true,mode:'LEGACY_LOCAL'};
+                } finally { this.busyModules.delete(moduleName); }
             },
             async commitImport({moduleName, nextEvents, url, nowIso, configKey, syncKey,
                                 getStore, saveStore, previousStore, previousConfig}) {
@@ -5465,6 +5529,10 @@ function jsonResponse_(obj) {
             },
 
             confirmDeleteUrl() {
+                if (StatistixStorageFlow.mode === 'FIRESTORE_TEST') {
+                    UIComponents.showToast('Pemadaman URL/data belum disokong dalam mod Firestore ujian; tiada rekod diubah.', 'warning');
+                    return false;
+                }
                 const selectedRadio = document.querySelector('input[name="saringan-delete-mode"]:checked');
                 const deleteMode = selectedRadio ? selectedRadio.value : 'url-only';
 
@@ -6054,6 +6122,10 @@ function jsonResponse_(obj) {
             },
 
             confirmDeleteUrl() {
+                if (StatistixStorageFlow.mode === 'FIRESTORE_TEST') {
+                    UIComponents.showToast('Pemadaman URL/data belum disokong dalam mod Firestore ujian; tiada rekod diubah.', 'warning');
+                    return false;
+                }
                 const selectedRadio = document.querySelector('input[name="akhir-balapan-delete-mode"]:checked');
                 const deleteMode = selectedRadio ? selectedRadio.value : 'url-only';
 
@@ -6360,6 +6432,10 @@ function jsonResponse_(obj) {
             },
 
             async updateCell({ eventNo, gender, sheetRow, noBib, field, expectedValue, value }) {
+                if (StatistixStorageFlow.mode === 'FIRESTORE_TEST') {
+                    UIComponents.showToast('Suntingan GAS dinyahaktifkan dalam mod ujian sehingga recovery rentas sistem tersedia.', 'warning');
+                    return {success:false};
+                }
                 const config = StorageManager.getTournamentConfig();
                 const gasUrl = String(config.akhirBalapanAppsScriptUrl || '').trim();
                 if (!gasUrl) {
@@ -6400,7 +6476,7 @@ function jsonResponse_(obj) {
                         if (row) row[field] = finalSavedValue;
                         ev.updatedAt = result.updatedAt || new Date().toISOString();
                     }
-                    StorageManager.saveAkhirBalapanStore(store);
+                    if (!StorageManager.saveAkhirBalapanStore(store)) throw new Error('Simpanan tempatan gagal selepas kemas kini GAS; semak semula data sumber.');
                     StorageManager.appendAkhirBalapanAuditLog({
                         action: 'KEMASKINI_KEPUTUSAN_GS',
                         eventNo,
@@ -6731,6 +6807,10 @@ function jsonResponse_(obj) {
             },
 
             confirmDeleteUrl() {
+                if (StatistixStorageFlow.mode === 'FIRESTORE_TEST') {
+                    UIComponents.showToast('Pemadaman URL/data belum disokong dalam mod Firestore ujian; tiada rekod diubah.', 'warning');
+                    return false;
+                }
                 const selectedRadio = document.querySelector('input[name="relay-delete-mode"]:checked');
                 const deleteMode = selectedRadio ? selectedRadio.value : 'url-only';
 
@@ -7035,6 +7115,10 @@ function jsonResponse_(obj) {
             },
 
             async updateCell({ eventNo, gender, sheetRow, pasukan, field, expectedValue, value }) {
+                if (StatistixStorageFlow.mode === 'FIRESTORE_TEST') {
+                    UIComponents.showToast('Suntingan GAS dinyahaktifkan dalam mod ujian sehingga recovery rentas sistem tersedia.', 'warning');
+                    return {success:false};
+                }
                 const config = StorageManager.getTournamentConfig();
                 const gasUrl = String(config.relayAppsScriptUrl || '').trim();
                 if (!gasUrl) {
@@ -7075,7 +7159,7 @@ function jsonResponse_(obj) {
                         if (row) row[field] = finalSavedValue;
                         ev.updatedAt = result.updatedAt || new Date().toISOString();
                     }
-                    StorageManager.saveRelayStore(store);
+                    if (!StorageManager.saveRelayStore(store)) throw new Error('Simpanan tempatan gagal selepas kemas kini GAS; semak semula data sumber.');
                     StorageManager.appendRelayAuditLog({
                         action: 'KEMASKINI_KEPUTUSAN_GS',
                         eventNo,
@@ -7513,6 +7597,10 @@ function jsonResponse_(obj) {
             },
 
             confirmDeleteUrl() {
+                if (StatistixStorageFlow.mode === 'FIRESTORE_TEST') {
+                    UIComponents.showToast('Pemadaman URL/data belum disokong dalam mod Firestore ujian; tiada rekod diubah.', 'warning');
+                    return false;
+                }
                 const selectedRadio = document.querySelector('input[name="padang-delete-mode"]:checked');
                 const deleteMode = selectedRadio ? selectedRadio.value : 'url-only';
 
@@ -7809,6 +7897,10 @@ function jsonResponse_(obj) {
             },
 
             async updateCell({ eventNo, gender, sheetRow, noBib, field, expectedValue, value }) {
+                if (StatistixStorageFlow.mode === 'FIRESTORE_TEST') {
+                    UIComponents.showToast('Suntingan GAS dinyahaktifkan dalam mod ujian sehingga recovery rentas sistem tersedia.', 'warning');
+                    return {success:false};
+                }
                 const config = StorageManager.getTournamentConfig();
                 const gasUrl = String(config.padangAppsScriptUrl || '').trim();
                 if (!gasUrl) {
@@ -7849,7 +7941,7 @@ function jsonResponse_(obj) {
                         if (row) row[field] = finalSavedValue;
                         ev.updatedAt = result.updatedAt || new Date().toISOString();
                     }
-                    StorageManager.savePadangStore(store);
+                    if (!StorageManager.savePadangStore(store)) throw new Error('Simpanan tempatan gagal selepas kemas kini GAS; semak semula data sumber.');
                     StorageManager.appendPadangAuditLog({
                         action: 'KEMASKINI_KEPUTUSAN_GS',
                         eventNo,
@@ -9122,14 +9214,20 @@ function datasetRef(name) {
   const user=requireReady();
   return modules.api.dbmod.doc(modules.db,'async_storage_staging',user.uid,'datasets',allowedDataset(name));
 }
-function cloneJSON(value) {
+// Phase 6: direct adapter calls must not bypass isolated-project enforcement.
+function requireIsolatedWrite() {
+  const info=migration.connectionInfo();
+  if (!info.isolatedTest || !info.authenticated || info.projectId===firebaseConfig.projectId)
+    throw new Error('WRITE_BLOCKED: penulisan hanya dibenarkan pada projek Firebase ujian berasingan yang disahkan.');
+}
+function cloneJSON(value, allowArray=false) {
   if (value === undefined) throw new Error('Data undefined tidak boleh disimpan.');
   const encoded=JSON.stringify(value);
   if (encoded===undefined) throw new Error('Data tidak bersiri JSON.');
   const bytes=encoder.encode(encoded).length;
   if (bytes>800000) throw new Error('Dataset terlalu besar untuk satu dokumen staging; perlu pecahkan per rekod.');
   const result=JSON.parse(encoded);
-  if (!result || typeof result!=='object' || Array.isArray(result)) throw new Error('Dataset mestilah objek JSON.');
+  if (!result || typeof result!=='object' || (!allowArray && Array.isArray(result))) throw new Error('Struktur dataset tidak sah.');
   return result;
 }
 const asyncStorage = Object.freeze({
@@ -9146,6 +9244,13 @@ const asyncStorage = Object.freeze({
     if (!snap.exists()) return {exists:false,data:null,revision:0,serverConfirmed:true};
     const obj=snap.data();
     if (!Number.isSafeInteger(obj.revision) || obj.revision<1) throw new Error('Revisi staging tidak sah.');
+    // Verify the same payload integrity contract used by server-confirmed writes.
+    // events_data is intentionally an array; GAS datasets are objects containing events.
+    if ((name==='events_data' && !Array.isArray(obj.payload)) ||
+        (name!=='events_data' && (!obj.payload || typeof obj.payload!=='object' || Array.isArray(obj.payload))))
+      throw new Error('Skema snapshot Firestore tidak sepadan: '+name);
+    if (typeof obj.checksum!=='string' || await hash(obj.payload)!==obj.checksum)
+      throw new Error('INTEGRITY_ERROR: checksum dataset tidak sepadan: '+name);
     return {exists:true,data:structuredClone(obj.payload),revision:obj.revision,serverConfirmed:true};
   },
   async getAllData() {
@@ -9158,8 +9263,9 @@ const asyncStorage = Object.freeze({
     allowedDataset(name);
     if(confirmation!=='WRITE_ASYNC_STAGING_ONLY') throw new Error('Persetujuan penulisan staging diperlukan.');
     if(!Number.isSafeInteger(expectedRevision) || expectedRevision<0) throw new Error('expectedRevision wajib (0 untuk cipta baharu).');
+    requireIsolatedWrite();
     const ref=datasetRef(name), {dbmod}=modules.api;
-    const payload=cloneJSON(value);
+    const payload=cloneJSON(value,name==='events_data');
     const writeChecksum=await hash(payload);
     updateOperation(name,AsyncStorageStatus.SAVING);
     try {
@@ -9176,13 +9282,14 @@ const asyncStorage = Object.freeze({
       if(!confirmed.exists() || confirmed.data().revision!==revision ||
          confirmed.data().checksum!==writeChecksum ||
          await hash(confirmed.data().payload)!==writeChecksum) {
-        throw new Error('Penulisan belum dapat disahkan daripada pelayan; jangan ulang secara membuta tuli.');
+        throw new Error('RECOVERY_REQUIRED: commit mungkin berjaya tetapi pengesahan pelayan gagal; periksa revisi sebelum retry.');
       }
       updateOperation(name,AsyncStorageStatus.SAVED,'Disahkan daripada pelayan');
       return {ok:true,revision,serverConfirmed:true};
     } catch(error) {
-      updateOperation(name,AsyncStorageStatus.FAILED,error.message);
-      // A rejected write is not proof that the server rejected the commit.
+      updateOperation(name, error.message?.includes('RECOVERY_REQUIRED') ? AsyncStorageStatus.PENDING : AsyncStorageStatus.FAILED,
+        error.message);
+      // A rejected acknowledgement is not proof that the server rejected the commit.
       throw error;
     }
   },
@@ -9204,7 +9311,7 @@ const asyncStorage = Object.freeze({
     if (!name || confirmation!=='STAGE_VALIDATED_GAS_IMPORT_ONLY') throw new Error('Import staging tidak dibenarkan.');
     if (!Number.isSafeInteger(expectedRevision) || expectedRevision<0 ||
         !/^[A-Za-z0-9_-]{8,96}$/.test(importId||'')) throw new Error('Import ID/revisi tidak sah.');
-    if (modules.app?.options.projectId===firebaseConfig.projectId) throw new Error('Staging GAS hanya dibenarkan dalam projek ujian.');
+    requireIsolatedWrite();
     const payload=cloneJSON({events:normalizedEvents});
     if (!Object.keys(payload.events||{}).length) throw new Error('Import kosong.');
     const checksum=await hash(payload), user=requireReady(), {dbmod}=modules.api;
@@ -9239,7 +9346,7 @@ const asyncStorage = Object.freeze({
     const name=mapping[moduleName];
     if (!name || confirmation!=='PUBLISH_TO_ISOLATED_TEST_ONLY' || !Number.isSafeInteger(expectedRevision))
       throw new Error('Penerbitan ujian tidak dibenarkan.');
-    if (modules.app?.options.projectId===firebaseConfig.projectId) throw new Error('Penerbitan projek produksi disekat.');
+    requireIsolatedWrite();
     const user=requireReady(),{dbmod}=modules.api;
     const jobRef=dbmod.doc(modules.db,'async_storage_staging',user.uid,'import_jobs',importId);
     const activeRef=datasetRef(name);
@@ -9281,6 +9388,7 @@ const asyncStorage = Object.freeze({
     allowedDataset(name);
     if(confirmation!=='DELETE_ASYNC_STAGING_ONLY') throw new Error('Persetujuan pemadaman staging diperlukan.');
     if(!Number.isSafeInteger(expectedRevision) || expectedRevision<1) throw new Error('Revisi sedia ada diperlukan.');
+    requireIsolatedWrite();
     const ref=datasetRef(name), {dbmod}=modules.api;
     updateOperation(name,AsyncStorageStatus.SAVING);
     try {
