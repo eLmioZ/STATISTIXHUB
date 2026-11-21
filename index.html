@@ -2168,6 +2168,7 @@
             },
 
             saveTournamentConfig(configObj) {
+                if (StatistixStorageFlow.mode === 'FIRESTORE_TEST') throw new Error('WRITE_BLOCKED: konfigurasi tempatan tidak ditulis dalam mod ujian.');
                 try {
                     const current = this.getTournamentConfig();
                     const updated = {
@@ -2184,6 +2185,7 @@
             },
 
             getEventsData() {
+                if (StatistixStorageFlow.mode === 'FIRESTORE_TEST') return StatistixStorageFlow.getTestSnapshot('events_data');
                 try {
                     const raw = window.localStorage.getItem(this.KEYS.EVENTS_DATA);
                     return raw ? JSON.parse(raw) : [];
@@ -2194,6 +2196,7 @@
             },
 
             getSaringanStore() {
+                if (StatistixStorageFlow.mode === 'FIRESTORE_TEST') return StatistixStorageFlow.getTestSnapshot('saringan_records');
                 try {
                     const raw = window.localStorage.getItem(this.KEYS.SARINGAN_STORE);
                     if (!raw) return { events: {} };
@@ -2206,6 +2209,7 @@
             },
 
             saveSaringanStore(storeObj) {
+                if (StatistixStorageFlow.mode === 'FIRESTORE_TEST') throw new Error('WRITE_BLOCKED: gunakan async Firestore commit dalam mod ujian.');
                 try {
                     window.localStorage.setItem(this.KEYS.SARINGAN_STORE, JSON.stringify(storeObj));
                     return true;
@@ -2225,6 +2229,7 @@
             },
 
             appendSaringanAuditLog(entry) {
+                if (StatistixStorageFlow.mode === 'FIRESTORE_TEST') return; // Legacy audit writes disabled in isolated test mode.
                 try {
                     const logs = this.getSaringanAuditLogs();
                     logs.unshift({
@@ -2240,6 +2245,7 @@
             },
 
             getAkhirBalapanStore() {
+                if (StatistixStorageFlow.mode === 'FIRESTORE_TEST') return StatistixStorageFlow.getTestSnapshot('akhir_balapan_records');
                 try {
                     const raw = window.localStorage.getItem(this.KEYS.AKHIR_BALAPAN_STORE);
                     if (!raw) return { events: {} };
@@ -2252,6 +2258,7 @@
             },
 
             saveAkhirBalapanStore(storeObj) {
+                if (StatistixStorageFlow.mode === 'FIRESTORE_TEST') throw new Error('WRITE_BLOCKED: gunakan async Firestore commit dalam mod ujian.');
                 try {
                     window.localStorage.setItem(this.KEYS.AKHIR_BALAPAN_STORE, JSON.stringify(storeObj));
                     if (typeof PodiumModule !== 'undefined' && typeof PodiumModule.refreshIfActive === 'function') {
@@ -2274,6 +2281,7 @@
             },
 
             appendAkhirBalapanAuditLog(entry) {
+                if (StatistixStorageFlow.mode === 'FIRESTORE_TEST') return; // Legacy audit writes disabled in isolated test mode.
                 try {
                     const logs = this.getAkhirBalapanAuditLogs();
                     logs.unshift({
@@ -2289,6 +2297,7 @@
             },
 
             getRelayStore() {
+                if (StatistixStorageFlow.mode === 'FIRESTORE_TEST') return StatistixStorageFlow.getTestSnapshot('relay_records');
                 try {
                     const raw = window.localStorage.getItem(this.KEYS.RELAY_STORE);
                     if (!raw) return { events: {} };
@@ -2301,6 +2310,7 @@
             },
 
             saveRelayStore(storeObj) {
+                if (StatistixStorageFlow.mode === 'FIRESTORE_TEST') throw new Error('WRITE_BLOCKED: gunakan async Firestore commit dalam mod ujian.');
                 try {
                     window.localStorage.setItem(this.KEYS.RELAY_STORE, JSON.stringify(storeObj));
                     if (typeof PodiumModule !== 'undefined' && typeof PodiumModule.refreshIfActive === 'function') {
@@ -2323,6 +2333,7 @@
             },
 
             appendRelayAuditLog(entry) {
+                if (StatistixStorageFlow.mode === 'FIRESTORE_TEST') return; // Legacy audit writes disabled in isolated test mode.
                 try {
                     const logs = this.getRelayAuditLogs();
                     logs.unshift({
@@ -2338,6 +2349,7 @@
             },
 
             getPadangStore() {
+                if (StatistixStorageFlow.mode === 'FIRESTORE_TEST') return StatistixStorageFlow.getTestSnapshot('padang_records');
                 try {
                     const raw = window.localStorage.getItem(this.KEYS.PADANG_STORE);
                     if (!raw) return { events: {} };
@@ -2350,6 +2362,7 @@
             },
 
             savePadangStore(storeObj) {
+                if (StatistixStorageFlow.mode === 'FIRESTORE_TEST') throw new Error('WRITE_BLOCKED: gunakan async Firestore commit dalam mod ujian.');
                 try {
                     window.localStorage.setItem(this.KEYS.PADANG_STORE, JSON.stringify(storeObj));
                     if (typeof PodiumModule !== 'undefined' && typeof PodiumModule.refreshIfActive === 'function') {
@@ -2372,6 +2385,7 @@
             },
 
             appendPadangAuditLog(entry) {
+                if (StatistixStorageFlow.mode === 'FIRESTORE_TEST') return; // Legacy audit writes disabled in isolated test mode.
                 try {
                     const logs = this.getPadangAuditLogs();
                     logs.unshift({
@@ -4945,6 +4959,174 @@
         /**
          * 4I. PENGAWAL GAS ACARA SARINGAN (SaringanGasController)
          */
+
+        /* Phase 2: actual controller execution boundary, production remains local-only.
+         * Firestore staging is opt-in and NEVER publishes to the active application database.
+         */
+        const StatistixStorageFlow = {
+            productionCutoverEnabled: false,
+            stagingEnabled: false,
+            mode: 'LEGACY_LOCAL',
+            testSnapshots: new Map(),
+            testGeneration: 0,
+            busyModules: new Set(),
+            moduleDatasets: Object.freeze({saringan:'saringan_records', 'akhir-balapan':'akhir_balapan_records', relay:'relay_records', padang:'padang_records'}),
+            async enableFirestoreTest(confirmation) {
+                if (confirmation !== 'ENABLE_ISOLATED_FIRESTORE_TEST') throw new Error('Persetujuan FIRESTORE_TEST diperlukan.');
+                const migration = window.StatistixFirestoreMigration;
+                const info = migration?.connectionInfo?.();
+                if (!info?.isolatedTest || !info?.authenticated) throw new Error('Sambungkan Firebase projek ujian berasingan dahulu.');
+                if (this.busyModules.size || AutoSyncManager.isSyncing) throw new Error('Terdapat operasi import/sync belum selesai.');
+                AutoSyncManager.stop();
+                const generation = ++this.testGeneration;
+                const next = new Map();
+                for (const name of [...Object.values(this.moduleDatasets), 'events_data']) {
+                    const result = await window.StatistixAsyncStorage.getData(name);
+                    if (generation !== this.testGeneration) throw new Error('Bacaan ujian telah dibatalkan.');
+                    if (!result.serverConfirmed) throw new Error('Bacaan pelayan belum disahkan.');
+                    if (result.exists && (!result.data || typeof result.data !== 'object')) throw new Error('Dataset ujian tidak sah.');
+                    next.set(name, {data:result.exists ? structuredClone(result.data) :
+                        (name === 'events_data' ? [] : {events:{}}), revision:result.revision, exists:result.exists});
+                }
+                this.testSnapshots = next;
+                this.mode = 'FIRESTORE_TEST';
+                AppController.loadView(AppController.currentView);
+                return {mode:this.mode, datasets:next.size, source:'FIRESTORE_SERVER_CONFIRMED'};
+            },
+            disableFirestoreTest() {
+                this.testGeneration++;
+                this.mode='LEGACY_LOCAL';
+                this.testSnapshots.clear();
+                AppController.loadView(AppController.currentView);
+                return {mode:this.mode};
+            },
+            getTestSnapshot(name) {
+                if (this.mode !== 'FIRESTORE_TEST') return null;
+                const snapshot = this.testSnapshots.get(name);
+                if (!snapshot) throw new Error('Dataset Firestore belum dimuatkan: '+name);
+                return structuredClone(snapshot.data);
+            },
+            async reloadTestSnapshots() {
+                if (this.mode !== 'FIRESTORE_TEST' || !window.StatistixFirestoreMigration?.connectionInfo?.().isolatedTest)
+                    throw new Error('Projek ujian tidak lagi bersambung.');
+                const generation=++this.testGeneration, next=new Map();
+                for (const name of [...Object.values(this.moduleDatasets),'events_data']) {
+                    const row=await window.StatistixAsyncStorage.getData(name);
+                    if (generation !== this.testGeneration) throw new Error('Bacaan lapuk diabaikan.');
+                    if (!row.serverConfirmed) throw new Error('Bacaan bukan daripada pelayan.');
+                    next.set(name,{data:row.exists ? structuredClone(row.data) : (name==='events_data'?[]:{events:{}}), revision:row.revision,exists:row.exists});
+                }
+                this.testSnapshots=next;
+                AppController.loadView(AppController.currentView);
+                return {ok:true};
+            },
+            async initialize() {
+                const available = await Promise.resolve(StorageManager.checkAvailability());
+                if (!available.ok) throw new Error(available.message || 'LocalStorage tidak tersedia.');
+                return { mode: 'LOCAL_AUTHORITATIVE', cutover: false };
+            },
+            enableStagingForTesting(confirmation) {
+                if (confirmation !== 'ENABLE_EXPLICIT_FIRESTORE_STAGING_TEST_ONLY') throw new Error('Persetujuan ujian staging diperlukan.');
+                if (!window.StatistixAsyncStorage || window.StatistixAsyncStorage.productionCutoverEnabled !== false || !window.StatistixFirestoreMigration?.connectionInfo?.().isolatedTest) {
+                    throw new Error('Adapter staging yang selamat belum tersedia.');
+                }
+                this.stagingEnabled = true;
+                return { stagingEnabled: true, productionCutoverEnabled: false };
+            },
+            disableStaging() { this.stagingEnabled = false; },
+            async stageValidatedImport(moduleName, events) {
+                if (!this.stagingEnabled) return { staged: false };
+                const adapter = window.StatistixAsyncStorage;
+                if (!adapter) throw new Error('Adapter Firestore staging tidak tersedia.');
+                const map = {saringan:'saringan_records', 'akhir-balapan':'akhir_balapan_records', relay:'relay_records', padang:'padang_records'};
+                const current = await adapter.getData(map[moduleName]); // server read: failures are NOT missing docs
+                const raw = JSON.stringify({moduleName, events});
+                const digest = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(raw));
+                const importId = 'GAS_' + Array.from(new Uint8Array(digest)).map(b=>b.toString(16).padStart(2,'0')).join('').slice(0,60);
+                const result = await adapter.stageGasImport(moduleName, events, {
+                    confirmation: 'STAGE_VALIDATED_GAS_IMPORT_ONLY',
+                    expectedRevision: current.revision,
+                    importId
+                });
+                if (!result.ok || !result.serverConfirmed) throw new Error('Staging belum disahkan oleh pelayan.');
+                return {staged:true, ...result};
+            },
+            async commitImport({moduleName, nextEvents, url, nowIso, configKey, syncKey,
+                                getStore, saveStore, previousStore, previousConfig}) {
+                if (this.mode === 'FIRESTORE_TEST' && !window.StatistixFirestoreMigration.connectionInfo().isolatedTest)
+                    throw new Error('Mod ujian memerlukan projek Firestore berasingan.');
+                if (this.busyModules.has(moduleName)) throw new Error('Import modul ini sedang berjalan.');
+                this.busyModules.add(moduleName);
+                try {
+                    if (this.mode === 'FIRESTORE_TEST') {
+                        const dataset=this.moduleDatasets[moduleName];
+                        const old=this.testSnapshots.get(dataset);
+                        if (!dataset || !old) throw new Error('Dataset ujian belum dimuatkan.');
+                        if (JSON.stringify(getStore()) !== JSON.stringify(previousStore)) throw new Error('CONFLICT: snapshot ujian sudah berubah.');
+                        const adapter=window.StatistixAsyncStorage;
+                        const raw=JSON.stringify({moduleName,events:nextEvents});
+                        const digest=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(raw));
+                        const importId='GAS_'+Array.from(new Uint8Array(digest)).map(v=>v.toString(16).padStart(2,'0')).join('').slice(0,60);
+                        const staged=await adapter.stageGasImport(moduleName,nextEvents,{
+                            confirmation:'STAGE_VALIDATED_GAS_IMPORT_ONLY',expectedRevision:old.revision,importId
+                        });
+                        if (!staged.serverConfirmed) throw new Error('Staging pelayan belum disahkan.');
+                        // Publish is a distinct Firestore transaction and is never inferred from staging.
+                        const published=await adapter.publishGasImport(moduleName,importId,{
+                            confirmation:'PUBLISH_TO_ISOLATED_TEST_ONLY',expectedRevision:old.revision
+                        });
+                        if (!published.serverConfirmed) throw new Error('Penerbitan ujian belum disahkan.');
+                        const fresh=await adapter.getData(dataset);
+                        if (!fresh.exists || fresh.revision!==published.revision ||
+                            JSON.stringify(fresh.data?.events)!==JSON.stringify(nextEvents))
+                            throw new Error('Penerbitan perlu penyelarasan; status tidak pasti.');
+                        this.testSnapshots.set(dataset,{data:structuredClone(fresh.data),revision:fresh.revision,exists:true});
+                        return {ok:true,mode:'FIRESTORE_TEST',staging:staged,published};
+                    }
+                    // Legacy mode retains LocalStorage and never confuses staging with production publish.
+                    const staging = await this.stageValidatedImport(moduleName, nextEvents);
+                    const currentStore = getStore();
+                    if (JSON.stringify(currentStore) !== JSON.stringify(previousStore)) {
+                        throw new Error('CONFLICT: data tempatan berubah semasa import; tidak menimpa data baharu.');
+                    }
+                    const currentConfig = StorageManager.getTournamentConfig();
+                    if (JSON.stringify(currentConfig) !== JSON.stringify(previousConfig)) {
+                        throw new Error('CONFLICT: konfigurasi telah berubah semasa import.');
+                    }
+                    const nextStore = {...currentStore, events: nextEvents};
+                    if (!await Promise.resolve(saveStore(nextStore))) throw new Error('Rekod gagal disimpan dalam LocalStorage.');
+                    const savedConfig = await Promise.resolve(StorageManager.saveTournamentConfig({[configKey]:url,[syncKey]:nowIso}));
+                    if (!savedConfig) {
+                        const restored = saveStore(previousStore);
+                        if (!restored) throw new Error('Konfigurasi gagal dan pemulihan data tempatan juga gagal; sandaran manual diperlukan.');
+                        throw new Error('Konfigurasi gagal disimpan; rekod terdahulu dipulihkan.');
+                    }
+                    const verifiedStore = getStore();
+                    const verifiedConfig = StorageManager.getTournamentConfig();
+                    if (JSON.stringify(verifiedStore) !== JSON.stringify(nextStore) ||
+                        String(verifiedConfig[configKey] || '').trim() !== url) {
+                        const restoredStore = saveStore(previousStore);
+                        const restoredConfig = StorageManager.saveTournamentConfig(previousConfig);
+                        if (!restoredStore || !restoredConfig) throw new Error('Pengesahan gagal dan pemulihan tidak lengkap; sandaran diperlukan.');
+                        throw new Error('Pengesahan LocalStorage gagal; pemulihan cuba dilakukan.');
+                    }
+                    return {ok:true, mode:'LOCAL_AUTHORITATIVE', staging};
+                } finally { this.busyModules.delete(moduleName); }
+            },
+            async commitAutoSync(moduleName, getStore, saveStore, previous, next) {
+                if (this.mode === 'FIRESTORE_TEST') return false; // GAS polling cannot write to test records implicitly.
+                if (this.busyModules.has(moduleName)) return false;
+                this.busyModules.add(moduleName);
+                try {
+                    if (JSON.stringify(getStore()) !== JSON.stringify(previous)) return false;
+                    if (!await Promise.resolve(saveStore(next))) throw new Error('Gagal menyimpan AutoSync.');
+                    if (JSON.stringify(getStore()) !== JSON.stringify(next)) throw new Error('AutoSync read-back mismatch.');
+                    return true;
+                } finally { this.busyModules.delete(moduleName); }
+            }
+        };
+        window.StatistixStorageFlow = StatistixStorageFlow;
+
         const SaringanGasController = {
             EXPECTED_MODULE: 'saringan',
             GAS_SOURCE_CODE: `/**
@@ -5459,6 +5641,8 @@ function jsonResponse_(obj) {
                     return;
                 }
 
+                if (this._importInFlight) { UIComponents.showToast('Import masih berjalan.', 'warning'); return; }
+                this._importInFlight = true;
                 UIComponents.showLoading('Menyimpan data Acara Saringan...');
                 try {
                     const res = await fetch(url);
@@ -5509,27 +5693,14 @@ function jsonResponse_(obj) {
                     }
 
                     const nowIso = new Date().toISOString();
-                    const storeSaved = StorageManager.saveSaringanStore({ events: nextEvents });
-                    if (!storeSaved) {
-                        throw new Error('Gagal menulis rekod Acara Saringan ke storan tempatan.');
-                    }
-
-                    const cfgSaved = StorageManager.saveTournamentConfig({
-                        saringanAppsScriptUrl: url,
-                        saringanLastSyncAt: nowIso
+                    await StatistixStorageFlow.commitImport({
+                        moduleName: 'saringan', nextEvents, url, nowIso,
+                        configKey: 'saringanAppsScriptUrl', syncKey: 'saringanLastSyncAt',
+                        getStore: () => StorageManager.getSaringanStore(),
+                        saveStore: value => StorageManager.saveSaringanStore(value),
+                        previousStore: prevStoreSnapshot,
+                        previousConfig: prevConfigSnapshot
                     });
-                    if (!cfgSaved) {
-                        StorageManager.saveSaringanStore(prevStoreSnapshot);
-                        throw new Error('Gagal menyimpan konfigurasi URL Acara Saringan. Data terdahulu dipulihkan.');
-                    }
-
-                    const verifyStore = StorageManager.getSaringanStore();
-                    const verifyCfg = StorageManager.getTournamentConfig();
-                    if (!verifyStore || !verifyStore.events || String(verifyCfg.saringanAppsScriptUrl || '').trim() !== url) {
-                        StorageManager.saveSaringanStore(prevStoreSnapshot);
-                        StorageManager.saveTournamentConfig(prevConfigSnapshot);
-                        throw new Error('Pengesahan bacaan semula storan gagal. Perubahan telah dibatalkan.');
-                    }
 
                     StorageManager.appendSaringanAuditLog({
                         action: missingOrFailedTabs.length > 0 ? 'IMPORT_SEPARA_DATA_GAS' : 'IMPORT_DATA_GAS',
@@ -5567,6 +5738,7 @@ function jsonResponse_(obj) {
                 } catch (err) {
                     UIComponents.showToast(`Gagal mengimport data: ${err.message}`, 'error');
                 } finally {
+                    this._importInFlight = false;
                     UIComponents.hideLoading();
                 }
             }
@@ -6075,6 +6247,8 @@ function jsonResponse_(obj) {
                     return;
                 }
 
+                if (this._importInFlight) { UIComponents.showToast('Import masih berjalan.', 'warning'); return; }
+                this._importInFlight = true;
                 UIComponents.showLoading('Menyimpan data Akhir Balapan...');
                 try {
                     const res = await fetch(url);
@@ -6134,27 +6308,14 @@ function jsonResponse_(obj) {
                     }
 
                     const nowIso = new Date().toISOString();
-                    const storeSaved = StorageManager.saveAkhirBalapanStore({ events: nextEvents });
-                    if (!storeSaved) {
-                        throw new Error('Gagal menulis rekod Akhir Balapan ke storan tempatan.');
-                    }
-
-                    const cfgSaved = StorageManager.saveTournamentConfig({
-                        akhirBalapanAppsScriptUrl: url,
-                        akhirBalapanLastSyncAt: nowIso
+                    await StatistixStorageFlow.commitImport({
+                        moduleName: 'akhir-balapan', nextEvents, url, nowIso,
+                        configKey: 'akhirBalapanAppsScriptUrl', syncKey: 'akhirBalapanLastSyncAt',
+                        getStore: () => StorageManager.getAkhirBalapanStore(),
+                        saveStore: value => StorageManager.saveAkhirBalapanStore(value),
+                        previousStore: prevStoreSnapshot,
+                        previousConfig: prevConfigSnapshot
                     });
-                    if (!cfgSaved) {
-                        StorageManager.saveAkhirBalapanStore(prevStoreSnapshot);
-                        throw new Error('Gagal menyimpan konfigurasi URL Akhir Balapan. Data terdahulu dipulihkan.');
-                    }
-
-                    const verifyStore = StorageManager.getAkhirBalapanStore();
-                    const verifyCfg = StorageManager.getTournamentConfig();
-                    if (!verifyStore || !verifyStore.events || String(verifyCfg.akhirBalapanAppsScriptUrl || '').trim() !== url) {
-                        StorageManager.saveAkhirBalapanStore(prevStoreSnapshot);
-                        StorageManager.saveTournamentConfig(prevConfigSnapshot);
-                        throw new Error('Pengesahan bacaan semula storan gagal. Perubahan telah dibatalkan.');
-                    }
 
                     StorageManager.appendAkhirBalapanAuditLog({
                         action: missingOrFailedTabs.length > 0 ? 'IMPORT_SEPARA_DATA_GAS' : 'IMPORT_DATA_GAS',
@@ -6193,6 +6354,7 @@ function jsonResponse_(obj) {
                 } catch (err) {
                     UIComponents.showToast(`Gagal mengimport data: ${err.message}`, 'error');
                 } finally {
+                    this._importInFlight = false;
                     UIComponents.hideLoading();
                 }
             },
@@ -6760,6 +6922,8 @@ function jsonResponse_(obj) {
                     return;
                 }
 
+                if (this._importInFlight) { UIComponents.showToast('Import masih berjalan.', 'warning'); return; }
+                this._importInFlight = true;
                 UIComponents.showLoading('Menyimpan data Acara Relay...');
                 try {
                     const res = await fetch(url);
@@ -6819,27 +6983,14 @@ function jsonResponse_(obj) {
                     }
 
                     const nowIso = new Date().toISOString();
-                    const storeSaved = StorageManager.saveRelayStore({ events: nextEvents });
-                    if (!storeSaved) {
-                        throw new Error('Gagal menulis rekod Acara Relay ke storan tempatan.');
-                    }
-
-                    const cfgSaved = StorageManager.saveTournamentConfig({
-                        relayAppsScriptUrl: url,
-                        relayLastSyncAt: nowIso
+                    await StatistixStorageFlow.commitImport({
+                        moduleName: 'relay', nextEvents, url, nowIso,
+                        configKey: 'relayAppsScriptUrl', syncKey: 'relayLastSyncAt',
+                        getStore: () => StorageManager.getRelayStore(),
+                        saveStore: value => StorageManager.saveRelayStore(value),
+                        previousStore: prevStoreSnapshot,
+                        previousConfig: prevConfigSnapshot
                     });
-                    if (!cfgSaved) {
-                        StorageManager.saveRelayStore(prevStoreSnapshot);
-                        throw new Error('Gagal menyimpan konfigurasi URL Acara Relay. Data terdahulu dipulihkan.');
-                    }
-
-                    const verifyStore = StorageManager.getRelayStore();
-                    const verifyCfg = StorageManager.getTournamentConfig();
-                    if (!verifyStore || !verifyStore.events || String(verifyCfg.relayAppsScriptUrl || '').trim() !== url) {
-                        StorageManager.saveRelayStore(prevStoreSnapshot);
-                        StorageManager.saveTournamentConfig(prevConfigSnapshot);
-                        throw new Error('Pengesahan bacaan semula storan gagal. Perubahan telah dibatalkan.');
-                    }
 
                     StorageManager.appendRelayAuditLog({
                         action: missingOrFailedTabs.length > 0 ? 'IMPORT_SEPARA_DATA_GAS' : 'IMPORT_DATA_GAS',
@@ -6878,6 +7029,7 @@ function jsonResponse_(obj) {
                 } catch (err) {
                     UIComponents.showToast(`Gagal mengimport data: ${err.message}`, 'error');
                 } finally {
+                    this._importInFlight = false;
                     UIComponents.hideLoading();
                 }
             },
@@ -7540,6 +7692,8 @@ function jsonResponse_(obj) {
                     return;
                 }
 
+                if (this._importInFlight) { UIComponents.showToast('Import masih berjalan.', 'warning'); return; }
+                this._importInFlight = true;
                 UIComponents.showLoading('Menyimpan data Acara Padang...');
                 try {
                     let res;
@@ -7600,28 +7754,14 @@ function jsonResponse_(obj) {
                     }
 
                     const nowIso = new Date().toISOString();
-                    const storeSaved = StorageManager.savePadangStore({ events: nextEvents });
-                    if (!storeSaved) {
-                        throw new Error('Gagal menulis rekod Acara Padang ke storan tempatan.');
-                    }
-
-                    const cfgSaved = StorageManager.saveTournamentConfig({
-                        padangAppsScriptUrl: url,
-                        padangLastSyncAt: nowIso
+                    await StatistixStorageFlow.commitImport({
+                        moduleName: 'padang', nextEvents, url, nowIso,
+                        configKey: 'padangAppsScriptUrl', syncKey: 'padangLastSyncAt',
+                        getStore: () => StorageManager.getPadangStore(),
+                        saveStore: value => StorageManager.savePadangStore(value),
+                        previousStore: prevStoreSnapshot,
+                        previousConfig: prevConfigSnapshot
                     });
-                    if (!cfgSaved) {
-                        StorageManager.savePadangStore(prevStoreSnapshot);
-                        throw new Error('Gagal menyimpan konfigurasi URL Acara Padang. Data terdahulu dipulihkan.');
-                    }
-
-                    // Semak bacaan semula selepas simpan
-                    const verifyStore = StorageManager.getPadangStore();
-                    const verifyCfg = StorageManager.getTournamentConfig();
-                    if (!verifyStore || !verifyStore.events || String(verifyCfg.padangAppsScriptUrl || '').trim() !== url) {
-                        StorageManager.savePadangStore(prevStoreSnapshot);
-                        StorageManager.saveTournamentConfig(prevConfigSnapshot);
-                        throw new Error('Pengesahan bacaan semula storan gagal. Perubahan telah dibatalkan.');
-                    }
 
                     StorageManager.appendPadangAuditLog({
                         action: missingOrFailedTabs.length > 0 ? 'IMPORT_SEPARA_DATA_GAS' : 'IMPORT_DATA_GAS',
@@ -7663,6 +7803,7 @@ function jsonResponse_(obj) {
                 } catch (err) {
                     UIComponents.showToast(`Gagal mengimport data: ${err.message}`, 'error');
                 } finally {
+                    this._importInFlight = false;
                     UIComponents.hideLoading();
                 }
             },
@@ -8377,6 +8518,7 @@ function jsonResponse_(obj) {
             started: false,
             start() {
                 this.stop();
+                if (StatistixStorageFlow.mode === 'FIRESTORE_TEST') return;
                 this.started = true;
                 this.timer = setInterval(() => this.sync(), this.INTERVAL_MS);
                 if (!document.hidden) this.sync();
@@ -8426,7 +8568,7 @@ function jsonResponse_(obj) {
                                 !data.events || typeof data.events !== 'object' || Array.isArray(data.events)) {
                                 throw new Error('Respons GAS tidak mempunyai data acara sah untuk modul ini.');
                             }
-                            if (this.applyChanges(spec, data)) changedModules.push(spec.id);
+                            if (await this.applyChanges(spec, data)) changedModules.push(spec.id);
                         } catch (error) {
                             if (error.name !== 'AbortError') console.warn(`[AutoSync] ${spec.id}:`, error.message);
                         } finally {
@@ -8446,7 +8588,7 @@ function jsonResponse_(obj) {
                     this.isSyncing = false;
                 }
             },
-            applyChanges(spec, data) {
+            async applyChanges(spec, data) {
                 const existing = spec.get();
                 const previous = existing && existing.events || {};
                 const next = { ...previous };
@@ -8503,11 +8645,13 @@ function jsonResponse_(obj) {
                     }
                 }
                 if (!changed) return false;
-                if (!spec.save({ ...existing, events: next })) {
-                    console.warn(`[AutoSync] Gagal menyimpan ${spec.id}; data sebelumnya dikekalkan.`);
+                try {
+                    return await StatistixStorageFlow.commitAutoSync(spec.id, spec.get, spec.save,
+                        existing, { ...existing, events: next });
+                } catch(error) {
+                    console.warn(`[AutoSync] ${spec.id}:`, error.message);
                     return false;
                 }
-                return true;
             }
         };
 
@@ -8520,7 +8664,10 @@ function jsonResponse_(obj) {
             currentView: 'saringan',
             isAdminOpen: false,
 
-            init() {
+            async init() {
+                if (this._initPromise) return this._initPromise;
+                this._initPromise = (async () => {
+                await StatistixStorageFlow.initialize();
                 this.renderNavigation();
                 AdminNavigation.init();
                 SaringanGasController.init();
@@ -8530,6 +8677,10 @@ function jsonResponse_(obj) {
                 GlobalLiveStatusController.updateIndicator();
                 this.loadView(this.currentView);
                 lucide.createIcons();
+                return true;
+                })();
+                try { return await this._initPromise; }
+                catch(error) { this._initPromise = null; throw error; }
             },
 
             renderNavigation() {
@@ -8777,9 +8928,14 @@ function jsonResponse_(obj) {
             if (!document.hidden) AutoSyncManager.sync();
         });
 
-        window.addEventListener('DOMContentLoaded', () => {
-            AppController.init();
-            StaticLoginController.init();
+        window.addEventListener('DOMContentLoaded', async () => {
+            try {
+                await AppController.init();
+                StaticLoginController.init();
+            } catch(error) {
+                console.error('Gagal memulakan aplikasi:', error);
+                UIComponents.showToast('Storan aplikasi tidak tersedia: ' + error.message, 'error');
+            }
         });
     </script>
 <script type="module">
@@ -8852,6 +9008,30 @@ const migration = Object.freeze({
     const a=document.createElement('a'); a.href=url; a.download='statistix-pre-firestore-'+Date.now()+'.json';
     document.body.appendChild(a); a.click(); a.remove(); setTimeout(()=>URL.revokeObjectURL(url),5000);
     return {datasets:Object.keys(payload.datasets).length,bytes:encoder.encode(json).length};
+  },
+  connectionInfo() {
+    return {authenticated:!!(modules.auth?.currentUser && modules.auth.currentUser.uid===modules.user?.uid),
+      projectId:modules.app?.options?.projectId || null,
+      isolatedTest:!!(modules.app?.options?.projectId && modules.app.options.projectId !== firebaseConfig.projectId)};
+  },
+  async connectIsolatedTest(config,email,password) {
+    if (!config || typeof config.projectId!=='string' || !config.appId || !config.apiKey ||
+        config.projectId===firebaseConfig.projectId) throw new Error('Gunakan konfigurasi projek Firebase ujian berasingan.');
+    if (!email || !password) throw new Error('Akaun ujian diperlukan.');
+    const [appmod,authmod,dbmod]=await Promise.all([
+      import('https://www.gstatic.com/firebasejs/11.10.0/firebase-app.js'),
+      import('https://www.gstatic.com/firebasejs/11.10.0/firebase-auth.js'),
+      import('https://www.gstatic.com/firebasejs/11.10.0/firebase-firestore.js')]);
+    const name='statistix-isolated-test';
+    const existing=appmod.getApps().find(a=>a.name===name);
+    if (existing && existing.options.projectId!==config.projectId) throw new Error('Projek ujian lain telah dimulakan.');
+    modules.app=existing || appmod.initializeApp(config,name);
+    modules.auth=authmod.getAuth(modules.app);
+    modules.db=dbmod.getFirestore(modules.app);
+    modules.api={authmod,dbmod};
+    const credentials=await authmod.signInWithEmailAndPassword(modules.auth,email,password);
+    modules.user=credentials.user;
+    return this.connectionInfo();
   },
   async connect(email,password) {
     if (typeof email!=='string' || typeof password!=='string' || !email || !password) throw new Error('Firebase Auth email dan password diperlukan.');
@@ -9013,6 +9193,89 @@ const asyncStorage = Object.freeze({
     if(current.revision!==expectedRevision) throw new Error('CONFLICT: revisi lama.');
     const next=await modify(structuredClone(current.data));
     return this.saveData(name,next,{confirmation,expectedRevision});
+  },
+  /* Safe opt-in GAS import staging. Live controllers do NOT call this method yet.
+   * The staging document and its import metadata are committed in one transaction.
+   * Changes cannot overwrite an unrelated newer revision.
+   */
+  async stageGasImport(moduleName, normalizedEvents, {confirmation,expectedRevision,importId}={}) {
+    const mapping={saringan:'saringan_records','akhir-balapan':'akhir_balapan_records',relay:'relay_records',padang:'padang_records'};
+    const name=mapping[moduleName];
+    if (!name || confirmation!=='STAGE_VALIDATED_GAS_IMPORT_ONLY') throw new Error('Import staging tidak dibenarkan.');
+    if (!Number.isSafeInteger(expectedRevision) || expectedRevision<0 ||
+        !/^[A-Za-z0-9_-]{8,96}$/.test(importId||'')) throw new Error('Import ID/revisi tidak sah.');
+    if (modules.app?.options.projectId===firebaseConfig.projectId) throw new Error('Staging GAS hanya dibenarkan dalam projek ujian.');
+    const payload=cloneJSON({events:normalizedEvents});
+    if (!Object.keys(payload.events||{}).length) throw new Error('Import kosong.');
+    const checksum=await hash(payload), user=requireReady(), {dbmod}=modules.api;
+    const ref=dbmod.doc(modules.db,'async_storage_staging',user.uid,'import_jobs',importId);
+    const active=datasetRef(name);
+    updateOperation(name,AsyncStorageStatus.SAVING,'CREATED / VALIDATING');
+    try {
+      const result=await dbmod.runTransaction(modules.db,async tx=>{
+        const [jobSnap, activeSnap]=await Promise.all([tx.get(ref),tx.get(active)]);
+        const existing=jobSnap.exists()?jobSnap.data():null;
+        if (existing) {
+          if (existing.checksum!==checksum || existing.dataset!==name) throw new Error('CONFLICT: import ID tidak sepadan.');
+          return {alreadyApplied:true,state:existing.state};
+        }
+        const revision=activeSnap.exists()?activeSnap.data().revision:0;
+        if (revision!==expectedRevision) throw new Error('CONFLICT: revisi aktif telah berubah.');
+        tx.set(ref,{dataset:name,moduleName,checksum,payload,expectedRevision,
+          state:'STAGED',createdAt:dbmod.serverTimestamp()});
+        return {alreadyApplied:false,state:'STAGED'};
+      });
+      updateOperation(name,AsyncStorageStatus.PENDING,'STAGED - server read-back');
+      const verified=await dbmod.getDocFromServer(ref);
+      if (!verified.exists() || verified.data().checksum!==checksum ||
+          await hash(verified.data().payload)!==checksum) throw new Error('Staging tidak dapat disahkan.');
+      updateOperation(name,AsyncStorageStatus.SAVED,'STAGED - NOT PUBLISHED');
+      return {ok:true,serverConfirmed:true,alreadyApplied:result.alreadyApplied,
+        importId,state:verified.data().state,published:verified.data().state==='PUBLISHED'};
+    } catch(error) {updateOperation(name,AsyncStorageStatus.FAILED,error.message);throw error;}
+  },
+  async publishGasImport(moduleName,importId,{confirmation,expectedRevision}={}) {
+    const mapping={saringan:'saringan_records','akhir-balapan':'akhir_balapan_records',relay:'relay_records',padang:'padang_records'};
+    const name=mapping[moduleName];
+    if (!name || confirmation!=='PUBLISH_TO_ISOLATED_TEST_ONLY' || !Number.isSafeInteger(expectedRevision))
+      throw new Error('Penerbitan ujian tidak dibenarkan.');
+    if (modules.app?.options.projectId===firebaseConfig.projectId) throw new Error('Penerbitan projek produksi disekat.');
+    const user=requireReady(),{dbmod}=modules.api;
+    const jobRef=dbmod.doc(modules.db,'async_storage_staging',user.uid,'import_jobs',importId);
+    const activeRef=datasetRef(name);
+    updateOperation(name,AsyncStorageStatus.SAVING,'PUBLISHING');
+    try {
+      const result=await dbmod.runTransaction(modules.db,async tx=>{
+        const [jobSnap,activeSnap]=await Promise.all([tx.get(jobRef),tx.get(activeRef)]);
+        if(!jobSnap.exists()) throw new Error('RECOVERY_REQUIRED: job staging tiada.');
+        const job=jobSnap.data(), current=activeSnap.exists()?activeSnap.data().revision:0;
+        if(job.dataset!==name) throw new Error('CONFLICT: modul tidak sepadan.');
+        if(job.state==='PUBLISHED') return {revision:job.publishedRevision,alreadyPublished:true};
+        if(job.state!=='STAGED' || job.expectedRevision!==expectedRevision || current!==expectedRevision)
+          throw new Error('RECOVERY_REQUIRED: revisi aktif berubah, semakan manual diperlukan.');
+        const revision=current+1;
+        tx.set(activeRef,{revision,payload:job.payload,checksum:job.checksum,
+          importId,updatedAt:dbmod.serverTimestamp()});
+        tx.update(jobRef,{state:'PUBLISHED',publishedRevision:revision,publishedAt:dbmod.serverTimestamp()});
+        return {revision,alreadyPublished:false};
+      });
+      updateOperation(name,AsyncStorageStatus.PENDING,'Penerbitan menunggu bacaan pelayan');
+      const [active,job]=await Promise.all([dbmod.getDocFromServer(activeRef),dbmod.getDocFromServer(jobRef)]);
+      if(!active.exists() || !job.exists() || active.data().revision!==result.revision ||
+        active.data().importId!==importId || job.data().state!=='PUBLISHED' ||
+        await hash(active.data().payload)!==active.data().checksum)
+        throw new Error('RECOVERY_REQUIRED: commit mungkin berjaya tetapi bacaan semula tidak sepadan.');
+      updateOperation(name,AsyncStorageStatus.SAVED,'PUBLISHED - disahkan pelayan');
+      return {ok:true,serverConfirmed:true,state:'PUBLISHED',revision:result.revision,alreadyPublished:result.alreadyPublished};
+    } catch(error) {updateOperation(name,AsyncStorageStatus.FAILED,error.message);throw error;}
+  },
+  async inspectImportJob(importId) {
+    const user=requireReady(),{dbmod}=modules.api;
+    if (!/^[A-Za-z0-9_-]{8,96}$/.test(importId||'')) throw new Error('Import ID tidak sah.');
+    const ref=dbmod.doc(modules.db,'async_storage_staging',user.uid,'import_jobs',importId);
+    const snap=await dbmod.getDocFromServer(ref);
+    return snap.exists()?{exists:true,state:snap.data().state,dataset:snap.data().dataset,
+      expectedRevision:snap.data().expectedRevision,publishedRevision:snap.data().publishedRevision||null}:{exists:false};
   },
   async deleteData(name,{confirmation,expectedRevision}={}) {
     allowedDataset(name);
