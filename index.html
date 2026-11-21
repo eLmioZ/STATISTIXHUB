@@ -8395,6 +8395,111 @@ function jsonResponse_(obj) {
         };
 
         /**
+         * FIRESTORE MIGRATION PREPARATION (DORMANT / NO PRODUCTION WRITES)
+         * Persediaan sahaja. Tiada init, sync, baca/tulis Firestore atau migrasi
+         * berlaku secara automatik. Tidak mengganti StorageManager.
+         * Laluan koleksi belum ditetapkan sehingga audit Firestore sebenar.
+         */
+        const FirestoreMigrationPreparation = Object.freeze({
+            projectId: 'statistix-hub-244c9',
+            sdkVersion: '13.4.0',
+            firebaseConfig: Object.freeze({
+                apiKey: 'AIzaSyCMYYhT4T67V1ra3CnXmqbdCd3pkc6AGhA',
+                authDomain: 'statistix-hub-244c9.firebaseapp.com',
+                databaseURL: 'https://statistix-hub-244c9-default-rtdb.asia-southeast1.firebasedatabase.app',
+                projectId: 'statistix-hub-244c9',
+                storageBucket: 'statistix-hub-244c9.firebasestorage.app',
+                messagingSenderId: '1082642887778',
+                appId: '1:1082642887778:web:3600a9e61e53060efc8d3b',
+                measurementId: 'G-M2PE8EFDBM'
+            }),
+            modules: Object.freeze({
+                saringan: 'statistix_hub_saringan_records',
+                'akhir-balapan': 'statistix_hub_akhir_balapan_records',
+                relay: 'statistix_hub_relay_records',
+                padang: 'statistix_hub_padang_records'
+            }),
+            validateSnapshot(snapshot) {
+                if (!snapshot || typeof snapshot !== 'object' || Array.isArray(snapshot)) {
+                    throw new Error('Snapshot mestilah objek.');
+                }
+                const result = {};
+                for (const [moduleId, key] of Object.entries(this.modules)) {
+                    const item = snapshot[moduleId];
+                    if (!item || item.storageKey !== key || typeof item.present !== 'boolean') {
+                        throw new Error(`Inventori tidak lengkap: ${moduleId}`);
+                    }
+                    if (!item.present) {
+                        result[moduleId] = { present: false, count: null, ids: [] };
+                        continue;
+                    }
+                    const value = item.value;
+                    if (!value || typeof value !== 'object' || Array.isArray(value) ||
+                        !value.events || typeof value.events !== 'object' || Array.isArray(value.events)) {
+                        throw new Error(`Struktur events tidak sah: ${moduleId}`);
+                    }
+                    const ids = Object.keys(value.events);
+                    if (ids.some(id => !id || id.includes('/'))) {
+                        throw new Error(`Event ID tidak sah: ${moduleId}`);
+                    }
+                    result[moduleId] = { present: true, count: ids.length, ids };
+                }
+                return result;
+            },
+            // BACA LOCALSTORAGE SAHAJA; tidak menulis, mengosongkan atau memigrasi data.
+            inspectLocalCompetitionData() {
+                const snapshot = {};
+                for (const [moduleId, storageKey] of Object.entries(this.modules)) {
+                    const raw = window.localStorage.getItem(storageKey);
+                    snapshot[moduleId] = {
+                        storageKey,
+                        present: raw !== null,
+                        value: raw === null ? null : JSON.parse(raw)
+                    };
+                }
+                return { projectId: this.projectId, createdAt: new Date().toISOString(),
+                    snapshot, inventory: this.validateSnapshot(snapshot) };
+            },
+            // SHA-256 menyemak integriti eksport; bukan tanda rekod rasmi/autoritatif.
+            async createBackupPayload() {
+                const payload = this.inspectLocalCompetitionData();
+                const body = JSON.stringify(payload);
+                const digest = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(body));
+                const sha256 = Array.from(new Uint8Array(digest), byte => byte.toString(16).padStart(2, '0')).join('');
+                return { payload, sha256 };
+            },
+            // Initialize SDK hanya apabila dipanggil secara jelas. Tiada query atau write.
+            async prepareReadOnlyClient() {
+                const base = `https://www.gstatic.com/firebasejs/${this.sdkVersion}`;
+                const appSdk = await import(`${base}/firebase-app.js`);
+                const firestoreSdk = await import(`${base}/firebase-firestore.js`);
+                const matches = appSdk.getApps().filter(app => app.options.projectId === this.projectId);
+                const app = matches[0] || appSdk.initializeApp(this.firebaseConfig);
+                if (app.options.projectId !== this.projectId) throw new Error('Firebase project mismatch.');
+                return { app, db: firestoreSdk.getFirestore(app), firestoreSdk };
+            },
+            // BACA SAHAJA: path mesti disahkan oleh pentadbir; tidak membuat koleksi.
+            async readApprovedCollection(client, approvedPath) {
+                if (!client || !client.db || !client.firestoreSdk) throw new Error('Client Firestore tidak sah.');
+                if (typeof approvedPath !== 'string' || !approvedPath ||
+                    approvedPath.startsWith('/') || approvedPath.endsWith('/') ||
+                    approvedPath.split('/').length % 2 === 0) {
+                    throw new Error('Path koleksi tidak sah atau belum disahkan.');
+                }
+                const fs = client.firestoreSdk;
+                const query = await fs.getDocs(fs.collection(client.db, approvedPath));
+                return query.docs.map(doc => ({ id: doc.id, data: doc.data() }));
+            },
+            // Tiada API write / migration / cutover dalam fasa persediaan ini.
+            status() {
+                return { stage: 'PREPARATION_ONLY', firestorePrimary: false,
+                    localStoragePrimary: true, productionWritesEnabled: false,
+                    migrationPerformed: false, dataBackupVerified: false,
+                    trustedWriterVerified: false, securityRulesVerified: false };
+            }
+        });
+
+        /**
          * 5. PENGAWAL UTAMA APLIKASI (AppController)
          */
         const AppController = {
