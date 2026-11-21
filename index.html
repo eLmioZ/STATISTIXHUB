@@ -1966,6 +1966,7 @@
             SESSION_KEY: 'statistix_hub_user_session_v1',
             isPasswordVisible: false,
             currentUser() {
+                if (VerifiedFirebaseRuntime.enabled) return VerifiedFirebaseRuntime.ready ? VerifiedFirebaseRuntime.profile : null;
                 try {
                     const session=JSON.parse(sessionStorage.getItem(this.SESSION_KEY) || 'null');
                     if(!session?.uid) return null;
@@ -1978,6 +1979,11 @@
                 if (button) button.hidden = true;
             },
             init() {
+                if (VerifiedFirebaseRuntime.enabled) {
+                    document.getElementById('static-login-form')?.addEventListener('submit', e => {e.preventDefault();this.handleLoginSubmit();});
+                    this.showLoginScreen();
+                    return;
+                }
                 UserStore.migrateDisplayNames();
                 document.getElementById('static-login-form')?.addEventListener('submit', e => {e.preventDefault();this.handleLoginSubmit();});
                 this.currentUser() ? this.showDashboard() : this.showLoginScreen();
@@ -2006,9 +2012,12 @@
                 const button=document.getElementById('btn-static-login-submit');
                 if(button)button.disabled=true;
                 try {
-                    const user=await UserStore.authenticate(id,password);
+                    const user=VerifiedFirebaseRuntime.enabled
+                        ? await VerifiedFirebaseRuntime.signIn(id,password)
+                        : await UserStore.authenticate(id,password);
                     if(!user) {this.clearSession();this.setFeedback('ID atau Kata Laluan Tidak Sah','error');return;}
-                    this.setSession(user);this.setFeedback('Login berjaya.','success');
+                    if (!VerifiedFirebaseRuntime.enabled) this.setSession(user);
+                    this.setFeedback('Login berjaya.','success');
                     if(input)input.value='';
                     this.showDashboard();
                     this.showWelcome(user);
@@ -2047,7 +2056,9 @@
                 if(usersTab)usersTab.classList.toggle('hidden',!this.hasRole('SUPER ADMIN'));
                 if(!this.hasRole('SUPER ADMIN') && AdminNavigation.activeTab==='pengurusan-pengguna') AdminNavigation.switchTab('pengurusan-data');
                 AppController.loadView(AppController.currentView||'saringan');
-                AutoSyncManager.start();
+                if (!VerifiedFirebaseRuntime.enabled) AutoSyncManager.start();
+                // Firestore mode receives central updates from onSnapshot. A trusted backend
+                // (not each browser) must own GAS -> Firestore writes.
                 if(typeof lucide!=='undefined')lucide.createIcons();
             },
             showLoginScreen() {
@@ -2067,6 +2078,9 @@
                 if(typeof lucide!=='undefined')lucide.createIcons();
             },
             logout() {
+                if (VerifiedFirebaseRuntime.enabled) {
+                    VerifiedFirebaseRuntime.signOut().catch(error => console.error('Firebase logout gagal',error));
+                }
                 this.clearSession();
                 this.syncAdminButtonVisibility();
                 if(AppController.isAdminOpen)AppController.toggleAdminView();
@@ -2193,6 +2207,7 @@
             },
 
             getSaringanStore() {
+                if (VerifiedFirebaseRuntime.enabled) return VerifiedFirebaseRuntime.getStore('saringan');
                 try {
                     const raw = window.localStorage.getItem(this.KEYS.SARINGAN_STORE);
                     if (!raw) return { events: {} };
@@ -2205,6 +2220,10 @@
             },
 
             saveSaringanStore(storeObj) {
+                if (VerifiedFirebaseRuntime.enabled) {
+                    console.error('Penulisan terus dari browser disekat. Gunakan backend penulis dipercayai.');
+                    return false;
+                }
                 try {
                     window.localStorage.setItem(this.KEYS.SARINGAN_STORE, JSON.stringify(storeObj));
                     return true;
@@ -2239,6 +2258,7 @@
             },
 
             getAkhirBalapanStore() {
+                if (VerifiedFirebaseRuntime.enabled) return VerifiedFirebaseRuntime.getStore('akhir-balapan');
                 try {
                     const raw = window.localStorage.getItem(this.KEYS.AKHIR_BALAPAN_STORE);
                     if (!raw) return { events: {} };
@@ -2251,6 +2271,10 @@
             },
 
             saveAkhirBalapanStore(storeObj) {
+                if (VerifiedFirebaseRuntime.enabled) {
+                    console.error('Penulisan terus dari browser disekat. Gunakan backend penulis dipercayai.');
+                    return false;
+                }
                 try {
                     window.localStorage.setItem(this.KEYS.AKHIR_BALAPAN_STORE, JSON.stringify(storeObj));
                     if (typeof PodiumModule !== 'undefined' && typeof PodiumModule.refreshIfActive === 'function') {
@@ -2288,6 +2312,7 @@
             },
 
             getRelayStore() {
+                if (VerifiedFirebaseRuntime.enabled) return VerifiedFirebaseRuntime.getStore('relay');
                 try {
                     const raw = window.localStorage.getItem(this.KEYS.RELAY_STORE);
                     if (!raw) return { events: {} };
@@ -2300,6 +2325,10 @@
             },
 
             saveRelayStore(storeObj) {
+                if (VerifiedFirebaseRuntime.enabled) {
+                    console.error('Penulisan terus dari browser disekat. Gunakan backend penulis dipercayai.');
+                    return false;
+                }
                 try {
                     window.localStorage.setItem(this.KEYS.RELAY_STORE, JSON.stringify(storeObj));
                     if (typeof PodiumModule !== 'undefined' && typeof PodiumModule.refreshIfActive === 'function') {
@@ -2337,6 +2366,7 @@
             },
 
             getPadangStore() {
+                if (VerifiedFirebaseRuntime.enabled) return VerifiedFirebaseRuntime.getStore('padang');
                 try {
                     const raw = window.localStorage.getItem(this.KEYS.PADANG_STORE);
                     if (!raw) return { events: {} };
@@ -2349,6 +2379,10 @@
             },
 
             savePadangStore(storeObj) {
+                if (VerifiedFirebaseRuntime.enabled) {
+                    console.error('Penulisan terus dari browser disekat. Gunakan backend penulis dipercayai.');
+                    return false;
+                }
                 try {
                     window.localStorage.setItem(this.KEYS.PADANG_STORE, JSON.stringify(storeObj));
                     if (typeof PodiumModule !== 'undefined' && typeof PodiumModule.refreshIfActive === 'function') {
@@ -8549,6 +8583,133 @@ function jsonResponse_(obj) {
                 return this.readAllModules(client);
             }
         });
+
+        /**
+         * FIREBASE AUTH + COMPETITION READER (STAGED / FAIL CLOSED)
+         * This is integrated with login and hydration but remains disabled
+         * until security, backups, role claims, data, and GAS writer are VERIFIED.
+         * No Firestore writes are performed by the browser.
+         * Never toggle this gate solely to test production access.
+         */
+        const VerifiedFirebaseRuntime = {
+            ENABLE_VERIFIED_CUTOVER: false,
+            projectId: 'statistix-hub-244c9',
+            ready: false,
+            client: null,
+            authSdk: null,
+            auth: null,
+            user: null,
+            profile: null,
+            stores: Object.fromEntries(['saringan','akhir-balapan','relay','padang'].map(id => [id, { events: {} }])),
+            unsubscribes: [],
+            get enabled() { return this.ENABLE_VERIFIED_CUTOVER; },
+            getStore(moduleId) {
+                if (!this.ready) return { events: {} };
+                return this.stores[moduleId] || { events: {} };
+            },
+            async initialize() {
+                if (!this.enabled) return;
+                if (this.client) return;
+                const client = await FirestoreMigrationPreparation.prepareReadOnlyClient();
+                if (client.app.options.projectId !== this.projectId) throw new Error('Firebase project mismatch.');
+                const authSdk = await import(`https://www.gstatic.com/firebasejs/${FirestoreMigrationPreparation.sdkVersion}/firebase-auth.js`);
+                const auth = authSdk.getAuth(client.app);
+                await authSdk.setPersistence(auth, authSdk.browserSessionPersistence);
+                this.client = client;
+                this.authSdk = authSdk;
+                this.auth = auth;
+            },
+            async getVerifiedProfile(authUser) {
+                const result = await authUser.getIdTokenResult(true);
+                const role = result.claims.statistixRole;
+                if (!['SUPER ADMIN','ADMIN','PEGAWAI'].includes(role)) {
+                    throw new Error('Peranan Firebase belum ditetapkan oleh pentadbir yang dipercayai.');
+                }
+                return { uid: authUser.uid, id: authUser.email || authUser.uid,
+                    namaPegawai: String(result.claims.statistixName || authUser.email || '').slice(0, 120), role };
+            },
+            async signIn(id, password) {
+                if (!this.enabled) throw new Error('Firebase cutover belum diluluskan.');
+                await this.initialize();
+                if (!id.includes('@')) throw new Error('Gunakan email Firebase Authentication untuk mod Firestore. Pemetaan ID lama belum disahkan.');
+                const credential = await this.authSdk.signInWithEmailAndPassword(this.auth, id, password);
+                try {
+                    const profile = await this.getVerifiedProfile(credential.user);
+                    await this.hydrate(credential.user);
+                    this.user = credential.user;
+                    this.profile = profile;
+                    return profile;
+                } catch (error) {
+                    this.detach();
+                    await this.authSdk.signOut(this.auth);
+                    throw error;
+                }
+            },
+            async hydrate(authUser) {
+                this.detach();
+                this.ready = false;
+                const { db, firestoreSdk: fs } = this.client;
+                const nextStores = {};
+                for (const [id, name] of Object.entries(CompetitionFirestoreReadBridge.collectionNames)) {
+                    const col = fs.collection(db, 'statistix_competitions', name, 'events');
+                    const snapshot = await fs.getDocsFromServer(col);
+                    const events = {};
+                    snapshot.forEach(doc => {
+                        const value = doc.data();
+                        if (!value || typeof value !== 'object' || String(value.eventNo || doc.id) !== doc.id) {
+                            throw new Error(`Rekod Firestore tidak sah: ${id}`);
+                        }
+                        events[doc.id] = value;
+                    });
+                    nextStores[id] = { events };
+                }
+                this.stores = nextStores;
+                this.ready = true;
+                for (const [id, name] of Object.entries(CompetitionFirestoreReadBridge.collectionNames)) {
+                    const col = fs.collection(db, 'statistix_competitions', name, 'events');
+                    const unsubscribe = fs.onSnapshot(col, snapshot => {
+                        if (!this.ready || this.user?.uid !== authUser.uid || snapshot.metadata.fromCache || snapshot.metadata.hasPendingWrites) return;
+                        const events = {};
+                        try {
+                            snapshot.forEach(doc => {
+                                const value = doc.data();
+                                if (!value || typeof value !== 'object' || String(value.eventNo || doc.id) !== doc.id) {
+                                    throw new Error(`Rekod Firestore tidak sah: ${id}`);
+                                }
+                                events[doc.id] = value;
+                            });
+                        } catch(error) {
+                            console.error('[STATISTIX] Data Firestore tidak sah:',error.message);
+                            return;
+                        }
+                        this.stores[id] = { events };
+                        if (document.getElementById('dashboard-shell')?.classList.contains('hidden')) return;
+                        if (!AppController.isAdminOpen && (AppController.currentView === id ||
+                            (AppController.currentView === 'podium' && id !== 'saringan'))) {
+                            AppController.loadView(AppController.currentView);
+                        }
+                    }, error => {
+                        console.error('[STATISTIX] Firestore listener failed:', error.code || error.message);
+                        this.detach();
+                        StaticLoginController.setFeedback('Sambungan data Firestore gagal. Sila log masuk semula.','error');
+                        StaticLoginController.showLoginScreen();
+                    });
+                    this.unsubscribes.push(unsubscribe);
+                }
+            },
+            detach() {
+                for (const unsubscribe of this.unsubscribes.splice(0)) {
+                    try { unsubscribe(); } catch(e) { console.warn('Firestore unsubscribe gagal',e); }
+                }
+                this.ready = false;
+                this.user = null;
+                this.profile = null;
+            },
+            async signOut() {
+                this.detach();
+                if (this.auth && this.authSdk) await this.authSdk.signOut(this.auth);
+            }
+        };
 
         /**
          * 5. PENGAWAL UTAMA APLIKASI (AppController)
