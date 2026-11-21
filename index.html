@@ -1966,7 +1966,6 @@
             SESSION_KEY: 'statistix_hub_user_session_v1',
             isPasswordVisible: false,
             currentUser() {
-                if (VerifiedFirebaseRuntime.enabled) return VerifiedFirebaseRuntime.ready ? VerifiedFirebaseRuntime.profile : null;
                 try {
                     const session=JSON.parse(sessionStorage.getItem(this.SESSION_KEY) || 'null');
                     if(!session?.uid) return null;
@@ -1979,11 +1978,6 @@
                 if (button) button.hidden = true;
             },
             init() {
-                if (VerifiedFirebaseRuntime.enabled) {
-                    document.getElementById('static-login-form')?.addEventListener('submit', e => {e.preventDefault();this.handleLoginSubmit();});
-                    this.showLoginScreen();
-                    return;
-                }
                 UserStore.migrateDisplayNames();
                 document.getElementById('static-login-form')?.addEventListener('submit', e => {e.preventDefault();this.handleLoginSubmit();});
                 this.currentUser() ? this.showDashboard() : this.showLoginScreen();
@@ -2012,11 +2006,9 @@
                 const button=document.getElementById('btn-static-login-submit');
                 if(button)button.disabled=true;
                 try {
-                    const user=VerifiedFirebaseRuntime.enabled
-                        ? await VerifiedFirebaseRuntime.signIn(id,password)
-                        : await UserStore.authenticate(id,password);
+                    const user=await UserStore.authenticate(id,password);
                     if(!user) {this.clearSession();this.setFeedback('ID atau Kata Laluan Tidak Sah','error');return;}
-                    if (!VerifiedFirebaseRuntime.enabled) this.setSession(user);
+                    this.setSession(user);
                     this.setFeedback('Login berjaya.','success');
                     if(input)input.value='';
                     this.showDashboard();
@@ -2056,9 +2048,7 @@
                 if(usersTab)usersTab.classList.toggle('hidden',!this.hasRole('SUPER ADMIN'));
                 if(!this.hasRole('SUPER ADMIN') && AdminNavigation.activeTab==='pengurusan-pengguna') AdminNavigation.switchTab('pengurusan-data');
                 AppController.loadView(AppController.currentView||'saringan');
-                if (!VerifiedFirebaseRuntime.enabled) AutoSyncManager.start();
-                // Firestore mode receives central updates from onSnapshot. A trusted backend
-                // (not each browser) must own GAS -> Firestore writes.
+                AutoSyncManager.start();
                 if(typeof lucide!=='undefined')lucide.createIcons();
             },
             showLoginScreen() {
@@ -2078,9 +2068,6 @@
                 if(typeof lucide!=='undefined')lucide.createIcons();
             },
             logout() {
-                if (VerifiedFirebaseRuntime.enabled) {
-                    VerifiedFirebaseRuntime.signOut().catch(error => console.error('Firebase logout gagal',error));
-                }
                 this.clearSession();
                 this.syncAdminButtonVisibility();
                 if(AppController.isAdminOpen)AppController.toggleAdminView();
@@ -2207,7 +2194,6 @@
             },
 
             getSaringanStore() {
-                if (VerifiedFirebaseRuntime.enabled) return VerifiedFirebaseRuntime.getStore('saringan');
                 try {
                     const raw = window.localStorage.getItem(this.KEYS.SARINGAN_STORE);
                     if (!raw) return { events: {} };
@@ -2220,10 +2206,6 @@
             },
 
             saveSaringanStore(storeObj) {
-                if (VerifiedFirebaseRuntime.enabled) {
-                    console.error('Penulisan terus dari browser disekat. Gunakan backend penulis dipercayai.');
-                    return false;
-                }
                 try {
                     window.localStorage.setItem(this.KEYS.SARINGAN_STORE, JSON.stringify(storeObj));
                     return true;
@@ -2258,7 +2240,6 @@
             },
 
             getAkhirBalapanStore() {
-                if (VerifiedFirebaseRuntime.enabled) return VerifiedFirebaseRuntime.getStore('akhir-balapan');
                 try {
                     const raw = window.localStorage.getItem(this.KEYS.AKHIR_BALAPAN_STORE);
                     if (!raw) return { events: {} };
@@ -2271,10 +2252,6 @@
             },
 
             saveAkhirBalapanStore(storeObj) {
-                if (VerifiedFirebaseRuntime.enabled) {
-                    console.error('Penulisan terus dari browser disekat. Gunakan backend penulis dipercayai.');
-                    return false;
-                }
                 try {
                     window.localStorage.setItem(this.KEYS.AKHIR_BALAPAN_STORE, JSON.stringify(storeObj));
                     if (typeof PodiumModule !== 'undefined' && typeof PodiumModule.refreshIfActive === 'function') {
@@ -2312,7 +2289,6 @@
             },
 
             getRelayStore() {
-                if (VerifiedFirebaseRuntime.enabled) return VerifiedFirebaseRuntime.getStore('relay');
                 try {
                     const raw = window.localStorage.getItem(this.KEYS.RELAY_STORE);
                     if (!raw) return { events: {} };
@@ -2325,10 +2301,6 @@
             },
 
             saveRelayStore(storeObj) {
-                if (VerifiedFirebaseRuntime.enabled) {
-                    console.error('Penulisan terus dari browser disekat. Gunakan backend penulis dipercayai.');
-                    return false;
-                }
                 try {
                     window.localStorage.setItem(this.KEYS.RELAY_STORE, JSON.stringify(storeObj));
                     if (typeof PodiumModule !== 'undefined' && typeof PodiumModule.refreshIfActive === 'function') {
@@ -2366,7 +2338,6 @@
             },
 
             getPadangStore() {
-                if (VerifiedFirebaseRuntime.enabled) return VerifiedFirebaseRuntime.getStore('padang');
                 try {
                     const raw = window.localStorage.getItem(this.KEYS.PADANG_STORE);
                     if (!raw) return { events: {} };
@@ -2379,10 +2350,6 @@
             },
 
             savePadangStore(storeObj) {
-                if (VerifiedFirebaseRuntime.enabled) {
-                    console.error('Penulisan terus dari browser disekat. Gunakan backend penulis dipercayai.');
-                    return false;
-                }
                 try {
                     window.localStorage.setItem(this.KEYS.PADANG_STORE, JSON.stringify(storeObj));
                     if (typeof PodiumModule !== 'undefined' && typeof PodiumModule.refreshIfActive === 'function') {
@@ -2419,6 +2386,122 @@
                 }
             }
         };
+
+        /**
+         * STORAGE SERVICE LOCAL-ONLY (v1).
+         * Keeps existing StorageManager data keys/structures backward compatible.
+         * No automatic cloud retrieval or automatic destructive import.
+         * Excludes account/password data from competition exports.
+         */
+        const StorageService = Object.freeze({
+            schemaVersion: 1,
+            moduleMethods: Object.freeze({
+                'saringan': ['getSaringanStore', 'saveSaringanStore'],
+                'akhir-balapan': ['getAkhirBalapanStore', 'saveAkhirBalapanStore'],
+                'relay': ['getRelayStore', 'saveRelayStore'],
+                'padang': ['getPadangStore', 'savePadangStore']
+            }),
+            initialize() {
+                const status = StorageManager.checkAvailability();
+                if (!status.ok) throw new Error('LocalStorage tidak tersedia.');
+                return status;
+            },
+            getAll(moduleId) {
+                const methods = this.moduleMethods[moduleId];
+                if (!methods) throw new Error('Modul tidak dikenal pasti.');
+                const store = StorageManager[methods[0]]();
+                if (!store || typeof store.events !== 'object' || !store.events || Array.isArray(store.events))
+                    throw new Error('Format data acara tidak sah.');
+                return structuredClone(store.events);
+            },
+            getById(moduleId, id) {
+                const events = this.getAll(moduleId);
+                return Object.hasOwn(events, String(id)) ? events[String(id)] : null;
+            },
+            validateData(store) {
+                if (!store || typeof store !== 'object' || Array.isArray(store) ||
+                    !store.events || typeof store.events !== 'object' || Array.isArray(store.events))
+                    throw new Error('Struktur {events:{}} diperlukan.');
+                for (const [id, event] of Object.entries(store.events)) {
+                    if (!id || id === '__proto__' || id === 'constructor' || id === 'prototype' ||
+                        !event || typeof event !== 'object' || Array.isArray(event))
+                        throw new Error('ID atau rekod acara tidak sah.');
+                }
+                return true;
+            },
+            _save(moduleId, store) {
+                const methods = this.moduleMethods[moduleId];
+                if (!methods) throw new Error('Modul tidak dikenal pasti.');
+                this.validateData(store);
+                if (!StorageManager[methods[1]](store)) throw new Error('Gagal menyimpan data ke LocalStorage.');
+                return true;
+            },
+            create(moduleId, id, record) {
+                const key = String(id || (crypto.randomUUID ? crypto.randomUUID() : Date.now() + '-' + Math.random()));
+                const store = {events:this.getAll(moduleId)};
+                if (Object.hasOwn(store.events, key)) throw new Error('ID rekod sudah wujud.');
+                store.events[key] = structuredClone(record);
+                this._save(moduleId, store);
+                return key;
+            },
+            update(moduleId, id, record) {
+                const key = String(id), store = {events:this.getAll(moduleId)};
+                if (!Object.hasOwn(store.events, key)) throw new Error('Rekod tidak ditemui.');
+                store.events[key] = structuredClone(record);
+                return this._save(moduleId, store);
+            },
+            delete(moduleId, id) {
+                const key = String(id), store = {events:this.getAll(moduleId)};
+                if (!Object.hasOwn(store.events, key)) return false;
+                delete store.events[key];
+                return this._save(moduleId, store);
+            },
+            exportData() {
+                const modules = {};
+                for (const id of Object.keys(this.moduleMethods)) modules[id] = {events:this.getAll(id)};
+                return {format:'statistix-local-backup',schemaVersion:this.schemaVersion,
+                    exportedAt:new Date().toISOString(),modules};
+            },
+            downloadBackup() {
+                const blob = new Blob([JSON.stringify(this.exportData(),null,2)],{type:'application/json'});
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a'); a.href=url;
+                a.download='statistix-local-backup-'+new Date().toISOString().slice(0,10)+'.json';
+                document.body.appendChild(a); a.click(); a.remove();
+                setTimeout(()=>URL.revokeObjectURL(url),1000);
+            },
+            importData(payload,{overwrite=false}={}) {
+                if (!payload || payload.format!=='statistix-local-backup' ||
+                    payload.schemaVersion!==this.schemaVersion || !payload.modules ||
+                    typeof payload.modules!=='object') throw new Error('Fail sandaran atau versi skema tidak sah.');
+                const staged = {};
+                for (const id of Object.keys(this.moduleMethods)) {
+                    if (!Object.hasOwn(payload.modules,id)) throw new Error('Sandaran tiada modul '+id);
+                    const store = payload.modules[id];
+                    this.validateData(store);
+                    staged[id] = structuredClone(store);
+                    if (!overwrite && Object.keys(this.getAll(id)).length)
+                        throw new Error('Data sedia ada ditemui. Import dihentikan untuk elak overwrite.');
+                }
+                if (overwrite && !window.confirm('Gantikan semua data acara setempat? Pastikan sandaran telah disimpan.'))
+                    return false;
+                const snapshots = {};
+                for (const [id, methods] of Object.entries(this.moduleMethods)) {
+                    const key = StorageManager.KEYS[({saringan:'SARINGAN_STORE','akhir-balapan':'AKHIR_BALAPAN_STORE',relay:'RELAY_STORE',padang:'PADANG_STORE'})[id]];
+                    snapshots[key] = window.localStorage.getItem(key);
+                }
+                try {
+                    for (const id of Object.keys(this.moduleMethods)) this._save(id,staged[id]);
+                    return true;
+                } catch(error) {
+                    for (const [key,raw] of Object.entries(snapshots)) {
+                        try { if(raw===null) window.localStorage.removeItem(key); else window.localStorage.setItem(key,raw); }
+                        catch(rollbackError) { console.error('Rollback failed',key,rollbackError); }
+                    }
+                    throw error;
+                }
+            }
+        });
 
         /**
          * 3. KOMPONEN UI GUNA SEMULA (UIComponents)
@@ -8428,288 +8511,7 @@ function jsonResponse_(obj) {
             }
         };
 
-        /**
-         * FIRESTORE MIGRATION PREPARATION (DORMANT / NO PRODUCTION WRITES)
-         * Persediaan sahaja. Tiada init, sync, baca/tulis Firestore atau migrasi
-         * berlaku secara automatik. Tidak mengganti StorageManager.
-         * Laluan koleksi belum ditetapkan sehingga audit Firestore sebenar.
-         */
-        const FirestoreMigrationPreparation = Object.freeze({
-            projectId: 'statistix-hub-244c9',
-            sdkVersion: '13.4.0',
-            firebaseConfig: Object.freeze({
-                apiKey: 'AIzaSyCMYYhT4T67V1ra3CnXmqbdCd3pkc6AGhA',
-                authDomain: 'statistix-hub-244c9.firebaseapp.com',
-                databaseURL: 'https://statistix-hub-244c9-default-rtdb.asia-southeast1.firebasedatabase.app',
-                projectId: 'statistix-hub-244c9',
-                storageBucket: 'statistix-hub-244c9.firebasestorage.app',
-                messagingSenderId: '1082642887778',
-                appId: '1:1082642887778:web:3600a9e61e53060efc8d3b',
-                measurementId: 'G-M2PE8EFDBM'
-            }),
-            modules: Object.freeze({
-                saringan: 'statistix_hub_saringan_records',
-                'akhir-balapan': 'statistix_hub_akhir_balapan_records',
-                relay: 'statistix_hub_relay_records',
-                padang: 'statistix_hub_padang_records'
-            }),
-            validateSnapshot(snapshot) {
-                if (!snapshot || typeof snapshot !== 'object' || Array.isArray(snapshot)) {
-                    throw new Error('Snapshot mestilah objek.');
-                }
-                const result = {};
-                for (const [moduleId, key] of Object.entries(this.modules)) {
-                    const item = snapshot[moduleId];
-                    if (!item || item.storageKey !== key || typeof item.present !== 'boolean') {
-                        throw new Error(`Inventori tidak lengkap: ${moduleId}`);
-                    }
-                    if (!item.present) {
-                        result[moduleId] = { present: false, count: null, ids: [] };
-                        continue;
-                    }
-                    const value = item.value;
-                    if (!value || typeof value !== 'object' || Array.isArray(value) ||
-                        !value.events || typeof value.events !== 'object' || Array.isArray(value.events)) {
-                        throw new Error(`Struktur events tidak sah: ${moduleId}`);
-                    }
-                    const ids = Object.keys(value.events);
-                    if (ids.some(id => !id || id.includes('/'))) {
-                        throw new Error(`Event ID tidak sah: ${moduleId}`);
-                    }
-                    result[moduleId] = { present: true, count: ids.length, ids };
-                }
-                return result;
-            },
-            // BACA LOCALSTORAGE SAHAJA; tidak menulis, mengosongkan atau memigrasi data.
-            inspectLocalCompetitionData() {
-                const snapshot = {};
-                for (const [moduleId, storageKey] of Object.entries(this.modules)) {
-                    const raw = window.localStorage.getItem(storageKey);
-                    snapshot[moduleId] = {
-                        storageKey,
-                        present: raw !== null,
-                        value: raw === null ? null : JSON.parse(raw)
-                    };
-                }
-                return { projectId: this.projectId, createdAt: new Date().toISOString(),
-                    snapshot, inventory: this.validateSnapshot(snapshot) };
-            },
-            // SHA-256 menyemak integriti eksport; bukan tanda rekod rasmi/autoritatif.
-            async createBackupPayload() {
-                const payload = this.inspectLocalCompetitionData();
-                const body = JSON.stringify(payload);
-                const digest = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(body));
-                const sha256 = Array.from(new Uint8Array(digest), byte => byte.toString(16).padStart(2, '0')).join('');
-                return { payload, sha256 };
-            },
-            // Initialize SDK hanya apabila dipanggil secara jelas. Tiada query atau write.
-            async prepareReadOnlyClient() {
-                const base = `https://www.gstatic.com/firebasejs/${this.sdkVersion}`;
-                const appSdk = await import(`${base}/firebase-app.js`);
-                const firestoreSdk = await import(`${base}/firebase-firestore.js`);
-                const matches = appSdk.getApps().filter(app => app.options.projectId === this.projectId);
-                const app = matches[0] || appSdk.initializeApp(this.firebaseConfig);
-                if (app.options.projectId !== this.projectId) throw new Error('Firebase project mismatch.');
-                return { app, db: firestoreSdk.getFirestore(app), firestoreSdk };
-            },
-            // BACA SAHAJA: path mesti disahkan oleh pentadbir; tidak membuat koleksi.
-            async readApprovedCollection(client, approvedPath) {
-                if (!client || !client.db || !client.firestoreSdk) throw new Error('Client Firestore tidak sah.');
-                if (typeof approvedPath !== 'string' || !approvedPath ||
-                    approvedPath.startsWith('/') || approvedPath.endsWith('/') ||
-                    approvedPath.split('/').length % 2 === 0) {
-                    throw new Error('Path koleksi tidak sah atau belum disahkan.');
-                }
-                const fs = client.firestoreSdk;
-                const query = await fs.getDocs(fs.collection(client.db, approvedPath));
-                return query.docs.map(doc => ({ id: doc.id, data: doc.data() }));
-            },
-            // Tiada API write / migration / cutover dalam fasa persediaan ini.
-            status() {
-                return { stage: 'PREPARATION_ONLY', firestorePrimary: false,
-                    localStoragePrimary: true, productionWritesEnabled: false,
-                    migrationPerformed: false, dataBackupVerified: false,
-                    trustedWriterVerified: false, securityRulesVerified: false };
-            }
-        });
-
-        /**
-         * FIRESTORE READER BRIDGE — OPT-IN, READ ONLY.
-         * NEVER calls StorageManager.save... or writes to Firestore.
-         * Cutover is deliberately NOT wired to dashboard startup until real
-         * data backup, trusted identity, rules and cross-device tests pass.
-         * Firestore documents: statistix competition mapping is PROPOSED,
-         * not a claim about existing production collections.
-         */
-        const CompetitionFirestoreReadBridge = Object.freeze({
-            collectionNames: Object.freeze({
-                saringan: 'saringan',
-                'akhir-balapan': 'akhir-balapan',
-                relay: 'relay',
-                padang: 'padang'
-            }),
-            async readModule(client, moduleId) {
-                const name = this.collectionNames[moduleId];
-                if (!name) throw new Error('Modul pertandingan tidak sah.');
-                if (!client || !client.db || !client.firestoreSdk) {
-                    throw new Error('Firestore belum disahkan.');
-                }
-                const fs = client.firestoreSdk;
-                const query = fs.collection(client.db, 'statistix_competitions', name, 'events');
-                const snapshot = await fs.getDocs(query);
-                const events = {};
-                snapshot.forEach(doc => {
-                    const value = doc.data();
-                    if (!value || typeof value !== 'object' || Array.isArray(value)) {
-                        throw new Error('Dokumen Firestore tidak mempunyai struktur sah.');
-                    }
-                    if (String(value.eventNo || doc.id) !== doc.id) {
-                        throw new Error('Identiti acara Firestore tidak sepadan.');
-                    }
-                    events[doc.id] = { ...value };
-                });
-                return { events };
-            },
-            async readAllModules(client) {
-                const result = {};
-                for (const id of Object.keys(this.collectionNames)) {
-                    result[id] = await this.readModule(client, id);
-                }
-                return result;
-            },
-            async readVerifiedSnapshot() {
-                // Explicit operator invocation only. Never mutates local data.
-                const client = await FirestoreMigrationPreparation.prepareReadOnlyClient();
-                return this.readAllModules(client);
-            }
-        });
-
-        /**
-         * FIREBASE AUTH + COMPETITION READER (STAGED / FAIL CLOSED)
-         * This is integrated with login and hydration but remains disabled
-         * until security, backups, role claims, data, and GAS writer are VERIFIED.
-         * No Firestore writes are performed by the browser.
-         * Never toggle this gate solely to test production access.
-         */
-        const VerifiedFirebaseRuntime = {
-            ENABLE_VERIFIED_CUTOVER: false,
-            projectId: 'statistix-hub-244c9',
-            ready: false,
-            client: null,
-            authSdk: null,
-            auth: null,
-            user: null,
-            profile: null,
-            stores: Object.fromEntries(['saringan','akhir-balapan','relay','padang'].map(id => [id, { events: {} }])),
-            unsubscribes: [],
-            get enabled() { return this.ENABLE_VERIFIED_CUTOVER; },
-            getStore(moduleId) {
-                if (!this.ready) return { events: {} };
-                return this.stores[moduleId] || { events: {} };
-            },
-            async initialize() {
-                if (!this.enabled) return;
-                if (this.client) return;
-                const client = await FirestoreMigrationPreparation.prepareReadOnlyClient();
-                if (client.app.options.projectId !== this.projectId) throw new Error('Firebase project mismatch.');
-                const authSdk = await import(`https://www.gstatic.com/firebasejs/${FirestoreMigrationPreparation.sdkVersion}/firebase-auth.js`);
-                const auth = authSdk.getAuth(client.app);
-                await authSdk.setPersistence(auth, authSdk.browserSessionPersistence);
-                this.client = client;
-                this.authSdk = authSdk;
-                this.auth = auth;
-            },
-            async getVerifiedProfile(authUser) {
-                const result = await authUser.getIdTokenResult(true);
-                const role = result.claims.statistixRole;
-                if (!['SUPER ADMIN','ADMIN','PEGAWAI'].includes(role)) {
-                    throw new Error('Peranan Firebase belum ditetapkan oleh pentadbir yang dipercayai.');
-                }
-                return { uid: authUser.uid, id: authUser.email || authUser.uid,
-                    namaPegawai: String(result.claims.statistixName || authUser.email || '').slice(0, 120), role };
-            },
-            async signIn(id, password) {
-                if (!this.enabled) throw new Error('Firebase cutover belum diluluskan.');
-                await this.initialize();
-                if (!id.includes('@')) throw new Error('Gunakan email Firebase Authentication untuk mod Firestore. Pemetaan ID lama belum disahkan.');
-                const credential = await this.authSdk.signInWithEmailAndPassword(this.auth, id, password);
-                try {
-                    const profile = await this.getVerifiedProfile(credential.user);
-                    await this.hydrate(credential.user);
-                    this.user = credential.user;
-                    this.profile = profile;
-                    return profile;
-                } catch (error) {
-                    this.detach();
-                    await this.authSdk.signOut(this.auth);
-                    throw error;
-                }
-            },
-            async hydrate(authUser) {
-                this.detach();
-                this.ready = false;
-                const { db, firestoreSdk: fs } = this.client;
-                const nextStores = {};
-                for (const [id, name] of Object.entries(CompetitionFirestoreReadBridge.collectionNames)) {
-                    const col = fs.collection(db, 'statistix_competitions', name, 'events');
-                    const snapshot = await fs.getDocsFromServer(col);
-                    const events = {};
-                    snapshot.forEach(doc => {
-                        const value = doc.data();
-                        if (!value || typeof value !== 'object' || String(value.eventNo || doc.id) !== doc.id) {
-                            throw new Error(`Rekod Firestore tidak sah: ${id}`);
-                        }
-                        events[doc.id] = value;
-                    });
-                    nextStores[id] = { events };
-                }
-                this.stores = nextStores;
-                this.ready = true;
-                for (const [id, name] of Object.entries(CompetitionFirestoreReadBridge.collectionNames)) {
-                    const col = fs.collection(db, 'statistix_competitions', name, 'events');
-                    const unsubscribe = fs.onSnapshot(col, snapshot => {
-                        if (!this.ready || this.user?.uid !== authUser.uid || snapshot.metadata.fromCache || snapshot.metadata.hasPendingWrites) return;
-                        const events = {};
-                        try {
-                            snapshot.forEach(doc => {
-                                const value = doc.data();
-                                if (!value || typeof value !== 'object' || String(value.eventNo || doc.id) !== doc.id) {
-                                    throw new Error(`Rekod Firestore tidak sah: ${id}`);
-                                }
-                                events[doc.id] = value;
-                            });
-                        } catch(error) {
-                            console.error('[STATISTIX] Data Firestore tidak sah:',error.message);
-                            return;
-                        }
-                        this.stores[id] = { events };
-                        if (document.getElementById('dashboard-shell')?.classList.contains('hidden')) return;
-                        if (!AppController.isAdminOpen && (AppController.currentView === id ||
-                            (AppController.currentView === 'podium' && id !== 'saringan'))) {
-                            AppController.loadView(AppController.currentView);
-                        }
-                    }, error => {
-                        console.error('[STATISTIX] Firestore listener failed:', error.code || error.message);
-                        this.detach();
-                        StaticLoginController.setFeedback('Sambungan data Firestore gagal. Sila log masuk semula.','error');
-                        StaticLoginController.showLoginScreen();
-                    });
-                    this.unsubscribes.push(unsubscribe);
-                }
-            },
-            detach() {
-                for (const unsubscribe of this.unsubscribes.splice(0)) {
-                    try { unsubscribe(); } catch(e) { console.warn('Firestore unsubscribe gagal',e); }
-                }
-                this.ready = false;
-                this.user = null;
-                this.profile = null;
-            },
-            async signOut() {
-                this.detach();
-                if (this.auth && this.authSdk) await this.authSdk.signOut(this.auth);
-            }
-        };
+        /** Local-only build: dormant Firebase migration/read bridges removed. */
 
         /**
          * 5. PENGAWAL UTAMA APLIKASI (AppController)
@@ -8980,5 +8782,141 @@ function jsonResponse_(obj) {
             StaticLoginController.init();
         });
     </script>
+<script type="module">
+/* FIRESTORE MIGRATION STAGING (MANUAL; NEVER AUTOMATICALLY WRITES PRODUCTION DATA)
+ * This is a backup/staging bridge, NOT a Firestore-as-source-of-truth cutover.
+ * Existing synchronous StorageManager remains unmodified until a safe async refactor.
+ * SECURITY: Do not put user-account password hashes or sessions in Firestore snapshots.
+ */
+const firebaseConfig = {
+ apiKey: "AIzaSyCMYYhT4T67V1ra3CnXmqbdCd3pkc6AGhA",
+ authDomain: "statistix-hub-244c9.firebaseapp.com",
+ databaseURL: "https://statistix-hub-244c9-default-rtdb.asia-southeast1.firebasedatabase.app",
+ projectId: "statistix-hub-244c9",
+ storageBucket: "statistix-hub-244c9.firebasestorage.app",
+ messagingSenderId: "1082642887778",
+ appId: "1:1082642887778:web:3600a9e61e53060efc8d3b",
+ measurementId: "G-M2PE8EFDBM"
+};
+const storageKeys = Object.freeze({
+  config: 'statistix_hub_config',
+  events_data: 'statistix_hub_events_data',
+  saringan_records: 'statistix_hub_saringan_records',
+  saringan_audit: 'statistix_hub_saringan_audit',
+  akhir_balapan_records: 'statistix_hub_akhir_balapan_records',
+  akhir_balapan_audit: 'statistix_hub_akhir_balapan_audit',
+  relay_records: 'statistix_hub_relay_records',
+  relay_audit: 'statistix_hub_relay_audit',
+  padang_records: 'statistix_hub_padang_records',
+  padang_audit: 'statistix_hub_padang_audit'
+});
+const modules = {
+  app: null, auth: null, db: null, api: null, user: null
+};
+const encoder = new TextEncoder();
+function requireUser() {
+  const user = modules.auth?.currentUser;
+  if (!user || user.uid !== modules.user?.uid) throw new Error('Firebase Auth diperlukan; sesi tidak sah.');
+  return user;
+}
+function snapshot() {
+  const datasets = {};
+  const inventory = [];
+  for (const [name, key] of Object.entries(storageKeys)) {
+    const raw = window.localStorage.getItem(key);
+    if (raw === null) { inventory.push({name,key,present:false}); continue; }
+    let value;
+    try { value = JSON.parse(raw); } catch { throw new Error('JSON rosak pada '+key+'; migrasi dihentikan.'); }
+    if (value === null || (typeof value !== 'object')) throw new Error('Data tidak sesuai: '+key);
+    const bytes = encoder.encode(raw).length;
+    const recordCount = Array.isArray(value) ? value.length :
+      (value.events && typeof value.events === 'object' ? Object.keys(value.events).length : Object.keys(value).length);
+    // conservative threshold; Firestore document max is 1 MiB, including metadata/field size.
+    if (bytes > 850000) throw new Error('Dataset '+key+' melebihi had konservatif dokumen Firestore. Pecahkan kepada rekod individu sebelum migrasi.');
+    inventory.push({name,key,present:true,bytes,recordCount});
+    datasets[name] = {key, value, bytes, recordCount};
+  }
+  return {format:'statistix-firestore-staging-v1',projectId:firebaseConfig.projectId,
+          createdAt:new Date().toISOString(), inventory, datasets};
+}
+async function hash(value) {
+  const bytes = encoder.encode(JSON.stringify(value));
+  const digest = await crypto.subtle.digest('SHA-256',bytes);
+  return [...new Uint8Array(digest)].map(v=>v.toString(16).padStart(2,'0')).join('');
+}
+const migration = Object.freeze({
+  inventory() { return snapshot().inventory; },
+  downloadBackup() {
+    const payload=snapshot(), json=JSON.stringify(payload,null,2);
+    const url=URL.createObjectURL(new Blob([json],{type:'application/json'}));
+    const a=document.createElement('a'); a.href=url; a.download='statistix-pre-firestore-'+Date.now()+'.json';
+    document.body.appendChild(a); a.click(); a.remove(); setTimeout(()=>URL.revokeObjectURL(url),5000);
+    return {datasets:Object.keys(payload.datasets).length,bytes:encoder.encode(json).length};
+  },
+  async connect(email,password) {
+    if (typeof email!=='string' || typeof password!=='string' || !email || !password) throw new Error('Firebase Auth email dan password diperlukan.');
+    const [appmod,authmod,dbmod] = await Promise.all([
+      import('https://www.gstatic.com/firebasejs/11.10.0/firebase-app.js'),
+      import('https://www.gstatic.com/firebasejs/11.10.0/firebase-auth.js'),
+      import('https://www.gstatic.com/firebasejs/11.10.0/firebase-firestore.js')
+    ]);
+    modules.app = appmod.getApps().length ? appmod.getApp() : appmod.initializeApp(firebaseConfig);
+    if (modules.app.options.projectId!==firebaseConfig.projectId) throw new Error('Projek Firebase tidak sepadan.');
+    modules.auth=authmod.getAuth(modules.app);
+    modules.db=dbmod.getFirestore(modules.app);
+    modules.api={authmod,dbmod};
+    const credentials=await authmod.signInWithEmailAndPassword(modules.auth,email,password);
+    modules.user=credentials.user;
+    return {uid:credentials.user.uid,projectId:modules.app.options.projectId};
+  },
+  async preview() {
+    const user=requireUser(), {dbmod}=modules.api;
+    const data=snapshot(), conflicts=[];
+    for (const name of Object.keys(data.datasets)) {
+      const ref=dbmod.doc(modules.db,'migration_staging',user.uid,'datasets',name);
+      const found=await dbmod.getDoc(ref);
+      if (found.exists()) conflicts.push(name);
+    }
+    return {datasets:data.inventory,conflicts,ready:conflicts.length===0};
+  },
+  async stage({confirmation}={}) {
+    // No write is allowed without explicit manual call, authentication and exact consent string.
+    if (confirmation !== 'STAGE_TO_FIRESTORE_NO_OVERWRITE') throw new Error('Persetujuan eksplisit diperlukan.');
+    const user=requireUser(), {dbmod}=modules.api, data=snapshot();
+    const keys=Object.keys(data.datasets);
+    if (!keys.length) throw new Error('Tiada data setempat untuk migrasi.');
+    const prepared=[];
+    for (const name of keys) prepared.push({name,dataset:data.datasets[name],checksum:await hash(data.datasets[name].value)});
+    // Transaction ensures existing snapshots are never overwritten. Each key independent: partial stage possible.
+    const completed=[];
+    for (const item of prepared) {
+      const ref=dbmod.doc(modules.db,'migration_staging',user.uid,'datasets',item.name);
+      await dbmod.runTransaction(modules.db,async tx=>{
+        const current=await tx.get(ref);
+        if(current.exists()) throw new Error('Konflik: '+item.name+' sudah wujud. Tiada overwrite.');
+        tx.set(ref,{schemaVersion:1,key:item.dataset.key,payload:item.dataset.value,
+          checksum:item.checksum,recordCount:item.dataset.recordCount,
+          migratedAt:dbmod.serverTimestamp()});
+      });
+      completed.push(item.name);
+    }
+    const verify=[];
+    for(const item of prepared) {
+      const ref=dbmod.doc(modules.db,'migration_staging',user.uid,'datasets',item.name);
+      const received=await dbmod.getDocFromServer(ref);
+      verify.push({name:item.name,verified:received.exists() &&
+        received.data().checksum===item.checksum && await hash(received.data().payload)===item.checksum});
+    }
+    const ok=verify.every(x=>x.verified);
+    return {staged:completed,verify,allVerified:ok,authoritativeCutover:false};
+  },
+  async signOut() {
+    if (modules.auth && modules.api) await modules.api.authmod.signOut(modules.auth);
+    modules.user=null;
+  }
+});
+Object.defineProperty(window,'StatistixFirestoreMigration',{value:migration,writable:false,configurable:false});
+console.info('Firestore staging utility loaded. No migration started. Use StatistixFirestoreMigration.inventory() and downloadBackup().');
+</script>
 </body>
 </html>
