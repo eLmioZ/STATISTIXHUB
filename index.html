@@ -8500,6 +8500,57 @@ function jsonResponse_(obj) {
         });
 
         /**
+         * FIRESTORE READER BRIDGE — OPT-IN, READ ONLY.
+         * NEVER calls StorageManager.save... or writes to Firestore.
+         * Cutover is deliberately NOT wired to dashboard startup until real
+         * data backup, trusted identity, rules and cross-device tests pass.
+         * Firestore documents: statistix competition mapping is PROPOSED,
+         * not a claim about existing production collections.
+         */
+        const CompetitionFirestoreReadBridge = Object.freeze({
+            collectionNames: Object.freeze({
+                saringan: 'saringan',
+                'akhir-balapan': 'akhir-balapan',
+                relay: 'relay',
+                padang: 'padang'
+            }),
+            async readModule(client, moduleId) {
+                const name = this.collectionNames[moduleId];
+                if (!name) throw new Error('Modul pertandingan tidak sah.');
+                if (!client || !client.db || !client.firestoreSdk) {
+                    throw new Error('Firestore belum disahkan.');
+                }
+                const fs = client.firestoreSdk;
+                const query = fs.collection(client.db, 'statistix_competitions', name, 'events');
+                const snapshot = await fs.getDocs(query);
+                const events = {};
+                snapshot.forEach(doc => {
+                    const value = doc.data();
+                    if (!value || typeof value !== 'object' || Array.isArray(value)) {
+                        throw new Error('Dokumen Firestore tidak mempunyai struktur sah.');
+                    }
+                    if (String(value.eventNo || doc.id) !== doc.id) {
+                        throw new Error('Identiti acara Firestore tidak sepadan.');
+                    }
+                    events[doc.id] = { ...value };
+                });
+                return { events };
+            },
+            async readAllModules(client) {
+                const result = {};
+                for (const id of Object.keys(this.collectionNames)) {
+                    result[id] = await this.readModule(client, id);
+                }
+                return result;
+            },
+            async readVerifiedSnapshot() {
+                // Explicit operator invocation only. Never mutates local data.
+                const client = await FirestoreMigrationPreparation.prepareReadOnlyClient();
+                return this.readAllModules(client);
+            }
+        });
+
+        /**
          * 5. PENGAWAL UTAMA APLIKASI (AppController)
          */
         const AppController = {
