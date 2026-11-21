@@ -8785,7 +8785,7 @@ function jsonResponse_(obj) {
 <script type="module">
 /* FIRESTORE MIGRATION STAGING (MANUAL; NEVER AUTOMATICALLY WRITES PRODUCTION DATA)
  * This is a backup/staging bridge, NOT a Firestore-as-source-of-truth cutover.
- * Existing synchronous StorageManager remains unmodified until a safe async refactor.
+ * Existing synchronous StorageManager remains authoritative; async staging adapter is opt-in.
  * SECURITY: Do not put user-account password hashes or sessions in Firestore snapshots.
  */
 const firebaseConfig = {
@@ -8915,6 +8915,128 @@ const migration = Object.freeze({
     modules.user=null;
   }
 });
+/* EXPLICIT ASYNC STAGING ADAPTER — never replaces synchronous StorageManager automatically.
+ * All writes are opt-in, authenticated, transactional, and server-confirmed.
+ * This is a migration boundary for caller-by-caller refactoring, not a production cutover.
+ */
+const AsyncStorageStatus = Object.freeze({IDLE:'IDLE', SAVING:'SAVING', PENDING:'PENDING', SAVED:'SAVED', FAILED:'FAILED'});
+const asyncNames = Object.freeze(['saringan_records','akhir_balapan_records','relay_records','padang_records','events_data']);
+const operations = new Map();
+const listeners = new Set();
+function updateOperation(name,state,detail=null) {
+  const value=Object.freeze({name,state,detail,at:new Date().toISOString()});
+  operations.set(name,value);
+  for (const fn of [...listeners]) { try { fn(value); } catch (error) { console.error('Storage status subscriber failed:',error); } }
+  return value;
+}
+function allowedDataset(name) {
+  if (!asyncNames.includes(name)) throw new Error('Dataset tidak dibenarkan untuk ujian adapter: '+name);
+  return name;
+}
+function requireReady() {
+  const user=requireUser();
+  if (!modules.db || !modules.api?.dbmod) throw new Error('Firestore belum disambung.');
+  return user;
+}
+function datasetRef(name) {
+  const user=requireReady();
+  return modules.api.dbmod.doc(modules.db,'async_storage_staging',user.uid,'datasets',allowedDataset(name));
+}
+function cloneJSON(value) {
+  if (value === undefined) throw new Error('Data undefined tidak boleh disimpan.');
+  const encoded=JSON.stringify(value);
+  if (encoded===undefined) throw new Error('Data tidak bersiri JSON.');
+  const bytes=encoder.encode(encoded).length;
+  if (bytes>800000) throw new Error('Dataset terlalu besar untuk satu dokumen staging; perlu pecahkan per rekod.');
+  const result=JSON.parse(encoded);
+  if (!result || typeof result!=='object' || Array.isArray(result)) throw new Error('Dataset mestilah objek JSON.');
+  return result;
+}
+const asyncStorage = Object.freeze({
+  statuses: AsyncStorageStatus,
+  productionCutoverEnabled:false,
+  getStatus(name) { allowedDataset(name); return operations.get(name) || Object.freeze({name,state:AsyncStorageStatus.IDLE,detail:null}); },
+  subscribeStatus(fn) {
+    if(typeof fn!=='function') throw new TypeError('Callback diperlukan.');
+    listeners.add(fn); return ()=>listeners.delete(fn);
+  },
+  async getData(name) {
+    const ref=datasetRef(name), {dbmod}=modules.api;
+    const snap=await dbmod.getDocFromServer(ref); // no cache-as-server-confirmation
+    if (!snap.exists()) return {exists:false,data:null,revision:0,serverConfirmed:true};
+    const obj=snap.data();
+    if (!Number.isSafeInteger(obj.revision) || obj.revision<1) throw new Error('Revisi staging tidak sah.');
+    return {exists:true,data:structuredClone(obj.payload),revision:obj.revision,serverConfirmed:true};
+  },
+  async getAllData() {
+    const result={};
+    // Deliberate sequential reads prevent an unbounded burst; no recursive refresh.
+    for (const name of asyncNames) result[name]=await this.getData(name);
+    return result;
+  },
+  async saveData(name,value,{confirmation,expectedRevision}={}) {
+    allowedDataset(name);
+    if(confirmation!=='WRITE_ASYNC_STAGING_ONLY') throw new Error('Persetujuan penulisan staging diperlukan.');
+    if(!Number.isSafeInteger(expectedRevision) || expectedRevision<0) throw new Error('expectedRevision wajib (0 untuk cipta baharu).');
+    const ref=datasetRef(name), {dbmod}=modules.api;
+    const payload=cloneJSON(value);
+    const writeChecksum=await hash(payload);
+    updateOperation(name,AsyncStorageStatus.SAVING);
+    try {
+      const revision=await dbmod.runTransaction(modules.db,async tx=>{
+        const old=await tx.get(ref);
+        const current=old.exists()?old.data().revision:0;
+        if(current!==expectedRevision) throw new Error('CONFLICT: revisi berubah; muat semula data sebelum cuba lagi.');
+        const next=current+1;
+        tx.set(ref,{revision:next,payload,checksum:writeChecksum,updatedAt:dbmod.serverTimestamp()});
+        return next;
+      });
+      updateOperation(name,AsyncStorageStatus.PENDING,'Menunggu pengesahan bacaan pelayan');
+      const confirmed=await dbmod.getDocFromServer(ref);
+      if(!confirmed.exists() || confirmed.data().revision!==revision ||
+         confirmed.data().checksum!==writeChecksum ||
+         await hash(confirmed.data().payload)!==writeChecksum) {
+        throw new Error('Penulisan belum dapat disahkan daripada pelayan; jangan ulang secara membuta tuli.');
+      }
+      updateOperation(name,AsyncStorageStatus.SAVED,'Disahkan daripada pelayan');
+      return {ok:true,revision,serverConfirmed:true};
+    } catch(error) {
+      updateOperation(name,AsyncStorageStatus.FAILED,error.message);
+      // A rejected write is not proof that the server rejected the commit.
+      throw error;
+    }
+  },
+  async updateData(name,modify,{confirmation,expectedRevision}={}) {
+    if(typeof modify!=='function') throw new TypeError('Callback update diperlukan.');
+    const current=await this.getData(name);
+    if(!current.exists) throw new Error('Data belum wujud untuk dikemas kini.');
+    if(current.revision!==expectedRevision) throw new Error('CONFLICT: revisi lama.');
+    const next=await modify(structuredClone(current.data));
+    return this.saveData(name,next,{confirmation,expectedRevision});
+  },
+  async deleteData(name,{confirmation,expectedRevision}={}) {
+    allowedDataset(name);
+    if(confirmation!=='DELETE_ASYNC_STAGING_ONLY') throw new Error('Persetujuan pemadaman staging diperlukan.');
+    if(!Number.isSafeInteger(expectedRevision) || expectedRevision<1) throw new Error('Revisi sedia ada diperlukan.');
+    const ref=datasetRef(name), {dbmod}=modules.api;
+    updateOperation(name,AsyncStorageStatus.SAVING);
+    try {
+      await dbmod.runTransaction(modules.db,async tx=>{
+        const snap=await tx.get(ref);
+        if(!snap.exists() || snap.data().revision!==expectedRevision) throw new Error('CONFLICT: dokumen tidak sepadan.');
+        tx.delete(ref);
+      });
+      updateOperation(name,AsyncStorageStatus.PENDING);
+      const confirmed=await dbmod.getDocFromServer(ref);
+      if(confirmed.exists()) throw new Error('Pemadaman belum disahkan daripada pelayan.');
+      updateOperation(name,AsyncStorageStatus.SAVED,'Pemadaman disahkan');
+      return {ok:true,serverConfirmed:true};
+    } catch(error) {
+      updateOperation(name,AsyncStorageStatus.FAILED,error.message); throw error;
+    }
+  }
+});
+Object.defineProperty(window,'StatistixAsyncStorage',{value:asyncStorage,writable:false,configurable:false});
 Object.defineProperty(window,'StatistixFirestoreMigration',{value:migration,writable:false,configurable:false});
 console.info('Firestore staging utility loaded. No migration started. Use StatistixFirestoreMigration.inventory() and downloadBackup().');
 </script>
