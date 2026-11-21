@@ -110,6 +110,38 @@
             [data-podium-slot] .sm\:text-3xl { font-size: 1.875rem !important; }
         }
 
+        /* RWD-001: Pulihkan hierarki tajuk terpilih tanpa mengubah tipografi global. */
+        #static-login-title { font-size: 1.125rem !important; }
+        #view-main-title { font-size: 1.25rem !important; }
+        #admin-content-pengurusan-pengguna h3.text-lg { font-size: 1.125rem !important; }
+        #officer-welcome-message { font-size: 1.25rem !important; }
+        @media (min-width: 640px) {
+            #static-login-title { font-size: 1.25rem !important; }
+            #view-main-title { font-size: 1.5rem !important; }
+        }
+        @media (min-width: 1280px) {
+            #view-main-title { font-size: 26px !important; }
+        }
+
+        /* CONCEPT A: Pulihkan hierarki asal angka dan label kad ringkasan sahaja. */
+        #module-summary-cards > div > div.min-w-0 > p:first-child { font-size: 11px !important; }
+        #module-summary-cards > div > div.min-w-0 > p:nth-child(2) { font-size: 1.25rem !important; }
+        #module-summary-cards > div > div.min-w-0 > p:nth-child(2).text-sm { font-size: 0.875rem !important; }
+        @media (min-width: 640px) {
+            #module-summary-cards > div > div.min-w-0 > p:first-child { font-size: 0.75rem !important; }
+            #module-summary-cards > div > div.min-w-0 > p:nth-child(2) { font-size: 1.5rem !important; }
+            #module-summary-cards > div > div.min-w-0 > p:nth-child(2).text-sm { font-size: 1rem !important; }
+        }
+        @media (min-width: 1280px) {
+            #module-summary-cards > div > div.min-w-0 > p:nth-child(2).text-sm { font-size: 1.125rem !important; }
+        }
+
+        /* RWD-003: Hanya 640–1023px, berikan dua kad setiap baris. Desktop kekal 4 kad. */
+        @media (min-width: 640px) and (max-width: 1023px) {
+            [data-podium-layout] { flex-wrap: wrap; }
+            [data-podium-layout] > [data-podium-slot] { flex: 0 0 calc(50% - 0.5rem); width: calc(50% - 0.5rem); }
+        }
+
         /* Sembunyikan bar skrol mendatar pada tab mudah alih sambil mengekalkan fungsi skrol */
         .no-scrollbar::-webkit-scrollbar {
             display: none;
@@ -1824,7 +1856,7 @@
 
 
     <nav id="mobile-bottom-nav" aria-label="Menu Navigasi Mudah Alih" class="lg:hidden fixed bottom-0 inset-x-0 z-40 bg-navy-dark text-white border-t border-navy-secondary/60 shadow-lg pb-[env(safe-area-inset-bottom,0px)]">
-        <div id="mobile-nav-list" class="grid grid-cols-5 h-16">
+        <div id="mobile-nav-list" class="grid grid-flow-col auto-cols-[minmax(64px,1fr)] h-16 overflow-x-auto no-scrollbar">
             <!-- Dijana secara dinamik oleh AppController.renderNavigation() -->
         </div>
         <!-- Paparan Hak Cipta Khusus Mobile & Tablet (Di luar mobile-nav-list, tersembunyi pada lg ke atas) -->
@@ -1860,7 +1892,7 @@
     <!-- ===================================================================== -->
     <!-- Popup ringkas untuk kejayaan login, bukan untuk pemulihan sesi. -->
     <div id="officer-welcome-modal" role="dialog" aria-modal="true" aria-labelledby="officer-welcome-message" class="fixed inset-0 z-[100] hidden bg-navy-dark/70 p-4 flex items-center justify-center">
-        <div class="w-full max-w-sm bg-white rounded-2xl border border-slate-200 shadow-2xl p-6 text-center">
+        <div class="w-full max-w-sm max-h-[calc(100dvh-2rem)] overflow-y-auto bg-white rounded-2xl border border-slate-200 shadow-2xl p-6 text-center">
             <i data-lucide="user-round-check" aria-hidden="true" class="mx-auto w-10 h-10 text-gold-dark mb-3"></i>
             <h2 id="officer-welcome-message" class="font-display text-xl font-extrabold text-navy-primary break-words"></h2>
             <button id="officer-welcome-close" type="button" onclick="StaticLoginController.closeWelcome()" class="mt-5 min-w-24 rounded-xl bg-navy-primary text-gold px-5 py-3 font-bold">OK</button>
@@ -2015,9 +2047,11 @@
                 if(usersTab)usersTab.classList.toggle('hidden',!this.hasRole('SUPER ADMIN'));
                 if(!this.hasRole('SUPER ADMIN') && AdminNavigation.activeTab==='pengurusan-pengguna') AdminNavigation.switchTab('pengurusan-data');
                 AppController.loadView(AppController.currentView||'saringan');
+                AutoSyncManager.start();
                 if(typeof lucide!=='undefined')lucide.createIcons();
             },
             showLoginScreen() {
+                AutoSyncManager.stop();
                 this.closeWelcome();
                 this.syncOfficerName();
                 this.syncAdminButtonVisibility();
@@ -4505,7 +4539,7 @@
                         </div>
 
                         <div class="w-full overflow-x-visible">
-                            <div class="flex flex-col sm:flex-row items-stretch sm:items-end justify-start sm:justify-center gap-4 w-full pt-2">
+                            <div class="flex flex-col sm:flex-row items-stretch sm:items-end justify-start sm:justify-center gap-4 w-full pt-2" data-podium-layout>
                                 ${orderedSlots.map(slot => this.renderPodiumSlot(slot.team, slot.rank)).join('')}
                             </div>
                         </div>
@@ -4706,9 +4740,9 @@
                     <td class="p-2">${edit?`<input data-field="id" maxlength="80" value="${this.escape(u.id)}" class="border rounded-lg p-2 min-w-28 w-36">`:this.escape(u.id)}</td>
                     <td class="p-2">${edit?'<input data-field="password" type="password" autocomplete="new-password" placeholder="Kosong = kekal" class="border rounded-lg p-2 w-36">':'••••••••'}</td>
                     <td class="p-2">${edit&&!su?`<select data-field="role" class="border rounded-lg p-2"><option ${u.role==='ADMIN'?'selected':''}>ADMIN</option><option ${u.role==='PEGAWAI'?'selected':''}>PEGAWAI</option></select>`:this.escape(u.role)}</td>
-                    <td class="p-2"><button type="button" onclick="UserManager.edit('${uid}')" class="bg-slate-100 border rounded-lg px-3 py-2">${edit?'BATAL':'EDIT'}</button></td>
-                    <td class="p-2"><button type="button" onclick="UserManager.save('${uid}')" ${edit?'':'disabled'} class="rounded-lg px-3 py-2 ${edit?'bg-navy-primary text-gold':'bg-slate-100 text-slate-400'}">SIMPAN</button></td>
-                    <td class="p-2">${su?'<span class="text-slate-400">DIKUNCI</span>':`<button type="button" onclick="UserManager.remove('${uid}')" class="bg-rose-50 text-rose-700 rounded-lg px-3 py-2">HAPUS</button>`}</td></tr>`;
+                    <td class="p-2"><button type="button" onclick="UserManager.edit('${uid}')" class="bg-slate-100 border rounded-lg px-3 py-2 min-h-[44px]">${edit?'BATAL':'EDIT'}</button></td>
+                    <td class="p-2"><button type="button" onclick="UserManager.save('${uid}')" ${edit?'':'disabled'} class="rounded-lg px-3 py-2 min-h-[44px] ${edit?'bg-navy-primary text-gold':'bg-slate-100 text-slate-400'}">SIMPAN</button></td>
+                    <td class="p-2">${su?'<span class="text-slate-400">DIKUNCI</span>':`<button type="button" onclick="UserManager.remove('${uid}')" class="bg-rose-50 text-rose-700 rounded-lg px-3 py-2 min-h-[44px]">HAPUS</button>`}</td></tr>`;
             },
             toggleForm(show) {if(!this.canManage())return;document.getElementById('user-add-form')?.classList.toggle('hidden',!show);},
             feedback(msg){const el=document.getElementById('user-manager-feedback');if(el)el.textContent=msg;},
@@ -8211,6 +8245,153 @@ function jsonResponse_(obj) {
         };
 
         /**
+         * AUTO SYNC 30 SAAT — bacaan GAS dan kemas kini bersyarat sahaja.
+         * Tiada perubahan pada import manual, pengiraan pingat atau konfigurasi GAS.
+         */
+        const AutoSyncManager = {
+            INTERVAL_MS: 30000,
+            timer: null,
+            isSyncing: false,
+            abortController: null,
+            generation: 0,
+            started: false,
+            start() {
+                this.stop();
+                this.started = true;
+                this.timer = setInterval(() => this.sync(), this.INTERVAL_MS);
+                if (!document.hidden) this.sync();
+            },
+            stop() {
+                this.started = false;
+                this.generation++;
+                if (this.timer !== null) clearInterval(this.timer);
+                this.timer = null;
+                if (this.abortController) this.abortController.abort();
+                this.abortController = null;
+            },
+            async sync() {
+                if (!this.started || this.isSyncing || document.hidden || !StaticLoginController.currentUser()) return;
+                const generation = this.generation;
+                this.isSyncing = true;
+                const changedModules = [];
+                try {
+                    const config = StorageManager.getTournamentConfig();
+                    const specs = [
+                        { id: 'saringan', key: 'saringanAppsScriptUrl', controller: SaringanGasController,
+                          module: SaringanModule, get: () => StorageManager.getSaringanStore(),
+                          save: store => StorageManager.saveSaringanStore(store) },
+                        { id: 'akhir-balapan', key: 'akhirBalapanAppsScriptUrl', controller: AkhirBalapanGasController,
+                          module: AkhirBalapanModule, get: () => StorageManager.getAkhirBalapanStore(),
+                          save: store => StorageManager.saveAkhirBalapanStore(store) },
+                        { id: 'relay', key: 'relayAppsScriptUrl', controller: RelayGasController,
+                          module: RelayModule, get: () => StorageManager.getRelayStore(),
+                          save: store => StorageManager.saveRelayStore(store) },
+                        { id: 'padang', key: 'padangAppsScriptUrl', controller: PadangGasController,
+                          module: PadangModule, get: () => StorageManager.getPadangStore(),
+                          save: store => StorageManager.savePadangStore(store) }
+                    ];
+                    for (const spec of specs) {
+                        if (!this.started || this.generation !== generation || document.hidden) break;
+                        const url = String(config[spec.key] || '').trim();
+                        if (!url || !spec.controller.isValidGasExecUrl(url)) continue;
+                        const controller = new AbortController();
+                        this.abortController = controller;
+                        const timeout = setTimeout(() => controller.abort(), 15000);
+                        try {
+                            const response = await fetch(url, { signal: controller.signal, cache: 'no-store' });
+                            if (!response.ok) throw new Error(`HTTP ${response.status}`);
+                            const data = await response.json();
+                            if (!this.started || this.generation !== generation || document.hidden) break;
+                            if (!data || data.success !== true || String(data.module || '').trim() !== spec.controller.EXPECTED_MODULE ||
+                                !data.events || typeof data.events !== 'object' || Array.isArray(data.events)) {
+                                throw new Error('Respons GAS tidak mempunyai data acara sah untuk modul ini.');
+                            }
+                            if (this.applyChanges(spec, data)) changedModules.push(spec.id);
+                        } catch (error) {
+                            if (error.name !== 'AbortError') console.warn(`[AutoSync] ${spec.id}:`, error.message);
+                        } finally {
+                            clearTimeout(timeout);
+                            if (this.abortController === controller) this.abortController = null;
+                        }
+                    }
+                    if (changedModules.length && this.started && this.generation === generation && StaticLoginController.currentUser()) {
+                        GlobalLiveStatusController.updateIndicator();
+                        if (!AppController.isAdminOpen &&
+                            (changedModules.includes(AppController.currentView) ||
+                            (AppController.currentView === 'podium' && changedModules.some(id => id !== 'saringan')))) {
+                            AppController.loadView(AppController.currentView);
+                        }
+                    }
+                } finally {
+                    this.isSyncing = false;
+                }
+            },
+            applyChanges(spec, data) {
+                const existing = spec.get();
+                const previous = existing && existing.events || {};
+                const next = { ...previous };
+                const missing = new Set((Array.isArray(data.missingTabs) ? data.missingTabs : []).map(x => String(x).trim()));
+                let changed = false;
+                if (spec.id === 'padang') {
+                    const normalized = spec.controller.importAndNormalizeData(data.events, existing, data.missingTabs);
+                    if (!normalized.tabCount || !normalized.validStructureCount) return false;
+                    for (const no of spec.module.ALLOWED_EVENT_NOS) {
+                        const incoming = normalized.nextEvents[no];
+                        if (!incoming || missing.has(no)) continue;
+                        if (!previous[no] || spec.controller.hasEventResultsChanged(previous[no], incoming)) {
+                            next[no] = incoming;
+                            changed = true;
+                        }
+                    }
+                } else {
+                    for (const no of spec.module.ALLOWED_EVENT_NOS) {
+                        const incoming = data.events[no];
+                        if (!incoming || typeof incoming !== 'object' || Array.isArray(incoming) || missing.has(no)) continue;
+                        const prev = previous[no];
+                        let candidate;
+                        if (spec.id === 'saringan') {
+                            candidate = {
+                                eventNo: no,
+                                status: prev && prev.status === 'DISAHKAN_RASMI' ? 'DISAHKAN_RASMI' : 'BELUM_SELESAI',
+                                verifiedAt: prev && prev.status === 'DISAHKAN_RASMI' ? (prev.verifiedAt || null) : null,
+                                updatedAt: new Date().toISOString(),
+                                lelaki: {
+                                    saringan1: Array.isArray(incoming.lelaki && incoming.lelaki.saringan1) ? incoming.lelaki.saringan1 : [],
+                                    saringan2: Array.isArray(incoming.lelaki && incoming.lelaki.saringan2) ? incoming.lelaki.saringan2 : []
+                                },
+                                perempuan: {
+                                    saringan1: Array.isArray(incoming.perempuan && incoming.perempuan.saringan1) ? incoming.perempuan.saringan1 : [],
+                                    saringan2: Array.isArray(incoming.perempuan && incoming.perempuan.saringan2) ? incoming.perempuan.saringan2 : []
+                                }
+                            };
+                            if (prev && JSON.stringify(prev.lelaki) === JSON.stringify(candidate.lelaki) &&
+                                JSON.stringify(prev.perempuan) === JSON.stringify(candidate.perempuan)) continue;
+                        } else {
+                            candidate = {
+                                eventNo: no, status: 'BELUM_SELESAI', verifiedAt: null,
+                                updatedAt: new Date().toISOString(),
+                                lelaki: Array.isArray(incoming.lelaki) ? incoming.lelaki : [],
+                                perempuan: Array.isArray(incoming.perempuan) ? incoming.perempuan : []
+                            };
+                            if (prev && !spec.controller.hasEventResultsChanged(prev, candidate)) continue;
+                            if (prev && prev.status === 'DISAHKAN_RASMI') {
+                                candidate.requiresReverification = true;
+                            }
+                        }
+                        next[no] = candidate;
+                        changed = true;
+                    }
+                }
+                if (!changed) return false;
+                if (!spec.save({ ...existing, events: next })) {
+                    console.warn(`[AutoSync] Gagal menyimpan ${spec.id}; data sebelumnya dikekalkan.`);
+                    return false;
+                }
+                return true;
+            }
+        };
+
+        /**
          * 5. PENGAWAL UTAMA APLIKASI (AppController)
          */
         const AppController = {
@@ -8468,6 +8649,11 @@ function jsonResponse_(obj) {
                 lucide.createIcons();
             }
         };
+
+        document.addEventListener('visibilitychange', () => {
+            if (document.hidden && AutoSyncManager.abortController) AutoSyncManager.abortController.abort();
+            if (!document.hidden) AutoSyncManager.sync();
+        });
 
         window.addEventListener('DOMContentLoaded', () => {
             AppController.init();
