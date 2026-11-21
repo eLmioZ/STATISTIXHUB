@@ -5001,7 +5001,8 @@
                     next.set(name, {data:result.exists ? structuredClone(result.data) :
                         (name === 'events_data' ? [] : {events:{}}), revision:result.revision, exists:result.exists});
                 }
-                if (generation !== this.testGeneration) throw new Error('Bacaan ujian tidak lagi aktif.');
+                if (generation !== this.testGeneration || this.busyModules.size || AutoSyncManager.isSyncing)
+                    throw new Error('Pengaktifan mod ujian dibatalkan kerana operasi data berubah ketika bacaan.');
                 this.testSnapshots = next;
                 this.mode = 'FIRESTORE_TEST';
                 AppController.loadView(AppController.currentView);
@@ -5024,6 +5025,7 @@
             async reloadTestSnapshots() {
                 if (this.mode !== 'FIRESTORE_TEST' || !window.StatistixFirestoreMigration?.connectionInfo?.().isolatedTest)
                     throw new Error('Projek ujian tidak lagi bersambung.');
+                if (this.busyModules.size) throw new Error('Snapshot tidak boleh dimuat semasa operasi mutasi aktif.');
                 const generation=++this.testGeneration, next=new Map();
                 for (const name of [...Object.values(this.moduleDatasets),'events_data']) {
                     const row=await window.StatistixAsyncStorage.getData(name);
@@ -5130,22 +5132,33 @@
                         const adapter=window.StatistixAsyncStorage;
                         const raw=JSON.stringify({moduleName,events:nextEvents});
                         const digest=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(raw));
-                        const importId='GAS_'+Array.from(new Uint8Array(digest)).map(v=>v.toString(16).padStart(2,'0')).join('').slice(0,60);
-                        const staged=await adapter.stageGasImport(moduleName,nextEvents,{
+                        const importId='GASV2_'+Array.from(new Uint8Array(digest)).map(v=>v.toString(16).padStart(2,'0')).join('').slice(0,60);
+                        const staged=await adapter.stageVersionedGasImport(moduleName,nextEvents,{
                             confirmation:'STAGE_VALIDATED_GAS_IMPORT_ONLY',expectedRevision:old.revision,importId
                         });
-                        if (!staged.serverConfirmed) throw new Error('Staging pelayan belum disahkan.');
+                        if (!staged.serverConfirmed || !['READY_TO_PUBLISH','PUBLISHED'].includes(staged.state))
+                            throw new Error('RECOVERY_REQUIRED: status staging pelayan tidak sah.');
                         // Publish is a distinct Firestore transaction and is never inferred from staging.
-                        const published=await adapter.publishGasImport(moduleName,importId,{
+                        const published=await adapter.publishVersionedGasImport(moduleName,importId,{
                             confirmation:'PUBLISH_TO_ISOLATED_TEST_ONLY',expectedRevision:old.revision
                         });
-                        if (!published.serverConfirmed) throw new Error('Penerbitan ujian belum disahkan.');
+                        if (!published.serverConfirmed || published.state !== 'PUBLISHED')
+                            throw new Error('RECOVERY_REQUIRED: penerbitan ujian belum disahkan.');
                         const fresh=await adapter.getData(dataset);
-                        if (!fresh.exists || fresh.revision!==published.revision ||
-                            JSON.stringify(fresh.data?.events)!==JSON.stringify(nextEvents))
-                            throw new Error('Penerbitan perlu penyelarasan; status tidak pasti.');
+                        // Firestore returns record documents in document-ID order, which can differ from
+                        // source event-key insertion order. Compare by stable event keys, not JSON map order.
+                        const confirmedEvents=fresh.data?.events;
+                        const sameEvents=!!confirmedEvents &&
+                            Object.keys(confirmedEvents).length===Object.keys(nextEvents).length &&
+                            Object.keys(nextEvents).every(key=>Object.prototype.hasOwnProperty.call(confirmedEvents,key) &&
+                                JSON.stringify(confirmedEvents[key])===JSON.stringify(nextEvents[key]));
+                        if (!fresh.serverConfirmed || !fresh.exists || fresh.revision!==published.revision || !sameEvents)
+                            throw new Error('RECOVERY_REQUIRED: penerbitan mungkin telah berjaya; semak import ID sebelum cuba lagi.');
+                        // Invalidate any reload launched before this commit. A newer, server-confirmed
+                        // dataset cannot be replaced by an older, in-flight asynchronous reload.
+                        this.testGeneration++;
                         this.testSnapshots.set(dataset,{data:structuredClone(fresh.data),revision:fresh.revision,exists:true});
-                        return {ok:true,mode:'FIRESTORE_TEST',staging:staged,published};
+                        return {ok:true,mode:'FIRESTORE_TEST',staging:staged,published,serverConfirmed:true};
                     }
                     // Legacy mode retains LocalStorage and never confuses staging with production publish.
                     const staging = await this.stageValidatedImport(moduleName, nextEvents);
@@ -9030,6 +9043,7 @@ function jsonResponse_(obj) {
             }
         });
     </script>
+<script src="./statistix-test-config.js"></script>
 <script type="module">
 /* FIRESTORE MIGRATION STAGING (MANUAL; NEVER AUTOMATICALLY WRITES PRODUCTION DATA)
  * This is a backup/staging bridge, NOT a Firestore-as-source-of-truth cutover.
@@ -9119,6 +9133,8 @@ const migration = Object.freeze({
     if (existing && existing.options.projectId!==config.projectId) throw new Error('Projek ujian lain telah dimulakan.');
     modules.app=existing || appmod.initializeApp(config,name);
     modules.auth=authmod.getAuth(modules.app);
+    // Isolated test sign-in is session-only; never store user passwords in HTML.
+    await authmod.setPersistence(modules.auth,authmod.browserSessionPersistence);
     modules.db=dbmod.getFirestore(modules.app);
     modules.api={authmod,dbmod};
     const credentials=await authmod.signInWithEmailAndPassword(modules.auth,email,password);
@@ -9230,6 +9246,155 @@ function cloneJSON(value, allowArray=false) {
   if (!result || typeof result!=='object' || (!allowArray && Array.isArray(result))) throw new Error('Struktur dataset tidak sah.');
   return result;
 }
+/* Phase 7: versioned, resumable imports within the existing Firestore service.
+ * Uses owner-scoped staging paths. No automatic deployment/cutover.
+ * A published head is the ONLY visibility boundary for versioned datasets.
+ */
+const versionedMapping=Object.freeze({saringan:'saringan_records','akhir-balapan':'akhir_balapan_records',relay:'relay_records',padang:'padang_records'});
+function versionRefs(name, versionId) {
+  const user=requireReady(), api=modules.api.dbmod;
+  const root=['async_storage_staging',user.uid];
+  const head=api.doc(modules.db,...root,'dataset_heads',allowedDataset(name));
+  const version=versionId ? api.doc(modules.db,...root,'dataset_versions',versionId):null;
+  const job=versionId ? api.doc(modules.db,...root,'import_jobs',versionId):null;
+  return {head,version,job,api};
+}
+function canonicalJSON(value) {
+  if(Array.isArray(value)) return '['+value.map(canonicalJSON).join(',')+']';
+  if(value!==null && typeof value==='object') return '{'+Object.keys(value).sort().map(k=>JSON.stringify(k)+':'+canonicalJSON(value[k])).join(',')+'}';
+  return JSON.stringify(value);
+}
+async function canonicalHash(value) {
+  const digest=await crypto.subtle.digest('SHA-256',encoder.encode(canonicalJSON(value)));
+  return Array.from(new Uint8Array(digest),x=>x.toString(16).padStart(2,'0')).join('');
+}
+function splitVersionPayload(name, payload) {
+  if (name==='events_data') {
+    if(!Array.isArray(payload)) throw new Error('events_data mesti array.');
+    const seen=new Set(), records=[];
+    for(let i=0;i<payload.length;i++) {
+      const item=payload[i];
+      if(!item || typeof item!=='object'||Array.isArray(item)) throw new Error('Rekod events_data tidak sah.');
+      // Never fabricate IDs; preserve positional ordering when no stable ID is in the source.
+      const key=String(i).padStart(10,'0');
+      records.push({key,value:item});
+    }
+    return {kind:'array',base:{},records};
+  }
+  if(!payload || typeof payload!=='object' || Array.isArray(payload) ||
+     !payload.events || typeof payload.events!=='object' || Array.isArray(payload.events))
+    throw new Error('Skema acara GAS tidak sah.');
+  const {events,...base}=payload;
+  return {kind:'events-map',base,records:Object.entries(events).map(([key,value])=>({key,value}))};
+}
+function restoreVersionPayload(meta,rows) {
+  if(meta.kind==='array') {
+    const arr=[];
+    for(const r of rows) {
+      const pos=Number(r.key);
+      if(!Number.isSafeInteger(pos) || pos<0 || pos>=meta.recordCount || arr[pos]!==undefined)
+        throw new Error('INTEGRITY_ERROR: indeks acara tidak sah.');
+      arr[pos]=r.value;
+    }
+    if(arr.length!==meta.recordCount || arr.some(v=>v===undefined)) throw new Error('INTEGRITY_ERROR: rekod acara hilang.');
+    return arr;
+  }
+  if(meta.kind!=='events-map') throw new Error('Jenis dataset versi tidak dikenali.');
+  const events=Object.create(null);
+  for(const r of rows){
+    if(Object.prototype.hasOwnProperty.call(events,r.key)) throw new Error('INTEGRITY_ERROR: ID rekod berganda.');
+    events[r.key]=r.value;
+  }
+  return {...meta.base,events:{...events}};
+}
+async function readPublishedVersion(name,knownHead=null) {
+  const {head,api}=versionRefs(name);
+  const headSnap=knownHead||await api.getDocFromServer(head);
+  if(!headSnap.exists()) return null;
+  const pointer=headSnap.data();
+  if(!pointer.versionId || !Number.isSafeInteger(pointer.revision)) throw new Error('INTEGRITY_ERROR: pointer versi tidak sah.');
+  const refs=versionRefs(name,pointer.versionId);
+  const versionSnap=await api.getDocFromServer(refs.version);
+  if(!versionSnap.exists()) throw new Error('RECOVERY_REQUIRED: versi diterbitkan tidak ditemui.');
+  const meta=versionSnap.data();
+  if(meta.dataset!==name || meta.state!=='PUBLISHED' || meta.checksum!==pointer.checksum)
+    throw new Error('INTEGRITY_ERROR: metadata versi tidak sepadan.');
+  const rowsSnap=await api.getDocsFromServer(api.collection(refs.version,'records'));
+  const rows=rowsSnap.docs.map(doc=>doc.data());
+  if(rows.length!==meta.recordCount) throw new Error('INTEGRITY_ERROR: bilangan rekod tidak sepadan.');
+  const payload=restoreVersionPayload(meta,rows);
+  if(await canonicalHash(payload)!==pointer.checksum) throw new Error('INTEGRITY_ERROR: checksum versi tidak sepadan.');
+  const headAfter=await api.getDocFromServer(head);
+  if(!headAfter.exists() || headAfter.data().versionId!==pointer.versionId ||
+     headAfter.data().revision!==pointer.revision) throw new Error('CONFLICT: versi bertukar semasa bacaan. Cuba lagi.');
+  return {exists:true,data:payload,revision:pointer.revision,serverConfirmed:true,versionId:pointer.versionId};
+}
+async function writeVersionChunks(name,importId,payload,expectedRevision,checksum) {
+  requireIsolatedWrite();
+  const {version,job,api}=versionRefs(name,importId);
+  const split=splitVersionPayload(name,payload);
+  if(split.records.length===0) throw new Error('Import kosong tidak dibenarkan.');
+  if(encoder.encode(JSON.stringify(split.base)).length>100000) throw new Error('Metadata dataset terlalu besar.');
+  const manifest={dataset:name,checksum,expectedRevision,recordCount:split.records.length,kind:split.kind,base:split.base};
+  // Create-only idempotent job/version metadata. Existing matching job can be retried.
+  await api.runTransaction(modules.db,async tx=>{
+    const [j,v]=await Promise.all([tx.get(job),tx.get(version)]);
+    if(j.exists()) {
+      const old=j.data();
+      if(old.checksum!==checksum || old.dataset!==name || old.expectedRevision!==expectedRevision)
+        throw new Error('CONFLICT: import ID pernah digunakan untuk data/revisi lain.');
+      if(!v.exists()) throw new Error('RECOVERY_REQUIRED: metadata versi hilang.');
+      return;
+    }
+    if(v.exists()) throw new Error('CONFLICT: ID versi sudah digunakan.');
+    tx.set(job,{...manifest,state:'STAGING',createdAt:api.serverTimestamp()});
+    tx.set(version,{...manifest,state:'STAGING',createdAt:api.serverTimestamp()});
+  });
+  const initial=await api.getDocFromServer(job);
+  if(initial.data().state==='PUBLISHED') return {state:'PUBLISHED',alreadyApplied:true,importId};
+  // Chunk index and document IDs are deterministic; retrying an interrupted batch is harmless.
+  const chunks=[];let chunk=[];let bytes=0;
+  for(const record of split.records){
+    const estimated=encoder.encode(JSON.stringify(record)).length;
+    if(estimated>650000) throw new Error('Rekod individu melebihi had selamat Firestore.');
+    if(chunk.length && (chunk.length>=80 || bytes+estimated>320000)){
+      chunks.push(chunk);chunk=[];bytes=0;
+    }
+    chunk.push(record);bytes+=estimated;
+  }
+  if(chunk.length) chunks.push(chunk);
+  for(let i=0;i<chunks.length;i++) {
+    const progress=api.doc(api.collection(version,'chunks'),String(i).padStart(6,'0'));
+    const existing=await api.getDocFromServer(progress);
+    if(existing.exists() && existing.data().complete===true) continue;
+    const batch=api.writeBatch(modules.db);
+    for(const record of chunks[i]) {
+      const id=await canonicalHash(record.key);
+      const recordRef=api.doc(api.collection(version,'records'),id);
+      batch.set(recordRef,{key:record.key,value:record.value});
+    }
+    batch.set(progress,{complete:true,index:i,count:chunks[i].length,updatedAt:api.serverTimestamp()});
+    await batch.commit();
+  }
+  // Do not publish if a chunk has not landed on the server.
+  const progressSnap=await api.getDocsFromServer(api.collection(version,'chunks'));
+  if(progressSnap.size!==chunks.length || progressSnap.docs.some(d=>d.data().complete!==true))
+    throw new Error('RECOVERY_REQUIRED: sebahagian chunk belum disahkan.');
+  const rowsSnap=await api.getDocsFromServer(api.collection(version,'records'));
+  if(rowsSnap.size!==split.records.length) throw new Error('RECOVERY_REQUIRED: bilangan rekod import tidak sepadan.');
+  const confirmed=restoreVersionPayload(manifest,rowsSnap.docs.map(d=>d.data()));
+  if(await canonicalHash(confirmed)!==checksum)
+    throw new Error('RECOVERY_REQUIRED: checksum import tidak sepadan.');
+  await api.runTransaction(modules.db,async tx=>{
+    const [j,v]=await Promise.all([tx.get(job),tx.get(version)]);
+    if(!j.exists()||!v.exists() || j.data().checksum!==checksum)
+      throw new Error('RECOVERY_REQUIRED: metadata import berubah.');
+    if(j.data().state==='PUBLISHED') return;
+    tx.update(job,{state:'READY_TO_PUBLISH',chunks:chunks.length,verifiedAt:api.serverTimestamp()});
+    tx.update(version,{state:'READY_TO_PUBLISH',chunks:chunks.length,verifiedAt:api.serverTimestamp()});
+  });
+  return {state:'READY_TO_PUBLISH',importId,recordCount:split.records.length,chunks:chunks.length};
+}
 const asyncStorage = Object.freeze({
   statuses: AsyncStorageStatus,
   productionCutoverEnabled:false,
@@ -9240,6 +9405,8 @@ const asyncStorage = Object.freeze({
   },
   async getData(name) {
     const ref=datasetRef(name), {dbmod}=modules.api;
+    const versioned=await readPublishedVersion(name);
+    if(versioned) return versioned;
     const snap=await dbmod.getDocFromServer(ref); // no cache-as-server-confirmation
     if (!snap.exists()) return {exists:false,data:null,revision:0,serverConfirmed:true};
     const obj=snap.data();
@@ -9265,16 +9432,44 @@ const asyncStorage = Object.freeze({
     if(!Number.isSafeInteger(expectedRevision) || expectedRevision<0) throw new Error('expectedRevision wajib (0 untuk cipta baharu).');
     requireIsolatedWrite();
     const ref=datasetRef(name), {dbmod}=modules.api;
+    const activeHead=await dbmod.getDocFromServer(versionRefs(name).head);
+    if(activeHead.exists()) {
+      if(name==='events_data') throw new Error('VERSIONED_DATASET: events_data mutasi memerlukan laluan UI sebenar.');
+      const moduleName=Object.keys(versionedMapping).find(k=>versionedMapping[k]===name);
+      const cloned=JSON.parse(JSON.stringify(value));
+      if(!cloned || typeof cloned!=='object' || Array.isArray(cloned)) throw new Error('Dataset mutasi tidak sah.');
+      const current=await this.getData(name);
+      if(current.revision!==expectedRevision) throw new Error('CONFLICT: revisi versi berubah.');
+      const digest=await canonicalHash({name,expectedRevision,cloned});
+      const id='MUT_'+digest.slice(0,60);
+      const prepared=await writeVersionChunks(name,id,cloned,expectedRevision,await canonicalHash(cloned));
+      if(!['READY_TO_PUBLISH','PUBLISHED'].includes(prepared.state)) throw new Error('RECOVERY_REQUIRED: mutasi versi belum lengkap.');
+      return this.publishVersionedGasImport(moduleName,id,{
+        confirmation:'PUBLISH_TO_ISOLATED_TEST_ONLY',expectedRevision
+      });
+    }
     const payload=cloneJSON(value,name==='events_data');
     const writeChecksum=await hash(payload);
     updateOperation(name,AsyncStorageStatus.SAVING);
     try {
       const revision=await dbmod.runTransaction(modules.db,async tx=>{
-        const old=await tx.get(ref);
+        const head=versionRefs(name).head;
+        const [old,headSnap]=await Promise.all([tx.get(ref),tx.get(head)]);
+        if(headSnap.exists()) throw new Error('VERSIONED_DATASET: gunakan penerbitan versi untuk mutasi dataset.');
         const current=old.exists()?old.data().revision:0;
         if(current!==expectedRevision) throw new Error('CONFLICT: revisi berubah; muat semula data sebelum cuba lagi.');
         const next=current+1;
         tx.set(ref,{revision:next,payload,checksum:writeChecksum,updatedAt:dbmod.serverTimestamp()});
+        if(Object.values(versionedMapping).includes(name)) {
+          const operationId='DASH_'+(await canonicalHash({name,revision:next,checksum:writeChecksum})).slice(0,60);
+          const syncRef=dbmod.doc(modules.db,'async_storage_staging',requireUser().uid,'sync_operations',operationId);
+          // No external Google Sheets request is sent from the browser.
+          // Durable queue processing requires a separately authenticated coordinator.
+          tx.set(syncRef,{operationId,dataset:name,originSystem:'STATISTIX',
+            targetSystem:'GOOGLE_SHEETS',expectedRevision:current,
+            committedRevision:next,payloadHash:writeChecksum,
+            status:'SYNC_PENDING',attempts:0,createdAt:dbmod.serverTimestamp()});
+        }
         return next;
       });
       updateOperation(name,AsyncStorageStatus.PENDING,'Menunggu pengesahan bacaan pelayan');
@@ -9341,6 +9536,97 @@ const asyncStorage = Object.freeze({
         importId,state:verified.data().state,published:verified.data().state==='PUBLISHED'};
     } catch(error) {updateOperation(name,AsyncStorageStatus.FAILED,error.message);throw error;}
   },
+  async stageVersionedGasImport(moduleName, normalizedEvents, {confirmation,expectedRevision,importId}={}) {
+    const name=versionedMapping[moduleName];
+    if(!name || confirmation!=='STAGE_VALIDATED_GAS_IMPORT_ONLY' ||
+       !Number.isSafeInteger(expectedRevision) || expectedRevision<0 ||
+       !/^[A-Za-z0-9_-]{8,96}$/.test(importId||'')) throw new Error('Permintaan import berversi tidak sah.');
+    requireIsolatedWrite();
+    const payload={events:normalizedEvents};
+    const checksum=await canonicalHash(payload);
+    const existing=await this.inspectVersionedImport(importId);
+    if(existing.exists && existing.state==='PUBLISHED') {
+      if(existing.dataset!==name || existing.revision!==expectedRevision)
+        throw new Error('CONFLICT: import telah diterbitkan untuk dataset lain.');
+      const committed=await this.getData(name);
+      if(committed.versionId!==importId) throw new Error('CONFLICT: versi ini bukan lagi aktif.');
+      return {ok:true,serverConfirmed:true,state:'PUBLISHED',importId,alreadyApplied:true};
+    }
+    const current=await this.getData(name);
+    if(current.revision!==expectedRevision) throw new Error('CONFLICT: revisi dataset berubah.');
+    updateOperation(name,AsyncStorageStatus.SAVING,'VERSIONED_STAGING');
+    try {
+      const staged=await writeVersionChunks(name,importId,payload,expectedRevision,checksum);
+      updateOperation(name,AsyncStorageStatus.SAVED,'READY_TO_PUBLISH — bukan data rasmi');
+      return {ok:true,serverConfirmed:true,importId,...staged};
+    }catch(error){updateOperation(name,AsyncStorageStatus.PENDING,'RECOVERY_REQUIRED: '+error.message);throw error;}
+  },
+  async publishVersionedGasImport(moduleName,importId,{confirmation,expectedRevision}={}) {
+    const name=versionedMapping[moduleName];
+    if(!name || confirmation!=='PUBLISH_TO_ISOLATED_TEST_ONLY' ||
+       !Number.isSafeInteger(expectedRevision) || expectedRevision<0 ||
+       !/^[A-Za-z0-9_-]{8,96}$/.test(importId||'')) throw new Error('Penerbitan versi tidak sah.');
+    requireIsolatedWrite();
+    const {head,job,version,api}=versionRefs(name,importId), legacy=datasetRef(name);
+    const ready=await api.getDocFromServer(job);
+    if(!ready.exists() || !['READY_TO_PUBLISH','PUBLISHED'].includes(ready.data().state))
+      throw new Error('RECOVERY_REQUIRED: versi belum lengkap.');
+    const versionSnapshot=await api.getDocFromServer(version);
+    if(!versionSnapshot.exists() || !['READY_TO_PUBLISH','PUBLISHED'].includes(versionSnapshot.data().state))
+      throw new Error('RECOVERY_REQUIRED: metadata versi belum lengkap.');
+    // Re-verify contents before publishing. Atomic head pointer update is the visibility boundary.
+    const rows=await api.getDocsFromServer(api.collection(version,'records'));
+    if(rows.size!==versionSnapshot.data().recordCount ||
+       await canonicalHash(restoreVersionPayload(versionSnapshot.data(),rows.docs.map(d=>d.data())))!==ready.data().checksum)
+      throw new Error('RECOVERY_REQUIRED: pemeriksaan pra-terbit gagal.');
+    updateOperation(name,AsyncStorageStatus.SAVING,'PUBLISHING_VERSION');
+    try {
+      const committed=await api.runTransaction(modules.db,async tx=>{
+        const [h,l,j,v]=await Promise.all([tx.get(head),tx.get(legacy),tx.get(job),tx.get(version)]);
+        if(!j.exists() || !v.exists() || j.data().checksum!==v.data().checksum)
+          throw new Error('RECOVERY_REQUIRED: metadata penerbitan berubah.');
+        if(j.data().state==='PUBLISHED') {
+          if(!h.exists() || h.data().versionId!==importId) throw new Error('CONFLICT: import pernah diterbitkan tetapi versi aktif telah berubah.');
+          return {revision:h.data().revision,alreadyPublished:true};
+        }
+        if(j.data().state!=='READY_TO_PUBLISH' || v.data().state!=='READY_TO_PUBLISH')
+          throw new Error('RECOVERY_REQUIRED: versi belum sedia.');
+        const current=h.exists()?h.data().revision:(l.exists()?l.data().revision:0);
+        if(current!==expectedRevision || j.data().expectedRevision!==expectedRevision)
+          throw new Error('CONFLICT: revisi dataset aktif telah berubah.');
+        const revision=current+1;
+        tx.set(head,{dataset:name,versionId:importId,revision,checksum:j.data().checksum,updatedAt:api.serverTimestamp()});
+        tx.update(version,{state:'PUBLISHED',publishedRevision:revision,publishedAt:api.serverTimestamp()});
+        tx.update(job,{state:'PUBLISHED',publishedRevision:revision,publishedAt:api.serverTimestamp()});
+        // Atomic outbox: a Dashboard mutation creates a durable Sheets-sync request
+        // in the SAME Firestore transaction as the committed active-version pointer.
+        // GAS imports are inbound, so do not echo them back to Google Sheets.
+        const origin=importId.startsWith('MUT_')?'STATISTIX':'GOOGLE_SHEETS';
+        const syncRef=api.doc(modules.db,'async_storage_staging',requireUser().uid,'sync_operations',importId);
+        tx.set(syncRef,{operationId:importId,dataset:name,originSystem:origin,
+          targetSystem:origin==='STATISTIX'?'GOOGLE_SHEETS':'NONE',
+          expectedRevision:current,committedRevision:revision,
+          payloadHash:j.data().checksum,versionId:importId,
+          status:origin==='STATISTIX'?'SYNC_PENDING':'SOURCE_IMPORTED',
+          attempts:0,createdAt:api.serverTimestamp()});
+        return {revision,alreadyPublished:false};
+      });
+      updateOperation(name,AsyncStorageStatus.PENDING,'Menunggu pengesahan pointer dan dataset versi');
+      const confirmed=await this.getData(name);
+      if(!confirmed.serverConfirmed || confirmed.versionId!==importId || confirmed.revision!==committed.revision)
+        throw new Error('RECOVERY_REQUIRED: hasil penerbitan belum disahkan.');
+      updateOperation(name,AsyncStorageStatus.SAVED,'PUBLISHED — versi disahkan pelayan');
+      return {ok:true,state:'PUBLISHED',revision:committed.revision,serverConfirmed:true,alreadyPublished:committed.alreadyPublished};
+    }catch(error){updateOperation(name,AsyncStorageStatus.PENDING,'RECOVERY_REQUIRED: '+error.message);throw error;}
+  },
+  async inspectVersionedImport(importId) {
+    if(!/^[A-Za-z0-9_-]{8,96}$/.test(importId||'')) throw new Error('Import ID tidak sah.');
+    const user=requireReady(),api=modules.api.dbmod;
+    const ref=api.doc(modules.db,'async_storage_staging',user.uid,'import_jobs',importId);
+    const doc=await api.getDocFromServer(ref);
+    return doc.exists()?{exists:true,importId,state:doc.data().state,dataset:doc.data().dataset,
+      revision:doc.data().expectedRevision,recordCount:doc.data().recordCount}:{exists:false};
+  },
   async publishGasImport(moduleName,importId,{confirmation,expectedRevision}={}) {
     const mapping={saringan:'saringan_records','akhir-balapan':'akhir_balapan_records',relay:'relay_records',padang:'padang_records'};
     const name=mapping[moduleName];
@@ -9374,7 +9660,10 @@ const asyncStorage = Object.freeze({
         throw new Error('RECOVERY_REQUIRED: commit mungkin berjaya tetapi bacaan semula tidak sepadan.');
       updateOperation(name,AsyncStorageStatus.SAVED,'PUBLISHED - disahkan pelayan');
       return {ok:true,serverConfirmed:true,state:'PUBLISHED',revision:result.revision,alreadyPublished:result.alreadyPublished};
-    } catch(error) {updateOperation(name,AsyncStorageStatus.FAILED,error.message);throw error;}
+    } catch(error) {
+      updateOperation(name,String(error.message||'').includes('RECOVERY_REQUIRED') ? AsyncStorageStatus.PENDING : AsyncStorageStatus.FAILED,error.message);
+      throw error;
+    }
   },
   async inspectImportJob(importId) {
     const user=requireReady(),{dbmod}=modules.api;
@@ -9409,6 +9698,57 @@ const asyncStorage = Object.freeze({
 });
 Object.defineProperty(window,'StatistixAsyncStorage',{value:asyncStorage,writable:false,configurable:false});
 Object.defineProperty(window,'StatistixFirestoreMigration',{value:migration,writable:false,configurable:false});
+/* TEST CONNECTION ONLY — must be explicitly started by the tester.
+ * Requires public Firebase *test project* config in statistix-test-config.js.
+ * Does not enable production cutover or configure/deploy backend services.
+ */
+const realTest = Object.freeze({
+  status() {
+    const session = migration.connectionInfo();
+    return { ...session,
+      mode: window.StatistixStorageFlow?.mode || 'LEGACY_LOCAL',
+      syncBackend: 'EXTERNAL_DEPLOYMENT_NOT_VERIFIED',
+      sheets: 'EXTERNAL_INTEGRATION_NOT_VERIFIED',
+      productionCutover: false };
+  },
+  async start() {
+    const config=window.STATISTIX_TEST_FIREBASE_CONFIG;
+    if (!config || !config.apiKey || !config.appId || !config.projectId || !config.authDomain ||
+        Object.values(config).some(v=>typeof v==='string' && v.includes('REPLACE_WITH_')))
+      throw new Error('Sila isi statistix-test-config.js dengan konfigurasi Firebase projek UJIAN dahulu.');
+    if (config.projectId === firebaseConfig.projectId)
+      throw new Error('PRODUCTION_BLOCKED: Projek produksi tidak dibenarkan sebagai projek ujian.');
+    if (window.StatistixStorageFlow?.mode !== 'LEGACY_LOCAL')
+      throw new Error('Sesi ujian telah diaktifkan. Gunakan status() atau refresh().');
+    const email=window.prompt('Emel akaun Firebase Authentication UJIAN:');
+    if (!email) return {cancelled:true};
+    const password=window.prompt('Kata laluan akaun UJIAN (tidak disimpan dalam fail):');
+    if (!password) return {cancelled:true};
+    try {
+      const connection=await migration.connectIsolatedTest(config,email,password);
+      if (!connection.isolatedTest || connection.projectId!==config.projectId || !connection.authenticated)
+        throw new Error('Sambungan Firebase ujian tidak disahkan.');
+      const activated=await window.StatistixStorageFlow.enableFirestoreTest('ENABLE_ISOLATED_FIRESTORE_TEST');
+      console.info('[STATISTIX TEST] Isolated Firestore active:', connection.projectId,
+        'datasets loaded:',activated.datasets);
+      return {connection,activated,syncBackend:'NOT_VERIFIED'};
+    } catch(e) {
+      console.error('[STATISTIX TEST] Gagal mengaktifkan Firestore ujian:',e);
+      throw e;
+    }
+  },
+  async refresh() {
+    if (window.StatistixStorageFlow?.mode!=='FIRESTORE_TEST')
+      throw new Error('Aktifkan FIRESTORE_TEST dahulu.');
+    return window.StatistixStorageFlow.reloadTestSnapshots();
+  },
+  leave() {
+    return window.StatistixStorageFlow.disableFirestoreTest();
+  }
+});
+Object.defineProperty(window,'StatistixRealTest',{value:realTest,writable:false,configurable:false});
+console.info('[STATISTIX TEST] Isi konfigurasi projek ujian dalam statistix-test-config.js.');
+console.info('[STATISTIX TEST] Kemudian jalankan: await StatistixRealTest.start()');
 console.info('Firestore staging utility loaded. No migration started. Use StatistixFirestoreMigration.inventory() and downloadBackup().');
 </script>
 </body>
